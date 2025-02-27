@@ -2,20 +2,21 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
 // Assume these icons are imported from an icon library
+import { useSidebar } from "../context/SidebarContext";
 import {
   BoxCubeIcon,
   CalenderIcon,
   ChevronDownIcon,
+  DollarLineIcon,
   GridIcon,
   HorizontaLDots,
+  InfoIcon,
   ListIcon,
   PageIcon,
   PieChartIcon,
   PlugInIcon,
-  TableIcon,
-  UserCircleIcon,
+  TableIcon
 } from "../icons";
-import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
@@ -32,15 +33,50 @@ const navItems: NavItem[] = [
     subItems: [{ name: "Ecommerce", path: "/", pro: false }],
   },
   {
+    icon: <InfoIcon />,
+    name: "Appointments",
+    path: "/appointments",
+  },
+  {
     icon: <CalenderIcon />,
     name: "Calendar",
     path: "/calendar",
   },
   {
-    icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
+    icon: <DollarLineIcon />,
+    name: "Transactions",
+    path: "/transactions",
   },
+  {
+    name: "Manage",
+    icon: <PageIcon />,
+    subItems: [
+      { name: "Leave Management", path: "/leaveManagement", pro: false },
+      { name: "Expertise & Pricing", path: "/expertise", pro: false },
+      { name: "Ratings & Reviews", path: "/ratings", pro: false },
+    ],
+  },
+  {
+    icon: <HorizontaLDots />,
+    name: "Analytics",
+    path: "/analytics",
+  },
+  {
+    icon: <HorizontaLDots />,
+    name: "Teams",
+    path: "/teams",
+  },
+  {
+    icon: <HorizontaLDots />,
+    name: "Shop Settings",
+    path: "/shopSettings",
+  },
+  {
+    icon: <HorizontaLDots />,
+    name: "Settings",
+    path: "/settings",
+  },
+  
   {
     name: "Forms",
     icon: <ListIcon />,
