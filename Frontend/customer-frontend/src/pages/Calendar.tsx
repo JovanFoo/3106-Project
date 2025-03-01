@@ -7,6 +7,9 @@ import { EventInput, DateSelectArg, EventClickArg } from "@fullcalendar/core";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
 import PageMeta from "../components/common/PageMeta";
+import BasicTableOne from "../components/tables/BasicTables/BasicTableOne";
+import PageBreadcrumb from "../components/common/PageBreadCrumb";
+import ComponentCard from "../components/common/ComponentCard";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -121,6 +124,7 @@ const Calendar: React.FC = () => {
         title="React.js Calendar Dashboard | TailAdmin - Next.js Admin Dashboard Template"
         description="This is React.js Calendar Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
+      <PageBreadcrumb pageTitle="Appointments" />
       <div className="rounded-2xl border  border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="custom-calendar">
           <FullCalendar
@@ -139,7 +143,7 @@ const Calendar: React.FC = () => {
             eventContent={renderEventContent}
             customButtons={{
               addEventButton: {
-                text: "Add Event +",
+                text: "Book an Appointment +",
                 click: openModal,
               },
             }}
@@ -259,6 +263,11 @@ const Calendar: React.FC = () => {
             </div>
           </div>
         </Modal>
+      </div>
+      <div className="p-4">
+        <ComponentCard title="Current appointments">
+          <BasicTableOne />
+        </ComponentCard>
       </div>
     </>
   );

@@ -9,14 +9,12 @@ import {
   GridIcon,
   HorizontaLDots,
   ListIcon,
-  PageIcon,
   PieChartIcon,
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
   name: string;
@@ -29,11 +27,11 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    path: "/",
   },
   {
     icon: <CalenderIcon />,
-    name: "Calendar",
+    name: "Appointments",
     path: "/calendar",
   },
   {
@@ -42,54 +40,46 @@ const navItems: NavItem[] = [
     path: "/profile",
   },
   {
-    name: "Forms",
+    name: "Our Team",
     icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
+    path: "/form-elements",
   },
   {
-    name: "Tables",
+    name: "Membership",
     icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
-    subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
-    ],
+    path: "/basic-tables",
   },
 ];
 
 const othersItems: NavItem[] = [
-  {
-    icon: <PieChartIcon />,
-    name: "Charts",
-    subItems: [
-      { name: "Line Chart", path: "/line-chart", pro: false },
-      { name: "Bar Chart", path: "/bar-chart", pro: false },
-    ],
-  },
-  {
-    icon: <BoxCubeIcon />,
-    name: "UI Elements",
-    subItems: [
-      { name: "Alerts", path: "/alerts", pro: false },
-      { name: "Avatar", path: "/avatars", pro: false },
-      { name: "Badge", path: "/badge", pro: false },
-      { name: "Buttons", path: "/buttons", pro: false },
-      { name: "Images", path: "/images", pro: false },
-      { name: "Videos", path: "/videos", pro: false },
-    ],
-  },
-  {
-    icon: <PlugInIcon />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
-    ],
-  },
+  //   {
+  //     icon: <PieChartIcon />,
+  //     name: "Charts",
+  //     subItems: [
+  //       { name: "Line Chart", path: "/line-chart", pro: false },
+  //       { name: "Bar Chart", path: "/bar-chart", pro: false },
+  //     ],
+  //   },
+  //   {
+  //     icon: <BoxCubeIcon />,
+  //     name: "UI Elements",
+  //     subItems: [
+  //       { name: "Alerts", path: "/alerts", pro: false },
+  //       { name: "Avatar", path: "/avatars", pro: false },
+  //       { name: "Badge", path: "/badge", pro: false },
+  //       { name: "Buttons", path: "/buttons", pro: false },
+  //       { name: "Images", path: "/images", pro: false },
+  //       { name: "Videos", path: "/videos", pro: false },
+  //     ],
+  //   },
+  //   {
+  //     icon: <PlugInIcon />,
+  //     name: "Authentication",
+  //     subItems: [
+  //       { name: "Sign In", path: "/signin", pro: false },
+  //       { name: "Sign Up", path: "/signup", pro: false },
+  //     ],
+  //   },
 ];
 
 const AppSidebar: React.FC = () => {
@@ -359,7 +349,7 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
+                  ""
                 ) : (
                   <HorizontaLDots />
                 )}
@@ -368,7 +358,6 @@ const AppSidebar: React.FC = () => {
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
     </aside>
   );
