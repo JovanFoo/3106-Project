@@ -23,9 +23,11 @@ export default function SignInForm() {
       })
       .then((res: AxiosResponse) => {
         console.log(res.data);
+        // TODO: handle response
       })
       .catch((err) => {
         console.log(err);
+        // TODO: handle error
       });
   };
 
