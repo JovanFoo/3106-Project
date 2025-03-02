@@ -15,7 +15,7 @@ import {
   PageIcon,
   PieChartIcon,
   PlugInIcon,
-  TableIcon
+  TableIcon,
 } from "../icons";
 import SidebarWidget from "./SidebarWidget";
 
@@ -76,7 +76,7 @@ const navItems: NavItem[] = [
     name: "Settings",
     path: "/settings",
   },
-  
+
   {
     name: "Forms",
     icon: <ListIcon />,
@@ -404,7 +404,7 @@ const AppSidebar: React.FC = () => {
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
+        {/* {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null} */}
       </div>
     </aside>
   );
