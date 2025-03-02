@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { createCookieSessionStorage, Link } from "react-router";
 import axios, { AxiosResponse } from "axios";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
+import { useNavigate } from "react-router-dom";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -14,8 +15,12 @@ export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    function next() {
+      navigate("/");
+    }
     await axios
       .post(api_address, {
         email,
@@ -23,6 +28,9 @@ export default function SignInForm() {
       })
       .then((res: AxiosResponse) => {
         console.log(res.data);
+        sessionStorage.setItem("token", "res.data.token");
+
+        next();
         // TODO: handle response
       })
       .catch((err) => {
@@ -34,13 +42,13 @@ export default function SignInForm() {
   return (
     <div className="flex flex-col flex-1">
       <div className="w-full max-w-md pt-10 mx-auto">
-        <Link
+        {/* <Link
           to="/"
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
           <ChevronLeftIcon className="size-5" />
           Back to dashboard
-        </Link>
+        </Link> */}
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>

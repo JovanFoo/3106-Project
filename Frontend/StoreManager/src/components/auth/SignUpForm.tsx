@@ -5,6 +5,7 @@ import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
+import { useNavigate } from "react-router-dom";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -16,8 +17,14 @@ export default function SignUpForm() {
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!handleValidation()) return;
+    function next() {
+      navigate("/signin");
+    }
     await axios
       .post(api_address, {
         firstName,
@@ -28,24 +35,38 @@ export default function SignUpForm() {
       })
       .then((res: AxiosResponse) => {
         console.log(res.data);
+        next();
         // TODO: handle response
       })
       .catch((err) => {
         console.log(err);
+        alert("An error occurred. Please try again later.");
         // TODO: handle error
       });
+  };
+
+  const handleValidation = () => {
+    if (!isChecked) {
+      alert("Please agree to the terms and conditions");
+      return false;
+    }
+    if (!email || !firstName || !lastName || !username || !password) {
+      alert("Please fill in all the required fields");
+      return false;
+    }
+    return true;
   };
 
   return (
     <div className="flex flex-col flex-1 w-full overflow-y-auto lg:w-1/2 no-scrollbar">
       <div className="w-full max-w-md mx-auto mb-5 sm:pt-10">
-        <Link
+        {/* <Link
           to="/"
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
           <ChevronLeftIcon className="size-5" />
           Back to dashboard
-        </Link>
+        </Link> */}
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
