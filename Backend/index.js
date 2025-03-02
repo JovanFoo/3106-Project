@@ -9,6 +9,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.post("/", (req, res) => {
+  console.log(req.body);
   res.send(req.body);
 });
 
