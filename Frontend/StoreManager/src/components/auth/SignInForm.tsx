@@ -1,14 +1,34 @@
 import { useState } from "react";
 import { Link } from "react-router";
+import axios, { AxiosResponse } from "axios";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await axios
+      .post(api_address, {
+        email,
+        password,
+      })
+      .then((res: AxiosResponse) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <div className="flex flex-col flex-1">
       <div className="w-full max-w-md pt-10 mx-auto">
@@ -31,14 +51,19 @@ export default function SignInForm() {
             </p>
           </div>
           <div>
-            <form>
+            <form onSubmit={handleSignIn}>
               {/* TODO: edit form */}
               <div className="space-y-6">
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" name="email" />
+                  <Input
+                    placeholder="info@gmail.com"
+                    name="email"
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
+                  />
                 </div>
                 <div>
                   <Label>
@@ -49,6 +74,8 @@ export default function SignInForm() {
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       name="password"
+                      onChange={(e) => setPassword(e.target.value)}
+                      value={password}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
