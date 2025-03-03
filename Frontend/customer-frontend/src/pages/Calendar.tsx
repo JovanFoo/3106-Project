@@ -10,6 +10,7 @@ import PageMeta from "../components/common/PageMeta";
 import BasicTableOne from "../components/tables/BasicTables/BasicTableOne";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import ComponentCard from "../components/common/ComponentCard";
+import Button from "../components/ui/button/Button";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -266,6 +267,7 @@ const Calendar: React.FC = () => {
       </div>
       <div className="p-4">
         <ComponentCard title="Current appointments">
+          <Button children="Completed Appointments" />
           <BasicTableOne />
         </ComponentCard>
       </div>
