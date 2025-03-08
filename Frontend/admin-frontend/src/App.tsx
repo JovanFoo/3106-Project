@@ -12,12 +12,14 @@ import Buttons from "./pages/UiElements/Buttons";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
-import BasicTables from "./pages/Tables/BasicTables";
+import BasicTables from "./pages/Tables/ManageBranch";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import BranchDetails from "./pages/BranchDetails";
+import Discounts from "./pages/Discounts";
 
 export default function App() {
   return (
@@ -33,6 +35,8 @@ export default function App() {
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />
+            <Route path="/branchdetails" element={<BranchDetails />} />
+            <Route path="/discounts" element={<Discounts />} />
 
             {/* Forms */}
             <Route path="/form-elements" element={<FormElements />} />
