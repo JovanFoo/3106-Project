@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "nodemon index.js",
-    "serverenv": "nodemon --env-file=.env index.js"
+    "server": "nodemon --env-file=.env index.js"
   },
   "author": "",
   "license": "ISC",
