@@ -2,7 +2,7 @@ const express = require("express");
 
 const ApiRouter = express.Router();
 
-const CustomerRouter = require("./customerRoute.js");
+const CustomerRouter = require("./CustomerRoute.js");
 const AuthRouter = require("./AuthRoute.js");
 
 ApiRouter.use("/customers", CustomerRouter);
