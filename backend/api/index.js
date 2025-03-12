@@ -31,6 +31,9 @@ app.use(express.static("public"));
 
 app.use("/api", ApiRouter);
 
+app.get("/", (req, res) => {
+  res.send("Welcome to the API");
+});
 app.listen(process.env.PORT, () => {
   console.log("Server is running on port 3000");
 });
