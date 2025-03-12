@@ -12,7 +12,7 @@ const AuthMiddleware = {
     next();
   },
   async authCustomerOrStylistToken(req, res, next) {
-    console.log("AuthMiddleware > only Customer can access");
+    console.log("AuthMiddleware > only Customer Or Stylist can access");
     token = req.headers["authorization"];
     if (token == null) return res.json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
