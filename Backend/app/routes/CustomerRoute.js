@@ -3,7 +3,7 @@ const express = require("express");
 const CustomerRouter = express.Router();
 
 const CustomerController = require("../controllers/CustomerController.js");
-const AuthMiddleware = require("../middlewares/authMiddleware.js");
+const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 
 CustomerRouter.get(
   "/:id",
