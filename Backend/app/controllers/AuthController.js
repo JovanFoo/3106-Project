@@ -1,6 +1,6 @@
 const mongodb = require("./config/database.js");
 const Customer = require("../models/Customer.js");
-const PasswordHash = require("../utils/PasswordHash.js");
+const PasswordHash = require("../utils/passwordHash.js");
 const jwt = require("../utils/jwt.js");
 const AuthController = {
   async loginCustomer(req, res) {
