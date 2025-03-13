@@ -20,16 +20,19 @@ const customerSchema = new Schema({
     type: String,
     required: true,
   },
+  profilePicture: {
+    type: String,
+  },
   loyaltyPoints: {
     type: Number,
     default: 0,
   },
-  // appointments: [
-  //   {
-  //     type: Schema.Types.ObjectId,
-  //     ref: "Appointment",
-  //   },
-  // ],
+  appointments: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Appointment",
+    },
+  ],
 });
 
 const Customer = mongose.model("Customer", customerSchema);
