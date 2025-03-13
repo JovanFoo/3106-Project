@@ -45,7 +45,7 @@ const AuthController = {
       newCustomer.password = undefined;
       return res.status(201).json(newCustomer);
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
       return res.status(400).json({ message: "Error creating user" });
     }
   },
