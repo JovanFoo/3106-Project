@@ -1,0 +1,98 @@
+const mongodb = require("./config/database.js");
+const Customer = require("../models/Customer.js");
+const Appointment = require("../models/Appointment.js");
+const PasswordHash = require("../utils/passwordHash.js");
+const CustomerController = require("./CustomerController.js");
+
+const AppointmentController = {
+  // Create a new appointment
+  async create(req, res) {
+    console.log("AppointmentController > create");
+    const id = req.userId;
+    let { date, request, totalAmount, service } = req.body;
+    date = new Date(date);
+    totalAmount = parseFloat(totalAmount);
+    try {
+      const appointment = new Appointment({
+        date,
+        request,
+        totalAmount,
+        service,
+      });
+      await appointment.save();
+      const customer = await Customer.findByIdAndUpdate(id, {
+        $push: { appointments: appointment },
+      });
+      if (!customer) {
+        return res.status(400).json({ message: "Error creating appointment" });
+      }
+      return res.status(201).json(appointment);
+    } catch (error) {
+      console.log(error.message);
+      return res.status(400).json({ message: error.message });
+    }
+  },
+  // Retrieve a appointment by id
+  async retrieve(req, res) {
+    console.log("AppointmentController > retrieve");
+    const { id } = req.params;
+    const appointment = await Appointment.findOne({ _id: id });
+    console.log(appointment);
+    if (appointment) {
+      return res.status(200).json(appointment);
+    } else {
+      return res.status(400).json({ message: "Error retrieving appointment" });
+    }
+  },
+  // Update a appointment's date request by id
+  async update(req, res) {
+    console.log("AppointmentController > update");
+    const { id } = req.params;
+    const { date, request, totalAmount } = req.body;
+    const appointment = await Appointment.findOne({ _id: id });
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+    appointment.date = date ? new Date(date) : appointment.date;
+    appointment.request = request ? request : appointment.request;
+    appointment.totalAmount = totalAmount
+      ? parseFloat(totalAmount)
+      : appointment.totalAmount;
+
+    await appointment.save();
+    return res.status(200).json(appointment);
+  },
+  // Delete a customer by username
+  async delete(req, res) {
+    console.log("AppointmentController > delete");
+    const { id } = req.customerId;
+    const customer = await Customer.findOne({ _id: id });
+    customer.appointments.filter((appointment) => {
+      return appointment._id !== id;
+    });
+    await customer.save();
+    const appointment = await Appointment.findByIdAndDelete(id);
+
+    if (customer) {
+      return res
+        .status(204)
+        .json({ message: "Appointment deleted successfully" });
+    } else {
+      return res.status(400).json({ message: "Error deleting appointment" });
+    }
+  },
+
+  async updateCompleted(req, res) {
+    console.log("AppointmentController > update");
+    const { id } = req.params;
+    const appointment = await Appointment.findOne({ _id: id });
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+    appointment.isCompleted = true;
+    await appointment.save();
+    return res.status(200).json(appointment);
+  },
+};
+
+module.exports = AppointmentController;

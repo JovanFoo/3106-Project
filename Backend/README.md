@@ -25,22 +25,22 @@ http://localhost:8888/api
 
 ## 2⃣ Customer Endpoints
 
-| Method  | Endpoint         | Description all actions require JWT authentication           |
-| ------- | ---------------- | ------------------------------------------------------------ |
-| **GET** | `/customers/:id` | Get a user profile                                           |
-| **PUT** | `/customers/:id` | Update user profile (e.g., username, email, profile picture) |
+| Method  | Endpoint         | Description all actions require JWT authentication           | Completed |
+| ------- | ---------------- | ------------------------------------------------------------ | --------- |
+| **GET** | `/customers/:id` | Get a user profile                                           | ✅        |
+| **PUT** | `/customers/:id` | Update user profile (e.g., username, email, profile picture) | ✅        |
 
 ---
 
-## 3⃣ Question Endpoints
+## 3⃣ Appointment (Customer) Endpoints
 
-| Method     | Endpoint         | Description                          |
-| ---------- | ---------------- | ------------------------------------ |
-| **GET**    | `/questions`     | Get all questions                    |
-| **GET**    | `/questions/:id` | Get a specific question by ID        |
-| **POST**   | `/questions`     | Create a new question (Requires JWT) |
-| **PUT**    | `/questions/:id` | Update a question (Requires JWT)     |
-| **DELETE** | `/questions/:id` | Delete a question (Requires JWT)     |
+| Method     | Endpoint            | Description all actions require JWT authentication | Completed |
+| ---------- | ------------------- | -------------------------------------------------- | --------- |
+| **GET**    | `/appointments`     | Get customer's appointments                        | ✅        |
+| **GET**    | `/appointments/:id` | Get a specific question by ID                      | ✅        |
+| **POST**   | `/appointments`     | Create a new question (Requires JWT)               | ✅        |
+| **PUT**    | `/appointments/:id` | Update a question (Requires JWT)                   | ✅        |
+| **DELETE** | `/appointments/:id` | Delete a question (Requires JWT)                   | ✅        |
 
 ---
 
