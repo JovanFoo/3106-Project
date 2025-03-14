@@ -24,6 +24,12 @@ const appointmentSchema = new Schema({
       ref: "Service",
     },
   ],
+  review: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Review",
+    },
+  ],
 });
 
 const Appointment = mongose.model("Appointment", appointmentSchema);
