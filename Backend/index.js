@@ -2,13 +2,12 @@ const express = require("express");
 const app = express();
 
 const cors = require("cors");
-
 const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 app.set("view engine", "ejs");
-app.set("views", __dirname + "/../views");
+app.set("views", path.join(__dirname + "/../views"));
 const corsOptions = {
   origin: "*",
   credentials: true,
