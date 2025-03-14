@@ -4,11 +4,30 @@ const secretKey = process.env.JWT_SECRET;
 const expiry = process.env.JWT_EXPIRY;
 
 const jwt = {
-  generateToken(userId, type) {
-    return jsonwebtoken.sign({ userId: userId + " " + type }, secretKey, {
+  generateCustomerToken(userId) {
+    return jsonwebtoken.sign({ userId: userId + " Customer" }, secretKey, {
       expiresIn: expiry,
     });
   },
+  generateStylistToken(userId) {
+    return jsonwebtoken.sign({ userId: userId + " Stylist" }, secretKey, {
+      expiresIn: expiry,
+    });
+  },
+  generateStylistManagerToken(userId) {
+    return jsonwebtoken.sign(
+      { userId: userId + " StylistManager" },
+      secretKey,
+      {
+        expiresIn: expiry,
+      }
+    );
+  },
+  // generateToken(userId, type) {
+  //   return jsonwebtoken.sign({ userId: userId + " " + type }, secretKey, {
+  //     expiresIn: expiry,
+  //   });
+  // },
 
   decodeToken(token) {
     return jsonwebtoken.verify(token, secretKey, (err, decoded) => {

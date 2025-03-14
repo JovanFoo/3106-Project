@@ -14,7 +14,7 @@ const AuthController = {
       );
       if (isMatch) {
         customer.password = undefined;
-        const token = jwt.generateToken(customer._id, "Customer");
+        const token = jwt.generateCustomerToken(customer._id);
         return res.status(200).json({ customer, token });
       }
     }
