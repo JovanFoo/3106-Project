@@ -7,7 +7,7 @@
     "server": "nodemon --env-file=.env index.js",
     "vercel-build": "",
     "build": "npm install",
-    "start": "node api/index.js"
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
