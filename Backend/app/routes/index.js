@@ -18,4 +18,10 @@ ApiRouter.use("/Appointments", AppointmentRouter);
 // ApiRouter.use("/expertise", CustomerRouter);
 // ApiRouter.use("/stylists", CustomerRouter);
 
+ApiRouter.get("/", (req, res) => {
+  res.send("API is working");
+});
+ApiRouter.post("/", (req, res) => {
+  res.send("API is working");
+});
 module.exports = ApiRouter;
