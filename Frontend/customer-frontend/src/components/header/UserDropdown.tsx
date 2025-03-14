@@ -5,6 +5,8 @@ import { Link } from "react-router";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const [name, setname] = useState("");
+  const [email, setemail] = useState("");
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -51,10 +53,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            Musharof Chowdhury
+            {name}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            randomuser@pimjo.com
+            {email}
           </span>
         </div>
 
