@@ -62,16 +62,17 @@ const AppointmentController = {
     await appointment.save();
     return res.status(200).json(appointment);
   },
-  // Delete a customer by username
+  // Delete an appointment by appointment id only if the customer can delete
   async delete(req, res) {
     console.log("AppointmentController > delete");
-    const { id } = req.customerId;
-    const customer = await Customer.findOne({ _id: id });
+    const { customerId } = req.userId;
+    const { appointmentId } = req.params.id;
+    const customer = await Customer.findOne({ _id: customerId });
     customer.appointments.filter((appointment) => {
-      return appointment._id !== id;
+      return appointment._id !== appointmentId;
     });
     await customer.save();
-    const appointment = await Appointment.findByIdAndDelete(id);
+    const appointment = await Appointment.findByIdAndDelete(appointmentId);
 
     if (customer) {
       return res
@@ -81,7 +82,7 @@ const AppointmentController = {
       return res.status(400).json({ message: "Error deleting appointment" });
     }
   },
-
+  // Update a appointment's isCompleted by id
   async updateCompleted(req, res) {
     console.log("AppointmentController > update");
     const { id } = req.params;
