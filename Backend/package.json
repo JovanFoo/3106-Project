@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "nodemon --env-file=.env index.js",
-    "vercel-build": "npm install",
+    "vercel-build": "",
     "build": "npm install",
     "start": "node api/index.js"
   },
