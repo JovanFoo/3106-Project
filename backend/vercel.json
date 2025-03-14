@@ -7,5 +7,5 @@
     }
   ],
   "routes": [{ "src": "/(.*)", "dest": "/" }],
-  "rewrite": [{ "source": "/(.*)", "destination": "/api" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
 }
