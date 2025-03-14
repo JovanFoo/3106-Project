@@ -10,7 +10,7 @@ const corsOptions = {
   credentials: true,
   optionSuccessStatus: 200,
 };
-
+const a = 0;
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
