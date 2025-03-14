@@ -3,7 +3,7 @@ const Promotion = require("../models/Customer.js");
 const PasswordHash = require("../utils/passwordHash.js");
 
 const PromotionController = {
-  // Create a new appointment
+  // Create a new promo
   async create(req, res) {
     console.log("promocontroller > create");
     const id = req.userId;
@@ -53,6 +53,34 @@ const PromotionController = {
     } else {
       return res.status(400).json({ message: "Error deleting appointment" });
     }
+  },
+
+  async update(req, res) {
+    console.log("promocontroller > update");
+    const { id } = req.params;
+    const { promotionName, promotionAmt, isClaimed } = req.body;
+    const promotion = await Promotion.findOne({ _id: id });
+    let existingPromotion = await Customer.findOne({
+      promotionName: promotionName,
+    });
+    if (
+      existingPromotion &&
+      promotion._id.toHexString() !== existingPromotion._id.toHexString()
+    ) {
+      console.log(
+        "existingCustomer._id != customer._id",
+        existingPromotion._id,
+        promotion._id
+      );
+      return res.status(400).json({ message: "Username already exists" });
+    }
+
+    promotion.promotionName = name ? name : promotion.name;
+    promotion.promotionAmt = username ? username : promotionAmt;
+    promotion.isClaimed = email ? email : promotion.isClaimed;
+    await customer.save();
+    customer.password = undefined;
+    return res.status(200).json(promotion);
   },
 
   //   async updateCompleted(req, res) {
