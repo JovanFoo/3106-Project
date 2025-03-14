@@ -5,6 +5,8 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+app.set("view engine", "ejs");
+app.set("views", "./app/views");
 const corsOptions = {
   origin: "*",
   credentials: true,
@@ -26,12 +28,14 @@ app.use(
 );
 
 const ApiRouter = require("./app/routes/index.js");
-
+const ViewRouter = require("./app/routes/View.js");
 app.use(express.static("public"));
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
 app.post("/", (req, res) => res.send("Express on Vercel"));
+
 app.use("/api", ApiRouter);
+app.use("/", ViewRouter);
 app.listen(process.env.PORT, () => {
   console.log("Server is running on port " + process.env.PORT);
 });
