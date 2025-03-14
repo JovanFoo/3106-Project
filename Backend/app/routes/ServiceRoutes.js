@@ -1,0 +1,27 @@
+const express = require("express");
+
+const ServiceRouter = express.Router();
+
+const ServiceController = require("../controllers/ServiceController.js");
+const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
+const Service = require("../models/Service.js");
+// get svc by id
+ServiceRouter.get(
+  "/:id",
+  AuthMiddleware.authCustomerToken,
+  ServiceController.retrieve
+);
+// update svc by id
+ServiceRouter.put(
+  "/:id",
+  AuthMiddleware.authCustomerToken,
+  ServiceController.update
+);
+// delete promo by id (only a login customer can delete their account)
+ServiceRouter.delete(
+  "/",
+  AuthMiddleware.authCustomerToken,
+  ServiceController.delete
+);
+
+module.exports = ServiceRouter;
