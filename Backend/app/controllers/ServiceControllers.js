@@ -1,87 +1,95 @@
 const mongodb = require("./config/database.js");
-const Service = require("../models/Customer.js");
-const PasswordHash = require("../utils/passwordHash.js");
+const Service = require("../models/Service.js");
 
 const ServiceController = {
-  // Create a new appointment
+  // Create a new service
   async create(req, res) {
     console.log("serviceController > create");
-    const id = req.userId;
-    let { date, request, totalAmount, service } = req.body;
-    date = new Date(date);
-    totalAmount = parseFloat(totalAmount);
+
+    let { name, duration, description } = req.body;
+
     try {
-      const service = new Service({
+      const newService = new Service({
         name,
         duration,
         description,
       });
-      const svc = await service.save();
-      if (!svc) {
-        return res.status(400).json({ message: "Error creating svc" });
+
+      const savedService = await newService.save();
+      if (!savedService) {
+        return res.status(400).json({ message: "Error creating service" });
       }
-      return res.status(201).json(svc);
+      return res.status(201).json(savedService);
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
       return res.status(400).json({ message: error.message });
     }
   },
-  // Retrieve a svc by id
+
+  // Retrieve a service by ID
   async retrieve(req, res) {
     console.log("svccontroller > retrieve");
     const { id } = req.params;
-    const service = await Service.findOne({ _id: id });
-    console.log(service);
-    if (service) {
-      return res.status(200).json(service);
-    } else {
-      return res.status(400).json({ message: "Error retrieving appointment" });
-    }
-  },
-  // Update a svc's date request by id
-  async update(req, res) {
-    //console.log("AppointmentController > update");
-    const { id } = req.params;
-    const { date, request, totalAmount } = req.body;
-    const appointment = await Appointment.findOne({ _id: id });
-    if (!appointment) {
-      return res.status(404).json({ message: "Appointment not found" });
-    }
-    appointment.date = date ? new Date(date) : appointment.date;
-    appointment.request = request ? request : appointment.request;
-    appointment.totalAmount = totalAmount
-      ? parseFloat(totalAmount)
-      : appointment.totalAmount;
 
-    await appointment.save();
-    return res.status(200).json(appointment);
+    try {
+      const service = await Service.findOne({ _id: id });
+      if (service) {
+        return res.status(200).json(service);
+      } else {
+        return res.status(404).json({ message: "Service not found" });
+      }
+    } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ message: "Error retrieving service" });
+    }
   },
-  // Delete a service by id
+
+  // Update a service by ID
+  async update(req, res) {
+    console.log("serviceController > update");
+    const { id } = req.params;
+    const { name, duration, description } = req.body;
+
+    try {
+      const service = await Service.findOne({ _id: id });
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+
+      service.name = name || service.name;
+      service.duration = duration || service.duration;
+      service.description = description || service.description;
+
+      await service.save();
+      return res.status(200).json(service);
+    } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ message: "Error updating service" });
+    }
+  },
+
+  // Delete a service by ID
   async delete(req, res) {
     console.log("svccontroller > delete");
-    const { id } = req.customerId;
-    const appointment = await Service.findByIdAndDelete(id);
+    const { id } = req.params; // Fixed parameter extraction
 
-    if (appointment) {
-      return res
-        .status(204)
-        .json({ message: "Appointment deleted successfully" });
-    } else {
-      return res.status(400).json({ message: "Error deleting appointment" });
+    try {
+      const service = await Service.findByIdAndDelete(id);
+
+      if (service) {
+        return res
+          .status(204)
+          .json({ message: "Service deleted successfully" });
+      } else {
+        return res.status(404).json({ message: "Service not found" });
+      }
+    } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ message: "Error deleting service" });
     }
   },
-
-  //   async updateCompleted(req, res) {
-  //     console.log("AppointmentController > update");
-  //     const { id } = req.params;
-  //     const appointment = await Appointment.findOne({ _id: id });
-  //     if (!appointment) {
-  //       return res.status(404).json({ message: "Appointment not found" });
-  //     }
-  //     appointment.isCompleted = true;
-  //     await appointment.save();
-  //     return res.status(200).json(appointment);
-  //   },
 };
+
+module.exports = ServiceController;
 
 module.exports = ServiceController;
