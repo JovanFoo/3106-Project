@@ -22,6 +22,18 @@ const serviceSchema = new Schema({
       ref: "Promotion",
     },
   ],
+  ServiceRate: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "ServiceRate",
+    },
+  ],
+  ExpertiseRequired: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Expertise",
+    },
+  ],
 });
 
 const Service = mongose.model("Service", serviceSchema);
