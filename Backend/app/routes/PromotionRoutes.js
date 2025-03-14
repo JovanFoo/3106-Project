@@ -2,7 +2,7 @@ const express = require("express");
 
 const PromotionRouter = express.Router();
 
-const PromotionController = require("../controllers/CustomerController.js");
+const PromotionController = require("../controllers/PromotionController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Promotion = require("../models/Promotion.js");
 // get promo by id
