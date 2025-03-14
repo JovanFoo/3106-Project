@@ -23,11 +23,16 @@ const jwt = {
       }
     );
   },
-  // generateToken(userId, type) {
-  //   return jsonwebtoken.sign({ userId: userId + " " + type }, secretKey, {
-  //     expiresIn: expiry,
-  //   });
-  // },
+
+  generateCustomerResetToken(userId) {
+    return jsonwebtoken.sign(
+      { userId: userId + " Customer-Reset" },
+      secretKey,
+      {
+        expiresIn: expiry,
+      }
+    );
+  },
 
   decodeToken(token) {
     return jsonwebtoken.verify(token, secretKey, (err, decoded) => {

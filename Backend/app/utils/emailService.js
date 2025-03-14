@@ -12,14 +12,13 @@ var transporter = nodemailer.createTransport({
   },
 });
 
-var mailOptions = {
-  from: "salonflow123@gmail.com",
-  to: "tanjianfeng01@gmail.com",
-  subject: "Sending Email using Node.js",
-  text: "That was easy!",
-};
-
-const sendMessage = async () => {
+const resetPassword = async (to, name, token) => {
+  var mailOptions = {
+    from: "salonflow123@gmail.com",
+    to: to,
+    subject: `Reset your password`,
+    text: `Hey ${name}, We have received a request to reset your SalonFlow® account password. If you did not make this request, please ignore this email. Otherwise, you can reset your password using the link below. Reset Password: ${process.env.CLIENT_URL}/reset-password/${token}`,
+  };
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
@@ -29,4 +28,4 @@ const sendMessage = async () => {
   });
 };
 
-module.exports = sendMessage;
+module.exports = { resetPassword };

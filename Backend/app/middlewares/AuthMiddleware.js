@@ -45,6 +45,27 @@ const AuthMiddleware = {
     req.userId = decoded.values.userId;
     next();
   },
+
+  async authCustomerResetToken(req, res, next) {
+    console.log("AuthMiddleware > only Customer can access");
+    token = req.params.token;
+    if (token == null) return res.render("404");
+    decoded = jwt.decodeToken(token);
+    if (!decoded.status) return res.render("404");
+    if (decoded.values.type != "Customer-Reset") return res.render("404");
+    req.userId = decoded.values.userId;
+    next();
+  },
+  async authCustomerResetingToken(req, res, next) {
+    console.log("AuthMiddleware > only Customer can access");
+    token = req.body.token;
+    if (token == null) return res.render("404");
+    decoded = jwt.decodeToken(token);
+    if (!decoded.status) return res.render("404");
+    if (decoded.values.type != "Customer-Reset") return res.render("404");
+    req.userId = decoded.values.userId;
+    next();
+  },
 };
 
 module.exports = AuthMiddleware;
