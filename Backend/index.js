@@ -10,7 +10,7 @@ const corsOptions = {
   credentials: true,
   optionSuccessStatus: 200,
 };
-
+const a = 0;
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -29,8 +29,9 @@ const ApiRouter = require("./app/routes/index.js");
 
 app.use(express.static("public"));
 
+app.get("/", (req, res) => res.send("Express on Vercel"));
+app.post("/", (req, res) => res.send("Express on Vercel"));
 app.use("/api", ApiRouter);
-
 app.listen(process.env.PORT, () => {
   console.log("Server is running on port " + process.env.PORT);
 });
