@@ -3,6 +3,7 @@ const Customer = require("../models/Customer.js");
 const Appointment = require("../models/Appointment.js");
 const PasswordHash = require("../utils/passwordHash.js");
 const CustomerController = require("./CustomerController.js");
+const StylistController = require("./StylistController.js");
 
 const AppointmentController = {
   // Create a new appointment
@@ -23,6 +24,7 @@ const AppointmentController = {
       const customer = await Customer.findByIdAndUpdate(id, {
         $push: { appointments: appointment },
       });
+      // TODO: add relationship to stylist also. stylist has a list of appts
       if (!customer) {
         return res.status(400).json({ message: "Error creating appointment" });
       }
