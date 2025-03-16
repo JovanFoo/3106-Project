@@ -1,5 +1,5 @@
+const mongodb = require("./config/database.js");
 const Branch = require("../models/Branch");
-
 const BranchController = {
   // Create a new branch
   async create(req, res) {
