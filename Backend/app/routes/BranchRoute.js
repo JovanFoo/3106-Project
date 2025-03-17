@@ -7,7 +7,7 @@ const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 // Create a new branch (Auth: admin)
 BranchRouter.post(
   "/",
-  AuthMiddleware.authAdminToken,
+  AuthMiddleware.authStylistManagerToken,
   BranchController.create
 );
 
@@ -20,14 +20,14 @@ BranchRouter.get("/:id", BranchController.retrieve);
 // Update branch details (Auth: admin)
 BranchRouter.put(
   "/:id",
-  AuthMiddleware.authAdminToken,
+  AuthMiddleware.authStylistManagerToken,
   BranchController.update
 );
 
 // Delete a branch (Auth: admin)
 BranchRouter.delete(
   "/:id",
-  AuthMiddleware.authAdminToken,
+  AuthMiddleware.authStylistManagerToken,
   BranchController.delete
 );
 

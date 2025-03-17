@@ -12,7 +12,7 @@ const promotionSchema = new Schema({
     required: true,
   },
   isClaimed: {
-    type: BigDecimal,
+    type: Number,
     required: true,
   },
 });

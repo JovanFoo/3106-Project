@@ -10,6 +10,18 @@ const branchSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  appointments: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Appointment",
+    },
+  ],
+  staffs: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Stylist",
+    },
+  ],
 });
 
 const Branch = mongoose.model("Branch", branchSchema);
