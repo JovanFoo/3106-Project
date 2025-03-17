@@ -44,14 +44,14 @@ http://localhost:8888/api
 
 ---
 
-## 4⃣ Answer Endpoints
+## 4 Stylist Endpoints
 
-| Method     | Endpoint                 | Description                                |
-| ---------- | ------------------------ | ------------------------------------------ |
-| **GET**    | `/questions/:id/answers` |                                            |
-| **POST**   | `/questions/:id/answers` | Add an answer to a question (Requires JWT) |
-| **PUT**    | `/answers/:id`           | Update an answer (Requires JWT)            |
-| **DELETE** | `/answers/:id`           | Delete an answer (Requires JWT)            |
+| Method  | Endpoint         | Description all actions require JWT authentication           | Completed |
+| ------- | ---------------- | ------------------------------------------------------------ | --------- |
+| **GET** | `/stylists/:id` | Get stylist profile                                           | ✅        |
+| **PUT** | `/stylists/:id` | Update stylist profile (e.g., username, email)                | ✅        |
+| **PUT** | `/stylists/:id/profilePicture` | Update stylist profile picture only            | ✅        |
+| **GET** | `/stylists/:id/appointments` | Get stylist's appointments                       | ✅        |
 
 ---
 

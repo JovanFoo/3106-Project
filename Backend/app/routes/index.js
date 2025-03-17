@@ -9,6 +9,8 @@ const CustomerRouter = require("./CustomerRoute.js");
 const PromotionRouter = require("./PromotionRoute.js");
 // const PaymentRouter = require("./PaymentRouter.js");
 // const ReviewRouter = require("./AppointmentRoute.js");
+const ExpertiseRouter = require("./ExpertiseRoute.js");
+const StylistRouter = require("./StylistRoute.js");
 
 ApiRouter.use("/customers", CustomerRouter);
 ApiRouter.use("/auth", AuthRouter);
@@ -19,8 +21,8 @@ ApiRouter.use("/promotions", PromotionRouter);
 // ApiRouter.use("/reviews", CustomerRouter);
 // ApiRouter.use("/discounts", CustomerRouter);
 // ApiRouter.use("/services", CustomerRouter);
-// ApiRouter.use("/expertise", CustomerRouter);
-// ApiRouter.use("/stylists", CustomerRouter);
+ApiRouter.use("/stylists", StylistRouter);
+ApiRouter.use("/expertises", ExpertiseRouter);
 
 ApiRouter.get("/", (req, res) => {
   res.send("API is working");

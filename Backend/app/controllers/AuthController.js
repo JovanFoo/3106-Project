@@ -56,11 +56,14 @@ const AuthController = {
     const { email } = req.body;
     const customer = await Customer.findOne({ email: email });
     if (customer) {
-      await resetPassword(
+      const result = await resetPassword(
         email,
         customer.name,
         jwt.generateCustomerResetToken(customer._id)
       );
+      if (!result) {
+        return res.status(400).json({ message: "Error sending email" });
+      }
       return res.status(200).json({ message: "Reset password email sent" });
     } else {
       return res.status(404).json({ message: "Email not found" });
