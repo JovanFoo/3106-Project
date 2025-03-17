@@ -18,13 +18,13 @@ const appointmentSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  service: [
+  services: [
     {
       type: Schema.Types.ObjectId,
       ref: "Service",
     },
   ],
-  review: [
+  reviews: [
     {
       type: Schema.Types.ObjectId,
       ref: "Review",
