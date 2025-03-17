@@ -1,15 +1,14 @@
 const express = require("express");
 const app = express();
-
-const cors = require("cors");
 const path = require("path");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const session = require("express-session");
 app.set("view engine", "ejs");
 
-// app.set("views", path.join(__dirname + "/../../../app/views"));
-app.set("views", "./app/views");
+// app.set("views", "./app/views");
+// app.set("views", "./views");
+app.set("views", path.join(__dirname, "views"));
 const corsOptions = {
   origin: "*",
   credentials: true,
@@ -21,14 +20,6 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(
-  session({
-    secret: process.env.JWT_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
-  })
-);
 
 const ApiRouter = require("./app/routes/index.js");
 const ViewRouter = require("./app/routes/View.js");
