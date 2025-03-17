@@ -4,7 +4,7 @@ const CustomerRouter = express.Router();
 
 const CustomerController = require("../controllers/CustomerController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
-const Customer = require("../models/Customer.js");
+// const Customer = require("../models/Customer.js");
 // get customer by id
 CustomerRouter.get(
   "/:id",

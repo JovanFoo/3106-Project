@@ -13,14 +13,14 @@ AuthRouter.post("/customers/login", AuthController.loginCustomer);
 
 // customer reset password request
 AuthRouter.post(
-  "/customers/reset-password",
+  "/customers/forget-password",
   AuthController.resetCustomerPassword
 );
 
 // customer reset password token verification
 AuthRouter.post(
-  "/customers/reseting-password",
-  AuthMiddleware.authCustomerResetingToken,
+  "/customers/reset-password/:token",
+  AuthMiddleware.authCustomerResetToken,
   CustomerController.updatePassword
 );
 

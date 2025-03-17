@@ -25,7 +25,7 @@ StylistRouter.delete(
   StylistController.delete
 );
 // get appointments of a stylist by id
-CustomerRouter.get(
+StylistRouter.get(
   "/:id/appointments",
   AuthMiddleware.authCustomerOrStylistToken,
   StylistController.retrieveAppointments

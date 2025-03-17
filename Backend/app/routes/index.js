@@ -2,22 +2,28 @@ const express = require("express");
 
 const ApiRouter = express.Router();
 
-const CustomerRouter = require("./CustomerRoute.js");
-const AuthRouter = require("./AuthRoute.js");
 const AppointmentRouter = require("./AppointmentRoute.js");
+const AuthRouter = require("./AuthRoute.js");
+const BranchRoute = require("./BranchRoute.js");
+const CustomerRouter = require("./CustomerRoute.js");
+const PromotionRouter = require("./PromotionRoute.js");
+// const PaymentRouter = require("./PaymentRouter.js");
+const ReviewRouter = require("./ReviewRoute.js");
 const ExpertiseRouter = require("./ExpertiseRoute.js");
 const StylistRouter = require("./StylistRoute.js");
+// const DiscountRouter = require("./DiscountRoute.js");
+const ServiceRouter = require("./ServiceRoute.js");
 
 ApiRouter.use("/customers", CustomerRouter);
 ApiRouter.use("/auth", AuthRouter);
-ApiRouter.use("/Appointments", AppointmentRouter);
-// ApiRouter.use("/payments", CustomerRouter);
-// ApiRouter.use("/reviews", CustomerRouter);
-// ApiRouter.use("/branches", CustomerRouter);
-// ApiRouter.use("/promotions", CustomerRouter);
-// ApiRouter.use("/discounts", CustomerRouter);
-// ApiRouter.use("/services", CustomerRouter);
-// ApiRouter.use("/expertise", CustomerRouter);
+ApiRouter.use("/appointments", AppointmentRouter);
+// ApiRouter.use("/payments", PaymentRouter);
+ApiRouter.use("/reviews", ReviewRouter);
+ApiRouter.use("/branches", BranchRoute);
+
+ApiRouter.use("/promotions", PromotionRouter);
+// ApiRouter.use("/discounts", DiscountRouter);
+ApiRouter.use("/services", ServiceRouter);
 ApiRouter.use("/stylists", StylistRouter);
 ApiRouter.use("/expertises", ExpertiseRouter);
 

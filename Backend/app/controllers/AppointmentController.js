@@ -20,10 +20,10 @@ const AppointmentController = {
         totalAmount,
         service,
       });
-      await appointment.save();
-      const customer = await Customer.findByIdAndUpdate(id, {
-        $push: { appointments: appointment },
-      });
+      const newAppointment = await appointment.save();
+      const customer = await Customer.findById(id);
+      customer.appointments.push(newAppointment);
+      await customer.save();
       // TODO: add relationship to stylist also. stylist has a list of appts
       if (!customer) {
         return res.status(400).json({ message: "Error creating appointment" });
@@ -67,8 +67,8 @@ const AppointmentController = {
   // Delete an appointment by appointment id only if the customer can delete
   async delete(req, res) {
     console.log("AppointmentController > delete");
-    const { customerId } = req.userId;
-    const { appointmentId } = req.params.id;
+    const customerId = req.userId;
+    const appointmentId = req.params.id;
     const customer = await Customer.findOne({ _id: customerId });
     customer.appointments.filter((appointment) => {
       return appointment._id !== appointmentId;
@@ -76,7 +76,7 @@ const AppointmentController = {
     await customer.save();
     const appointment = await Appointment.findByIdAndDelete(appointmentId);
 
-    if (customer) {
+    if (customer && appointment) {
       return res
         .status(204)
         .json({ message: "Appointment deleted successfully" });
