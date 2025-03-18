@@ -47,25 +47,26 @@ const AuthMiddleware = {
   },
 
   async authCustomerResetToken(req, res, next) {
-    console.log("AuthMiddleware > only Customer can access");
+    console.log("AuthMiddleware > only Customer with reset can access");
     token = req.params.token;
     if (token == null) return res.render("404");
     decoded = jwt.decodeToken(token);
     if (!decoded.status) return res.render("404");
     if (decoded.values.type != "Customer-Reset") return res.render("404");
     req.userId = decoded.values.userId;
+    if (jwt.checkBlackList(token)) return res.render("404");
     next();
   },
-  async authCustomerResetingToken(req, res, next) {
-    console.log("AuthMiddleware > only Customer can access");
-    token = req.body.token;
-    if (token == null) return res.render("404");
-    decoded = jwt.decodeToken(token);
-    if (!decoded.status) return res.render("404");
-    if (decoded.values.type != "Customer-Reset") return res.render("404");
-    req.userId = decoded.values.userId;
-    next();
-  },
+  // async authCustomerResetToken(req, res, next) {
+  //   console.log("AuthMiddleware > only Customer can access");
+  //   token = req.params.token;
+  //   if (token == null) return res.render("404");
+  //   decoded = jwt.decodeToken(token);
+  //   if (!decoded.status) return res.render("404");
+  //   if (decoded.values.type != "Customer-Reset") return res.render("404");
+  //   req.userId = decoded.values.userId;
+  //   next();
+  // },
   async authAdminToken(req, res, next) {
     console.log("AuthMiddleware > only Admin can access");
     token = req.headers["authorization"];

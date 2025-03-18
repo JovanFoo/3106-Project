@@ -3,6 +3,8 @@ const jsonwebtoken = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
 const expiry = process.env.JWT_EXPIRY;
 
+let blackList = [];
+
 const jwt = {
   generateCustomerToken(userId) {
     return jsonwebtoken.sign({ userId: userId + " Customer" }, secretKey, {
@@ -48,6 +50,14 @@ const jwt = {
         },
       };
     });
+  },
+
+  addToBlackList(token) {
+    blackList.push(token);
+  },
+
+  checkBlackList(token) {
+    return blackList.includes(token);
   },
 };
 

@@ -1,7 +1,7 @@
 const mongodb = require("./config/database.js");
 const Customer = require("../models/Customer.js");
 const PasswordHash = require("../utils/passwordHash.js");
-const { update } = require("./AppointmentController.js");
+const jwt = require("../utils/jwt.js");
 
 const CustomerController = {
   // Retrieve a customer by username
@@ -103,18 +103,19 @@ const CustomerController = {
     const { password, confirmPassword, token } = req.body;
     const customer = await Customer.findOne({ _id: id });
     if (!customer) {
-      return res.render("unsuccessful-update", {
+      return res.redirect("/unsuccessful-update", {
         backUrl: `${process.env.CLIENT_URL}/reset-password/${token}`,
       });
     }
     if (password !== confirmPassword) {
-      return res.render("unsuccessful-update", {
+      return res.redirect("/unsuccessful-update", {
         backUrl: `${process.env.CLIENT_URL}/reset-password/${token}`,
       });
     }
     customer.password = await PasswordHash.hashPassword(password);
     await customer.save();
-    return res.render("success-update");
+    jwt.addToBlackList(req.params.token);
+    res.redirect("/success-update");
   },
 };
 
