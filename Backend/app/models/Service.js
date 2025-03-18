@@ -9,7 +9,7 @@ const serviceSchema = new Schema({
     unique: true,
   },
   duration: {
-    type: String,
+    type: Number,
     required: true,
   },
   description: {

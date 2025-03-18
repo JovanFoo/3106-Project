@@ -6,13 +6,12 @@ const promotionSchema = new Schema({
     type: String,
     required: true,
   },
-
   promotionAmount: {
     type: Number,
     required: true,
   },
   isClaimed: {
-    type: Number,
+    type: Boolean,
     required: true,
   },
 });
