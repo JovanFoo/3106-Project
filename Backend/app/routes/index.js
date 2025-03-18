@@ -11,9 +11,9 @@ const PromotionRouter = require("./PromotionRoute.js");
 const ReviewRouter = require("./ReviewRoute.js");
 const ExpertiseRouter = require("./ExpertiseRoute.js");
 const StylistRouter = require("./StylistRoute.js");
-const ServiceRouter = require("./ServiceRoutes.js");
+const ServiceRouter = require("./ServiceRoute.js");
 const ServiceRateRouter = require("./ServiceRateRoute.js");
-const PromotionRouter = require("./PromotionRoutes.js");
+const PromotionRouter = require("./PromotionRoute.js");
 const DiscountRouter = require("./DiscountRoute.js");
 
 ApiRouter.use("/customers", CustomerRouter);
