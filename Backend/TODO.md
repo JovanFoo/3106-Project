@@ -2,31 +2,26 @@
 
 ## Discussion
 
-- [ ] Do we have an admin portal to create branch ??
-      if so do we need to have an admin entity?? or we can just use stylist manager
-- [ ] Set up database schema
+- [ ] Auth Controller for Admin
+- [ ] Auth Controller for Stylist
+- [ ] Auth Controller for Stylist Manager
+- [ ] Auth Route for Admin login
+- [ ] Auth Route for Stylist login
+- [ ] Auth Route for Stylist Manager login
 
-## Bugs
+## NEW 
+- [ ] LeaveRequest for Stylist
+- [ ] LeaveRequest routes for Stylist
 
-- [ ] Fix issue with data validation
-- [ ] Resolve API response errors
+- [ ] Stylist Recursive Relationship
+- [ ] Appointment --> Stylist
 
-## Documentation
 
-- [ ] Write API documentation
-- [ ] Update README with setup instructions
 
-## Testing
+- [ ] Admin
+- [ ] Customer
+- [ ] Stylist and Store Manager
+- [ ] 26 March 10pm
 
-- [ ] Write unit tests for all modules
-- [ ] Perform integration testing
 
-## Refactoring
 
-- [ ] Optimize database queries
-- [ ] Clean up codebase
-
-## Miscellaneous
-
-- [ ] Set up CI/CD pipeline
-- [ ] Monitor application performance
