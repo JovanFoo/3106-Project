@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import axios, { AxiosResponse } from "axios";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
