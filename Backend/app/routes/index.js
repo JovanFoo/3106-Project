@@ -13,7 +13,7 @@ const StylistRouter = require("./StylistRoute.js");
 const ServiceRouter = require("./ServiceRoute.js");
 const ServiceRateRouter = require("./ServiceRateRoute.js");
 const PromotionRouter = require("./PromotionRoute.js");
-const DiscountRouter = require("./DiscountRoute.js");
+const DiscountRouter = require("./DiscountRoute.js");  
 
 ApiRouter.use("/customers", CustomerRouter);
 ApiRouter.use("/auth", AuthRouter);
