@@ -23,9 +23,12 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+        working-directory: ./Backend
 
       - name: Build Project
         run: npm run build 
+        working-directory: ./Backend
 
       - name: Deploy to Vercel
         run: npx vercel --prod ${{ secrets.MONGODB_URI }} --org-id ${{ secrets.VERCEL_ORG_ID }} --project-id ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./Backend
