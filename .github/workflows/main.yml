@@ -12,6 +12,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -30,5 +35,5 @@ jobs:
         working-directory: ./Backend
 
       - name: Deploy to Vercel
-        run: npx vercel --prod ${{ secrets.MONGODB_URI }} --org-id ${{ secrets.VERCEL_ORG_ID }} --project-id ${{ secrets.VERCEL_PROJECT_ID }}
+        run: npx vercel --prod
         working-directory: ./Backend
