@@ -6,7 +6,6 @@ const AppointmentRouter = require("./AppointmentRoute.js");
 const AuthRouter = require("./AuthRoute.js");
 const BranchRoute = require("./BranchRoute.js");
 const CustomerRouter = require("./CustomerRoute.js");
-const PromotionRouter = require("./PromotionRoute.js");
 // const PaymentRouter = require("./PaymentRouter.js");
 const ReviewRouter = require("./ReviewRoute.js");
 const ExpertiseRouter = require("./ExpertiseRoute.js");
