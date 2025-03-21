@@ -2,7 +2,7 @@ const mongose = require("mongoose");
 const Schema = mongose.Schema;
 
 const promotionSchema = new Schema({
-  name: {
+  promotionName: {
     type: String,
     required: true,
   },
