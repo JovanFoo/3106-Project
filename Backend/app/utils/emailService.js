@@ -1,7 +1,9 @@
 var nodemailer = require("nodemailer");
 
 var transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.zoho.com",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.NODE_MAILER_EMAIL,
     pass: process.env.NODE_MAILER_PASSWORD,
@@ -14,8 +16,8 @@ var transporter = nodemailer.createTransport({
 
 const resetPassword = async (to, name, token) => {
   var mailOptions = {
-    from: "salonflow123@gmail.com",
-    to: to,
+    from: process.env.NODE_MAILER_EMAIL,
+    to: to, 
     subject: `Reset your password`,
     text: `Hey ${name}, We have received a request to reset your SalonFlow® account password. If you did not make this request, please ignore this email. Otherwise, you can reset your password using the link below. Reset Password: ${process.env.CLIENT_URL}/reset-password/${token}`,
   };
@@ -26,7 +28,9 @@ const resetPassword = async (to, name, token) => {
     } else {
       return false;
     }
-  } catch (error) {
+  } catch ( error )
+  {
+    console.log( error.message );
     return false;
   }
 };
