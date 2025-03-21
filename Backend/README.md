@@ -12,76 +12,97 @@ http://localhost:8888/api
 
 ---
 
-## 1⃣ Authentication Endpoints
+## View Endpoints
 
-| Method   | Endpoint                   | Description                                            | Completed |
-| -------- | -------------------------- | ------------------------------------------------------ | --------- |
-| **POST** | `/auth/customers/register` | Register a new customer account                        | ✅        |
-| **POST** | `/auth/customers/login`    | Log in with a Customer account and receive a JWT token | ✅        |
-| **POST** | `/auth/logout`             | Log out (invalidate token on the client side)          | ❌        |
-| **POST** | `/auth/refresh`            | Refresh access token                                   | ❌        |
+| Method  | Endpoint                | Description          | Authentication | Completed |
+| ------- | ----------------------- | -------------------- | -------------- | --------- |
+| **GET** | `/error`                | Error 404            | NA             | ✅        |
+| **GET** | `/reset-password:token` | Reset password page  | YES (PARAMS)   | ✅        |
+| **GET** | `/success-update`       | Update details       | NA             | ✅        |
+| **GET** | `/unsuccessful-update`  | Something went wrong | NA             | ✅        |
 
----
+## Authentication Endpoints
 
-## 2⃣ Customer Endpoints
-
-| Method  | Endpoint         | Description all actions require JWT authentication           | Completed |
-| ------- | ---------------- | ------------------------------------------------------------ | --------- |
-| **GET** | `/customers/:id` | Get a user profile                                           | ✅        |
-| **PUT** | `/customers/:id` | Update user profile (e.g., username, email, profile picture) | ✅        |
-
----
-
-## 3⃣ Appointment (Customer) Endpoints
-
-| Method     | Endpoint            | Description all actions require JWT authentication | Completed |
-| ---------- | ------------------- | -------------------------------------------------- | --------- |
-| **GET**    | `/appointments`     | Get customer's appointments                        | ✅        |
-| **GET**    | `/appointments/:id` | Get a specific question by ID                      | ✅        |
-| **POST**   | `/appointments`     | Create a new question (Requires JWT)               | ✅        |
-| **PUT**    | `/appointments/:id` | Update a question (Requires JWT)                   | ✅        |
-| **DELETE** | `/appointments/:id` | Delete a question (Requires JWT)                   | ✅        |
+| Method   | Endpoint                                | Description                                            | Authentication | Completed |
+| -------- | --------------------------------------- | ------------------------------------------------------ | -------------- | --------- |
+| **POST** | `/auth/customers/register`              | Register a new customer account                        | NA             | ✅        |
+| **POST** | `/auth/customers/login`                 | Log in with a Customer account and receive a JWT token | NA             | ✅        |
+| **POST** | `/auth/customers/forget-password`       | Send a reset password email                            | NA             | ✅        |
+| **POST** | `/auth/customers/reset-password/:token` | Reset customer password                                | YES (PARAMS)   | ✅        |
+| **POST** | `/auth/stylists/register`               | Register a new Stylist account                         | NA             | ❌        |
+| **POST** | `/auth/stylists/login`                  | Log in with a Stylist account and receive a JWT token  | NA             | ❌        |
+| **POST** | `/auth/stylists/forget-password`        | Send a reset password email                            | NA             | ❌        |
+| **POST** | `/auth/stylists/reset-password/:token`  | Reset Stylist password                                 | YES (PARAMS)   | ❌        |
+| **POST** | `/auth/logout`                          | Log out (invalidate token on the client side)          | YES            | ❌        |
 
 ---
 
-## 4⃣ Answer Endpoints
+## Customer Endpoints
 
-| Method     | Endpoint                 | Description                                |
-| ---------- | ------------------------ | ------------------------------------------ |
-| **GET**    | `/questions/:id/answers` |                                            |
-| **POST**   | `/questions/:id/answers` | Add an answer to a question (Requires JWT) |
-| **PUT**    | `/answers/:id`           | Update an answer (Requires JWT)            |
-| **DELETE** | `/answers/:id`           | Delete an answer (Requires JWT)            |
-
----
-
-## 5⃣ Voting Endpoints
-
-| Method   | Endpoint                  | Description                        |
-| -------- | ------------------------- | ---------------------------------- |
-| **POST** | `/questions/:id/upvote`   | Upvote a question (Requires JWT)   |
-| **POST** | `/questions/:id/downvote` | Downvote a question (Requires JWT) |
-| **POST** | `/answers/:id/upvote`     | Upvote an answer (Requires JWT)    |
-| **POST** | `/answers/:id/downvote`   | Downvote an answer (Requires JWT)  |
+| Method     | Endpoint                      | Description                                           | Authentication     | Completed |
+| ---------- | ----------------------------- | ----------------------------------------------------- | ------------------ | --------- |
+| **GET**    | `/customers/:id`              | Get a customer profile                                | YES (CUST)         | ✅        |
+| **PUT**    | `/customers/:id`              | Update customer profile (e.g., username, email, name) | YES (CUST)         | ✅        |
+| **PUT**    | `/customers/profilePicture`   | Update customer profile picture                       | YES (CUST)         | ❌        |
+| **DELETE** | `/customers`                  | Delete a customer                                     | YES (CUST)         | ❌        |
+| **GET**    | `/customers/:id/appointments` | Get a customer appointments                           | YES (CUST/STYLIST) | ❌        |
 
 ---
 
-## 6⃣ Tag Endpoints
+## Appointment Endpoints
 
-| Method   | Endpoint                   | Description                             |
-| -------- | -------------------------- | --------------------------------------- |
-| **GET**  | `/tags`                    | Get a list of all tags                  |
-| **POST** | `/tags`                    | Create a new tag (Requires JWT)         |
-| **GET**  | `/tags/:tagName/questions` | Get all questions associated with a tag |
+| Method     | Endpoint                      | Description                             | Authentication     | Completed |
+| ---------- | ----------------------------- | --------------------------------------- | ------------------ | --------- |
+| **GET**    | `/appointments`               | Get customer's appointments             | YES (CUST)         | ✅        |
+| **GET**    | `/appointments/:id`           | Get a specific appointment by ID        | YES (CUST)         | ✅        |
+| **POST**   | `/appointments`               | Create a new appointments               | YES (CUST)         | ✅        |
+| **PUT**    | `/appointments/:id`           | Update a appointments                   | YES (CUST/STYLIST) | ✅        |
+| **PUT**    | `/appointments/:id/completed` | Update a appointments completion status | YES (STYLIST)      | ✅        |
+| **DELETE** | `/appointments/:id`           | Delete a appointments                   | YES (CUST)         | ✅        |
 
 ---
 
-## 7⃣ Miscellaneous Endpoints
+## Stylist Endpoints
 
-| Method  | Endpoint                | Description                             |
-| ------- | ----------------------- | --------------------------------------- |
-| **GET** | `/top-questions`        | Get the top 10 most asked questions     |
-| **GET** | `/search?query=keyword` | Search for questions based on a keyword |
+| Method  | Endpoint                       | Description all actions require JWT authentication | Authentication | Completed |
+| ------- | ------------------------------ | -------------------------------------------------- | -------------- | --------- |
+| **GET** | `/stylists/:id`                | Get stylist profile                                | ???            | ✅        |
+| **PUT** | `/stylists/:id`                | Update stylist profile (e.g., username, email)     | ???            | ✅        |
+| **PUT** | `/stylists/:id/profilePicture` | Update stylist profile picture only                | ???            | ✅        |
+| **GET** | `/stylists/:id/appointments`   | Get stylist's appointments                         | ???            | ✅        |
+
+---
+
+## Payment Endpoints
+
+| Method   | Endpoint                  | Description                        | Authentication | Completed |
+| -------- | ------------------------- | ---------------------------------- | -------------- | --------- |
+| **POST** | `/payments/:id/upvote`    | Upvote a question (Requires JWT)   | ???            | ❌        |
+| **POST** | `/questions/:id/downvote` | Downvote a question (Requires JWT) | ???            | ❌        |
+| **POST** | `/answers/:id/upvote`     | Upvote an answer (Requires JWT)    | ???            | ❌        |
+| **POST** | `/answers/:id/downvote`   | Downvote an answer (Requires JWT)  | ???            | ❌        |
+
+---
+
+## Review Endpoints
+
+| Method   | Endpoint   | Description                             | Authentication | Completed |
+| -------- | ---------- | --------------------------------------- | -------------- | --------- |
+| **GET**  | `/reviews` | Get a list of all tags                  | ???            | ❌        |
+| **POST** | `/reviews` | Create a new tag (Requires JWT)         | ???            | ❌        |
+| **GET**  | `/reviews` | Get all questions associated with a tag | ???            | ❌        |
+
+---
+
+## Branch Endpoints
+
+| Method     | Endpoint    | Description                         | Authentication | Completed |
+| ---------- | ----------- | ----------------------------------- | -------------- | --------- |
+| **POST**   | `/branches` | Get the top 10 most asked questions | YES (MANAGER)  | ✅        |
+| **GET**    | `/`         | View all Branches                   | NA             | ✅        |
+| **GET**    | `/:id`      | View a Branch by id                 | NA             | ✅        |
+| **PUT**    | `/:id`      | Update a Branch by id               | YES (MANAGER)  | ✅        |
+| **DELETE** | `/:id`      | Delete a Branch by id               | YES (MANAGER)  | ✅        |
 
 ---
 

@@ -17,7 +17,7 @@ import {
   PlugInIcon,
   TableIcon,
 } from "../icons";
-import SidebarWidget from "./SidebarWidget";
+// import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
   name: string;

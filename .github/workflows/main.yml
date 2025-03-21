@@ -1,0 +1,39 @@
+name: server deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22' 
+
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./Backend
+
+      - name: Build Project
+        run: npm run build 
+        working-directory: ./Backend
+
+      - name: Deploy to Vercel
+        run: npx vercel --confirm --prod --token ${{ secrets.VERCEL_TOKEN }}

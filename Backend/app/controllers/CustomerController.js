@@ -1,6 +1,7 @@
 const mongodb = require("./config/database.js");
 const Customer = require("../models/Customer.js");
 const PasswordHash = require("../utils/passwordHash.js");
+const jwt = require("../utils/jwt.js");
 
 const CustomerController = {
   // Retrieve a customer by username
@@ -93,6 +94,28 @@ const CustomerController = {
     // TO DO: use cloudinary to upload image
     await customer.save();
     return res.status(200).json(customer);
+  },
+
+  async updatePassword(req, res) {
+    console.log("CustomerController > updatePassword");
+    const id = req.userId;
+
+    const { password, confirmPassword, token } = req.body;
+    const customer = await Customer.findOne({ _id: id });
+    if (!customer) {
+      return res.redirect("/unsuccessful-update", {
+        backUrl: `${process.env.CLIENT_URL}/reset-password/${token}`,
+      });
+    }
+    if (password !== confirmPassword) {
+      return res.redirect("/unsuccessful-update", {
+        backUrl: `${process.env.CLIENT_URL}/reset-password/${token}`,
+      });
+    }
+    customer.password = await PasswordHash.hashPassword(password);
+    await customer.save();
+    jwt.addToBlackList(req.params.token);
+    res.redirect("/success-update");
   },
 };
 
