@@ -88,8 +88,15 @@ const AuthController = {
       if ( isMatch )
       {
         stylist.password = undefined;
-        const token = jwt.generateStylistToken( stylist._id );
-        return res.status( 200 ).json( { stylist, token } );
+        if ( stylist.stylists.length > 0 )
+        {
+          const token = jwt.generateStylistManagerToken( stylist._id );
+          return res.status( 200 ).json( { stylist, token } );
+        } else
+        {
+          const token = jwt.generateStylistToken( stylist._id );
+          return res.status( 200 ).json( { stylist, token } );
+        }
       }
     }
     return res.status(400).json({ message: "Invalid username or password" });
