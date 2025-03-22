@@ -47,11 +47,43 @@ export default function UserInfoCard() {
     fetchUserData();
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Handle save logic here
     console.log("Saving changes...");
-    closeModal();
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const user = JSON.parse(userData);
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/customers/${user.customer._id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `${user.token}`, // Send token for authorization
+            },
+            body: JSON.stringify({
+              name: firstName,
+              email,
+              username,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const updatedUser = await response.json();
+          console.log("User updated successfully:", updatedUser);
+          closeModal(); // Close modal after saving
+        } else {
+          const errorData = await response.json();
+          console.error("Error updating user:", errorData.message);
+        }
+      } catch (error) {
+        console.error("Error fetching:", error);
+      }
+    }
   };
+
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
