@@ -4,14 +4,50 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import { useState } from "react";
+import { useEffect } from "react";
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
   const [firstName, setfirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [bio, setBio] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhoneNo] = useState("");
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    console.log("activated");
+    async function fetchUserData() {
+      const userData = localStorage.getItem("user");
+
+      if (userData) {
+        const user = JSON.parse(userData);
+        console.log(user);
+
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/customers/${user.customer._id}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `${user.token}`,
+              },
+            }
+          );
+          const data = await response.json();
+          if (!response.ok) {
+            console.log(data);
+          }
+
+          console.log(data);
+          setUsername(data.username);
+          setfirstName(data.name);
+          setEmail(data.email);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    }
+
+    fetchUserData();
+  }, []);
 
   const handleSave = () => {
     // Handle save logic here
@@ -28,17 +64,8 @@ export default function UserMetaCard() {
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                {firstName} {lastName}
+                {firstName}
               </h4>
-              <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {bio}
-                </p>
-                <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {email}
-                </p>
-              </div>
             </div>
             <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end"></div>
           </div>
@@ -95,17 +122,6 @@ export default function UserMetaCard() {
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input
-                      type="text"
-                      value={lastName}
-                      onChange={(e) => {
-                        setLastName(e.target.value);
-                      }}
-                    />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
                     <Input
                       type="text"
@@ -117,12 +133,12 @@ export default function UserMetaCard() {
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
+                    <Label>Username</Label>
                     <Input
                       type="text"
-                      value={phone}
+                      value={username}
                       onChange={(e) => {
-                        setPhoneNo(e.target.value);
+                        setUsername(e.target.value);
                       }}
                     />
                   </div>

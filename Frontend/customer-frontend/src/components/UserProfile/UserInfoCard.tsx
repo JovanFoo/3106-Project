@@ -3,15 +3,49 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
   const [firstName, setfirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [bio, setBio] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhoneNo] = useState("");
+
+  useEffect(() => {
+    console.log("activated");
+    async function fetchUserData() {
+      const userData = localStorage.getItem("user");
+
+      if (userData) {
+        const user = JSON.parse(userData);
+        console.log(user);
+
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/customers/${user.customer._id}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `${user.token}`,
+              },
+            }
+          );
+          const data = await response.json();
+          if (!response.ok) {
+            console.log(data);
+          }
+
+          console.log(data);
+          setUsername(data.username);
+          setfirstName(data.name);
+          setEmail(data.email);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    }
+    fetchUserData();
+  }, []);
 
   const handleSave = () => {
     // Handle save logic here
@@ -38,15 +72,6 @@ export default function UserInfoCard() {
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Last Name
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {lastName}
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                 Email address
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
@@ -56,19 +81,10 @@ export default function UserInfoCard() {
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Phone
+                Username
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {phone}
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Bio
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {bio}
+                {username}
               </p>
             </div>
           </div>
@@ -128,17 +144,6 @@ export default function UserInfoCard() {
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input
-                      type="text"
-                      value={lastName}
-                      onChange={(e) => {
-                        setLastName(e.target.value);
-                      }}
-                    />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
                     <Input
                       type="text"
@@ -150,23 +155,12 @@ export default function UserInfoCard() {
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
+                    <Label>Username</Label>
                     <Input
                       type="text"
-                      value={phone}
+                      value={username}
                       onChange={(e) => {
-                        setPhoneNo(e.target.value);
-                      }}
-                    />
-                  </div>
-
-                  <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input
-                      type="text"
-                      value={bio}
-                      onChange={(e) => {
-                        setBio(e.target.value);
+                        setUsername(e.target.value);
                       }}
                     />
                   </div>
