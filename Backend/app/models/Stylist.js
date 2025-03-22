@@ -35,6 +35,12 @@ const stylistSchema = new Schema({
       ref: "Appointment",
     },
   ],
+  stylists: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Stylist",
+    },
+  ]
 });
 
 const Stylist = mongose.model("Stylist", stylistSchema);

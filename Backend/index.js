@@ -28,6 +28,9 @@ app.use("/api", ApiRouter);
 app.use("/", ViewRouter);
 app.listen(process.env.PORT, () => {
   console.log("Server is running on port " + process.env.PORT);
-});
+} );
+
+const AdminController = require( "./app/controllers/AdminController.js" );
+AdminController.initaliseAdmin();
 
 module.exports = app;
