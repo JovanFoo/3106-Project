@@ -58,7 +58,7 @@ export default function SignUpForm() {
 
         // Redirect user to the login page
         setSuccessMessage("Account created successfully! Please log in.");
-        navigate("/");
+        navigate("/home");
       }
     } catch (error) {
       console.log(error);

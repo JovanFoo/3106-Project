@@ -48,7 +48,7 @@ export default function SignInForm() {
       if (response.ok) {
         console.log(JSON.stringify(data));
         localStorage.setItem("user", JSON.stringify(data));
-        navigate("/");
+        navigate("/home");
       }
     } catch (err) {
       console.log(err);
