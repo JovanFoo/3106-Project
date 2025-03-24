@@ -4,13 +4,14 @@ const Appointment = require("../models/Appointment.js");
 const PasswordHash = require("../utils/passwordHash.js");
 const CustomerController = require("./CustomerController.js");
 const StylistController = require("./StylistController.js");
+const Stylist = require("../models/Stylist.js");
 
 const AppointmentController = {
   // Create a new appointment
   async create(req, res) {
     console.log("AppointmentController > create");
     const id = req.userId;
-    let { date, request, totalAmount, service } = req.body;
+    let { date, request, totalAmount, service, stylistId } = req.body;
     date = new Date(date);
     totalAmount = parseFloat(totalAmount);
     try {
@@ -19,12 +20,17 @@ const AppointmentController = {
         request,
         totalAmount,
         service,
+        stylist: stylistId
       });
       const newAppointment = await appointment.save();
       const customer = await Customer.findById(id);
       customer.appointments.push(newAppointment);
       await customer.save();
       // TODO: add relationship to stylist also. stylist has a list of appts
+      const stylist = await Stylist.findById(stylistId);
+      stylist.appointments.push(newAppointment);
+      await stylist.save();
+
       if (!customer) {
         return res.status(400).json({ message: "Error creating appointment" });
       }
