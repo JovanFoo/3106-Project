@@ -5,11 +5,12 @@ const AuthMiddleware = {
   async authCustomerToken(req, res, next) {
     console.log("AuthMiddleware > only Customer can access");
     token = req.headers["authorization"];
-    if (token == null) return res.json({ message: "Unauthorized" });
+    console.log(token);
+    if (token == null) return res.json({ message: "Unauthorized no token" });
     decoded = jwt.decodeToken(token);
-    if (!decoded.status) return res.json({ message: "Unauthorized" });
+    if (!decoded.status) return res.json({ message: "Unauthorized no" });
     if (decoded.values.type != "Customer")
-      return res.json({ message: "Unauthorized" });
+      return res.json({ message: "Unauthorized not cust" });
     req.userId = decoded.values.userId;
     next();
   },

@@ -91,5 +91,3 @@ const ServiceController = {
 };
 
 module.exports = ServiceController;
-
-module.exports = ServiceController;
