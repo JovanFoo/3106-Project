@@ -40,6 +40,12 @@ const stylistSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: "Stylist",
     },
+  ],
+  leaveRequests: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "LeaveRequest",
+    },
   ]
 });
 
