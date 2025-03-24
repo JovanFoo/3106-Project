@@ -13,6 +13,7 @@ const AppointmentController = {
     const id = req.userId;
     let { date, request, totalAmount, service, stylistId } = req.body;
     date = new Date(date);
+    date.setHours(date.getHours() + 8)
     totalAmount = parseFloat(totalAmount);
     try {
       const appointment = new Appointment({
