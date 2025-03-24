@@ -6,6 +6,12 @@ const StylistController = require("../controllers/StylistController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Stylist = require("../models/Stylist.js");
 
+// get list of all stylists
+StylistRouter.get(
+  "/",
+  AuthMiddleware.authStylistToken,
+  StylistController.retrieveAllStylists
+)
 // get stylist by id
 StylistRouter.get(
   "/:id",

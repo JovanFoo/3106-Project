@@ -28,6 +28,16 @@ const StylistController = {
       return res.status(400).json({ message: "Error retrieving stylist by Username" });
     }
   },
+  // Retrieve a list of all stylists
+  async retrieveAllStylists(req, res) {
+    console.log("StylistController > retrieve all stylists");
+    const stylists = await Stylist.find({}); // get all stylists
+    if (stylists) {
+      return res.status(200).json(stylists);
+    } else {
+      return res.status(400).json({ message: "Error retrieving list of stylists" });
+    }
+  },
   // Update a stylist's name, email by username
   async update(req, res) {
     console.log("StylistController > update");
