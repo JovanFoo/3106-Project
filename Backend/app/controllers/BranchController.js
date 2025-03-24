@@ -1,5 +1,7 @@
 const mongodb = require("./config/database.js");
-const Branch = require("../models/Branch");
+const Branch = require( "../models/Branch" );
+const Stylist = require( "../models/Stylist" );
+
 const BranchController = {
   // Create a new branch
   async create(req, res) {
@@ -92,6 +94,79 @@ const BranchController = {
       return res.status(400).json({ message: "Error deleting branch" });
     }
   },
+
+  // Retrieve all stylists in a branch
+  async retrieveStylists ( req, res ) {
+    console.log( "BranchController > retrieveStylists" );
+    const { branchId } = req.body;
+    const {userId} = req.user;
+
+    try
+    {
+      const stylist = await Stylist.findOne( { userId } );
+      if ( !stylist )
+      {
+        return res.status( 404 ).json( { message: "Stylist not found" } );
+      }
+      const branch = await Branch.findOne({ staffs: stylist._id });
+      if ( !branch )
+      {
+        return res.status( 404 ).json( { message: "Branch not found" } );
+      }
+    }
+    catch ( error )
+    {
+      console.log( error.message );
+      return res.status( 400 ).json( { message: "Error retrieving branch" } );
+    }
+  },
+
+  // Add stylist to a branch
+  async addStylist ( req, res ) {
+      console.log("StylistController > assign");
+      const { id } = req.params;
+      const { stylistManagerId, stylistId } = req.body;
+      const stylist = await Stylist.findOne({ _id: stylistId });
+      if (!stylist) {
+        return res.status(400).json({ message: "Stylist not found" });
+      }
+      const stylistManager = await Stylist.findOne({ _id: stylistManagerId });
+      if (!stylistManager) {
+        return res.status(400).json({ message: "Stylist not found" });
+      }
+      const branch = await Branch.findOne({ _id: id });
+      if (!branch) {
+        return res.status(400).json({ message: "Branch not found" });
+      }
+      branch.staffs.push( stylist );
+      stylistManager.stylists.push( stylist );
+      await branch.save();
+      await stylistManager.save();
+      return res.status(200).json(branch);
+  },
+  // Remove stylist to a branch
+  async removeStylist ( req, res ) {
+      console.log("StylistController > remove");
+      const { id } = req.params;
+      const { stylistManagerId, stylistId } = req.body;
+      const stylist = await Stylist.findOne({ _id: stylistId });
+      if (!stylist) {
+        return res.status(400).json({ message: "Stylist not found" });
+      }
+      const stylistManager = await Stylist.findOne({ _id: stylistManagerId });
+      if (!stylistManager) {
+        return res.status(400).json({ message: "Stylist not found" });
+      }
+      const branch = await Branch.findOne({ _id: id });
+      if (!branch) {
+        return res.status(400).json({ message: "Branch not found" });
+      }
+      branch.staffs.filter(x=> stylist._id.toHexString() !== x._id.toHexString());
+      stylistManager.stylists.filter(x=> stylist._id.toHexString() !== x._id.toHexString());
+      await branch.save();
+      await stylistManager.save();
+      return res.status(200).json(branch);
+  }
 };
 
 module.exports = BranchController;

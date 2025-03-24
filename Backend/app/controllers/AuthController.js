@@ -210,6 +210,28 @@ const AuthController = {
     }
   },
 
+  async resetAdminPassword ( req, res ) {
+    console.log( "AuthController > reset admin password" );
+    const { email } = req.body;
+    const admin = await Admin.findOne( { email: email } );
+    if ( admin )
+    {
+      const result = await resetPassword(
+        email,
+        admin.name,
+        jwt.generateAdminResetToken( admin._id )
+      );
+      if ( !result )
+      {
+        return res.status( 400 ).json( { message: "Error sending email" } );
+      }
+      return res.status( 200 ).json( { message: "Reset password email sent" } );
+    } else
+    {
+      return res.status( 404 ).json( { message: "Email not found" } );
+    }
+  },
+
 };
 
 module.exports = AuthController;

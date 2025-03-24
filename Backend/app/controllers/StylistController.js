@@ -130,6 +130,17 @@ const StylistController = {
     await stylist.save();
     return res.render("success-update");
   },
+
+  // Retrieve all stylists (only admin can retrieve)
+  async retrieveAll(req, res) {
+    console.log("StylistController > retrieveAll");
+    const stylists = await Stylist.find({});
+    if (stylists) {
+      return res.status(200).json(stylists);
+    } else {
+      return res.status(400).json({ message: "Error retrieving stylists" });
+    }
+  },
 };
 
 module.exports = StylistController;

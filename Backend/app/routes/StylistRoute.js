@@ -37,4 +37,10 @@ StylistRouter.put(
   StylistController.updateProfilePicture
 );
 
+StylistRouter.get(
+  "/",
+  AuthMiddleware.authAdminOrStylistManagerToken,
+  StylistController.retrieveAll
+)
+
 module.exports = StylistRouter;
