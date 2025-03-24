@@ -10,7 +10,7 @@ const Stylist = require("../models/Stylist.js");
 StylistRouter.get(
   "/:id",
   AuthMiddleware.authStylistToken,
-  StylistController.retrieve
+  StylistController.retrieveById
 );
 // update stylist by id (only logged in stylist can update)
 StylistRouter.put(

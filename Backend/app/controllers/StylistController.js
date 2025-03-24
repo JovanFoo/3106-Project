@@ -5,7 +5,7 @@ const { update } = require("./AppointmentController.js");
 
 const StylistController = {
   // Retrieve a stylist by id
-  async retrieve(req, res) {
+  async retrieveById(req, res) {
     console.log("StylistController > retrieve by ID");
     const { id } = req.params;
     const stylist = await Stylist.findOne({ _id: id });
@@ -17,7 +17,7 @@ const StylistController = {
     }
   },
   // Retrieve a stylist by username
-  async retrieve(req, res) {
+  async retrieveByUsername(req, res) {
     console.log("StylistController > retrieve by Username");
     const { username } = req.params;
     const stylist = await Stylist.findOne({ username: username });
