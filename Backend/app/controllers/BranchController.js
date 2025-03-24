@@ -132,14 +132,22 @@ const BranchController = {
       }
       const stylistManager = await Stylist.findOne({ _id: stylistManagerId });
       if (!stylistManager) {
-        return res.status(400).json({ message: "Stylist not found" });
+        return res.status(400).json({ message: "Stylist Manager not found" });
       }
       const branch = await Branch.findOne({ _id: id });
       if (!branch) {
         return res.status(400).json({ message: "Branch not found" });
-      }
+    }
+    if ( branch.staffs.includes( stylist._id ) )
+    {
+      return res.status( 400 ).json( { message: "Stylist already assigned to branch" } );
+    }
+    stylistManager.stylists.push( stylist );
+    if ( !branch.staffs.includes( stylistManager._id ) )
+    {
+      branch.staffs.push( stylistManager );
+    }
       branch.staffs.push( stylist );
-      stylistManager.stylists.push( stylist );
       await branch.save();
       await stylistManager.save();
       return res.status(200).json(branch);
@@ -155,14 +163,16 @@ const BranchController = {
       }
       const stylistManager = await Stylist.findOne({ _id: stylistManagerId });
       if (!stylistManager) {
-        return res.status(400).json({ message: "Stylist not found" });
+        return res.status(400).json({ message: "Stylist Manager not found" });
       }
       const branch = await Branch.findOne({ _id: id });
       if (!branch) {
         return res.status(400).json({ message: "Branch not found" });
       }
-      branch.staffs.filter(x=> stylist._id.toHexString() !== x._id.toHexString());
-      stylistManager.stylists.filter(x=> stylist._id.toHexString() !== x._id.toHexString());
+      branch.staffs = branch.staffs.filter( x => !stylist._id.equals( x._id ) );
+      stylistManager.stylists = stylistManager.stylists.filter(
+        (x) => !stylist._id.equals(x._id)
+      );
       await branch.save();
       await stylistManager.save();
       return res.status(200).json(branch);
