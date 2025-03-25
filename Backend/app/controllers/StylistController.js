@@ -17,7 +17,7 @@ const StylistController = {
     }
   },
   // Retrieve a stylist by username
-  async retrieveByUsername(req, res) {
+  async retrieve(req, res) {
     console.log("StylistController > retrieve by Username");
     const { username } = req.params;
     const stylist = await Stylist.findOne({ username: username });
