@@ -29,7 +29,7 @@ const leaveRequestSchema = new Schema({
     responseDate: {
         type: Date,
     },
-    approveBy: {
+    approvedBy: {
         type: Schema.Types.ObjectId,
         ref: "Stylist",
     },
