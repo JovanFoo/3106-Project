@@ -63,7 +63,28 @@ const LeaveRequestController = {
             return res.status( 400 ).json( { message: error.message } );
         }
     },
-
+    async delete ( req, res ) {
+        console.log( "LeaveRequestController > delete leave request" );
+        const { id } = req.params;
+        const { userId: stylistId } = req;
+        const stylist = await Stylist
+            .findById( stylistId )
+            .populate( "leaveRequests" )
+            .exec();
+        if ( !stylist ) return res.status( 404 ).json( { message: "Stylist not found" } );
+        const leaveRequest = stylist.leaveRequests.find( ( leaveRequest ) => leaveRequest._id == id );
+        if ( !leaveRequest ) return res.status( 404 ).json( { message: "Leave request not found" } );
+        if ( leaveRequest.status != "Pending" ) return res.status( 400 ).json( { message: "Leave request is already " + leaveRequest.status } );
+        try
+        {
+            await leaveRequest.remove();
+            return res.status( 200 ).json( leaveRequest );
+        } catch ( error )
+        {
+            console.log( error.message );
+            return res.status( 400 ).json( { message: error.message } );
+        }
+    },
 
 
     // Get all leave requests
@@ -117,7 +138,7 @@ const LeaveRequestController = {
     },
     async approveLeaveRequest ( req, res ) {
         console.log( "LeaveRequestController > approve leave request" );
-        const { leaveRequestId } = req.params;
+        const { id:leaveRequestId } = req.params;
         const { userId: managerId } = req;
         const manager = await Stylist.findById( managerId );
         manager.populate("stylists");
@@ -151,7 +172,7 @@ const LeaveRequestController = {
     },
     async rejectLeaveRequest ( req, res ) {
         console.log( "LeaveRequestController > reject leave request" );
-        const { leaveRequestId } = req.params;
+        const { id: leaveRequestId } = req.params;
         const { userId: managerId } = req;
         const manager = await Stylist.findById( managerId );
         manager.populate("stylists");
