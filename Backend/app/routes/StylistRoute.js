@@ -5,6 +5,7 @@ const StylistRouter = express.Router();
 const StylistController = require("../controllers/StylistController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Stylist = require("../models/Stylist.js");
+const LeaveRequestController = require( "../controllers/LeaveRequestController.js" );
 
 // get stylist by id
 StylistRouter.get(
@@ -42,5 +43,4 @@ StylistRouter.get(
   AuthMiddleware.authAdminOrStylistManagerToken,
   StylistController.retrieveAll
 )
-
 module.exports = StylistRouter;
