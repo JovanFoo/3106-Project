@@ -69,9 +69,9 @@ const Calendar: React.FC = () => {
           id: appointment._id.toString(),
           start: new Date(appointment.date).toISOString().split("T")[0] || "",
           extendedProps: {
-            stylist: appointment.stylist,
+            stylist: appointment.stylistName,
             request: appointment.request,
-            service: appointment.service,
+            service: appointment.serviceName,
           },
         }));
 

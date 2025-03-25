@@ -2,6 +2,8 @@ const mongodb = require("./config/database.js");
 const Customer = require("../models/Customer.js");
 const PasswordHash = require("../utils/passwordHash.js");
 const jwt = require("../utils/jwt.js");
+const Stylist = require("../models/Stylist.js");
+const Service = require("../models/Service.js");
 
 const CustomerController = {
   // Retrieve a customer by username
@@ -70,10 +72,22 @@ const CustomerController = {
     const customer = await Customer.findOne({ _id: id }).populate(
       "appointments"
     );
+    const appointments = await Promise.all(
+      customer.appointments.map(async (appt) => {
+        const service = await Service.findOne({ _id: appt.service });
+        const stylist = await Stylist.findOne({ _id: appt.stylist });
+
+        return {
+          ...appt.toObject(), // convert to plain JSON, to append serviceName and stylistName
+          serviceName: service ? service.name : "Unknown",
+          stylistName: stylist ? stylist.name : "Unknown",
+        };
+      })
+    );
     const temp = await Customer.findOne({ _id: id });
     console.log(temp, id);
     if (customer) {
-      return res.status(200).json(customer.appointments);
+      return res.status(200).json(appointments);
     } else {
       return res.status(400).json({ message: "Error retrieving appointments" });
     }
