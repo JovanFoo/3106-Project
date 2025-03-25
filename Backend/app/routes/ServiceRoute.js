@@ -12,6 +12,12 @@ ServiceRouter.post(
   AuthMiddleware.authStylistToken, // TODO: change accordingly to desired person
   ServiceController.create
 )
+// get all services
+ServiceRouter.get(
+  "/",
+  AuthMiddleware.authCustomerOrStylistToken,
+  ServiceController.retrieveAll
+)
 // get svc by id
 ServiceRouter.get(
   "/:id",
