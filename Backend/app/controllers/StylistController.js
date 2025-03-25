@@ -95,7 +95,7 @@ const StylistController = {
 
   async updateProfilePicture(req, res) {
     console.log("StylistController > updateProfilePicture");
-    const { id } = req.userId;
+    const  id  = req.userId;
     const { profilePicture } = req.body;
     const stylist = await Stylist.findOne({ _id: id });
     if (!stylist) {
