@@ -4,6 +4,17 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const config = {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+    Authorization:
+      sessionStorage.getItem("token") ||
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmUwM2M0NmIzOWUxZjU1NWEzMTcgU3R5bGlzdCIsImlhdCI6MTc0MjkwODkxNCwiZXhwIjoxNzQyOTE2MTE0fQ.wQwgODNayiyerXAe3AA-Avbu-0BztQF6DmwBfgR_wfo",
+  },
+};
+
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
   const handleSave = () => {

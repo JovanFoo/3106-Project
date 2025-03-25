@@ -17,16 +17,28 @@ const config = {
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmUwM2M0NmIzOWUxZjU1NWEzMTcgU3R5bGlzdCIsImlhdCI6MTc0MjkwODkxNCwiZXhwIjoxNzQyOTE2MTE0fQ.wQwgODNayiyerXAe3AA-Avbu-0BztQF6DmwBfgR_wfo",
   },
 };
-export default function UserProfiles() {
 
+export default function UserProfiles() {
+  // const [userData, setUserData] = useState({});
+  
+  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [profilePic, setProfilePic] = useState("");
+  
   useEffect(() => {
     // Fetch user data here
     const selfId =
       sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
-    axios
+        axios
       .get(api_address + "/api/stylists/" + selfId, config)
       .then((res: AxiosResponse) => {
-        console.log(res.data);
+        // setUserData(res.data);
+        setUsername(res.data.username);
+        setName(res.data.name);
+        setEmail(res.data.email);
+        setProfilePic(res.data.profilePic);
+
       })
       .catch((err) => {
         console.log(err);

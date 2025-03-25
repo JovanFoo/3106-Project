@@ -5,27 +5,64 @@ import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import { useState, useEffect } from "react";
 import axios, { AxiosResponse } from "axios";
+import { log } from "console";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const config = {
   headers: {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-    "Authorization": sessionStorage.getItem("token"),
+    Authorization:
+      sessionStorage.getItem("token") ||
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmUwM2M0NmIzOWUxZjU1NWEzMTcgU3R5bGlzdCIsImlhdCI6MTc0MjkwODkxNCwiZXhwIjoxNzQyOTE2MTE0fQ.wQwgODNayiyerXAe3AA-Avbu-0BztQF6DmwBfgR_wfo",
   },
 };
+const selfId = sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
+  
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [profilePic, setProfilePic] = useState("");
-  
+  const [role, setRole] = useState("");
+
   useEffect(() => {
     // Fetch user data here
-    const selfId = sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
+
     axios
       .get(api_address + "/api/stylists/" + selfId, config)
+      .then((res: AxiosResponse) => {
+        // setUserData(res.data);
+        setUsername(res.data.username);
+        setName(res.data.name);
+        setEmail(res.data.email);
+        setProfilePic(res.data.profilePic);
+        if (res.data.stylists.length > 0) {
+          setRole("Manager");
+        } else {
+          setRole("Stylist");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Handle save logic here
+    e.preventDefault();
+    console.log("toBeSaved", username, name, email);
+    axios
+      .put(
+        api_address + "/api/stylists/" + selfId,
+        {
+          username: username,
+          name: name,
+          email: email,
+        },
+        config
+      )
       .then((res: AxiosResponse) => {
         setEmail(res.data.email);
         setName(res.data.name);
@@ -35,15 +72,13 @@ export default function UserMetaCard() {
       .catch((err) => {
         console.log(err);
       });
-  }, []);
-  const handleSave = () => {
-    // Handle save logic here
     axios
-      .get(api_address + "/api/stylists/", config)
+      .put(
+        api_address + "/api/stylists/profilePicture",
+        { profilePic: profilePic },
+        config
+      )
       .then((res: AxiosResponse) => {
-        setEmail(res.data.email);
-        setName(res.data.name);
-        setUsername(res.data.username);
         setProfilePic(res.data.profilePic);
       })
       .catch((err) => {
@@ -62,11 +97,11 @@ export default function UserMetaCard() {
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                Musharof Chowdhury
+                {name}
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Team Manager
+                  {role}
                 </p>
                 <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -74,7 +109,7 @@ export default function UserMetaCard() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
+            {/* <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
               <a
                 href="https://www.facebook.com/PimjoHQ"
                 target="_blank"
@@ -158,7 +193,7 @@ export default function UserMetaCard() {
                   />
                 </svg>
               </a>
-            </div>
+            </div> */}
           </div>
           <button
             onClick={openModal}
@@ -193,8 +228,8 @@ export default function UserMetaCard() {
               Update your details to keep your profile up-to-date.
             </p>
           </div>
-          <form className="flex flex-col">
-            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
+          <form className="flex flex-col" onSubmit={(e) => handleSave(e)}>
+            <div className="custom-scrollbar h-[350px] overflow-y-auto px-2 pb-3">
               {/* <div>
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Social Links
@@ -232,8 +267,41 @@ export default function UserMetaCard() {
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Personal Information
                 </h5>
-
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                  <div className="col-span-2 justify-center flex flex-col items-center gap-6 xl:flex-row">
+                    <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
+                      <label htmlFor="profilePic" style={{ cursor: "pointer" }} onClick={(e) => document.getElementById("profilePic")?.click()}>
+                        <img
+                          src={profilePic || "/images/user/owner.jpg"}
+                          alt="user"
+                        />
+                      </label>
+                    </div>
+                    <Input
+                      className="hidden"
+                      id="profilePic"
+                      type="file"
+                      name="profilePic"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setProfilePic(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-2 ">
+                    <Label>Username</Label>
+                    <Input
+                      type="text"
+                      name="username"
+                      value={username}
+                      placeholder="Username"
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                  </div>
                   <div className="col-span-2 ">
                     <Label>Name</Label>
                     <Input
@@ -245,7 +313,7 @@ export default function UserMetaCard() {
                     />
                   </div>
 
-                  <div className="col-span-2 lg:col-span-1">
+                  <div className="col-span-2">
                     <Label>Email Address</Label>
                     <Input
                       type="text"
@@ -255,16 +323,6 @@ export default function UserMetaCard() {
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
-                    <Input type="text" value="+09 363 398 46" />
-                  </div>
-
-                  <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input type="text" value="Team Manager" />
-                  </div>
                 </div>
               </div>
             </div>
@@ -272,9 +330,7 @@ export default function UserMetaCard() {
               <Button size="sm" variant="outline" onClick={closeModal}>
                 Close
               </Button>
-              <Button size="sm" onClick={handleSave}>
-                Save Changes
-              </Button>
+              <Button size="sm">Save Changes</Button>
             </div>
           </form>
         </div>
