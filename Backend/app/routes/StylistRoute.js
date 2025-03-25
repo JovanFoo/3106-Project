@@ -9,7 +9,7 @@ const Stylist = require("../models/Stylist.js");
 // get list of all stylists
 StylistRouter.get(
   "/",
-  AuthMiddleware.authStylistToken,
+  AuthMiddleware.authCustomerOrStylistToken,
   StylistController.retrieveAllStylists
 )
 // get stylist by id
