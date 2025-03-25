@@ -105,7 +105,7 @@ const StylistController = {
 
   async updateProfilePicture(req, res) {
     console.log("StylistController > updateProfilePicture");
-    const { id } = req.userId;
+    const  id  = req.userId;
     const { profilePicture } = req.body;
     const stylist = await Stylist.findOne({ _id: id });
     if (!stylist) {
@@ -139,6 +139,17 @@ const StylistController = {
     stylist.password = await PasswordHash.hashPassword(password);
     await stylist.save();
     return res.render("success-update");
+  },
+
+  // Retrieve all stylists (only admin can retrieve)
+  async retrieveAll(req, res) {
+    console.log("StylistController > retrieveAll");
+    const stylists = await Stylist.find({});
+    if (stylists) {
+      return res.status(200).json(stylists);
+    } else {
+      return res.status(400).json({ message: "Error retrieving stylists" });
+    }
   },
 };
 

@@ -5,6 +5,7 @@ const StylistRouter = express.Router();
 const StylistController = require("../controllers/StylistController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Stylist = require("../models/Stylist.js");
+const LeaveRequestController = require( "../controllers/LeaveRequestController.js" );
 
 // get list of all stylists
 StylistRouter.get(
@@ -43,4 +44,9 @@ StylistRouter.put(
   StylistController.updateProfilePicture
 );
 
+StylistRouter.get(
+  "/",
+  AuthMiddleware.authAdminOrStylistManagerToken,
+  StylistController.retrieveAll
+)
 module.exports = StylistRouter;

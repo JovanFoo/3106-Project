@@ -50,15 +50,15 @@ AuthRouter.post(
 AuthRouter.post(
   "/admins/register", 
   AuthMiddleware.authAdminToken,
-  AuthController.registerCustomer
+  AuthController.registerAdmin
 );
 AuthRouter.post(
   "/admins/login", 
-  AuthController.loginCustomer
+  AuthController.loginAdmin
 );
 AuthRouter.post(
   "/admins/forget-password",
-  AuthController.resetCustomerPassword
+  AuthController.resetAdminPassword
 );
 AuthRouter.post(
   "/admins/reset-password/:token",
