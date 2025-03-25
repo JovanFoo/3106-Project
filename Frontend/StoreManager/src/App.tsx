@@ -75,7 +75,7 @@ export default function App() {
           {/* Auth Layout */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/forget-password" element={<ForgetPassword />} />
+          <Route path="/reset-password" element={<ForgetPassword />} />
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
