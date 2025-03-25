@@ -37,7 +37,7 @@ const AppSidebar = () => {
   const subMenuRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const isActive = useCallback(
-    (path: string) => location.pathname === path,
+    (path: string) => location.pathname.startsWith(path),
     [location.pathname]
   );
 
@@ -105,6 +105,7 @@ const AppSidebar = () => {
                   )}
                 </button>
               ) : (
+                // This is for setting active link
                 <Link
                   to={nav.path!}
                   className={`menu-item group ${isActive(nav.path!) ? "menu-item-active" : "menu-item-inactive"}`}

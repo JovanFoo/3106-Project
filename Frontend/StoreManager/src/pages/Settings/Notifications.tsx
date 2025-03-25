@@ -1,5 +1,6 @@
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
+import Button from "../../components/ui/button/Button";
+import ToggleSwitch from "../../components/ui/button/ToggleSwitch";
 import SettingsSidebar from "../SettingsSidebar";
 
 export default function Notifications() {
@@ -7,24 +8,43 @@ export default function Notifications() {
         <div className="flex min-h-screen">
             {/* Settings-specific Sidebar */}
             <SettingsSidebar />
-
             {/* Main Content */}
             <div className="flex-1 p-5">
-                <PageMeta
-                    title="React.js Blank Dashboard | TailAdmin - Next.js Admin Dashboard Template"
-                    description="This is React.js Blank Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
-                />
                 <PageBreadcrumb pageTitle="Notifications" />
-                <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
-                    <div className="mx-auto w-full max-w-[630px] text-center">
-                        <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
-                            Card Title Here
-                        </h3>
+                <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
+                        Notification Preferences
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                        Manage your notification settings to stay updated with important alerts.
+                    </p>
 
-                        <p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">
-                            Start putting content on grids or panels, you can also use different
-                            combinations of grids. Please check out the dashboard and other pages.
-                        </p>
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-800 dark:text-white/90">Email Notifications</span>
+                            <ToggleSwitch defaultChecked={true} />
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-800 dark:text-white/90">SMS Notifications</span>
+                            <ToggleSwitch defaultChecked={false} />
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-800 dark:text-white/90">Push Notifications</span>
+                            <ToggleSwitch defaultChecked={true} />
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-800 dark:text-white/90">Marketing Emails</span>
+                            <ToggleSwitch defaultChecked={false} />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-6 lg:justify-end">
+                        <Button size="sm" variant="outline">
+                            Cancel
+                        </Button>
+                        <Button size="sm">
+                            Save Changes
+                        </Button>
                     </div>
                 </div>
             </div>

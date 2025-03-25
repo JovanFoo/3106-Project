@@ -1,31 +1,81 @@
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
+import Input from "../../components/form/input/InputField";
+import Label from "../../components/form/Label";
+import Button from "../../components/ui/button/Button";
+import { Modal } from "../../components/ui/modal";
+import { useModal } from "../../hooks/useModal";
 import SettingsSidebar from "../SettingsSidebar";
 
 export default function ChangePassword() {
+    const { isOpen, openModal, closeModal } = useModal();
+    const handleSave = () => {
+        // Handle password change logic here
+        console.log("Changing password...");
+        closeModal();
+    };
+
     return (
         <div className="flex min-h-screen">
             {/* Settings-specific Sidebar */}
             <SettingsSidebar />
-
             {/* Main Content */}
             <div className="flex-1 p-5">
-                <PageMeta
-                    title="React.js Blank Dashboard | TailAdmin - Next.js Admin Dashboard Template"
-                    description="This is React.js Blank Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
-                />
-                <PageBreadcrumb pageTitle="ChangePassword" />
-                <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
-                    <div className="mx-auto w-full max-w-[630px] text-center">
-                        <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
-                            Card Title Here
-                        </h3>
+                <PageBreadcrumb pageTitle="Change Password" />
+                <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                            <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
+                                Change Password
+                            </h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Ensure your account is secure by updating your password regularly.
+                            </p>
+                        </div>
 
-                        <p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">
-                            Start putting content on grids or panels, you can also use different
-                            combinations of grids. Please check out the dashboard and other pages.
-                        </p>
+                        <button
+                            onClick={openModal}
+                            className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
+                        >
+                            Change Password
+                        </button>
                     </div>
+
+                    <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[500px] m-4">
+                        <div className="relative w-full max-w-[500px] rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-8">
+                            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+                                Update Password
+                            </h4>
+                            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+                                Enter your current password and set a new one.
+                            </p>
+
+                            <form className="flex flex-col gap-4">
+                                <div>
+                                    <Label>Current Password</Label>
+                                    <Input type="password" placeholder="Enter current password" />
+                                </div>
+
+                                <div>
+                                    <Label>New Password</Label>
+                                    <Input type="password" placeholder="Enter new password" />
+                                </div>
+
+                                <div>
+                                    <Label>Confirm New Password</Label>
+                                    <Input type="password" placeholder="Confirm new password" />
+                                </div>
+
+                                <div className="flex items-center gap-3 mt-4 lg:justify-end">
+                                    <Button size="sm" variant="outline" onClick={closeModal}>
+                                        Cancel
+                                    </Button>
+                                    <Button size="sm" onClick={handleSave}>
+                                        Save Changes
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
+                    </Modal>
                 </div>
             </div>
         </div>

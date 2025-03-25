@@ -1,30 +1,65 @@
+import { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
+import Button from "../../components/ui/button/Button";
 import SettingsSidebar from "../SettingsSidebar";
 
+const expertiseOptions = [
+    "Haircut",
+    "Hair Treatments",
+    "Men’s Grooming",
+    "Color Treatments",
+    "Bridal & Event Styling",
+    "Classic Perms",
+    "Digital Perms",
+    "Spiral Perms",
+    "Hair Reborn Restoration",
+    "Total Reborn",
+    "Scalp Massage",
+    "Highlight",
+];
+
 export default function Expertise() {
+    const [selectedExpertise, setSelectedExpertise] = useState(["Men’s Grooming", "Total Reborn"]);
+
+    const toggleSelection = (expertise: string) => {
+        setSelectedExpertise((prev) =>
+            prev.includes(expertise)
+                ? prev.filter((item) => item !== expertise)
+                : [...prev, expertise]
+        );
+    };
+
     return (
         <div className="flex min-h-screen">
-            {/* Settings-specific Sidebar */}
             <SettingsSidebar />
-
-            {/* Main Content */}
             <div className="flex-1 p-5">
-                <PageMeta
-                    title="React.js Blank Dashboard | TailAdmin - Next.js Admin Dashboard Template"
-                    description="This is React.js Blank Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
-                />
                 <PageBreadcrumb pageTitle="Expertise" />
-                <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
-                    <div className="mx-auto w-full max-w-[630px] text-center">
-                        <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
-                            Card Title Here
-                        </h3>
-
-                        <p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">
-                            Start putting content on grids or panels, you can also use different
-                            combinations of grids. Please check out the dashboard and other pages.
-                        </p>
+                <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">Expertise</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                        Select your areas of expertise below.
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                        {expertiseOptions.map((expertise) => (
+                            <button
+                                key={expertise}
+                                onClick={() => toggleSelection(expertise)}
+                                className={`px-4 py-2 rounded-full text-sm font-medium shadow-md transition ${selectedExpertise.includes(expertise)
+                                        ? "bg-blue-600 text-white"
+                                        : "bg-white text-gray-800 dark:bg-gray-700 dark:text-white border border-gray-300"
+                                    }`}
+                            >
+                                {expertise}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-3 mt-6 lg:justify-end">
+                        <Button size="sm" variant="outline">
+                            Cancel
+                        </Button>
+                        <Button size="sm">
+                            Save Changes
+                        </Button>
                     </div>
                 </div>
             </div>

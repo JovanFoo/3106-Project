@@ -1,4 +1,4 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router";
+import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import AppLayout from "./layout/AppLayout";
 import Analytics from "./pages/Analytics";
@@ -11,7 +11,6 @@ import BarChart from "./pages/Charts/BarChart";
 import LineChart from "./pages/Charts/LineChart";
 import Home from "./pages/Dashboard/Home";
 import NotFound from "./pages/OtherPage/NotFound";
-import Settings from "./pages/Settings";
 import ChangePassword from "./pages/Settings/ChangePassword";
 import Expertise from "./pages/Settings/Expertise";
 import Notifications from "./pages/Settings/Notifications";
@@ -45,8 +44,10 @@ export default function App() {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/teams" element={<Teams />} />
             <Route path="/shopSettings" element={<ShopSettings />} />
-            <Route path="/settings" element={<Settings />} />
             <Route path="/blank" element={<Blank />} />
+
+            {/* Default Settings Redirect */}
+            <Route path="/settings" element={<Navigate to="/settings/profile" replace />} />
 
             {/* Settings */}
               
