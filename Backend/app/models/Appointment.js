@@ -18,12 +18,10 @@ const appointmentSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  services: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Service",
-    },
-  ],
+  service: {
+    type: Schema.Types.ObjectId,
+    ref: "Service",
+  },
   reviews: [
     {
       type: Schema.Types.ObjectId,
@@ -33,7 +31,7 @@ const appointmentSchema = new Schema({
   stylist: {
     type: Schema.Types.ObjectId,
     ref: "Stylist",
-  }
+  },
 });
 
 const Appointment = mongose.model("Appointment", appointmentSchema);
