@@ -11,6 +11,7 @@ import BasicTableOne from "../components/tables/BasicTables/BasicTableOne";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import ComponentCard from "../components/common/ComponentCard";
 import Button from "../components/ui/button/Button";
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -50,7 +51,7 @@ const Calendar: React.FC = () => {
       const token = customer.token;
       try {
         const response = await fetch(
-          `http://localhost:3000/api/customers/${customerId}/appointments`,
+          `${API_URL}/api/customers/${customerId}/appointments`,
           {
             method: "GET",
             headers: {
