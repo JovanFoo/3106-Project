@@ -5,6 +5,7 @@ import Analytics from "./pages/Analytics";
 import Appointments from "./pages/Appointments";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
+import ForgetPassword from "./pages/AuthPages/ForgetPassword";
 import Blank from "./pages/Blank";
 import Calendar from "./pages/Calendar";
 import BarChart from "./pages/Charts/BarChart";
@@ -68,6 +69,7 @@ export default function App() {
           {/* Auth Layout */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/forget-password" element={<ForgetPassword />} />
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
