@@ -4,8 +4,35 @@ import UserAddressCard from "../components/UserProfile/UserAddressCard";
 import UserInfoCard from "../components/UserProfile/UserInfoCard";
 import UserMetaCard from "../components/UserProfile/UserMetaCard";
 import SettingsSidebar from "./SettingsSidebar";
+import { useEffect, useState } from "react";
+import axios, { AxiosResponse } from "axios";
 
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const config = {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+    Authorization:
+      sessionStorage.getItem("token") ||
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmUwM2M0NmIzOWUxZjU1NWEzMTcgU3R5bGlzdCIsImlhdCI6MTc0MjkwODkxNCwiZXhwIjoxNzQyOTE2MTE0fQ.wQwgODNayiyerXAe3AA-Avbu-0BztQF6DmwBfgR_wfo",
+  },
+};
 export default function UserProfiles() {
+
+  useEffect(() => {
+    // Fetch user data here
+    const selfId =
+      sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
+    axios
+      .get(api_address + "/api/stylists/" + selfId, config)
+      .then((res: AxiosResponse) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
   return (
     <div className="flex min-h-screen">
       {/* Settings-specific Sidebar */}

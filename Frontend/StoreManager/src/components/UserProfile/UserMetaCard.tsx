@@ -3,11 +3,52 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { useState, useEffect } from "react";
+import axios, { AxiosResponse } from "axios";
 
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const config = {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+    "Authorization": sessionStorage.getItem("token"),
+  },
+};
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
+  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [profilePic, setProfilePic] = useState("");
+  
+  useEffect(() => {
+    // Fetch user data here
+    const selfId = sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
+    axios
+      .get(api_address + "/api/stylists/" + selfId, config)
+      .then((res: AxiosResponse) => {
+        setEmail(res.data.email);
+        setName(res.data.name);
+        setUsername(res.data.username);
+        setProfilePic(res.data.profilePic);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
   const handleSave = () => {
     // Handle save logic here
+    axios
+      .get(api_address + "/api/stylists/", config)
+      .then((res: AxiosResponse) => {
+        setEmail(res.data.email);
+        setName(res.data.name);
+        setUsername(res.data.username);
+        setProfilePic(res.data.profilePic);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     console.log("Saving changes...");
     closeModal();
   };
@@ -154,7 +195,7 @@ export default function UserMetaCard() {
           </div>
           <form className="flex flex-col">
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              <div>
+              {/* <div>
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Social Links
                 </h5>
@@ -186,26 +227,33 @@ export default function UserMetaCard() {
                     <Input type="text" value="https://instagram.com/PimjoHQ" />
                   </div>
                 </div>
-              </div>
+              </div> */}
               <div className="mt-7">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Personal Information
                 </h5>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input type="text" value="Musharof" />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input type="text" value="Chowdhury" />
+                  <div className="col-span-2 ">
+                    <Label>Name</Label>
+                    <Input
+                      type="text"
+                      name="name"
+                      value={name}
+                      placeholder="Name"
+                      onChange={(e) => setName(e.target.value)}
+                    />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
-                    <Input type="text" value="randomuser@pimjo.com" />
+                    <Input
+                      type="text"
+                      name="email"
+                      value={email}
+                      placeholder="Email Address"
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
