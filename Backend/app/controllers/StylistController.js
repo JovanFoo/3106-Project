@@ -17,17 +17,17 @@ const StylistController = {
     }
   },
   // Retrieve a stylist by username
-  async retrieve(req, res) {
-    console.log("StylistController > retrieve by Username");
-    const { username } = req.params;
-    const stylist = await Stylist.findOne({ username: username });
-    if (stylist) {
-      stylist.password = undefined;
-      return res.status(200).json(stylist);
-    } else {
-      return res.status(400).json({ message: "Error retrieving stylist by Username" });
-    }
-  },
+  // async retrieve(req, res) {
+  //   console.log("StylistController > retrieve by Username");
+  //   const { username } = req.params;
+  //   const stylist = await Stylist.findOne({ username: username });
+  //   if (stylist) {
+  //     stylist.password = undefined;
+  //     return res.status(200).json(stylist);
+  //   } else {
+  //     return res.status(400).json({ message: "Error retrieving stylist by Username" });
+  //   }
+  // },
   // Update a stylist's name, email by username
   async update(req, res) {
     console.log("StylistController > update");
