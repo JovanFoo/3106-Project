@@ -11,11 +11,14 @@ import Calendar from "./pages/Calendar";
 import BarChart from "./pages/Charts/BarChart";
 import LineChart from "./pages/Charts/LineChart";
 import Home from "./pages/Dashboard/Home";
-import FormElements from "./pages/Forms/FormElements";
 import NotFound from "./pages/OtherPage/NotFound";
 import Settings from "./pages/Settings";
+import ChangePassword from "./pages/Settings/ChangePassword";
+import Expertise from "./pages/Settings/Expertise";
+import Notifications from "./pages/Settings/Notifications";
+import Portfolio from "./pages/Settings/Portfolio";
+import Testimonials from "./pages/Settings/Testimonials";
 import ShopSettings from "./pages/ShopSettings";
-import BasicTables from "./pages/Tables/BasicTables";
 import Teams from "./pages/Teams";
 import Transactions from "./pages/Transactions";
 import Alerts from "./pages/UiElements/Alerts";
@@ -36,10 +39,9 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route index path="/" element={<Home />} />
 
-            {/* Others Page */}
-            <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
+            {/* Main Page */}
             <Route path="/appointments" element={<Appointments />} />
+            <Route path="/calendar" element={<Calendar />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/teams" element={<Teams />} />
@@ -47,11 +49,15 @@ export default function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/blank" element={<Blank />} />
 
-            {/* Forms */}
-            <Route path="/form-elements" element={<FormElements />} />
+            {/* Settings */}
+              
+              <Route path="/settings/profile" element={<UserProfiles />} />
+              <Route path="/settings/change-password" element={<ChangePassword />} />
+              <Route path="/settings/notifications" element={<Notifications />} />
+              <Route path="/settings/expertise" element={<Expertise />} />
+              <Route path="/settings/portfolio" element={<Portfolio />} />
+              <Route path="/settings/testimonials" element={<Testimonials />} />
 
-            {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />
