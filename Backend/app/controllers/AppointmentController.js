@@ -5,22 +5,23 @@ const PasswordHash = require("../utils/passwordHash.js");
 const CustomerController = require("./CustomerController.js");
 const StylistController = require("./StylistController.js");
 const Stylist = require("../models/Stylist.js");
+const Service = require("../models/Service.js");
 
 const AppointmentController = {
   // Create a new appointment
   async create(req, res) {
     console.log("AppointmentController > create");
     const id = req.userId;
-    let { date, request, totalAmount, service, stylistId } = req.body;
-    date = new Date(date);
-    date.setHours(date.getHours() + 8)
+    let { date, request, totalAmount, serviceId, stylistId } = req.body;
+    const modDate = new Date(date);
+    modDate.setHours(modDate.getHours() + 8)
     totalAmount = parseFloat(totalAmount);
     try {
       const appointment = new Appointment({
-        date,
+        date: modDate,
         request,
         totalAmount,
-        service,
+        service: serviceId,
         stylist: stylistId
       });
       const newAppointment = await appointment.save();
