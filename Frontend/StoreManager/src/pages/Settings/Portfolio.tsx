@@ -1,30 +1,50 @@
+import { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
+import Button from "../../components/ui/button/Button";
 import SettingsSidebar from "../SettingsSidebar";
 
-export default function Portfolio() {
+const portfolioItems = [
+    { id: 1, title: "2 block", image: "/images/2block1.jpg" },
+    { id: 2, title: "Low Taper Fade", image: "/images/lowtaper1.jpg" },
+    { id: 3, title: "Wolf Cut", image: "/images/wolfcut1.jpg" },
+    { id: 4, title: "2 block", image: "/images/2block2.jpg" },
+    { id: 5, title: "Low Taper Fade", image: "/images/lowtaper2.jpg" },
+    { id: 6, title: "Wolf Cut", image: "/images/wolfcut2.jpg" },
+];
+
+export default function PortfolioGallery() {
+    const [selected, setSelected] = useState(null);
+
     return (
         <div className="flex min-h-screen">
-            {/* Settings-specific Sidebar */}
             <SettingsSidebar />
-
-            {/* Main Content */}
             <div className="flex-1 p-5">
-                <PageMeta
-                    title="React.js Blank Dashboard | TailAdmin - Next.js Admin Dashboard Template"
-                    description="This is React.js Blank Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
-                />
-                <PageBreadcrumb pageTitle="Portfolio" />
-                <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
-                    <div className="mx-auto w-full max-w-[630px] text-center">
-                        <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
-                            Card Title Here
-                        </h3>
-
-                        <p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">
-                            Start putting content on grids or panels, you can also use different
-                            combinations of grids. Please check out the dashboard and other pages.
-                        </p>
+                <PageBreadcrumb pageTitle="Portfolio/Gallery" />
+                <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                            Portfolio/Gallery
+                        </h4>
+                        <Button size="sm" variant="primary">Add Photos +</Button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                        {portfolioItems.map((item) => (
+                            <div
+                                key={item.id}
+                                className={`p-2 rounded-lg border cursor-pointer transition ${selected === item.id ? "border-blue-500" : "border-transparent"
+                                    }`}
+                                onClick={() => setSelected(item.id)}
+                            >
+                                <img
+                                    src={item.image}
+                                    alt={item.title}
+                                    className="w-full h-40 object-cover rounded-md"
+                                />
+                                <p className="text-center mt-2 text-sm font-medium text-gray-800 dark:text-white">
+                                    {item.title}
+                                </p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
