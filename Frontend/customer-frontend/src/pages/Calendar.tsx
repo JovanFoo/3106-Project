@@ -15,6 +15,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
+    // stores the stylistId and serviceId
     stylist: string;
     request: string;
     service: string;
@@ -26,9 +27,13 @@ const Calendar: React.FC = () => {
     null
   );
   const [stylist, setStylist] = useState("");
+  // only take the _id and name of the stylist object
+  const [stylists, setStylists] = useState<{ _id: string; name: string }[]>([]);
   const [apptStartDate, setApptStartDate] = useState("");
   const [request, setRequest] = useState("");
   const [service, setService] = useState("");
+  // only take the _id and name of the service object
+  const [services, setServices] = useState<{ _id: string; name: string }[]>([]);
   const [appt, setAppts] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
@@ -41,7 +46,58 @@ const Calendar: React.FC = () => {
   // };
   useEffect(() => {
     fetchAppointments();
+    fetchServices();
+    fetchStylists();
   }, []);
+
+  // get a list of all services for dropdown
+  const fetchServices = async () => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.token;
+      try {
+        const response = await fetch(`${API_URL}/api/services`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch services");
+
+        const data = await response.json();
+        setServices(data);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    }
+  };
+
+  // get list of all stylists for dropdown 
+  const fetchStylists = async () => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.token;
+      try {
+        const response = await fetch(`${API_URL}/api/stylists`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch stylists");
+
+        const data = await response.json();
+        console.log(data);
+        setStylists(data);
+      } catch (error) {
+        console.error("Error fetching stylist:", error);
+      }
+    }
+  };
 
   const fetchAppointments = async () => {
     const userData = localStorage.getItem("user");
@@ -63,18 +119,19 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch appointments");
 
         const data = await response.json();
-        console.log(`response: ${response}`);
-        console.log(`data: ${data}`);
 
-        const formattedAppointments = data.map((appointment: any) => ({
-          id: appointment._id.toString(),
-          start: new Date(appointment.date).toISOString().split("T")[0] || "",
-          extendedProps: {
-            stylist: appointment.stylistName,
-            request: appointment.request,
-            service: appointment.serviceName,
-          },
-        }));
+        const formattedAppointments = data
+          .filter((appointment: any) => !appointment.isCompleted) // only show active appointments
+          .map((appointment: any) => ({
+            id: appointment._id.toString(),
+            start: new Date(appointment.date).toISOString().split("T")[0] || "",
+            extendedProps: {
+              // stores the stylistId and serviceId
+              stylist: appointment.stylist,
+              request: appointment.request,
+              service: appointment.service,
+            },
+          }));
 
         setAppts(formattedAppointments);
       } catch (error) {
@@ -89,6 +146,7 @@ const Calendar: React.FC = () => {
     openModal();
   };
 
+  // clicking the appointment tab on calendar
   const handleEventClick = (clickInfo: EventClickArg) => {
     // get the appointment details and set the fields
     const appt = clickInfo.event;
@@ -99,15 +157,23 @@ const Calendar: React.FC = () => {
     // convert to SGT
     const date = appt.start ? new Date(appt.start) : new Date();
     if (date) {
-      date.setHours(date.getHours() + 8)
+      date.setHours(date.getHours() + 8);
     }
     setApptStartDate(date.toISOString().split("T")[0]);
     openModal();
   };
 
-  const handleAddOrUpdateEvent = () => {
+  const handleAddOrUpdateEvent = async () => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      console.error("No user data found");
+      return;
+    }
+    const customer = JSON.parse(userData);
+    const token = customer.token;
+
     if (selectedEvent) {
-      // Update existing event
+      // TODO: Update existing event
       setAppts((prevEvents) =>
         prevEvents.map((event) =>
           event.id === selectedEvent.id
@@ -125,13 +191,44 @@ const Calendar: React.FC = () => {
       );
     } else {
       // Add new appointment
-      const newAppointment: CalendarEvent = {
-        id: Date.now().toString(),
-        start: apptStartDate,
-        allDay: true, // change to set the timing
-        extendedProps: { stylist: stylist, request: request, service: service },
+      const newAppointmentData = {
+        date: apptStartDate,
+        request: request,
+        totalAmount: 0, // Adjust as necessary
+        serviceId: service,
+        stylistId: stylist,
       };
-      setAppts((prevEvents) => [...prevEvents, newAppointment]);
+
+      try {
+        const response = await fetch(`${API_URL}/api/appointments`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify(newAppointmentData),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create appointment");
+        }
+        const createdAppointment = await response.json();
+        // Convert response data into FullCalendar format
+        const newAppointment: CalendarEvent = {
+          id: createdAppointment._id.toString(),
+          start: createdAppointment.date,
+          allDay: true,
+          extendedProps: {
+            stylist: createdAppointment.stylist,
+            service: createdAppointment.service,
+            request: createdAppointment.request,
+          },
+        };
+        // update calendar's state to reflect new appointment
+        setAppts((prevEvents) => [...prevEvents, newAppointment]);
+      } catch (error) {
+        console.error("Error creating appointment:", error);
+      }
     }
     closeModal();
     resetModalFields();
@@ -145,11 +242,31 @@ const Calendar: React.FC = () => {
     // setEventLevel("");
     setSelectedEvent(null);
   };
+  
+  // renders appointment bars on calendar
+  const renderEventContent = (eventInfo: any) => {
+    // map serviceId(in extendedProps) to service name in services list (got from backend)
+    const getServiceName = (serviceId: string) => {
+      const serviceObj = services.find((s) => s._id === serviceId);
+      return serviceObj ? serviceObj.name : "Unknown Service";
+    };
+    return (
+      <div
+        className={`event-fc-color flex fc-event-main fc-bg-primary p-1 rounded`}
+      >
+        <div className="fc-daygrid-event-dot"></div>
+        <div className="fc-event-time">{eventInfo.timeText}</div>
+        <div className="fc-event-title">
+          {getServiceName(eventInfo.event.extendedProps.service)}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
       <PageMeta
-        title="React.js Calendar Dashboard | TailAdmin - Next.js Admin Dashboard Template"
+        title="Customer | Appointments"
         description="This is React.js Calendar Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <PageBreadcrumb pageTitle="Appointments" />
@@ -248,26 +365,40 @@ const Calendar: React.FC = () => {
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                     Stylist
                   </label>
-                  <input
+                  <select
                     id="stylist"
-                    type="text"
                     value={stylist}
                     onChange={(e) => setStylist(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
+                    className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  >
+                    <option value="">Select a stylist</option>
+                    {stylists.map((s) => (
+                      <option key={s._id} value={s._id}>
+                        {s.name}{" "}
+                        {/* display stylist name, save stylist value as the id */}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div className="mt-6">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   Service
                 </label>
-                <input
-                  id="location"
-                  type="text"
+                <select
+                  id="service"
                   value={service}
                   onChange={(e) => setService(e.target.value)}
-                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                />
+                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                >
+                  <option value="">Select a service</option>
+                  {services.map((s) => (
+                    <option key={s._id} value={s._id}>
+                      {s.name}{" "}
+                      {/* display service name, save service value as the id */}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="mt-6">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -293,7 +424,12 @@ const Calendar: React.FC = () => {
               <button
                 onClick={handleAddOrUpdateEvent}
                 type="button"
-                className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
+                disabled={!apptStartDate || !stylist || !service}
+                className={`btn btn-success btn-update-event flex w-full justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-white sm:w-auto ${
+                  !apptStartDate || !stylist || !service
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-brand-500 hover:bg-brand-600"
+                }`}
               >
                 {selectedEvent ? "Update Appointment" : "Book Appointment"}
               </button>
@@ -308,20 +444,6 @@ const Calendar: React.FC = () => {
         </ComponentCard>
       </div>
     </>
-  );
-};
-
-const renderEventContent = (eventInfo: any) => {
-  return (
-    <div
-      className={`event-fc-color flex fc-event-main fc-bg-primary p-1 rounded`}
-    >
-      <div className="fc-daygrid-event-dot"></div>
-      <div className="fc-event-time">{eventInfo.timeText}</div>
-      <div className="fc-event-title">
-        {eventInfo.event.extendedProps.service}
-      </div>
-    </div>
   );
 };
 
