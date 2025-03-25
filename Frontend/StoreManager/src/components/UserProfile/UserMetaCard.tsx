@@ -14,7 +14,7 @@ const config = {
     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
     Authorization:
       sessionStorage.getItem("token") ||
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmUwM2M0NmIzOWUxZjU1NWEzMTcgU3R5bGlzdCIsImlhdCI6MTc0MjkwODkxNCwiZXhwIjoxNzQyOTE2MTE0fQ.wQwgODNayiyerXAe3AA-Avbu-0BztQF6DmwBfgR_wfo",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmUwM2M0NmIzOWUxZjU1NWEzMTcgU3R5bGlzdCIsImlhdCI6MTc0MjkxNjkzMiwiZXhwIjoxNzQyOTI0MTMyfQ.1O-HP4zeA8TZ1ZG_N7Dmcxg1dSGZ8qMUZd6rO0HSexE",
   },
 };
 const selfId = sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
@@ -38,6 +38,7 @@ export default function UserMetaCard() {
         setName(res.data.name);
         setEmail(res.data.email);
         setProfilePic(res.data.profilePic);
+        console.log(res.data.profilePic);
         if (res.data.stylists.length > 0) {
           setRole("Manager");
         } else {
@@ -72,10 +73,11 @@ export default function UserMetaCard() {
       .catch((err) => {
         console.log(err);
       });
+    console.log(profilePic);
     axios
       .put(
         api_address + "/api/stylists/profilePicture",
-        { profilePic: profilePic },
+        { profilePicture: profilePic },
         config
       )
       .then((res: AxiosResponse) => {
@@ -93,7 +95,7 @@ export default function UserMetaCard() {
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
             <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-              <img src="/images/user/owner.jpg" alt="user" />
+              <img src={profilePic} alt="user" />
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
@@ -286,6 +288,7 @@ export default function UserMetaCard() {
                         const file = e.target.files[0];
                         const reader = new FileReader();
                         reader.onloadend = () => {
+                          console.log(reader.result);
                           setProfilePic(reader.result as string);
                         };
                         reader.readAsDataURL(file);
