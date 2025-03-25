@@ -1,6 +1,8 @@
 import { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Button from "../../components/ui/button/Button";
+import { Modal } from "../../components/ui/modal";
+import { useModal } from "../../hooks/useModal";
 import SettingsSidebar from "../SettingsSidebar";
 
 const expertiseOptions = [
@@ -20,8 +22,9 @@ const expertiseOptions = [
 
 export default function Expertise() {
     const [selectedExpertise, setSelectedExpertise] = useState(["Men’s Grooming", "Total Reborn"]);
+    const { isOpen, openModal, closeModal } = useModal();
 
-    const toggleSelection = (expertise: string) => {
+    const toggleSelection = (expertise) => {
         setSelectedExpertise((prev) =>
             prev.includes(expertise)
                 ? prev.filter((item) => item !== expertise)
@@ -40,6 +43,24 @@ export default function Expertise() {
                         Select your areas of expertise below.
                     </p>
                     <div className="flex flex-wrap gap-3">
+                        {selectedExpertise.map((expertise) => (
+                            <span key={expertise} className="px-4 py-2 rounded-full bg-blue-600 text-white text-sm font-medium shadow-md">
+                                {expertise}
+                            </span>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-3 mt-6 lg:justify-end">
+                        <Button size="sm" onClick={openModal}>
+                            Edit
+                        </Button>
+                    </div>
+                </div>
+            </div>
+            
+            <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[500px] p-6">
+                <div className="flex flex-col px-2 overflow-y-auto">
+                    <h4 className="text-lg text-white font-semibold mb-4">Edit Expertise</h4>
+                    <div className="flex flex-wrap gap-3">
                         {expertiseOptions.map((expertise) => (
                             <button
                                 key={expertise}
@@ -53,16 +74,20 @@ export default function Expertise() {
                             </button>
                         ))}
                     </div>
-                    <div className="flex items-center gap-3 mt-6 lg:justify-end">
-                        <Button size="sm" variant="outline">
-                            Cancel
-                        </Button>
-                        <Button size="sm">
+                    <div className="flex items-center gap-3 mt-6 sm:justify-end">
+                        <button
+                            onClick={closeModal}
+                            type="button"
+                            className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
+                        >
+                            Close
+                        </button>
+                        <Button size="sm" variant="primary" onClick={closeModal}>
                             Save Changes
                         </Button>
                     </div>
                 </div>
-            </div>
+            </Modal>
         </div>
     );
 }
