@@ -43,14 +43,4 @@ StylistRouter.get(
   AuthMiddleware.authAdminOrStylistManagerToken,
   StylistController.retrieveAll
 )
-StylistRouter.post(
-  "/leave-requests",
-  AuthMiddleware.authStylistToken,
-  LeaveRequestController.createLeaveRequest
-)
-StylistRouter.get(
-  "/leave-requests",
-  AuthMiddleware.authStylistManagerToken,
-  LeaveRequestController.getAllLeaveRequests
-)
 module.exports = StylistRouter;
