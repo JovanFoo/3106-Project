@@ -4,6 +4,26 @@ const BranchRouter = express.Router();
 const BranchController = require("../controllers/BranchController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 
+
+
+// Get all stylists in a branch (Auth: stylist manager)
+BranchRouter.get(
+  "/stylists",
+  AuthMiddleware.authStylistManagerToken,
+  BranchController.retrieveStylists
+);
+
+BranchRouter.put(
+  "/assign/:id",
+  AuthMiddleware.authAdminToken,
+  BranchController.addStylist
+);
+BranchRouter.put(
+  "/remove/:id",
+  AuthMiddleware.authAdminToken,
+  BranchController.removeStylist
+);
+
 // Create a new branch (Auth: admin)
 BranchRouter.post(
   "/",
@@ -31,22 +51,5 @@ BranchRouter.delete(
   BranchController.delete
 );
 
-// Get all stylists in a branch (Auth: stylist manager)
-BranchRouter.get(
-  "/stylists",
-  AuthMiddleware.authStylistManagerToken,
-  BranchController.retrieveStylists
-);
-
-BranchRouter.put(
-  "/assign/:id",
-  AuthMiddleware.authAdminToken,
-  BranchController.addStylist
-);
-BranchRouter.put(
-  "/remove/:id",
-  AuthMiddleware.authAdminToken,
-  BranchController.removeStylist
-);
 
 module.exports = BranchRouter;

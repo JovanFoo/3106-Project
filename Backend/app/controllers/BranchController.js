@@ -99,20 +99,22 @@ const BranchController = {
   async retrieveStylists ( req, res ) {
     console.log( "BranchController > retrieveStylists" );
     const { branchId } = req.body;
-    const {userId} = req.user;
+    const {userId} = req;
 
     try
     {
-      const stylist = await Stylist.findOne( { userId } );
+      const stylist = await Stylist.findById(userId).populate( "stylists" ).exec();
       if ( !stylist )
       {
         return res.status( 404 ).json( { message: "Stylist not found" } );
       }
-      const branch = await Branch.findOne({ staffs: stylist._id });
-      if ( !branch )
-      {
-        return res.status( 404 ).json( { message: "Branch not found" } );
-      }
+      // const branch = await Branch.findOne({ staffs: stylist._id });
+      // if ( !branch )
+      // {
+      //   return res.status( 404 ).json( { message: "Branch not found" } );
+      // }
+      stylist.stylists.map( ( stylist ) => stylist.password = undefined );
+      return res.status( 200 ).json( stylist.stylists );
     }
     catch ( error )
     {
