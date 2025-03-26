@@ -8,14 +8,14 @@ import React, { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import Alert from "../components/ui/alert/Alert";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 const config = {
   headers: {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-    "Authorization":sessionStorage.getItem("token"),
+    Authorization: sessionStorage.getItem("token"),
   },
 };
 export type User = {
@@ -56,10 +56,12 @@ export default function UserProfiles() {
   const [bio, setBio] = useState("Bio has not been set yet.");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [role, setRole] = useState("Stylist");
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-  const [variant, setVariant] = useState<"success" | "error" | "warning" | "info">("error");
+  const [variant, setVariant] = useState<
+    "success" | "error" | "warning" | "info"
+  >("error");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   useEffect(() => {
@@ -78,7 +80,9 @@ export default function UserProfiles() {
           setUsername(res.data.username);
           setName(res.data.name);
           setEmail(res.data.email);
-          setProfilePicture(res.data.profilePicture || "/images/user/owner.jpg");
+          setProfilePicture(
+            res.data.profilePicture || "/images/user/owner.jpg"
+          );
           setBio(res.data.bio || "Bio has not been set yet.");
           setPhoneNumber(
             res.data.phoneNumber || "Phone number has not been set yet."
@@ -88,7 +92,7 @@ export default function UserProfiles() {
           } else {
             setRole("Stylist");
           }
-          
+
           setShowAlert(false);
         })
         .catch((err) => {
@@ -116,7 +120,7 @@ export default function UserProfiles() {
           <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
             Profile
           </h3>
-          <div className={showAlert ? ' mb-5' : 'mb-5 hidden'}>
+          <div className={showAlert ? " mb-5" : "mb-5 hidden"}>
             <Alert variant={variant} title={title} message={message} />
           </div>
           <div className="space-y-6">
