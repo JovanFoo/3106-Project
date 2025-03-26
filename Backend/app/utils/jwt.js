@@ -124,8 +124,16 @@ const jwt = {
   },
 
   refreshToken ( token ) {
-    const decoded = jsonwebtoken.verify( token, secretKey );
-    return jsonwebtoken.sign( decoded, secretKey, { expiresIn: expiry } );
+    const decoded = this.decodeToken( token );
+    if ( decoded.status )
+    {
+      return jsonwebtoken.sign(
+        { userId: decoded.values.userId + " " + decoded.values.type },
+        secretKey,
+        { expiresIn: expiryRefresh }
+      );
+    }
+    throw new Error( "Invalid token" );
   }
 };
 
