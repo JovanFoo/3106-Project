@@ -27,8 +27,45 @@ import Buttons from "./pages/UiElements/Buttons";
 import Images from "./pages/UiElements/Images";
 import Videos from "./pages/UiElements/Videos";
 import UserProfiles from "./pages/UserProfiles";
+import { useEffect } from "react";
+import axios, { AxiosResponse } from "axios";
 
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const config = {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+  },
+};
 export default function App() {
+  
+  useEffect(() => {
+    const refreshTokenFunction = () => {
+      console.log("refreshing token");
+      const jwttoken = sessionStorage.getItem("token");
+      const refreshToken =
+        sessionStorage.getItem("refreshToken") ||
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmVjODkyOGM0NzJkYzY3NjdkNTggU3R5bGlzdE1hbmFnZXIiLCJpYXQiOjE3NDI5ODQ1MjksImV4cCI6MTc0MzE1NzMyOX0.tiaz_5kT43-wNIod-xZF6LDKa_FsCIACmWq6uXHKx3k";
+      if (jwttoken) {
+        axios
+          .post(
+            `${api_address}/api/auth/refresh-token`,
+            { token: refreshToken },
+            config
+          )
+          .then((res: AxiosResponse) => {
+            sessionStorage.setItem("token", res.data.token);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    };
+    refreshTokenFunction();
+    setInterval(() => {
+      refreshTokenFunction();
+    }, 1000 * 60 * 15);
+  }, []);
   return (
     <>
       <Router>
