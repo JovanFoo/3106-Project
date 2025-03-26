@@ -5,6 +5,19 @@ const ServiceRouter = express.Router();
 const ServiceController = require("../controllers/ServiceController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Service = require("../models/Service.js");
+
+// create new service
+ServiceRouter.post(
+  "/",
+  AuthMiddleware.authStylistToken, // TODO: change accordingly to desired person
+  ServiceController.create
+)
+// get all services
+ServiceRouter.get(
+  "/",
+  AuthMiddleware.authCustomerOrStylistToken,
+  ServiceController.retrieveAll
+)
 // get svc by id
 ServiceRouter.get(
   "/:id",
