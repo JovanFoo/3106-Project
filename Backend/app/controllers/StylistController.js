@@ -97,17 +97,24 @@ const StylistController = {
     console.log("StylistController > updateProfilePicture");
     const  id  = req.userId;
     const { profilePicture } = req.body;
-    const stylist = await Stylist.findOne({ _id: id });
-    if (!stylist) {
-      return res.status(400).json({ message: "Error updating stylist profile picture" });
+    try
+    {
+      console.log( "id", id );
+      console.log( "profilePicture", profilePicture );
+      const stylist = await Stylist.findOne({ _id: id });
+      if (!stylist) {
+        return res.status(400).json({ message: "Error updating stylist profile picture" });
+      }
+  
+      stylist.profilePicture = profilePicture
+        ? profilePicture
+        : stylist.profilePicture || "";
+      // TO DO: use cloudinary to upload image
+      await stylist.save();
+      return res.status(200).json(stylist);
+    }catch (error){
+      return res.status(400).json({ message: error.message });
     }
-
-    stylist.profilePicture = profilePicture
-      ? profilePicture
-      : stylist.profilePicture;
-    // TO DO: use cloudinary to upload image
-    await stylist.save();
-    return res.status(200).json(stylist);
   },
 
   async updatePassword(req, res) {
