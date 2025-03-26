@@ -19,6 +19,12 @@ StylistRouter.get(
   AuthMiddleware.authStylistToken,
   StylistController.retrieveById
 );
+// update stylist profile picture
+StylistRouter.put(
+  "/profilePicture",
+  AuthMiddleware.authStylistToken,
+  StylistController.updateProfilePicture
+);
 // update stylist by id (only logged in stylist can update)
 StylistRouter.put(
   "/:id",
@@ -37,12 +43,7 @@ StylistRouter.get(
   AuthMiddleware.authCustomerOrStylistToken,
   StylistController.retrieveAppointments
 );
-// update stylist profile picture
-StylistRouter.put(
-  "/profilePicture",
-  AuthMiddleware.authStylistToken,
-  StylistController.updateProfilePicture
-);
+
 
 StylistRouter.get(
   "/",

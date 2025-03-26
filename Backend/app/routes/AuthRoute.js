@@ -9,6 +9,11 @@ const CustomerController = require("../controllers/CustomerController.js");
 const StylistController = require( "../controllers/StylistController.js" );
 const AdminController = require( "../controllers/AdminController.js" );
 
+// Refresh Token
+AuthRouter.post(
+  "/refresh-token",
+  AuthController.refreshToken
+);
 // customer 
 AuthRouter.post(
   "/customers/register", 
@@ -46,6 +51,11 @@ AuthRouter.post(
   AuthMiddleware.authStylistResetToken,
   StylistController.updatePassword
 );
+AuthRouter.put(
+  "/stylists/update-password",
+  AuthMiddleware.authStylistToken,
+  AuthController.updatePasswordStylist
+)
 // Admin 
 AuthRouter.post(
   "/admins/register", 

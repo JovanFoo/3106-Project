@@ -9,6 +9,17 @@ const jwt = require("../utils/jwt.js");
 const { resetPassword } = require( "../utils/emailService.js" );
 
 const AuthController = {
+  async refreshToken ( req, res ) {
+    console.log( "AuthController > refresh token" );
+    const { token } = req.body;
+    const decoded = jwt.decodeToken( token );
+    if ( !decoded.status )
+    {
+      return res.status( 400 ).json( { message: "Invalid token" } );
+    }
+    const newToken = jwt.refreshToken( token );
+    return res.status( 200 ).json( { token: newToken } );
+  },
   async loginCustomer(req, res) {
     console.log("AuthController > login customer");
     const { username, password } = req.body;
@@ -20,8 +31,8 @@ const AuthController = {
       );
       if (isMatch) {
         customer.password = undefined;
-        const token = jwt.generateCustomerToken(customer._id);
-        return res.status(200).json({ customer, token });
+        const tokens = jwt.generateCustomerToken(customer._id);
+        return res.status(200).json({ customer, tokens:tokens });
       }
     }
     return res.status(400).json({ message: "Invalid username or password" });
@@ -230,6 +241,32 @@ const AuthController = {
     {
       return res.status( 404 ).json( { message: "Email not found" } );
     }
+  },
+
+  async updatePasswordStylist ( req, res ) {
+    console.log( "AuthController > update password" );
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const id = req.userId;
+    const stylist = await Stylist.findOne( { _id: id } );
+    if ( !stylist )
+    {
+      res.status( 404 ).json( { message: "Stylist not found" } );
+    }
+    const isMatch = await PasswordHash.comparePassword(
+      currentPassword,
+      stylist.password
+    );
+    if ( !isMatch )
+    {
+      return res.status( 400 ).json( { message: "Invalid current password" } );
+    }
+    if ( newPassword !== confirmPassword )
+    {
+      return res.status( 400 ).json( { message: "Passwords do not match" } );
+    }
+    stylist.password = await PasswordHash.hashPassword( newPassword );
+    await stylist.save();
+    return res.status( 200 ).json( { message: "Password updated" } );
   },
 
 };

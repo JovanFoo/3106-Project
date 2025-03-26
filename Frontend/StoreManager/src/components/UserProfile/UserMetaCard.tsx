@@ -3,13 +3,76 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import axios, { AxiosResponse } from "axios";
+import { User } from "../../pages/UserProfiles";
 
-export default function UserMetaCard() {
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const config = {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+    "Authorization":sessionStorage.getItem("token"),
+  },
+};
+
+const selfId = sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
+export default function UserMetaCard(user: User) {
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
+
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     // Handle save logic here
-    console.log("Saving changes...");
+    e.preventDefault();
     closeModal();
+    user.setIsLoading(true);
+    let isSuccess1 = false;
+    let isSuccess2 = false;
+    await axios
+      .put(
+        api_address + "/api/stylists/" + selfId,
+        {
+          username: user.username,
+          name: user.name,
+          email: user.email,
+          bio: user.bio,
+          phoneNumber: user.phoneNumber,
+        },
+        config
+      )
+      .then((res: AxiosResponse) => {
+        isSuccess1 = true;
+      })
+      .catch((err) => {
+        isSuccess1 = false;
+        console.log(err.response.data);
+      });
+    
+    await axios
+      .put(
+        api_address + "/api/stylists/profilePicture",
+        { profilePicture: user.profilePicture },
+        config
+      )
+      .then((res: AxiosResponse) => {
+        isSuccess2 = true;
+      })
+      .catch((err) => {
+        isSuccess2 = false;
+        console.log(err.response.data);
+      });
+    if (isSuccess1 && isSuccess2) {
+      user.setShowAlert(true);
+      user.setVariant("success");
+      user.setTitle("Updating user profile");
+      user.setMessage("Successfully updated user data.");
+    } else {
+      user.setShowAlert(true);
+      user.setVariant("error");
+      user.setTitle("Updating user profile");
+      user.setMessage("Error updating user data.");
+    }
+    
+    user.setIsLoading(false);
   };
   return (
     <>
@@ -17,23 +80,23 @@ export default function UserMetaCard() {
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
             <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-              <img src="/images/user/owner.jpg" alt="user" />
+              <img src={user.profilePicture} />
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                Musharof Chowdhury
+                {user.name}
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Team Manager
+                  {user.role}
                 </p>
-                <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
+                {/* <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Arizona, United States
-                </p>
+                </p> */}
               </div>
             </div>
-            <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
+            {/* <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
               <a
                 href="https://www.facebook.com/PimjoHQ"
                 target="_blank"
@@ -117,7 +180,7 @@ export default function UserMetaCard() {
                   />
                 </svg>
               </a>
-            </div>
+            </div> */}
           </div>
           <button
             onClick={openModal}
@@ -152,9 +215,9 @@ export default function UserMetaCard() {
               Update your details to keep your profile up-to-date.
             </p>
           </div>
-          <form className="flex flex-col">
+          <form className="flex flex-col" onSubmit={(e) => handleSave(e)}>
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              <div>
+              {/* <div>
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Social Links
                 </h5>
@@ -186,36 +249,106 @@ export default function UserMetaCard() {
                     <Input type="text" value="https://instagram.com/PimjoHQ" />
                   </div>
                 </div>
-              </div>
-              <div className="mt-7">
+              </div> */}
+              <div className="mt-2">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Personal Information
                 </h5>
-
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input type="text" value="Musharof" />
+                  <div className="col-span-2 justify-center flex flex-col items-center gap-6 xl:flex-row">
+                    <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
+                      <label
+                        htmlFor="profilePicture"
+                        style={{ cursor: "pointer" }}
+                        onClick={(e) => {
+                          document.getElementById("profilePicture")?.click();
+                        }}
+                      >
+                        <img
+                          src={user.profilePicture || "/images/user/owner.jpg"}
+                          alt="user"
+                        />
+                      </label>
+                    </div>
+                    <Input
+                      className="hidden"
+                      id="profilePicture"
+                      type="file"
+                      name="profilePicture"
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (!files) return;
+                        const file = files[0];
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          user.setProfilePicture(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
                   </div>
-
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input type="text" value="Chowdhury" />
+                    <Label>Username</Label>
+                    <Input
+                      type="text"
+                      name="username"
+                      value={user.username}
+                      placeholder="Username"
+                      onChange={(e) => user.setUsername(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label>Name</Label>
+                    <Input
+                      type="text"
+                      name="name"
+                      value={user.name}
+                      placeholder="Name"
+                      onChange={(e) => user.setName(e.target.value)}
+                    />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
-                    <Input type="text" value="randomuser@pimjo.com" />
+                    <Input
+                      type="text"
+                      name="email"
+                      value={user.email}
+                      placeholder="Email Address"
+                      onChange={(e) => user.setEmail(e.target.value)}
+                    />
                   </div>
-
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
-                    <Input type="text" value="+09 363 398 46" />
+                    <Label>Phone Number</Label>
+                    <Input
+                      type="tel"
+                      name="phoneNumber"
+                      value={user.phoneNumber}
+                      placeholder="Phone Number"
+                      onChange={(e) => {
+                        try {
+                          if (e.target.value.length > 8) {
+                            return;
+                          }
+                          if (isNaN(parseInt(e.target.value))) {
+                            user.setPhoneNumber("");
+                            return;
+                          }
+                          user.setPhoneNumber(e.target.value);
+                        } catch (err) {}
+                      }}
+                      pattern="[0-9]{8}"
+                    />
                   </div>
-
                   <div className="col-span-2">
                     <Label>Bio</Label>
-                    <Input type="text" value="Team Manager" />
+                    <Input
+                      type="text"
+                      name="bio"
+                      value={user.bio}
+                      placeholder="Bio"
+                      onChange={(e) => user.setBio(e.target.value)}
+                    />
                   </div>
                 </div>
               </div>
@@ -224,9 +357,7 @@ export default function UserMetaCard() {
               <Button size="sm" variant="outline" onClick={closeModal}>
                 Close
               </Button>
-              <Button size="sm" onClick={handleSave}>
-                Save Changes
-              </Button>
+              <Button size="sm">Save Changes</Button>
             </div>
           </form>
         </div>

@@ -23,6 +23,12 @@ const stylistSchema = new Schema({
   profilePicture: {
     type: String,
   },
+  phoneNumber: {
+    type: Number
+  },
+  bio: {
+    type: String,
+  },
   expertise: [
     {
       type: Schema.Types.ObjectId,

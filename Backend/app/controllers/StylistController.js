@@ -42,7 +42,7 @@ const StylistController = {
   async update(req, res) {
     console.log("StylistController > update");
     const { id } = req.params;
-    const { name, email, username } = req.body;
+    const { name, email, username, bio, phoneNumber } = req.body;
     const stylist = await Stylist.findOne({ _id: id });
     let existingStylist = await Stylist.findOne({ username: username });
     if (
@@ -70,6 +70,8 @@ const StylistController = {
     stylist.name = name ? name : stylist.name;
     stylist.username = username ? username : stylist.username;
     stylist.email = email ? email : stylist.email;
+    stylist.bio = bio ? bio : stylist.bio || "";
+    stylist.phoneNumber = phoneNumber ? phoneNumber : stylist.phoneNumber || "";
     await stylist.save();
     stylist.password = undefined;
     return res.status(200).json(stylist);
@@ -107,17 +109,27 @@ const StylistController = {
     console.log("StylistController > updateProfilePicture");
     const  id  = req.userId;
     const { profilePicture } = req.body;
-    const stylist = await Stylist.findOne({ _id: id });
-    if (!stylist) {
-      return res.status(400).json({ message: "Error updating stylist profile picture" });
+    try
+    {
+      // console.log( "id", id );
+      // console.log( "profilePicture", profilePicture );
+      const stylist = await Stylist.updateOne(
+        { _id: id },
+        { profilePicture: profilePicture }
+      );
+      if (!stylist) {
+        return res.status(400).json({ message: "Error updating stylist profile picture" });
+      }
+      const newStylist = await Stylist.findOne({ _id: id });
+      // stylist.profilePicture = profilePicture
+      //   ? profilePicture
+      //   : stylist.profilePicture || "";
+      // TO DO: use cloudinary to upload image
+      // await stylist.save();
+      return res.status(200).json(newStylist);
+    }catch (error){
+      return res.status(400).json({ message: error.message });
     }
-
-    stylist.profilePicture = profilePicture
-      ? profilePicture
-      : stylist.profilePicture;
-    // TO DO: use cloudinary to upload image
-    await stylist.save();
-    return res.status(200).json(stylist);
   },
 
   async updatePassword(req, res) {
