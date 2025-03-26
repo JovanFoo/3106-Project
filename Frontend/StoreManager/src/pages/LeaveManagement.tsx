@@ -712,12 +712,12 @@ const LeaveManagement: React.FC = () => {
               aria-label="view mode"
               sx={{ mb: 2 }}
             >
-              <ToggleButton value="status" aria-label="status view">
+              {/* <ToggleButton value="status" aria-label="status view">
                 Leave Status
               </ToggleButton>
               <ToggleButton value="type" aria-label="type view">
                 Leave Types
-              </ToggleButton>
+              </ToggleButton> */}
             </ToggleButtonGroup>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 3 }}>
@@ -727,7 +727,7 @@ const LeaveManagement: React.FC = () => {
               onChange={(e, newStatus) => setSelectedStatus(newStatus || ['Pending', 'Approved'])}
               aria-label="status filter"
             >
-              <ToggleButton value="all" aria-label="all statuses">
+              {/* <ToggleButton value="all" aria-label="all statuses">
                 All
               </ToggleButton>
               <ToggleButton value="pending" aria-label="pending status">
@@ -735,7 +735,7 @@ const LeaveManagement: React.FC = () => {
               </ToggleButton>
               <ToggleButton value="approved" aria-label="approved status">
                 Approved
-              </ToggleButton>
+              </ToggleButton> */}
             </ToggleButtonGroup>
           </Box>
         </Box>
