@@ -1,4 +1,4 @@
-import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router";
+import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import AppLayout from "./layout/AppLayout";
 import Analytics from "./pages/Analytics";
@@ -27,6 +27,9 @@ import Buttons from "./pages/UiElements/Buttons";
 import Images from "./pages/UiElements/Images";
 import Videos from "./pages/UiElements/Videos";
 import UserProfiles from "./pages/UserProfiles";
+import LeaveManagement from "./pages/LeaveManagement";
+import LeaveDocumentApproval from "./pages/LeaveDocumentApproval";
+import EmergencyLeaveManagement from "./pages/EmergencyLeaveManagement";
 
 export default function App() {
   return (
@@ -45,32 +48,25 @@ export default function App() {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/teams" element={<Teams />} />
             <Route path="/shopSettings" element={<ShopSettings />} />
-            <Route path="/blank" element={<Blank />} />
 
-            {/* Default Settings Redirect */}
-            <Route path="/settings" element={<Navigate to="/settings/profile" replace />} />
+            {/* Leave Management Routes */}
+            <Route path="/leave-management" element={<LeaveManagement />} />
+            <Route path="/emergency-leave" element={<EmergencyLeaveManagement />} />
+            <Route path="/leave-document-approval" element={<LeaveDocumentApproval />} />
 
             {/* Settings */}
-              
-              <Route path="/settings/profile" element={<UserProfiles />} />
-              <Route path="/settings/change-password" element={<ChangePassword />} />
-              <Route path="/settings/notifications" element={<Notifications />} />
-              <Route path="/settings/expertise" element={<Expertise />} />
-              <Route path="/settings/portfolio" element={<Portfolio />} />
-              <Route path="/settings/testimonials" element={<Testimonials />} />
+            <Route path="/settings" element={<Navigate to="/settings/profile" replace />} />
+            <Route path="/settings/profile" element={<UserProfiles />} />
+            <Route path="/settings/change-password" element={<ChangePassword />} />
+            <Route path="/settings/notifications" element={<Notifications />} />
+            <Route path="/settings/expertise" element={<Expertise />} />
+            <Route path="/settings/portfolio" element={<Portfolio />} />
+            <Route path="/settings/testimonials" element={<Testimonials />} />
 
-
-            {/* Ui Elements */}
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
-
-            {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
+            {/* Other Routes */}
+            <Route path="/expertise-pricing" element={<Expertise />} />
+            <Route path="/ratings-reviews" element={<Testimonials />} />
+            <Route path="/blank" element={<Blank />} />
           </Route>
 
           {/* Auth Layout */}
