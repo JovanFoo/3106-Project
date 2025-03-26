@@ -8,37 +8,35 @@ import axios, { AxiosResponse } from "axios";
 import { log } from "console";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 const config = {
   headers: {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
     Authorization:
       sessionStorage.getItem("token") ||
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmUwM2M0NmIzOWUxZjU1NWEzMTcgU3R5bGlzdCIsImlhdCI6MTc0MjkxNjkzMiwiZXhwIjoxNzQyOTI0MTMyfQ.1O-HP4zeA8TZ1ZG_N7Dmcxg1dSGZ8qMUZd6rO0HSexE",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmUwM2M0NmIzOWUxZjU1NWEzMTcgU3R5bGlzdCIsImlhdCI6MTc0Mjk2MTk3NCwiZXhwIjoxNzQyOTY5MTc0fQ.C_LCXcnQYCnpkIw-JVBiUXchQodhAwAinLnA-7g5O-o",
   },
 };
 const selfId = sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
   
-  const [username, setUsername] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [profilePic, setProfilePic] = useState("");
-  const [role, setRole] = useState("");
+  const [username, setUsername] = useState("Username");
+  const [name, setName] = useState("Name");
+  const [email, setEmail] = useState("example@email.com");
+  const [profilePicture, setProfilePicture] = useState("/images/user/owner.jpg");
+  const [role, setRole] = useState("Stylist");
 
   useEffect(() => {
     // Fetch user data here
-
     axios
       .get(api_address + "/api/stylists/" + selfId, config)
       .then((res: AxiosResponse) => {
-        // setUserData(res.data);
         setUsername(res.data.username);
         setName(res.data.name);
         setEmail(res.data.email);
-        setProfilePic(res.data.profilePic);
-        console.log(res.data.profilePic);
+        setProfilePicture(res.data.profilePicture || "/images/user/owner.jpg");
         if (res.data.stylists.length > 0) {
           setRole("Manager");
         } else {
@@ -53,7 +51,8 @@ export default function UserMetaCard() {
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     // Handle save logic here
     e.preventDefault();
-    console.log("toBeSaved", username, name, email);
+    closeModal();
+    // setLoading(false);
     axios
       .put(
         api_address + "/api/stylists/" + selfId,
@@ -68,26 +67,25 @@ export default function UserMetaCard() {
         setEmail(res.data.email);
         setName(res.data.name);
         setUsername(res.data.username);
-        setProfilePic(res.data.profilePic);
+        // console.log(res.data);
       })
       .catch((err) => {
         console.log(err);
       });
-    console.log(profilePic);
+    
     axios
       .put(
         api_address + "/api/stylists/profilePicture",
-        { profilePicture: profilePic },
+        { profilePicture: profilePicture },
         config
       )
       .then((res: AxiosResponse) => {
-        setProfilePic(res.data.profilePic);
+        setProfilePicture(res.data.profilePicture);
       })
       .catch((err) => {
         console.log(err);
       });
-    console.log("Saving changes...");
-    closeModal();
+    // setLoading(true);
   };
   return (
     <>
@@ -95,7 +93,9 @@ export default function UserMetaCard() {
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
             <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-              <img src={profilePic} alt="user" />
+              <img
+                src={profilePicture }
+              />
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
@@ -272,24 +272,29 @@ export default function UserMetaCard() {
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 justify-center flex flex-col items-center gap-6 xl:flex-row">
                     <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-                      <label htmlFor="profilePic" style={{ cursor: "pointer" }} onClick={(e) => document.getElementById("profilePic")?.click()}>
+                      <label
+                        htmlFor="profilePicture"
+                        style={{ cursor: "pointer" }}
+                        onClick={(e) => {
+                          document.getElementById("profilePicture")?.click();
+                        }}
+                      >
                         <img
-                          src={profilePic || "/images/user/owner.jpg"}
+                          src={profilePicture || "/images/user/owner.jpg"}
                           alt="user"
                         />
                       </label>
                     </div>
                     <Input
                       className="hidden"
-                      id="profilePic"
+                      id="profilePicture"
                       type="file"
-                      name="profilePic"
+                      name="profilePicture"
                       onChange={(e) => {
                         const file = e.target.files[0];
                         const reader = new FileReader();
                         reader.onloadend = () => {
-                          console.log(reader.result);
-                          setProfilePic(reader.result as string);
+                          setProfilePicture(reader.result as string);
                         };
                         reader.readAsDataURL(file);
                       }}
