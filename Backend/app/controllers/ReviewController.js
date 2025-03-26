@@ -1,6 +1,7 @@
 const Appointment = require("../models/Appointment.js");
 const Review = require("../models/Review.js");
 const Customer = require("../models/Customer.js");
+const { retrieveAll } = require("./StylistController.js");
 const ReviewController = {
   // Create a new review
   async create(req, res) {
@@ -70,6 +71,17 @@ const ReviewController = {
       return res.status(200).json({ message: "Review deleted successfully" });
     } else {
       return res.status(400).json({ message: "Error deleting review" });
+    }
+  },
+
+  async retrieveStylistReviews(req, res) {
+    console.log("ReviewController > retrieveStylistReviews");
+    const { stylistId } = req.params;
+    const reviews = await Review.find({ stylist: stylistId });
+    if (reviews) {
+      return res.status(200).json(reviews);
+    } else {
+      return res.status(400).json({ message: "Error retrieving reviews" });
     }
   },
 };
