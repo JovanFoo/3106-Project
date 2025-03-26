@@ -9,6 +9,17 @@ const jwt = require("../utils/jwt.js");
 const { resetPassword } = require( "../utils/emailService.js" );
 
 const AuthController = {
+  async refreshToken ( req, res ) {
+    console.log( "AuthController > refresh token" );
+    const { token } = req.body;
+    const decoded = jwt.decodeToken( token );
+    if ( !decoded.status )
+    {
+      return res.status( 400 ).json( { message: "Invalid token" } );
+    }
+    const newToken = jwt.refreshToken( token );
+    return res.status( 200 ).json( { token: newToken } );
+  },
   async loginCustomer(req, res) {
     console.log("AuthController > login customer");
     const { username, password } = req.body;
@@ -20,8 +31,8 @@ const AuthController = {
       );
       if (isMatch) {
         customer.password = undefined;
-        const token = jwt.generateCustomerToken(customer._id);
-        return res.status(200).json({ customer, token });
+        const tokens = jwt.generateCustomerToken(customer._id);
+        return res.status(200).json({ customer, tokens:tokens });
       }
     }
     return res.status(400).json({ message: "Invalid username or password" });
