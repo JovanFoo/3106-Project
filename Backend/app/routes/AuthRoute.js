@@ -46,6 +46,11 @@ AuthRouter.post(
   AuthMiddleware.authStylistResetToken,
   StylistController.updatePassword
 );
+AuthRouter.put(
+  "/stylists/update-password",
+  AuthMiddleware.authStylistToken,
+  AuthController.updatePasswordStylist
+)
 // Admin 
 AuthRouter.post(
   "/admins/register", 

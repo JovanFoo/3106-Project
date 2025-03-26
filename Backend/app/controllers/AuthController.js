@@ -232,6 +232,32 @@ const AuthController = {
     }
   },
 
+  async updatePasswordStylist ( req, res ) {
+    console.log( "AuthController > update password" );
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const id = req.userId;
+    const stylist = await Stylist.findOne( { _id: id } );
+    if ( !stylist )
+    {
+      res.status( 404 ).json( { message: "Stylist not found" } );
+    }
+    const isMatch = await PasswordHash.comparePassword(
+      currentPassword,
+      stylist.password
+    );
+    if ( !isMatch )
+    {
+      return res.status( 400 ).json( { message: "Invalid current password" } );
+    }
+    if ( newPassword !== confirmPassword )
+    {
+      return res.status( 400 ).json( { message: "Passwords do not match" } );
+    }
+    stylist.password = await PasswordHash.hashPassword( newPassword );
+    await stylist.save();
+    return res.status( 200 ).json( { message: "Password updated" } );
+  },
+
 };
 
 module.exports = AuthController;
