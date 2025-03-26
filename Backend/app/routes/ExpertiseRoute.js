@@ -12,6 +12,13 @@ ExpertiseRouter.get(
   AuthMiddleware.authCustomerToken,
   ExpertiseController.retrieve
 );
+
+// get all expertise
+ExpertiseRouter.get(
+  "/",
+  // AuthMiddleware.authCustomerOrStylistToken,
+  ExpertiseController.list
+);
 // update expertise by id (only admin can update)
 ExpertiseRouter.put(
   "/:id",
@@ -19,11 +26,11 @@ ExpertiseRouter.put(
   ExpertiseController.update
 );
 // create expertise by id (only admin can create)
-ExpertiseRouter. put(
-    "/",
-    AuthMiddleware.authAdminToken,
-    ExpertiseController.create
-)
+ExpertiseRouter.put(
+  "/",
+  AuthMiddleware.authAdminToken,
+  ExpertiseController.create
+);
 // delete expertise by id (only admin can delete)
 ExpertiseRouter.delete(
   "/:id",
