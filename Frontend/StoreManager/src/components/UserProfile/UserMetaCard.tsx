@@ -5,7 +5,6 @@ import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import { useState, useEffect } from "react";
 import axios, { AxiosResponse } from "axios";
-import { log } from "console";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -15,10 +14,10 @@ const config = {
     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
     Authorization:
       sessionStorage.getItem("token") ||
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmUwM2M0NmIzOWUxZjU1NWEzMTcgU3R5bGlzdCIsImlhdCI6MTc0Mjk2MTk3NCwiZXhwIjoxNzQyOTY5MTc0fQ.C_LCXcnQYCnpkIw-JVBiUXchQodhAwAinLnA-7g5O-o",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmVjODkyOGM0NzJkYzY3NjdkNTggU3R5bGlzdE1hbmFnZXIiLCJpYXQiOjE3NDI5NjYyNTAsImV4cCI6MTc0Mjk3MzQ1MH0.xrWCR-28lLc9_58onDyBhsVPmxgVxMO9PEeR8OzRU88",
   },
 };
-const selfId = sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
+const selfId = sessionStorage.getItem("userId") || "67dd2ec8928c472dc6767d58";
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
   
@@ -105,10 +104,10 @@ export default function UserMetaCard() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {role}
                 </p>
-                <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
+                {/* <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Arizona, United States
-                </p>
+                </p> */}
               </div>
             </div>
             {/* <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
@@ -291,7 +290,9 @@ export default function UserMetaCard() {
                       type="file"
                       name="profilePicture"
                       onChange={(e) => {
-                        const file = e.target.files[0];
+                        const files = e.target.files;
+                        if (!files) return;
+                        const file = files[0];
                         const reader = new FileReader();
                         reader.onloadend = () => {
                           setProfilePicture(reader.result as string);
