@@ -20,6 +20,7 @@
     "@fullcalendar/timegrid": "^6.1.15",
     "@mui/icons-material": "^5.15.11",
     "@mui/material": "^5.15.11",
+    "@mui/styles": "^6.4.8",
     "@mui/x-date-pickers": "^7.28.0",
     "@react-jvectormap/core": "^1.0.4",
     "@react-jvectormap/world": "^1.1.2",
