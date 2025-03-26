@@ -1,42 +1,70 @@
-const { json } = require("body-parser");
 const jsonwebtoken = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
 const expiry = process.env.JWT_EXPIRY;
+const expiryRefresh = process.env.JWT_REFRESH_EXPIRY;
 
 let blackList = [];
 
 const jwt = {
   // Generate Token
   generateCustomerToken(userId) {
-    return jsonwebtoken.sign({ userId: userId + " Customer" }, secretKey, {
-      expiresIn: expiry,
-    });
+    return {
+      "token":jsonwebtoken.sign( { userId: userId + " Customer" }, secretKey, {
+        expiresIn: expiry,
+      } ),
+      "refreshToken":jsonwebtoken.sign( { userId: userId + " Customer" }, secretKey, {
+        expiresIn: expiryRefresh,
+      } )
+    };
   },
 
   generateStylistToken(userId) {
-    return jsonwebtoken.sign({ userId: userId + " Stylist" }, secretKey, {
-      expiresIn: expiry,
-    });
+    return {
+      "token": jsonwebtoken.sign( { userId: userId + " Stylist" }, secretKey, {
+        expiresIn: expiry,
+      } ),
+      "refreshToken": jsonwebtoken.sign( { userId: userId + " Stylist" }, secretKey, {
+        expiresIn: expiryRefresh,
+      } )
+    }
   },
 
   generateStylistManagerToken(userId) {
-    return jsonwebtoken.sign(
-      { userId: userId + " StylistManager" },
-      secretKey,
-      {
-        expiresIn: expiry,
-      }
-    );
+    return {
+      "token":jsonwebtoken.sign(
+        { userId: userId + " StylistManager" },
+        secretKey,
+        {
+          expiresIn: expiry,
+        }
+      ),
+      "refreshToken":jsonwebtoken.sign(
+        { userId: userId + " StylistManager" },
+        secretKey,
+        {
+          expiresIn: expiryRefresh,
+        }
+      )
+    };
   },
   
   generateAdminToken(userId) {
-    return jsonwebtoken.sign(
-      { userId: userId + " Admin" },
-      secretKey,
-      {
-        expiresIn: expiry,
-      }
-    );
+    return {
+      "token":jsonwebtoken.sign(
+        { userId: userId + " Admin" },
+        secretKey,
+        {
+          expiresIn: expiry,
+        }
+      ),
+      "refreshToken": jsonwebtoken.sign(
+        { userId: userId + " Admin" },
+        secretKey,
+        {
+          expiresIn: expiryRefresh,
+        }
+      )
+    };
   },
 
   // Reset Token for password reset
@@ -72,7 +100,6 @@ const jwt = {
   decodeToken(token) {
     return jsonwebtoken.verify(token, secretKey, (err, decoded) => {
       if (err) {
-        // console.error("VerifyToken Error: ", err);
         return { status: false, values: null };
       }
       return {
@@ -95,6 +122,11 @@ const jwt = {
   checkBlackList(token) {
     return blackList.includes(token);
   },
+
+  refreshToken ( token ) {
+    const decoded = jsonwebtoken.verify( token, secretKey );
+    return jsonwebtoken.sign( decoded, secretKey, { expiresIn: expiry } );
+  }
 };
 
 module.exports = jwt;
