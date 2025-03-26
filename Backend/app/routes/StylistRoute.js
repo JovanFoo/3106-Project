@@ -7,11 +7,17 @@ const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Stylist = require("../models/Stylist.js");
 const LeaveRequestController = require( "../controllers/LeaveRequestController.js" );
 
+// get list of all stylists
+StylistRouter.get(
+  "/",
+  AuthMiddleware.authCustomerOrStylistToken,
+  StylistController.retrieveAllStylists
+)
 // get stylist by id
 StylistRouter.get(
   "/:id",
   AuthMiddleware.authStylistToken,
-  StylistController.retrieve
+  StylistController.retrieveById
 );
 // update stylist profile picture
 StylistRouter.put(

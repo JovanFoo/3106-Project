@@ -5,7 +5,7 @@ const { update } = require("./AppointmentController.js");
 
 const StylistController = {
   // Retrieve a stylist by id
-  async retrieve(req, res) {
+  async retrieveById(req, res) {
     console.log("StylistController > retrieve by ID");
     const { id } = req.params;
     const stylist = await Stylist.findOne({ _id: id });
@@ -17,17 +17,27 @@ const StylistController = {
     }
   },
   // Retrieve a stylist by username
-  // async retrieve(req, res) {
-  //   console.log("StylistController > retrieve by Username");
-  //   const { username } = req.params;
-  //   const stylist = await Stylist.findOne({ username: username });
-  //   if (stylist) {
-  //     stylist.password = undefined;
-  //     return res.status(200).json(stylist);
-  //   } else {
-  //     return res.status(400).json({ message: "Error retrieving stylist by Username" });
-  //   }
-  // },
+  async retrieve(req, res) {
+    console.log("StylistController > retrieve by Username");
+    const { username } = req.params;
+    const stylist = await Stylist.findOne({ username: username });
+    if (stylist) {
+      stylist.password = undefined;
+      return res.status(200).json(stylist);
+    } else {
+      return res.status(400).json({ message: "Error retrieving stylist by Username" });
+    }
+  },
+  // Retrieve a list of all stylists
+  async retrieveAllStylists(req, res) {
+    console.log("StylistController > retrieve all stylists");
+    const stylists = await Stylist.find({}); // get all stylists
+    if (stylists) {
+      return res.status(200).json(stylists);
+    } else {
+      return res.status(400).json({ message: "Error retrieving list of stylists" });
+    }
+  },
   // Update a stylist's name, email by username
   async update(req, res) {
     console.log("StylistController > update");

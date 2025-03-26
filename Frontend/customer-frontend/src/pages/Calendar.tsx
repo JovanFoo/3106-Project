@@ -11,10 +11,14 @@ import BasicTableOne from "../components/tables/BasicTables/BasicTableOne";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import ComponentCard from "../components/common/ComponentCard";
 import Button from "../components/ui/button/Button";
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
-    calendar: string;
+    // stores the stylistId and serviceId
+    stylist: string;
+    request: string;
+    service: string;
   };
 }
 
@@ -22,113 +26,254 @@ const Calendar: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
   );
-  const [eventTitle, setEventTitle] = useState("");
-  const [eventStartDate, setEventStartDate] = useState("");
-  const [eventEndDate, setEventEndDate] = useState("");
-  const [eventLevel, setEventLevel] = useState("");
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [stylist, setStylist] = useState("");
+  // only take the _id and name of the stylist object
+  const [stylists, setStylists] = useState<{ _id: string; name: string }[]>([]);
+  const [apptStartDate, setApptStartDate] = useState("");
+  const [request, setRequest] = useState("");
+  const [service, setService] = useState("");
+  // only take the _id and name of the service object
+  const [services, setServices] = useState<{ _id: string; name: string }[]>([]);
+  const [appt, setAppts] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
 
-  const calendarsEvents = {
-    Danger: "danger",
-    Success: "success",
-    Primary: "primary",
-    Warning: "warning",
+  // const calendarsEvents = {
+  //   Danger: "danger",
+  //   Success: "success",
+  //   Primary: "primary",
+  //   Warning: "warning",
+  // };
+  useEffect(() => {
+    fetchAppointments();
+    fetchServices();
+    fetchStylists();
+  }, []);
+
+  // get a list of all services for dropdown
+  const fetchServices = async () => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.token;
+      try {
+        const response = await fetch(`${API_URL}/api/services`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch services");
+
+        const data = await response.json();
+        setServices(data);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    }
   };
 
-  useEffect(() => {
-    // Initialize with some events
-    setEvents([
-      {
-        id: "1",
-        title: "Event Conf.",
-        start: new Date().toISOString().split("T")[0],
-        extendedProps: { calendar: "Danger" },
-      },
-      {
-        id: "2",
-        title: "Meeting",
-        start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Success" },
-      },
-      {
-        id: "3",
-        title: "Workshop",
-        start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
-        end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Primary" },
-      },
-    ]);
-  }, []);
+  // get list of all stylists for dropdown 
+  const fetchStylists = async () => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.token;
+      try {
+        const response = await fetch(`${API_URL}/api/stylists`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch stylists");
+
+        const data = await response.json();
+        console.log(data);
+        setStylists(data);
+      } catch (error) {
+        console.error("Error fetching stylist:", error);
+      }
+    }
+  };
+
+  const fetchAppointments = async () => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const customerId = customer.customer._id;
+      const token = customer.token;
+      try {
+        const response = await fetch(
+          `${API_URL}/api/customers/${customerId}/appointments`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch appointments");
+
+        const data = await response.json();
+
+        const formattedAppointments = data
+          .filter((appointment: any) => !appointment.isCompleted) // only show active appointments
+          .map((appointment: any) => ({
+            id: appointment._id.toString(),
+            start: new Date(appointment.date).toISOString().split("T")[0] || "",
+            extendedProps: {
+              // stores the stylistId and serviceId
+              stylist: appointment.stylist,
+              request: appointment.request,
+              service: appointment.service,
+            },
+          }));
+
+        setAppts(formattedAppointments);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
+    }
+  };
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
-    setEventStartDate(selectInfo.startStr);
-    setEventEndDate(selectInfo.endStr || selectInfo.startStr);
+    setApptStartDate(selectInfo.startStr);
     openModal();
   };
 
+  // clicking the appointment tab on calendar
   const handleEventClick = (clickInfo: EventClickArg) => {
-    const event = clickInfo.event;
-    setSelectedEvent(event as unknown as CalendarEvent);
-    setEventTitle(event.title);
-    setEventStartDate(event.start?.toISOString().split("T")[0] || "");
-    setEventEndDate(event.end?.toISOString().split("T")[0] || "");
-    setEventLevel(event.extendedProps.calendar);
+    // get the appointment details and set the fields
+    const appt = clickInfo.event;
+    setSelectedEvent(appt as unknown as CalendarEvent);
+    setStylist(appt.extendedProps.stylist);
+    setRequest(appt.extendedProps.request);
+    setService(appt.extendedProps.service);
+    // convert to SGT
+    const date = appt.start ? new Date(appt.start) : new Date();
+    if (date) {
+      date.setHours(date.getHours() + 8);
+    }
+    setApptStartDate(date.toISOString().split("T")[0]);
     openModal();
   };
 
-  const handleAddOrUpdateEvent = () => {
+  const handleAddOrUpdateEvent = async () => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      console.error("No user data found");
+      return;
+    }
+    const customer = JSON.parse(userData);
+    const token = customer.token;
+
     if (selectedEvent) {
-      // Update existing event
-      setEvents((prevEvents) =>
+      // TODO: Update existing event
+      setAppts((prevEvents) =>
         prevEvents.map((event) =>
           event.id === selectedEvent.id
             ? {
                 ...event,
-                title: eventTitle,
-                start: eventStartDate,
-                end: eventEndDate,
-                extendedProps: { calendar: eventLevel },
+                start: apptStartDate,
+                extendedProps: {
+                  stylist: stylist,
+                  service: service,
+                  request: request,
+                },
               }
             : event
         )
       );
     } else {
-      // Add new event
-      const newEvent: CalendarEvent = {
-        id: Date.now().toString(),
-        title: eventTitle,
-        start: eventStartDate,
-        end: eventEndDate,
-        allDay: true,
-        extendedProps: { calendar: eventLevel },
+      // Add new appointment
+      const newAppointmentData = {
+        date: apptStartDate,
+        request: request,
+        totalAmount: 0, // Adjust as necessary
+        serviceId: service,
+        stylistId: stylist,
       };
-      setEvents((prevEvents) => [...prevEvents, newEvent]);
+
+      try {
+        const response = await fetch(`${API_URL}/api/appointments`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify(newAppointmentData),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create appointment");
+        }
+        const createdAppointment = await response.json();
+        // Convert response data into FullCalendar format
+        const newAppointment: CalendarEvent = {
+          id: createdAppointment._id.toString(),
+          start: createdAppointment.date,
+          allDay: true,
+          extendedProps: {
+            stylist: createdAppointment.stylist,
+            service: createdAppointment.service,
+            request: createdAppointment.request,
+          },
+        };
+        // update calendar's state to reflect new appointment
+        setAppts((prevEvents) => [...prevEvents, newAppointment]);
+      } catch (error) {
+        console.error("Error creating appointment:", error);
+      }
     }
     closeModal();
     resetModalFields();
   };
 
   const resetModalFields = () => {
-    setEventTitle("");
-    setEventStartDate("");
-    setEventEndDate("");
-    setEventLevel("");
+    setStylist("");
+    setRequest("");
+    setService("");
+    setApptStartDate("");
+    // setEventLevel("");
     setSelectedEvent(null);
+  };
+  
+  // renders appointment bars on calendar
+  const renderEventContent = (eventInfo: any) => {
+    // map serviceId(in extendedProps) to service name in services list (got from backend)
+    const getServiceName = (serviceId: string) => {
+      const serviceObj = services.find((s) => s._id === serviceId);
+      return serviceObj ? serviceObj.name : "Unknown Service";
+    };
+    return (
+      <div
+        className={`event-fc-color flex fc-event-main fc-bg-primary p-1 rounded`}
+      >
+        <div className="fc-daygrid-event-dot"></div>
+        <div className="fc-event-time">{eventInfo.timeText}</div>
+        <div className="fc-event-title">
+          {getServiceName(eventInfo.event.extendedProps.service)}
+        </div>
+      </div>
+    );
   };
 
   return (
     <>
       <PageMeta
-        title="React.js Calendar Dashboard | TailAdmin - Next.js Admin Dashboard Template"
+        title="Customer | Appointments"
         description="This is React.js Calendar Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <PageBreadcrumb pageTitle="Appointments" />
       <div className="rounded-2xl border  border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="custom-calendar">
           <FullCalendar
+            timeZone="local"
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
@@ -137,14 +282,14 @@ const Calendar: React.FC = () => {
               center: "title",
               right: "dayGridMonth,timeGridWeek,timeGridDay",
             }}
-            events={events}
+            events={appt}
             selectable={true}
             select={handleDateSelect}
             eventClick={handleEventClick}
             eventContent={renderEventContent}
             customButtons={{
               addEventButton: {
-                text: "Book an Appointment +",
+                text: "Book an Appointment",
                 click: openModal,
               },
             }}
@@ -158,29 +303,28 @@ const Calendar: React.FC = () => {
           <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
             <div>
               <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                {selectedEvent ? "Edit Event" : "Add Event"}
+                {selectedEvent ? "Edit Appointment" : "Add Appointment"}
               </h5>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Plan your next big moment: schedule or edit an event to stay on
-                track
+                Book an Appointment Now!
               </p>
             </div>
             <div className="mt-8">
               <div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Event Title
-                  </label>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Enter Start Date
+                </label>
+                <div className="relative">
                   <input
-                    id="event-title"
-                    type="text"
-                    value={eventTitle}
-                    onChange={(e) => setEventTitle(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                    id="event-start-date"
+                    type="date"
+                    value={apptStartDate}
+                    onChange={(e) => setApptStartDate(e.target.value)}
+                    className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                   />
                 </div>
               </div>
-              <div className="mt-6">
+              {/* <div className="mt-6">
                 <label className="block mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
                   Event Color
                 </label>
@@ -214,36 +358,59 @@ const Calendar: React.FC = () => {
                     </div>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               <div className="mt-6">
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Enter Start Date
-                </label>
-                <div className="relative">
-                  <input
-                    id="event-start-date"
-                    type="date"
-                    value={eventStartDate}
-                    onChange={(e) => setEventStartDate(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Stylist
+                  </label>
+                  <select
+                    id="stylist"
+                    value={stylist}
+                    onChange={(e) => setStylist(e.target.value)}
+                    className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  >
+                    <option value="">Select a stylist</option>
+                    {stylists.map((s) => (
+                      <option key={s._id} value={s._id}>
+                        {s.name}{" "}
+                        {/* display stylist name, save stylist value as the id */}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-
               <div className="mt-6">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Enter End Date
+                  Service
                 </label>
-                <div className="relative">
-                  <input
-                    id="event-end-date"
-                    type="date"
-                    value={eventEndDate}
-                    onChange={(e) => setEventEndDate(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
-                </div>
+                <select
+                  id="service"
+                  value={service}
+                  onChange={(e) => setService(e.target.value)}
+                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                >
+                  <option value="">Select a service</option>
+                  {services.map((s) => (
+                    <option key={s._id} value={s._id}>
+                      {s.name}{" "}
+                      {/* display service name, save service value as the id */}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mt-6">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Request
+                </label>
+                <input
+                  id="request"
+                  type="text"
+                  value={request}
+                  onChange={(e) => setRequest(e.target.value)}
+                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                />
               </div>
             </div>
             <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
@@ -257,9 +424,14 @@ const Calendar: React.FC = () => {
               <button
                 onClick={handleAddOrUpdateEvent}
                 type="button"
-                className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
+                disabled={!apptStartDate || !stylist || !service}
+                className={`btn btn-success btn-update-event flex w-full justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-white sm:w-auto ${
+                  !apptStartDate || !stylist || !service
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-brand-500 hover:bg-brand-600"
+                }`}
               >
-                {selectedEvent ? "Update Changes" : "Add Event"}
+                {selectedEvent ? "Update Appointment" : "Book Appointment"}
               </button>
             </div>
           </div>
@@ -272,19 +444,6 @@ const Calendar: React.FC = () => {
         </ComponentCard>
       </div>
     </>
-  );
-};
-
-const renderEventContent = (eventInfo: any) => {
-  const colorClass = `fc-bg-${eventInfo.event.extendedProps.calendar.toLowerCase()}`;
-  return (
-    <div
-      className={`event-fc-color flex fc-event-main ${colorClass} p-1 rounded`}
-    >
-      <div className="fc-daygrid-event-dot"></div>
-      <div className="fc-event-time">{eventInfo.timeText}</div>
-      <div className="fc-event-title">{eventInfo.event.title}</div>
-    </div>
   );
 };
 

@@ -44,6 +44,21 @@ const ServiceController = {
     }
   },
 
+  // Retrieve a list of all services provided
+  async retrieveAll(req, res) {
+    console.log("svccontroller > retrieve all svcs");
+    try {
+      const services = await Service.find();
+      if (services) {
+        return res.status(200).json(services);
+      } else {
+        return res.status(404).json({message: "No services found"});
+      }
+    } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ message: "Error retrieving all services" });
+    }
+  },
   // Update a service by ID
   async update(req, res) {
     console.log("serviceController > update");
