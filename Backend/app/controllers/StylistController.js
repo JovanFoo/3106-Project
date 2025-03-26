@@ -32,7 +32,7 @@ const StylistController = {
   async update(req, res) {
     console.log("StylistController > update");
     const { id } = req.params;
-    const { name, email, username } = req.body;
+    const { name, email, username, bio, phoneNumber } = req.body;
     const stylist = await Stylist.findOne({ _id: id });
     let existingStylist = await Stylist.findOne({ username: username });
     if (
@@ -60,6 +60,8 @@ const StylistController = {
     stylist.name = name ? name : stylist.name;
     stylist.username = username ? username : stylist.username;
     stylist.email = email ? email : stylist.email;
+    stylist.bio = bio ? bio : stylist.bio || "";
+    stylist.phoneNumber = phoneNumber ? phoneNumber : stylist.phoneNumber || "";
     await stylist.save();
     stylist.password = undefined;
     return res.status(200).json(stylist);

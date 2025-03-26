@@ -3,89 +3,76 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-import { useState, useEffect } from "react";
 import axios, { AxiosResponse } from "axios";
-import { log } from "console";
+import { User } from "../../pages/UserProfiles";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 const config = {
   headers: {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-    Authorization:
-      sessionStorage.getItem("token") ||
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmUwM2M0NmIzOWUxZjU1NWEzMTcgU3R5bGlzdCIsImlhdCI6MTc0Mjk2MTk3NCwiZXhwIjoxNzQyOTY5MTc0fQ.C_LCXcnQYCnpkIw-JVBiUXchQodhAwAinLnA-7g5O-o",
+    "Authorization":sessionStorage.getItem("token"),
   },
 };
-const selfId = sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
-export default function UserMetaCard() {
-  const { isOpen, openModal, closeModal } = useModal();
-  
-  const [username, setUsername] = useState("Username");
-  const [name, setName] = useState("Name");
-  const [email, setEmail] = useState("example@email.com");
-  const [profilePicture, setProfilePicture] = useState("/images/user/owner.jpg");
-  const [role, setRole] = useState("Stylist");
 
-  useEffect(() => {
-    // Fetch user data here
-    axios
-      .get(api_address + "/api/stylists/" + selfId, config)
-      .then((res: AxiosResponse) => {
-        setUsername(res.data.username);
-        setName(res.data.name);
-        setEmail(res.data.email);
-        setProfilePicture(res.data.profilePicture || "/images/user/owner.jpg");
-        if (res.data.stylists.length > 0) {
-          setRole("Manager");
-        } else {
-          setRole("Stylist");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+const selfId = sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
+export default function UserMetaCard(user: User) {
+  const { isOpen, openModal, closeModal } = useModal();
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     // Handle save logic here
     e.preventDefault();
     closeModal();
-    // setLoading(false);
-    axios
+    user.setIsLoading(true);
+    let isSuccess1 = false;
+    let isSuccess2 = false;
+    await axios
       .put(
         api_address + "/api/stylists/" + selfId,
         {
-          username: username,
-          name: name,
-          email: email,
+          username: user.username,
+          name: user.name,
+          email: user.email,
+          bio: user.bio,
+          phoneNumber: user.phoneNumber,
         },
         config
       )
       .then((res: AxiosResponse) => {
-        setEmail(res.data.email);
-        setName(res.data.name);
-        setUsername(res.data.username);
-        // console.log(res.data);
+        isSuccess1 = true;
       })
       .catch((err) => {
-        console.log(err);
+        isSuccess1 = false;
+        console.log(err.response.data);
       });
     
-    axios
+    await axios
       .put(
         api_address + "/api/stylists/profilePicture",
-        { profilePicture: profilePicture },
+        { profilePicture: user.profilePicture },
         config
       )
       .then((res: AxiosResponse) => {
-        setProfilePicture(res.data.profilePicture);
+        isSuccess2 = true;
       })
       .catch((err) => {
-        console.log(err);
+        isSuccess2 = false;
+        console.log(err.response.data);
       });
-    // setLoading(true);
+    if (isSuccess1 && isSuccess2) {
+      user.setShowAlert(true);
+      user.setVariant("success");
+      user.setTitle("Updating user profile");
+      user.setMessage("Successfully updated user data.");
+    } else {
+      user.setShowAlert(true);
+      user.setVariant("error");
+      user.setTitle("Updating user profile");
+      user.setMessage("Error updating user data.");
+    }
+    
+    user.setIsLoading(false);
   };
   return (
     <>
@@ -93,22 +80,20 @@ export default function UserMetaCard() {
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
             <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-              <img
-                src={profilePicture }
-              />
+              <img src={user.profilePicture} />
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                {name}
+                {user.name}
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {role}
+                  {user.role}
                 </p>
-                <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
+                {/* <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Arizona, United States
-                </p>
+                </p> */}
               </div>
             </div>
             {/* <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
@@ -231,7 +216,7 @@ export default function UserMetaCard() {
             </p>
           </div>
           <form className="flex flex-col" onSubmit={(e) => handleSave(e)}>
-            <div className="custom-scrollbar h-[350px] overflow-y-auto px-2 pb-3">
+            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
               {/* <div>
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Social Links
@@ -265,7 +250,7 @@ export default function UserMetaCard() {
                   </div>
                 </div>
               </div> */}
-              <div className="mt-7">
+              <div className="mt-2">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Personal Information
                 </h5>
@@ -280,7 +265,7 @@ export default function UserMetaCard() {
                         }}
                       >
                         <img
-                          src={profilePicture || "/images/user/owner.jpg"}
+                          src={user.profilePicture || "/images/user/owner.jpg"}
                           alt="user"
                         />
                       </label>
@@ -291,44 +276,78 @@ export default function UserMetaCard() {
                       type="file"
                       name="profilePicture"
                       onChange={(e) => {
-                        const file = e.target.files[0];
+                        const files = e.target.files;
+                        if (!files) return;
+                        const file = files[0];
                         const reader = new FileReader();
                         reader.onloadend = () => {
-                          setProfilePicture(reader.result as string);
+                          user.setProfilePicture(reader.result as string);
                         };
                         reader.readAsDataURL(file);
                       }}
                     />
                   </div>
-                  <div className="col-span-2 ">
+                  <div className="col-span-2 lg:col-span-1">
                     <Label>Username</Label>
                     <Input
                       type="text"
                       name="username"
-                      value={username}
+                      value={user.username}
                       placeholder="Username"
-                      onChange={(e) => setUsername(e.target.value)}
+                      onChange={(e) => user.setUsername(e.target.value)}
                     />
                   </div>
-                  <div className="col-span-2 ">
+                  <div className="col-span-2 lg:col-span-1">
                     <Label>Name</Label>
                     <Input
                       type="text"
                       name="name"
-                      value={name}
+                      value={user.name}
                       placeholder="Name"
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(e) => user.setName(e.target.value)}
                     />
                   </div>
 
-                  <div className="col-span-2">
+                  <div className="col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
                     <Input
                       type="text"
                       name="email"
-                      value={email}
+                      value={user.email}
                       placeholder="Email Address"
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => user.setEmail(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label>Phone Number</Label>
+                    <Input
+                      type="tel"
+                      name="phoneNumber"
+                      value={user.phoneNumber}
+                      placeholder="Phone Number"
+                      onChange={(e) => {
+                        try {
+                          if (e.target.value.length > 8) {
+                            return;
+                          }
+                          if (isNaN(parseInt(e.target.value))) {
+                            user.setPhoneNumber("");
+                            return;
+                          }
+                          user.setPhoneNumber(e.target.value);
+                        } catch (err) {}
+                      }}
+                      pattern="[0-9]{8}"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label>Bio</Label>
+                    <Input
+                      type="text"
+                      name="bio"
+                      value={user.bio}
+                      placeholder="Bio"
+                      onChange={(e) => user.setBio(e.target.value)}
                     />
                   </div>
                 </div>
