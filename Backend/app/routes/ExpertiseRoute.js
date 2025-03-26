@@ -12,7 +12,12 @@ ExpertiseRouter.get(
   AuthMiddleware.authCustomerToken,
   ExpertiseController.retrieve
 );
-
+// add expertise to stylist
+ExpertiseRouter.post(
+  "/",
+  AuthMiddleware.authAdminOrStylistManagerToken,
+  ExpertiseController.create
+);
 // get all expertise
 ExpertiseRouter.get(
   "/",
