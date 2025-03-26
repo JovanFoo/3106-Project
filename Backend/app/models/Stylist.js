@@ -24,12 +24,12 @@ const stylistSchema = new Schema({
     type: String,
   },
   phoneNumber: {
-    type: Number
+    type: Number,
   },
   bio: {
     type: String,
   },
-  expertise: [
+  expertises: [
     {
       type: Schema.Types.ObjectId,
       ref: "Expertise",
@@ -52,7 +52,7 @@ const stylistSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: "LeaveRequest",
     },
-  ]
+  ],
 });
 
 const Stylist = mongose.model("Stylist", stylistSchema);
