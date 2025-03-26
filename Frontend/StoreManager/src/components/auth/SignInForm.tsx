@@ -26,12 +26,7 @@ export default function SignInForm() {
   >("error");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/");
-    }
-  }, [isAuthenticated]);
+
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (username === "" || password === "") {
@@ -41,7 +36,7 @@ export default function SignInForm() {
       setShowAlert(true);
       return;
     }
-
+    console.log(username, password);
     await axios
       .post(`${api_address}/api/auth/stylists/login`, {
         username,
@@ -51,7 +46,7 @@ export default function SignInForm() {
         sessionStorage.setItem("stylistId", res.data.stylist._id);
         sessionStorage.setItem("token", res.data.token.token);
         sessionStorage.setItem("refreshToken", res.data.token.refreshToken);
-        setIsAuthenticated(true);
+        navigate("/");
       })
       .catch((err) => {
         setVariant("error");
@@ -92,7 +87,8 @@ export default function SignInForm() {
                   </Label>
                   <Input
                     placeholder="username"
-                    name="text"
+                    name="username"
+                    type="text"
                     onChange={(e) => setUsername(e.target.value)}
                     value={username}
                   />

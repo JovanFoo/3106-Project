@@ -6,18 +6,26 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import { useNavigate } from "react-router-dom";
+import Alert from "../ui/alert/Alert";
 
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [email, setEmail] = useState("");
-  const [firstName, setfFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [variant, setVariant] = useState<
+    "success" | "error" | "warning" | "info"
+  >("error");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,13 +33,13 @@ export default function SignUpForm() {
     function next() {
       navigate("/signin");
     }
+    console.log(email, name, username, password);
     await axios
-      .post(api_address, {
-        firstName,
-        lastName,
-        email,
-        password,
-        username,
+      .post(`${api_address}/api/auth/stylists/register`, {
+        name: name,
+        email: email,
+        password: password,
+        username: username,
       })
       .then((res: AxiosResponse) => {
         console.log(res.data);
@@ -40,18 +48,27 @@ export default function SignUpForm() {
       })
       .catch((err) => {
         console.log(err);
-        alert("An error occurred. Please try again later.");
+        setShowAlert(true);
+        setVariant("error");
+        setTitle("Error");
+        setMessage("Invalid credentials.");
         // TODO: handle error
       });
   };
 
   const handleValidation = () => {
     if (!isChecked) {
-      alert("Please agree to the terms and conditions");
+      setShowAlert(true);
+      setVariant("error");
+      setTitle("Error");
+      setMessage("Please agree to the terms and conditions.");
       return false;
     }
-    if (!email || !firstName || !lastName || !username || !password) {
-      alert("Please fill in all the required fields");
+    if (!email || !name || !username || !password) {
+      setShowAlert(true);
+      setVariant("error");
+      setTitle("Error");
+      setMessage("Please fill in all fields.");
       return false;
     }
     return true;
@@ -83,21 +100,21 @@ export default function SignUpForm() {
               <div className="space-y-5">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   {/* <!-- First Name --> */}
-                  <div className="sm:col-span-1">
+                  <div className="sm:col-span-2">
                     <Label>
-                      First Name<span className="text-error-500">*</span>
+                      Name<span className="text-error-500">*</span>
                     </Label>
                     <Input
                       type="text"
-                      id="fname"
-                      name="fname"
-                      onChange={(e) => setfFirstName(e.target.value)}
-                      value={firstName}
-                      placeholder="Enter your first name"
+                      id="name"
+                      name="name"
+                      onChange={(e) => setName(e.target.value)}
+                      value={name}
+                      placeholder="Enter your name"
                     />
                   </div>
                   {/* <!-- Last Name --> */}
-                  <div className="sm:col-span-1">
+                  {/* <div className="sm:col-span-1">
                     <Label>
                       Last Name<span className="text-error-500">*</span>
                     </Label>
@@ -109,7 +126,7 @@ export default function SignUpForm() {
                       value={lastName}
                       placeholder="Enter your last name"
                     />
-                  </div>
+                  </div> */}
                 </div>
                 {/* <!-- Username --> */}
                 <div>
@@ -191,7 +208,9 @@ export default function SignUpForm() {
                 </div>
               </div>
             </form>
-
+            <div className={showAlert ? " mt-5" : "mt-5 hidden"}>
+              <Alert variant={variant} title={title} message={message} />
+            </div>
             <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Already have an account?

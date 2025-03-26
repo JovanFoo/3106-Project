@@ -8,15 +8,7 @@ import { User } from "../../pages/UserProfiles";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
-const config = {
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-    "Authorization":sessionStorage.getItem("token"),
-  },
-};
 
-const selfId = sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
 export default function UserMetaCard(user: User) {
   const { isOpen, openModal, closeModal } = useModal();
 
@@ -27,6 +19,15 @@ export default function UserMetaCard(user: User) {
     user.setIsLoading(true);
     let isSuccess1 = false;
     let isSuccess2 = false;
+
+    const config = {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        Authorization: sessionStorage.getItem("token"),
+      },
+    };
+    const selfId = sessionStorage.getItem("stylistId");
     await axios
       .put(
         api_address + "/api/stylists/" + selfId,
@@ -46,7 +47,7 @@ export default function UserMetaCard(user: User) {
         isSuccess1 = false;
         console.log(err.response.data);
       });
-    
+
     await axios
       .put(
         api_address + "/api/stylists/profilePicture",
@@ -71,7 +72,7 @@ export default function UserMetaCard(user: User) {
       user.setTitle("Updating user profile");
       user.setMessage("Error updating user data.");
     }
-    
+
     user.setIsLoading(false);
   };
   return (
