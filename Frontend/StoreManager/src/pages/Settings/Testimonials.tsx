@@ -6,7 +6,7 @@ import axios from "axios";
 type Review = {
   _id: number;
   text: string;
-  stars: Number;
+  stars: number;
   customer: string;
   stylist: string;
 };
@@ -93,7 +93,7 @@ export default function ClientTestimonials() {
                 <div className="flex items-center mb-2">
                   <span className="text-sm font-medium">{review.text}</span>
                   <span className="text-xs text-gray-500 ml-2">
-                    {review.stars} ⭐
+                    {review.stars.toString()} ⭐
                   </span>
                 </div>
                 <div className="text-xs text-gray-500 mb-1">{review.text}</div>
