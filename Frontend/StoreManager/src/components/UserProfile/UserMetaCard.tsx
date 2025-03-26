@@ -6,8 +6,8 @@ import Label from "../form/Label";
 import axios, { AxiosResponse } from "axios";
 import { User } from "../../pages/UserProfiles";
 
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 const config = {
   headers: {
     "Access-Control-Allow-Origin": "*",
@@ -96,8 +96,8 @@ export default function UserMetaCard(user: User) {
                 </p> */}
               </div>
             </div>
-            {/* <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
-              <a
+            <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
+              {/* <a
                 href="https://www.facebook.com/PimjoHQ"
                 target="_blank"
                 rel="noopener"
@@ -179,8 +179,8 @@ export default function UserMetaCard(user: User) {
                     fill=""
                   />
                 </svg>
-              </a>
-            </div> */}
+              </a> */}
+            </div>
           </div>
           <button
             onClick={openModal}

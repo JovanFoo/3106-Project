@@ -8,7 +8,8 @@ import React, { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import Alert from "../components/ui/alert/Alert";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 const config = {
   headers: {
@@ -66,35 +67,38 @@ export default function UserProfiles() {
     const selfId =
       sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
     if (isLoading) return;
-    axios
-    .get(api_address + "/api/stylists/" + selfId, config)
-      .then((res: AxiosResponse) => {
-      if (res.status !== 200) {
-        console.log("Failed to fetch user data.");
-        return;
-      }
-      setUsername(res.data.username);
-      setName(res.data.name);
-      setEmail(res.data.email);
-      setProfilePicture(res.data.profilePicture || "/images/user/owner.jpg");
-      setBio(res.data.bio || "Bio has not been set yet.");
-      setPhoneNumber(
-        res.data.phoneNumber || "Phone number has not been set yet."
-      );
-      if (res.data.stylists && res.data.stylists.length > 0) {
-        setRole("Manager");
-      } else {
-        setRole("Stylist");
-        }
-        
-      setShowAlert(false);
-    })
-      .catch((err) => {
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Failed to fetch user data.");
-    });
+    const fetchData = async () => {
+      await axios
+        .get(api_address + "/api/stylists/" + selfId, config)
+        .then((res: AxiosResponse) => {
+          if (res.status !== 200) {
+            console.log("Failed to fetch user data.");
+            return;
+          }
+          setUsername(res.data.username);
+          setName(res.data.name);
+          setEmail(res.data.email);
+          setProfilePicture(res.data.profilePicture || "/images/user/owner.jpg");
+          setBio(res.data.bio || "Bio has not been set yet.");
+          setPhoneNumber(
+            res.data.phoneNumber || "Phone number has not been set yet."
+          );
+          if (res.data.stylists && res.data.stylists.length > 0) {
+            setRole("Manager");
+          } else {
+            setRole("Stylist");
+          }
+          
+          setShowAlert(false);
+        })
+        .catch((err) => {
+          setShowAlert(true);
+          setVariant("error");
+          setTitle("Error");
+          setMessage("Failed to fetch user data.");
+        });
+    };
+    fetchData();
   }, [isLoading]);
 
   return (
