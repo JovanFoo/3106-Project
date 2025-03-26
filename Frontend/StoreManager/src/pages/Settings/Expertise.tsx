@@ -4,47 +4,73 @@ import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
 import SettingsSidebar from "../SettingsSidebar";
+import axios, { AxiosResponse } from "axios";
 
-const expertiseOptions = [
-  "Haircut",
-  "Hair Treatments",
-  "Men’s Grooming",
-  "Color Treatments",
-  "Bridal & Event Styling",
-  "Classic Perms",
-  "Digital Perms",
-  "Spiral Perms",
-  "Hair Reborn Restoration",
-  "Total Reborn",
-  "Scalp Massage",
-  "Highlight",
-];
+type Expertise = {
+  _id: string;
+  name: string;
+  description: string;
+};
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
-const config = {
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-    Authorization: sessionStorage.getItem("token"),
-  },
-};
 
 export default function Expertise() {
-  const [selectedExpertise, setSelectedExpertise] = useState([
-    "Men’s Grooming",
-    "Total Reborn",
-  ]);
+  const [expertiseOptions, setExpertiseOptions] = useState<Array<Expertise>>(
+    []
+  );
+  const [selectedExpertise, setSelectedExpertise] = useState<Array<Expertise>>(
+    []
+  );
   const { isOpen, openModal, closeModal } = useModal();
-
-  const toggleSelection = (expertise) => {
+  const config = {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+      Authorization: sessionStorage.getItem("token"),
+    },
+  };
+  const toggleSelection = (expertise: Expertise) => {
     setSelectedExpertise((prev) =>
       prev.includes(expertise)
         ? prev.filter((item) => item !== expertise)
         : [...prev, expertise]
     );
   };
+  const onSaveChanges = async () => {
+    closeModal();
+    const updateExpertise = async () => {
+      const selectedExpertiseIds = selectedExpertise.map((expertise) => {
+        return expertise._id;
+      });
+      await axios
+        .put(
+          `${api_address}/api/stylists/expertises`,
+          { expertises: selectedExpertiseIds },
+          config
+        )
+        .then((res: AxiosResponse) => {
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+    updateExpertise();
+  };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    const fetchExpertise = async () => {
+      await axios
+        .get(`${api_address}/api/expertises`, config)
+        .then((res: AxiosResponse) => {
+          setExpertiseOptions(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+    fetchExpertise();
+  }, []);
 
   return (
     <div className="flex min-h-screen">
@@ -61,10 +87,10 @@ export default function Expertise() {
           <div className="flex flex-wrap gap-3">
             {selectedExpertise.map((expertise) => (
               <span
-                key={expertise}
+                key={selectedExpertise.indexOf(expertise)}
                 className="px-4 py-2 rounded-full bg-blue-600 text-white text-sm font-medium shadow-md"
               >
-                {expertise}
+                {expertise.name}
               </span>
             ))}
           </div>
@@ -84,7 +110,7 @@ export default function Expertise() {
           <div className="flex flex-wrap gap-3">
             {expertiseOptions.map((expertise) => (
               <button
-                key={expertise}
+                key={expertiseOptions.indexOf(expertise)}
                 onClick={() => toggleSelection(expertise)}
                 className={`px-4 py-2 rounded-full text-sm font-medium shadow-md transition ${
                   selectedExpertise.includes(expertise)
@@ -92,7 +118,7 @@ export default function Expertise() {
                     : "bg-white text-gray-800 dark:bg-gray-700 dark:text-white border border-gray-300"
                 }`}
               >
-                {expertise}
+                {expertise.name}
               </button>
             ))}
           </div>
@@ -104,7 +130,7 @@ export default function Expertise() {
             >
               Close
             </button>
-            <Button size="sm" variant="primary" onClick={closeModal}>
+            <Button size="sm" variant="primary" onClick={onSaveChanges}>
               Save Changes
             </Button>
           </div>
