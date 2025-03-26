@@ -3,7 +3,7 @@ const Customer = require("../models/Customer.js");
 const Appointment = require("../models/Appointment.js");
 const PasswordHash = require("../utils/passwordHash.js");
 const CustomerController = require("./CustomerController.js");
-const StylistController = require("./StylistController.js");
+// const StylistController = require("./StylistController.js");
 
 const AppointmentController = {
   // Create a new appointment

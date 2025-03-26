@@ -21,7 +21,7 @@ const AuthMiddleware = {
     if (token == null) return res.json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
     if (!decoded.status) return res.json({ message: "Unauthorized" });
-    if (decoded.values.type != "Stylist")
+    if (decoded.values.type != "Stylist" && decoded.values.type != "StylistManager")
       return res.json({ message: "Unauthorized" });
     req.userId = decoded.values.userId;
     next();

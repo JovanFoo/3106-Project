@@ -99,19 +99,22 @@ const StylistController = {
     const { profilePicture } = req.body;
     try
     {
-      console.log( "id", id );
-      console.log( "profilePicture", profilePicture );
-      const stylist = await Stylist.findOne({ _id: id });
+      // console.log( "id", id );
+      // console.log( "profilePicture", profilePicture );
+      const stylist = await Stylist.updateOne(
+        { _id: id },
+        { profilePicture: profilePicture }
+      );
       if (!stylist) {
         return res.status(400).json({ message: "Error updating stylist profile picture" });
       }
-  
-      stylist.profilePicture = profilePicture
-        ? profilePicture
-        : stylist.profilePicture || "";
+      const newStylist = await Stylist.findOne({ _id: id });
+      // stylist.profilePicture = profilePicture
+      //   ? profilePicture
+      //   : stylist.profilePicture || "";
       // TO DO: use cloudinary to upload image
-      await stylist.save();
-      return res.status(200).json(stylist);
+      // await stylist.save();
+      return res.status(200).json(newStylist);
     }catch (error){
       return res.status(400).json({ message: error.message });
     }
