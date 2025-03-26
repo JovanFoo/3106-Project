@@ -8,16 +8,9 @@ import React, { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import Alert from "../components/ui/alert/Alert";
 
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
-const config = {
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-    Authorization: sessionStorage.getItem("token"),
-  },
-};
 export type User = {
   username: string;
   name: string;
@@ -47,6 +40,13 @@ export type User = {
   setMessage: React.Dispatch<React.SetStateAction<string>>;
 };
 export default function UserProfiles() {
+  const config = {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+      Authorization: sessionStorage.getItem("token"),
+    },
+  };
   const [username, setUsername] = useState("Username");
   const [name, setName] = useState("Name");
   const [email, setEmail] = useState("example@email.com");
@@ -64,14 +64,14 @@ export default function UserProfiles() {
   >("error");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+
   useEffect(() => {
     // Fetch user data here
-    const selfId =
-      sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
+    const stylistId = sessionStorage.getItem("stylistId");
     if (isLoading) return;
     const fetchData = async () => {
       await axios
-        .get(api_address + "/api/stylists/" + selfId, config)
+        .get(api_address + "/api/stylists/" + stylistId, config)
         .then((res: AxiosResponse) => {
           if (res.status !== 200) {
             console.log("Failed to fetch user data.");

@@ -7,19 +7,15 @@ import axios, { AxiosResponse } from "axios";
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
-const config = {
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-    Authorization: sessionStorage.getItem("token"),
-  },
-};
-
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [username, setUsername] = useState("Username");
   const [email, setEmail] = useState("example@email.com");
-  const [profilePicture, setProfilePicture] = useState("/images/user/owner.jpg");
+  const [profilePicture, setProfilePicture] = useState(
+    "/images/user/owner.jpg"
+  );
+  const [isLoading, setIsLoading] = useState(false);
+
   function toggleDropdown() {
     setIsOpen(!isOpen);
   }
@@ -31,13 +27,21 @@ export default function UserDropdown() {
     sessionStorage.clear();
     window.location.href = "/signin";
   }
-
+  const config = {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+      Authorization: sessionStorage.getItem("token"),
+    },
+  };
   useEffect(() => {
-    const selfId =
-      sessionStorage.getItem("userId") || "67dd2e03c46b39e1f555a317";
+    const stylistId = sessionStorage.getItem("stylistId");
     const fetchData = async () => {
+      if (isLoading) {
+        return;
+      }
       await axios
-        .get(api_address + "/api/stylists/" + selfId, config)
+        .get(api_address + "/api/stylists/" + stylistId, config)
         .then((res: AxiosResponse) => {
           if (res.status !== 200) {
             console.log("Failed to fetch user data.");
@@ -54,7 +58,8 @@ export default function UserDropdown() {
         });
     };
     fetchData();
-  }, []);
+    setIsLoading(true);
+  }, [isLoading]);
   return (
     <div className="relative">
       <button

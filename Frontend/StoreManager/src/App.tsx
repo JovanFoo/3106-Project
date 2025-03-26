@@ -38,8 +38,8 @@ import EmergencyLeaveManagement from "./pages/EmergencyLeaveManagement";
 import { useEffect } from "react";
 import axios, { AxiosResponse } from "axios";
 
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 const config = {
   headers: {
     "Access-Control-Allow-Origin": "*",
@@ -51,9 +51,7 @@ export default function App() {
     const refreshTokenFunction = () => {
       console.log("refreshing token");
       const jwttoken = sessionStorage.getItem("token");
-      const refreshToken =
-        sessionStorage.getItem("refreshToken") ||
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RkMmVjODkyOGM0NzJkYzY3NjdkNTggU3R5bGlzdE1hbmFnZXIiLCJpYXQiOjE3NDI5OTgxNzMsImV4cCI6MTc0NDIwNzc3M30.c9HuGUJ2EC3NNXjBrcwYLB_7iXBBTYZCKtEbdKZljF8";
+      const refreshToken = sessionStorage.getItem("refreshToken");
       if (jwttoken) {
         axios
           .post(

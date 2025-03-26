@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import axios, { AxiosResponse } from "axios";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
@@ -10,7 +10,8 @@ import { useNavigate } from "react-router-dom";
 import Alert from "../ui/alert/Alert";
 import { set } from "date-fns";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,12 +26,14 @@ export default function SignInForm() {
   >("error");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-
-  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    function next() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  useEffect(() => {
+    if (isAuthenticated) {
       navigate("/");
     }
+  }, [isAuthenticated]);
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (username === "" || password === "") {
       setVariant("error");
       setTitle("Error");
@@ -48,7 +51,7 @@ export default function SignInForm() {
         sessionStorage.setItem("stylistId", res.data.stylist._id);
         sessionStorage.setItem("token", res.data.token.token);
         sessionStorage.setItem("refreshToken", res.data.token.refreshToken);
-        next();
+        setIsAuthenticated(true);
       })
       .catch((err) => {
         setVariant("error");
