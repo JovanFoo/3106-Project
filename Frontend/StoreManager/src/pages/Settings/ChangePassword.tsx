@@ -9,8 +9,8 @@ import Alert from "../../components/ui/alert/Alert";
 import { useState } from "react";
 import axios, { AxiosResponse } from "axios";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 const config = {
   headers: {
     "Access-Control-Allow-Origin": "*",
@@ -24,7 +24,7 @@ export default function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-
+  const [showAlert, setShowAlert] = useState(false);
   const [variant, setVariant] = useState<
     "success" | "error" | "warning" | "info"
   >("success");
@@ -44,20 +44,34 @@ export default function ChangePassword() {
       return;
     }
     await axios
-      .post(
-        `${api_address}/api/auth/change-password`,
+      .put(
+        `${api_address}/api/auth/stylists/update-password`,
         {
-          currentPassword: "currentPassword",
-          newPassword: "newPassword",
+          currentPassword: currentPassword,
+          newPassword: newPassword,
         },
         config
       )
       .then((response: AxiosResponse) => {
         console.log(response.data);
+        setVariant("success");
+        setTitle("Success");
+        setMessage("Password changed successfully.");
+        setShowAlert(true);
+        setConfirmNewPassword("");
+        setCurrentPassword("");
+        setNewPassword("");
       })
       .catch((error) => {
         console.log(error);
+        setVariant("error");
+        setTitle("Error");
+        setMessage(error.response.data.message);
+        setShowAlert(true);
       });
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 5000);
   };
 
   return (
@@ -67,7 +81,7 @@ export default function ChangePassword() {
       {/* Main Content */}
       <div className="flex-1 p-5">
         <PageBreadcrumb pageTitle="Change Password" />
-        <div className="mb-5">
+        <div className={showAlert ? "mb-5" : "hidden"}>
           <Alert title={title} message={message} variant={variant} />
         </div>
         <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
