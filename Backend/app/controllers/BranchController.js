@@ -6,12 +6,18 @@ const BranchController = {
   // Create a new branch
   async create(req, res) {
     console.log("BranchController > create");
-    const { branchId, location, isDisabled } = req.body;
+    const { location, isDisabled, phoneNumber, weekdayOpeningTime, weekdayClosingTime, weekendOpeningTime, weekendClosingTime, holidayOpeningTime, holidayClosingTime } = req.body;
 
     try {
       const branch = new Branch({
-        branchId,
         location,
+        phoneNumber,
+        weekdayOpeningTime,
+        weekdayClosingTime,
+        weekendOpeningTime,
+        weekendClosingTime,
+        holidayOpeningTime,
+        holidayClosingTime,
         isDisabled: isDisabled ?? false, // Default to false if not provided
       });
 
@@ -178,7 +184,27 @@ const BranchController = {
       await branch.save();
       await stylistManager.save();
       return res.status(200).json(branch);
+  },
+
+  // Retrieve all branches a stylist is assigned to
+  async retrieveBranchesByStylist(req, res) {
+    console.log("BranchController > retrieveBranchesByStylist");
+
+    try {
+      const stylist = await Stylist.findById(req.userId);
+      if (!stylist) {
+        return res.status(404).json({ message: "Stylist not found" });
+      }
+
+      const branches = await Branch.find({ staffs: stylist._id });
+
+      return res.status(200).json(branches);
+    } catch (error) {
+      console.log(error.message);
+      return res.status(400).json({ message: "Error retrieving branches for stylist" });
+    }
   }
+
 };
 
 module.exports = BranchController;

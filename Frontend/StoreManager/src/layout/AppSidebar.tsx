@@ -63,7 +63,7 @@ const navItems: NavItem[] = [
   {
     icon: <HorizontaLDots />,
     name: "Shop Settings",
-    path: "/shopSettings",
+    path: "/shops",
   },
   {
     icon: <HorizontaLDots />,
