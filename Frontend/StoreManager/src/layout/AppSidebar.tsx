@@ -22,7 +22,7 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    path: "/home",
   },
   {
     icon: <InfoIcon />,
@@ -78,7 +78,7 @@ const AppSidebar: React.FC = () => {
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const isActive = useCallback((path: string) => location.pathname === path, [location.pathname]);
+  const isActive = useCallback((path: string) => location.pathname.startsWith(path), [location.pathname]);
 
   useEffect(() => {
     let submenuMatched = false;
@@ -124,16 +124,30 @@ const AppSidebar: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`}>
-        <Link to="/">
+        <Link to="/" className="flex justify-center">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <img className="dark:hidden" src="/images/logo/logo.svg" alt="Logo" width={150} height={40} />
-              <img className="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" width={150} height={40} />
+              <img
+                className="dark:hidden w-full h-auto object-contain"
+                src="/images/logo/LogoSide.png"
+                alt="Logo"
+              />
+              <img
+                className="hidden dark:block w-full h-auto object-contain"
+                src="/images/logo/LogoSide.png"
+                alt="Logo"
+              />
             </>
           ) : (
-            <img src="/images/logo/logo-icon.svg" alt="Logo" width={32} height={32} />
+            <img
+              className="w-8 h-8 object-contain"
+              src="/images/logo/LogoSide.png"
+              alt="Logo"
+            />
           )}
         </Link>
+
+
       </div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
@@ -147,9 +161,8 @@ const AppSidebar: React.FC = () => {
                   {nav.subItems ? (
                     <button
                       onClick={() => handleSubmenuToggle(index)}
-                      className={`menu-item group ${
-                        openSubmenu === index ? "menu-item-active" : "menu-item-inactive"
-                      } cursor-pointer ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"}`}
+                      className={`menu-item group ${openSubmenu === index ? "menu-item-active" : "menu-item-inactive"
+                        } cursor-pointer ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"}`}
                     >
                       <span className={`menu-item-icon-size ${openSubmenu === index ? "menu-item-icon-active" : "menu-item-icon-inactive"}`}>
                         {nav.icon}

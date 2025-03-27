@@ -4,63 +4,92 @@ import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
 
+interface Transaction {
+    id: string;
+    bookingId: string;
+    service: string;
+    barber: string;
+    datetime: string;
+    paymentMethod: string;
+    amount: string;
+    status: string;
+}
+
+const services = ["Haircut", "Beard Trim", "Shave", "Hair Coloring"];
+const barbers = ["John Doe", "Jane Smith", "Alex Johnson", "Sam Lee"];
+const paymentMethods = ["Cash", "Card"];
+const statuses = ["Pending", "Completed", "Cancelled"];
+
 export default function Transactions() {
-    const [transactions, setTransactions] = useState([]);
-    const [selectedTransaction, setSelectedTransaction] = useState(null);
-    const [transactionData, setTransactionData] = useState({
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+    const [transactionData, setTransactionData] = useState<Transaction>({
+        id: "",
         bookingId: "",
-        paymentMethod: "Cash",
+        service: services[0],
+        barber: barbers[0],
+        datetime: "",
+        paymentMethod: paymentMethods[0],
         amount: "",
+        status: statuses[0],
     });
     const { isOpen, openModal, closeModal } = useModal();
 
     useEffect(() => {
-        const fetchTransactions = async () => {
-            try {
-                const response = await fetch("/api/transactions");
-                const data = await response.json();
-                setTransactions(data);
-            } catch (error) {
-                console.error("Error fetching transactions:", error);
+        setTransactions([
+            {
+                id: "1",
+                bookingId: "BKG1001",
+                service: "Haircut",
+                barber: "John Doe",
+                datetime: "2025-03-26 14:30",
+                paymentMethod: "Cash",
+                amount: "25.00",
+                status: "Completed",
+            },
+            {
+                id: "2",
+                bookingId: "BKG1002",
+                service: "Beard Trim",
+                barber: "Jane Smith",
+                datetime: "2025-03-26 15:00",
+                paymentMethod: "Card",
+                amount: "15.00",
+                status: "Completed",
             }
-        };
-
-        fetchTransactions();
+        ]);
     }, []);
 
     const handleAddTransaction = () => {
+        const newTransaction = { ...transactionData, id: Date.now().toString() };
         if (selectedTransaction) {
-            // Update existing transaction
             setTransactions((prev) =>
-                prev.map((txn) =>
-                    txn.id === selectedTransaction.id
-                        ? { ...txn, ...transactionData }
-                        : txn
-                )
+                prev.map((txn) => (txn.id === selectedTransaction.id ? newTransaction : txn))
             );
         } else {
-            // Add new transaction
-            setTransactions((prev) => [
-                ...prev,
-                { id: Date.now().toString(), ...transactionData },
-            ]);
+            setTransactions((prev) => [...prev, newTransaction]);
         }
         closeModal();
         resetTransactionFields();
     };
 
     const resetTransactionFields = () => {
-        setTransactionData({ bookingId: "", paymentMethod: "Cash", amount: "" });
+        setTransactionData({
+            id: "",
+            bookingId: "",
+            service: services[0],
+            barber: barbers[0],
+            datetime: "",
+            paymentMethod: paymentMethods[0],
+            amount: "",
+            status: statuses[0],
+        });
         setSelectedTransaction(null);
     };
 
-    const handleTransactionClick = (transaction) => {
+    const handleTransactionClick = (transaction: Transaction) => {
         setSelectedTransaction(transaction);
-        setTransactionData({
-            bookingId: transaction.bookingId,
-            paymentMethod: transaction.paymentMethod,
-            amount: transaction.amount,
-        });
+        setTransactionData(transaction);
         openModal();
     };
 
@@ -69,12 +98,8 @@ export default function Transactions() {
             <PageBreadcrumb pageTitle="Transaction" />
             <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 w-full">
                 <div className="flex justify-between items-center mb-6">
-                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                        Transaction
-                    </h4>
-                    <Button size="sm" variant="primary" onClick={openModal}>
-                        Add Transaction +
-                    </Button>
+                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">Transaction</h4>
+                    <Button size="sm" variant="primary" onClick={openModal}>Add Transaction +</Button>
                 </div>
                 <table className="w-full border-collapse border border-gray-300">
                     <thead>
@@ -107,74 +132,37 @@ export default function Transactions() {
                     </tbody>
                 </table>
             </div>
-
-            <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[500px] p-6">
+            <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] p-6">
                 <div className="flex flex-col px-2 overflow-y-auto">
-                    <h4 className="text-lg text-white font-semibold mb-4">
-                        {selectedTransaction ? "Edit Transaction" : "Add Transaction"}
-                    </h4>
-                    
-                    <div className="mt-6">
-                        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Current Booking
-                        </label>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Booking ID"
-                                value={transactionData.bookingId}
-                                onChange={(e) =>
-                                    setTransactionData({ ...transactionData, bookingId: e.target.value })
-                                }
-                                className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="mt-6">
-                        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Payment Method
-                        </label>
-                        <div className="relative">
-                            <select
-                                className="w-full p-2 border rounded-md"
-                                value={transactionData.paymentMethod}
-                                onChange={(e) =>
-                                    setTransactionData({ ...transactionData, paymentMethod: e.target.value })
-                                }
-                            >
-                                <option value="Cash">Cash</option>
-                                <option value="Card">Card</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="mt-6">
-                        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Amount
-                        </label>
-                        <div className="relative">
+                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">{selectedTransaction ? "Edit Transaction" : "Add Transaction"}</h4>
+                    <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                        {["service", "barber", "paymentMethod", "status"].map((key) => (
+                            <div key={key} className="col-span-2 lg:col-span-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">{key.charAt(0).toUpperCase() + key.slice(1)}</label>
+                                <select
+                                    value={transactionData[key as keyof Transaction]}
+                                    onChange={(e) => setTransactionData({ ...transactionData, [key]: e.target.value })}
+                                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                                >
+                                    {(key === "service" ? services : key === "barber" ? barbers : key === "paymentMethod" ? paymentMethods : statuses).map((option) => (
+                                        <option key={option} value={option}>{option}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        ))}
+                        <div className="col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">Amount</label>
                             <input
                                 type="number"
-                                placeholder="Amount Paid"
                                 value={transactionData.amount}
-                                onChange={(e) =>
-                                    setTransactionData({ ...transactionData, amount: e.target.value })
-                                }
-                                className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                                onChange={(e) => setTransactionData({ ...transactionData, amount: e.target.value })}
+                                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
                             />
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">                        <button
-                        onClick={closeModal}
-                        type="button"
-                        className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-                    >
-                        Close
-                    </button>
-                        <Button size="sm" variant="primary" onClick={handleAddTransaction}>
-                            {selectedTransaction ? "Update Transaction" : "Create"}
-                        </Button>
+                    <div className="flex items-center gap-3 mt-6 sm:justify-end">
+                        <button onClick={closeModal} type="button" className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">Close</button>
+                        <Button size="sm" variant="primary" onClick={handleAddTransaction}>{selectedTransaction ? "Update Transaction" : "Create"}</Button>
                     </div>
                 </div>
             </Modal>
