@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import axios, { AxiosResponse } from "axios";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
@@ -7,35 +7,52 @@ import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { useNavigate } from "react-router-dom";
+import Alert from "../ui/alert/Alert";
+import { set } from "date-fns";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [variant, setVariant] = useState<
+    "success" | "error" | "warning" | "info"
+  >("error");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    function next() {
-      navigate("/");
+    if (username === "" || password === "") {
+      setVariant("error");
+      setTitle("Error");
+      setMessage("Please fill in all fields.");
+      setShowAlert(true);
+      return;
     }
+    console.log(username, password);
     await axios
-      .post(api_address, {
-        email,
+      .post(`${api_address}/api/auth/stylists/login`, {
+        username,
         password,
       })
       .then((res: AxiosResponse) => {
-        console.log(res.data);
-        sessionStorage.setItem("token", "res.data.token");
-
-        next();
-        // TODO: handle response
+        sessionStorage.setItem("stylistId", res.data.stylist._id);
+        sessionStorage.setItem("token", res.data.token.token);
+        sessionStorage.setItem("refreshToken", res.data.token.refreshToken);
+        navigate("/");
       })
       .catch((err) => {
-        console.log(err);
-        // TODO: handle error
+        setVariant("error");
+        setTitle("Error");
+        setMessage("Invalid credentials.");
+        setShowAlert(true);
       });
   };
 
@@ -66,13 +83,14 @@ export default function SignInForm() {
               <div className="space-y-6">
                 <div>
                   <Label>
-                    Email <span className="text-error-500">*</span>{" "}
+                    Username <span className="text-error-500">*</span>{" "}
                   </Label>
                   <Input
-                    placeholder="info@gmail.com"
-                    name="email"
-                    onChange={(e) => setEmail(e.target.value)}
-                    value={email}
+                    placeholder="username"
+                    name="username"
+                    type="text"
+                    onChange={(e) => setUsername(e.target.value)}
+                    value={username}
                   />
                 </div>
                 <div>
@@ -120,7 +138,9 @@ export default function SignInForm() {
                 </div>
               </div>
             </form>
-
+            <div className={showAlert ? " mt-5" : "mt-5 hidden"}>
+              <Alert variant={variant} title={title} message={message} />
+            </div>
             <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Don&apos;t have an account? {""}

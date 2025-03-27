@@ -23,7 +23,13 @@ const stylistSchema = new Schema({
   profilePicture: {
     type: String,
   },
-  expertise: [
+  phoneNumber: {
+    type: Number,
+  },
+  bio: {
+    type: String,
+  },
+  expertises: [
     {
       type: Schema.Types.ObjectId,
       ref: "Expertise",
@@ -46,7 +52,7 @@ const stylistSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: "LeaveRequest",
     },
-  ]
+  ],
 });
 
 const Stylist = mongose.model("Stylist", stylistSchema);

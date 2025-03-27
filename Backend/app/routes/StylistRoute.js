@@ -5,13 +5,30 @@ const StylistRouter = express.Router();
 const StylistController = require("../controllers/StylistController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Stylist = require("../models/Stylist.js");
-const LeaveRequestController = require( "../controllers/LeaveRequestController.js" );
+const LeaveRequestController = require("../controllers/LeaveRequestController.js");
 
+// get list of all stylists
+StylistRouter.get(
+  "/",
+  AuthMiddleware.authCustomerOrStylistToken,
+  StylistController.retrieveAllStylists
+);
 // get stylist by id
 StylistRouter.get(
   "/:id",
   AuthMiddleware.authStylistToken,
-  StylistController.retrieve
+  StylistController.retrieveById
+);
+// update stylist profile picture
+StylistRouter.put(
+  "/profilePicture",
+  AuthMiddleware.authStylistToken,
+  StylistController.updateProfilePicture
+);
+StylistRouter.put(
+  "/expertises",
+  AuthMiddleware.authStylistToken,
+  StylistController.updateExpertises
 );
 // update stylist by id (only logged in stylist can update)
 StylistRouter.put(
@@ -31,16 +48,10 @@ StylistRouter.get(
   AuthMiddleware.authCustomerOrStylistToken,
   StylistController.retrieveAppointments
 );
-// update stylist profile picture
-StylistRouter.put(
-  "/profilePicture",
-  AuthMiddleware.authStylistToken,
-  StylistController.updateProfilePicture
-);
 
 StylistRouter.get(
   "/",
   AuthMiddleware.authAdminOrStylistManagerToken,
   StylistController.retrieveAll
-)
+);
 module.exports = StylistRouter;

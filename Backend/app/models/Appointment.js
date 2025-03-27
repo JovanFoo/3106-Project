@@ -18,18 +18,18 @@ const appointmentSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  services: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Service",
-    },
-  ],
-  reviews: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Review",
-    },
-  ],
+  service: {
+    type: Schema.Types.ObjectId,
+    ref: "Service",
+  },
+  review: {
+    type: Schema.Types.ObjectId,
+    ref: "Review",
+  },
+  stylist: {
+    type: Schema.Types.ObjectId,
+    ref: "Stylist",
+  },
 });
 
 const Appointment = mongose.model("Appointment", appointmentSchema);

@@ -8,9 +8,9 @@ import PageMeta from "../../components/common/PageMeta";
 import { Navigate } from "react-router-dom";
 
 export default function Home() {
-  if (!sessionStorage.getItem("token")) {
-    return <Navigate to="/signin" />;
-  }
+  // if (!sessionStorage.getItem("token")) {
+  //   return <Navigate to="/signin" />;
+  // }
   return (
     <>
       <PageMeta

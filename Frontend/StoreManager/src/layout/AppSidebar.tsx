@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import {
   CalenderIcon,
@@ -43,7 +43,9 @@ const navItems: NavItem[] = [
     name: "Manage",
     icon: <PageIcon />,
     subItems: [
-      { name: "Leave Management", path: "/leaveManagement", pro: false },
+      { name: "Leave Approval", path: "/leave-Management"},
+      { name: "Emergency Leave", path: "/emergency-leave", pro: false },
+      { name: "Documentation Approval", path: "/leave-document-approval", pro: false },
       { name: "Expertise & Pricing", path: "/expertise", pro: false },
       { name: "Ratings & Reviews", path: "/ratings", pro: false },
     ],

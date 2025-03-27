@@ -1,6 +1,7 @@
 const Appointment = require("../models/Appointment.js");
 const Review = require("../models/Review.js");
 const Customer = require("../models/Customer.js");
+const { retrieveAll } = require("./StylistController.js");
 const ReviewController = {
   // Create a new review
   async create(req, res) {
@@ -70,6 +71,53 @@ const ReviewController = {
       return res.status(200).json({ message: "Review deleted successfully" });
     } else {
       return res.status(400).json({ message: "Error deleting review" });
+    }
+  },
+
+  async retrieveStylistReviews(req, res) {
+    console.log("ReviewController > retrieveStylistReviews");
+    const { stylistId } = req.params;
+    const reviews = await Review.find({ stylist: stylistId });
+    const appointments = await Appointment.find({ stylist: stylistId })
+      .where("review")
+      .ne(null);
+    const customersWithReviews = await Customer.find({
+      appointments: { $in: appointments },
+    }).populate("appointments");
+    const newReviews = customersWithReviews
+      .flatMap((customer) => {
+        return customer.appointments.map((appointment) => {
+          appointment.customer = customer;
+          return appointment;
+        });
+      })
+      .filter((appointment) => {
+        return appointment.stylist == stylistId;
+      })
+      .map((appointment) => {
+        const customer = appointment.customer;
+        customer.password = undefined;
+        return {
+          review: appointment.review,
+          customer: customer,
+        };
+      });
+    const temp = [];
+    for (let index = 0; index < newReviews.length; index++) {
+      const element = newReviews[index];
+      element.review = await Review.findById(element.review);
+      element.review.customer = element.customer;
+      temp.push({
+        text: element.review.text,
+        stars: element.review.stars,
+        customer: element.review.customer.name,
+      });
+    }
+
+    if (temp) {
+      return res.status(200).json(temp);
+    } else {
+      return res.status(400).json({ message: "Error retrieving reviews" });
     }
   },
 };

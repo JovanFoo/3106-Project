@@ -21,4 +21,9 @@ ReviewRouter.delete(
   ReviewController.delete
 );
 
+ReviewRouter.get(
+  "/:stylistId/stylistReviews",
+  ReviewController.retrieveStylistReviews
+);
+
 module.exports = ReviewRouter;
