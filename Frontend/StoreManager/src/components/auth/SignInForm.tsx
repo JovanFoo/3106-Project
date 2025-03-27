@@ -35,7 +35,6 @@ export default function SignInForm() {
       setShowAlert(true);
       return;
     }
-    console.log(username, password);
     await axios
       .post(`${api_address}/api/auth/stylists/login`, {
         username,
