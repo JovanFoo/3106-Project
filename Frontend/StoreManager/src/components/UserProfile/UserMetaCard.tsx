@@ -70,13 +70,22 @@ export default function UserMetaCard(alert: AlertType) {
       })
       .catch((err) => {
         isSuccess1 = false;
-        console.log(err.response.data);
+        setBio(user.bio);
+        setEmail(user.email);
+        setName(user.name);
+        setPhoneNumber(user.phoneNumber);
+        setUsername(user.username);
+
+        alert.setShowAlert(true);
+        alert.setVariant("error");
+        alert.setTitle("Updating user profile");
+        alert.setMessage("Error: " + err.response.data.message);
       });
 
     await axios
       .put(
         api_address + "/api/stylists/profilePicture",
-        { profilePicture: user?.profilePicture },
+        { profilePicture: profilePicture },
         config
       )
       .then((res: AxiosResponse) => {
@@ -84,7 +93,12 @@ export default function UserMetaCard(alert: AlertType) {
       })
       .catch((err) => {
         isSuccess2 = false;
-        console.log(err.response.data);
+        setProfilePicture(user.profilePicture);
+
+        alert.setShowAlert(true);
+        alert.setVariant("error");
+        alert.setTitle("Updating user profile");
+        alert.setMessage("Error: " + err.response.data.message);
       });
 
     if (isSuccess1 && isSuccess2) {
@@ -93,7 +107,6 @@ export default function UserMetaCard(alert: AlertType) {
       alert.setVariant("success");
       alert.setTitle("Updating user profile");
       alert.setMessage("Successfully updated user data.");
-      setIsUpdating(false);
       /* the following setXXX() is to help with the loading */
       user.setBio(bio);
       user.setEmail(email);
@@ -101,16 +114,25 @@ export default function UserMetaCard(alert: AlertType) {
       user.setPhoneNumber(phoneNumber);
       user.setProfilePicture(profilePicture);
       user.setUsername(username);
-      setTimeout(() => {
-        alert.setShowAlert(false);
-      }, 10000);
-    } else {
-      setIsUpdating(false);
-      alert.setShowAlert(true);
-      alert.setVariant("error");
-      alert.setTitle("Updating user profile");
-      alert.setMessage("Error updating user data.");
+      console.log(profilePicture);
+      user.saveUserContext(
+        user._id,
+        username,
+        name,
+        email,
+        profilePicture,
+        phoneNumber,
+        bio,
+        user.role,
+        user.stylists,
+        user.expertises,
+        user.galleries
+      );
     }
+    setIsUpdating(false);
+    setTimeout(() => {
+      alert.setShowAlert(false);
+    }, 10000);
   };
   return (
     <>

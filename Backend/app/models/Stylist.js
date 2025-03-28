@@ -53,6 +53,12 @@ const stylistSchema = new Schema({
       ref: "LeaveRequest",
     },
   ],
+  galleries: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Gallery",
+    },
+  ],
 });
 
 const Stylist = mongose.model("Stylist", stylistSchema);

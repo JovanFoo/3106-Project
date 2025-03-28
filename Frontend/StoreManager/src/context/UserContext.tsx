@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import { set } from "date-fns";
 import {
   createContext,
   useContext,
@@ -18,6 +19,7 @@ type UserContextType = {
   role: "Manager" | "Stylist" | string;
   stylists: string[];
   expertises: string[];
+  galleries: string[];
   setId: Dispatch<string>;
   setUsername: Dispatch<string>;
   setName: Dispatch<string>;
@@ -28,8 +30,10 @@ type UserContextType = {
   setRole: Dispatch<string>;
   setStylists: Dispatch<string[]>;
   setExpertises: Dispatch<string[]>;
+  setGalleries: Dispatch<string[]>;
   addStylists: (stylist: string) => void;
   addExpertises: (expertise: string) => void;
+  addGalleries: (gallery: string) => void;
   saveUserContext: (
     id: string,
     username: string,
@@ -40,7 +44,8 @@ type UserContextType = {
     bio: string,
     role: string,
     stylists: string[],
-    expertises: string[]
+    expertises: string[],
+    galleries: string[]
   ) => void;
   loadUserContext: () => void;
   fetchUserContext: () => void;
@@ -69,6 +74,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const [stylists, setStylists] = useState<string[]>([]);
   const [expertises, setExpertises] = useState<string[]>([]);
   const [_id, setId] = useState("");
+  const [galleries, setGalleries] = useState<string[]>([]);
 
   const addStylists = (stylist: string) => {
     setStylists([...stylists, stylist]);
@@ -76,7 +82,9 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const addExpertises = (expertise: string) => {
     setExpertises([...expertises, expertise]);
   };
-
+  const addGalleries = (gallery: string) => {
+    setGalleries([...galleries, gallery]);
+  };
   useEffect(() => {
     loadUserContext();
   }, []);
@@ -91,7 +99,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     bio: string,
     role: string,
     stylists: string[],
-    expertises: string[]
+    expertises: string[],
+    galleries: string[]
   ) => {
     sessionStorage.setItem(
       "stylist",
@@ -106,6 +115,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         role,
         stylists,
         expertises,
+        galleries,
       })
     );
 
@@ -126,7 +136,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       setRole(userObj.role);
       setStylists(userObj.stylists);
       setExpertises(userObj.expertises);
-
+      setGalleries(userObj.galleries);
       console.log("UserContext loaded.");
     }
   };
@@ -157,9 +167,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
           res.data.profilePicture || "/images/user/owner.jpg",
           res.data.phoneNumber || "Phone number has not been set yet.",
           res.data.bio || "Bio has not been set yet.",
-          res.data.stylists.length > 0 ? "Manager" : "Stylist",
-          res.data.stylists,
-          res.data.expertises
+          res.data.stylists
+            ? res.data.stylists.length > 0
+              ? "Manager"
+              : "Stylist"
+            : "Stylist",
+          res.data.stylists || [],
+          res.data.expertises || [],
+          res.data.galleries || []
         );
       })
       .catch((err) => {
@@ -179,6 +194,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         role,
         stylists,
         expertises,
+        galleries,
         setId,
         setUsername,
         setName,
@@ -189,8 +205,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         setRole,
         setStylists,
         setExpertises,
+        setGalleries,
         addStylists,
         addExpertises,
+        addGalleries,
         saveUserContext,
         loadUserContext,
         fetchUserContext,

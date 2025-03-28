@@ -13,9 +13,11 @@ const StylistRouter = require("./StylistRoute.js");
 const ServiceRouter = require("./ServiceRoute.js");
 const ServiceRateRouter = require("./ServiceRateRoute.js");
 const PromotionRouter = require("./PromotionRoute.js");
-const DiscountRouter = require("./DiscountRoute.js");  
-const LeaveRequestRouter = require("./LeaveRequestRoute.js");  
+const DiscountRouter = require("./DiscountRoute.js");
+const LeaveRequestRouter = require("./LeaveRequestRoute.js");
+const GalleryRouter = require("./GalleryRoute.js");
 
+ApiRouter.use("/galleries", GalleryRouter);
 ApiRouter.use("/customers", CustomerRouter);
 ApiRouter.use("/auth", AuthRouter);
 ApiRouter.use("/appointments", AppointmentRouter);
