@@ -6,30 +6,32 @@ import "simplebar-react/dist/simplebar.min.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { ThemeProvider as CustomThemeProvider } from "./context/ThemeContext.tsx";
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { UserProvider } from "./context/UserContext.tsx";
 const theme = createTheme({
   palette: {
-    mode: 'light',
+    mode: "light",
     primary: {
-      main: '#1976d2',
+      main: "#1976d2",
     },
     secondary: {
-      main: '#dc004e',
+      main: "#dc004e",
     },
   },
 });
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <CustomThemeProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppWrapper>
-          <App />
-        </AppWrapper>
-      </ThemeProvider>
-    </CustomThemeProvider>
+    <UserProvider>
+      <CustomThemeProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <AppWrapper>
+            <App />
+          </AppWrapper>
+        </ThemeProvider>
+      </CustomThemeProvider>
+    </UserProvider>
   </StrictMode>
 );
