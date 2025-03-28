@@ -7,7 +7,7 @@ const ReviewController = {
   async create(req, res) {
     console.log("ReviewController > create");
     const { appointmentId } = req.params;
-    const { text, stars } = req.body;
+    const { text, stars, title } = req.body;
     try {
       const numberStar = parseFloat(stars);
       const appointment = await Appointment.findById(appointmentId);
@@ -15,12 +15,13 @@ const ReviewController = {
         return res.status(404).json({ message: "Appointment not found" });
       }
       const review = new Review({
+        title,
         text,
         stars: numberStar,
         stylist: appointment.stylist,
       });
       await review.save();
-      appointment.reviews.push(review);
+      appointment.review = review;
       await appointment.save();
       if (!review) {
         return res.status(400).json({ message: "Error creating review" });
@@ -54,11 +55,7 @@ const ReviewController = {
     );
     const has = customer.appointments
       .filter((appointment) => {
-        appointment.reviews.filter((review) => {
-          if (review._id == id) {
-            return review;
-          }
-        });
+        return appointment.review._id == id;
       })
       .reduce(true, (acc, val) => {
         return acc && val;
@@ -67,6 +64,10 @@ const ReviewController = {
       return res.status(401).json({ message: "Unauthorized" });
     }
     const review = await Review.findByIdAndDelete(id);
+    customer.appointments = customer.appointments.filter(
+      (appointment) => appointment.review._id != id
+    );
+    await customer.save();
     if (review) {
       return res.status(200).json({ message: "Review deleted successfully" });
     } else {
@@ -77,7 +78,7 @@ const ReviewController = {
   async retrieveStylistReviews(req, res) {
     console.log("ReviewController > retrieveStylistReviews");
     const { stylistId } = req.params;
-    const reviews = await Review.find({ stylist: stylistId });
+
     const appointments = await Appointment.find({ stylist: stylistId })
       .where("review")
       .ne(null);
@@ -99,18 +100,20 @@ const ReviewController = {
         customer.password = undefined;
         return {
           review: appointment.review,
-          customer: customer,
+          customer: customer.name,
         };
       });
     const temp = [];
     for (let index = 0; index < newReviews.length; index++) {
       const element = newReviews[index];
-      element.review = await Review.findById(element.review);
-      element.review.customer = element.customer;
+      console.log(element.customer);
+      console.log(element.review);
+      const review = await Review.findById(element.review);
       temp.push({
-        text: element.review.text,
-        stars: element.review.stars,
-        customer: element.review.customer.name,
+        text: review.text,
+        stars: review.stars,
+        title: review.title,
+        customer: element.customer,
       });
     }
 

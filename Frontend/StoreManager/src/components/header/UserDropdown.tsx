@@ -2,19 +2,12 @@ import { useEffect, useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { Link } from "react-router";
-import axios, { AxiosResponse } from "axios";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+import { useUser } from "../../context/UserContext";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [username, setUsername] = useState("Username");
-  const [email, setEmail] = useState("example@email.com");
-  const [profilePicture, setProfilePicture] = useState(
-    "/images/user/owner.jpg"
-  );
-  const [isLoading, setIsLoading] = useState(false);
+  const user = useUser();
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -27,39 +20,9 @@ export default function UserDropdown() {
     sessionStorage.clear();
     window.location.href = "/signin";
   }
-  const config = {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-      Authorization: sessionStorage.getItem("token"),
-    },
-  };
   useEffect(() => {
-    const stylistId = sessionStorage.getItem("stylistId");
-    const fetchData = async () => {
-      if (isLoading) {
-        return;
-      }
-      await axios
-        .get(api_address + "/api/stylists/" + stylistId, config)
-        .then((res: AxiosResponse) => {
-          if (res.status !== 200) {
-            console.log("Failed to fetch user data.");
-            return;
-          }
-          setUsername(res.data.username);
-          setProfilePicture(
-            res.data.profilePicture || "/images/user/owner.jpg"
-          );
-          setEmail(res.data.email);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-    fetchData();
-    setIsLoading(true);
-  }, [isLoading]);
+    user.loadUserContext();
+  }, []);
   return (
     <div className="relative">
       <button
@@ -67,10 +30,12 @@ export default function UserDropdown() {
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <img src={profilePicture} />
+          <img src={user.profilePicture} />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">{username}</span>
+        <span className="block mr-1 font-medium text-theme-sm">
+          {user.name}
+        </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -98,10 +63,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {username}
+            {user.username}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {email}
+            {user.email}
           </span>
         </div>
 

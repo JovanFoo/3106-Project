@@ -1,4 +1,4 @@
-require ("dotenv").config();
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -18,7 +18,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: false, limit: "50mb" }));
-app.use( bodyParser.json() );
+app.use(bodyParser.json());
 app.use(cookieParser());
 
 const ApiRouter = require("./app/routes/index.js");
@@ -29,9 +29,6 @@ app.use("/api", ApiRouter);
 app.use("/", ViewRouter);
 app.listen(process.env.PORT, () => {
   console.log("Server is running on port " + process.env.PORT);
-} );
-
-const AdminController = require( "./app/controllers/AdminController.js" );
-AdminController.initaliseAdmin();
+});
 
 module.exports = app;

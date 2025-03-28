@@ -8,10 +8,10 @@ import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { useNavigate } from "react-router-dom";
 import Alert from "../ui/alert/Alert";
-import { set } from "date-fns";
+import { useUser } from "../../context/UserContext";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +27,8 @@ export default function SignInForm() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
 
+  const user = useUser();
+
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (username === "" || password === "") {
@@ -36,13 +38,38 @@ export default function SignInForm() {
       setShowAlert(true);
       return;
     }
-    console.log(username, password);
     await axios
       .post(`${api_address}/api/auth/stylists/login`, {
         username,
         password,
       })
       .then((res: AxiosResponse) => {
+        user.setId(res.data.stylist._id);
+        user.setUsername(res.data.stylist.username);
+        user.setName(res.data.stylist.name);
+        user.setEmail(res.data.stylist.email);
+        user.setProfilePicture(res.data.stylist.profilePicture);
+        user.setPhoneNumber(res.data.stylist.phoneNumber);
+        user.setBio(res.data.stylist.bio);
+        user.setRole(
+          res.data.stylist.stylists.length > 0 ? "Manager" : "Stylist"
+        );
+        user.setStylists(res.data.stylist.stylists || []);
+        user.setExpertises(res.data.stylist.expertises || []);
+        user.setGalleries(res.data.stylist.galleries || []);
+        user.saveUserContext(
+          res.data.stylist._id,
+          res.data.stylist.username,
+          res.data.stylist.name,
+          res.data.stylist.email,
+          res.data.stylist.profilePicture || "/images/user/owner.jpg",
+          res.data.stylist.phoneNumber || "Phone number has not been set yet.",
+          res.data.stylist.bio || "Bio has not been set yet.",
+          res.data.stylist.stylists.length > 0 ? "Manager" : "Stylist",
+          res.data.stylist.stylists || [],
+          res.data.stylist.expertises || [],
+          res.data.stylist.galleries || []
+        );
         sessionStorage.setItem("stylistId", res.data.stylist._id);
         sessionStorage.setItem("token", res.data.token.token);
         sessionStorage.setItem("refreshToken", res.data.token.refreshToken);

@@ -8,18 +8,19 @@ import SettingsSidebar from "../SettingsSidebar";
 import Alert from "../../components/ui/alert/Alert";
 import { useState } from "react";
 import axios, { AxiosResponse } from "axios";
+import { set } from "date-fns";
 
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
-const config = {
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-    Authorization: sessionStorage.getItem("token"),
-  },
-};
 
 export default function ChangePassword() {
+  const config = {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+      Authorization: sessionStorage.getItem("token"),
+    },
+  };
   const { isOpen, openModal, closeModal } = useModal();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -30,7 +31,7 @@ export default function ChangePassword() {
   >("success");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-
+  const [isUpdating, setIsUpdating] = useState(false);
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -38,11 +39,35 @@ export default function ChangePassword() {
     console.log("Changing password...");
     closeModal();
     if (newPassword !== confirmNewPassword) {
+      setShowAlert(true);
       setVariant("error");
       setTitle("Error");
       setMessage("Passwords do not match.");
       return;
+    } else if (newPassword.length < 8) {
+      setShowAlert(true);
+      setVariant("error");
+      setTitle("Error");
+      setMessage("Password must be at least 8 characters long.");
+      return;
+    } else if (newPassword === currentPassword) {
+      setShowAlert(true);
+      setVariant("error");
+      setTitle("Error");
+      setMessage("New password cannot be the same as the current password.");
+      return;
+    } else if (newPassword === "") {
+      setShowAlert(true);
+      setVariant("error");
+      setTitle("Error");
+      setMessage("Please enter a new password.");
+      return;
     }
+    setVariant("info");
+    setTitle("Updating Password");
+    setMessage("Please wait...");
+    setShowAlert(true);
+    setIsUpdating(true);
     await axios
       .put(
         `${api_address}/api/auth/stylists/update-password`,
@@ -61,6 +86,7 @@ export default function ChangePassword() {
         setConfirmNewPassword("");
         setCurrentPassword("");
         setNewPassword("");
+        setIsUpdating(false);
       })
       .catch((error) => {
         console.log(error);
@@ -68,6 +94,7 @@ export default function ChangePassword() {
         setTitle("Error");
         setMessage(error.response.data.message);
         setShowAlert(true);
+        setIsUpdating(false);
       });
     setTimeout(() => {
       setShowAlert(false);
@@ -98,6 +125,7 @@ export default function ChangePassword() {
             </div>
             <button
               onClick={openModal}
+              disabled={isUpdating}
               className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
             >
               Change Password

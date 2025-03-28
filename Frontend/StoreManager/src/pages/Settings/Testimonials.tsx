@@ -1,49 +1,20 @@
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import SettingsSidebar from "../SettingsSidebar";
-import { config } from "process";
 import axios from "axios";
+import { useUser } from "../../context/UserContext";
+
 type Review = {
   _id: number;
   text: string;
   stars: number;
   customer: string;
-  stylist: string;
+  title: string;
 };
-const reviews = [
-  {
-    id: 1,
-    name: "Andre",
-    country: "US",
-    type: "Verified User",
-    rating: 5,
-    title: "Exceptional Service and Precision Cuts!",
-    review:
-      "My barber was incredibly skilled and took the time to understand exactly what I wanted. The attention to detail was outstanding—from the precise fade to the sharp lineup, every cut was done with care and expertise. They even offered great styling tips and product recommendations to keep my hair looking fresh between visits.",
-  },
-  {
-    id: 2,
-    name: "Andre",
-    country: "US",
-    type: "Verified Buyer",
-    rating: 5,
-    title: "Exceptional Service and Precision Cuts!",
-    review:
-      "What really stood out was the customer service. The staff was friendly, professional, and genuinely passionate about their craft. The conversation was great, but they also knew when to let me enjoy the experience in silence.",
-  },
-  {
-    id: 3,
-    name: "Andre",
-    country: "US",
-    type: "Verified Buyer",
-    rating: 5,
-    title: "Exceptional Service and Precision Cuts!",
-    review:
-      "If you're looking for a top-notch haircut, a clean shave, or just an overall fantastic grooming experience, I highly recommend. Definitely my go-to spot from now on!",
-  },
-];
+
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+
 export default function ClientTestimonials() {
   const config = {
     headers: {
@@ -53,6 +24,9 @@ export default function ClientTestimonials() {
     },
   };
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [avegeRating, setAverageRating] = useState<number>(0);
+  const [totalReviews, setTotalReviews] = useState<number>(0);
+  // const [recommendations, setRecommendations] = useState<number>(0);
   useEffect(() => {
     const selfId = sessionStorage.getItem("stylistId");
     const fetchReviews = async () => {
@@ -62,6 +36,18 @@ export default function ClientTestimonials() {
           config
         );
         setReviews(res.data);
+        console.log(res.data);
+        const reviews1: Review[] = res.data;
+        setTotalReviews(reviews1.length);
+        const avg =
+          reviews1.map((review) => review.stars).reduce((a, b) => a + b, 0) /
+          reviews1.length;
+        setAverageRating(avg || 0);
+        // const recommendationsCount =
+        //   (reviews1.filter((review) => review.stars >= 4).length /
+        //     reviews1.length) *
+        //   100;
+        // setRecommendations(recommendationsCount);
       } catch (err) {
         console.log(err);
       }
@@ -74,36 +60,51 @@ export default function ClientTestimonials() {
       <div className="flex-1 p-5">
         <PageBreadcrumb pageTitle="Client Testimonials" />
         <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
-          <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
+          {/* <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
             Client Testimonials
-          </h4>
+          </h4> */}
 
           {/* Summary Section */}
           <div className="p-4 bg-gray-100 rounded-lg mb-6">
             <h5 className="text-md font-semibold mb-2">Summary</h5>
-            <div className="text-lg font-bold">4.5 ⭐</div>
-            <p className="text-sm text-gray-500">273 Reviews</p>
-            <p className="text-sm text-gray-500">88% Recommended</p>
+            <div className="text-lg font-bold">{avegeRating} ⭐</div>
+            <p className="text-sm text-gray-500">{totalReviews} Reviews</p>
+            {/* <p className="text-sm text-gray-500">
+              {recommendations.toFixed(2)}% Recommended
+            </p> */}
           </div>
 
           {/* Reviews Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {reviews.map((review) => (
-              <div key={review._id} className="p-4 border rounded-lg shadow-sm">
-                <div className="flex items-center mb-2">
-                  <span className="text-sm font-medium">{review.text}</span>
-                  <span className="text-xs text-gray-500 ml-2">
-                    {review.stars.toString()} ⭐
-                  </span>
+            {reviews &&
+              reviews.map((review) => (
+                <div
+                  key={review._id}
+                  className="p-4 border rounded-lg shadow-sm"
+                >
+                  <div className="flex items-center mb-2">
+                    <span className="text-sm font-medium">
+                      {review.customer}
+                    </span>
+                    <span className="text-xs text-gray-500 ml-2">
+                      {review.stars.toString()} ⭐
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 mb-1">
+                    {review.title}
+                  </div>
+                  <div className="text-yellow-500">
+                    {"⭐".repeat(review.stars)}
+                  </div>
+                  {/* <h5 className="font-semibold text-sm mt-2">{review.text}</h5> */}
+                  <p className="text-xs text-gray-600 mt-1">{review.text}</p>
                 </div>
-                <div className="text-xs text-gray-500 mb-1">{review.text}</div>
-                <div className="text-yellow-500">
-                  {"⭐".repeat(review.stars)}
-                </div>
-                <h5 className="font-semibold text-sm mt-2">{review.text}</h5>
-                <p className="text-xs text-gray-600 mt-1">{review.text}</p>
+              ))}
+            {(reviews.length === 0 || reviews === undefined) && (
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 p-4 border rounded-lg shadow-sm text-center">
+                <p className="text-gray-500">No reviews available.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

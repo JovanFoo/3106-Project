@@ -4,19 +4,40 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import axios, { AxiosResponse } from "axios";
-import { User } from "../../pages/UserProfiles";
+import { AlertType } from "../../pages/UserProfiles";
+import { useUser } from "../../context/UserContext";
+import { useEffect, useState } from "react";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
-export default function UserMetaCard(user: User) {
+// export default function UserMetaCard(user: User) {
+export default function UserMetaCard(alert: AlertType) {
   const { isOpen, openModal, closeModal } = useModal();
+  const user = useUser();
 
+  const [profilePicture, setProfilePicture] = useState(user.profilePicture);
+  const [username, setUsername] = useState(user.username);
+  const [name, setName] = useState(user.name);
+  const [email, setEmail] = useState(user.email);
+  const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber);
+  const [bio, setBio] = useState(user.bio);
+
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    setProfilePicture(user.profilePicture);
+    setUsername(user.username);
+    setName(user.name);
+    setEmail(user.email);
+    setPhoneNumber(user.phoneNumber);
+    setBio(user.bio);
+  }, [user]);
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     // Handle save logic here
     e.preventDefault();
     closeModal();
-    user.setIsLoading(true);
+    // user.setIsLoading(true);
     let isSuccess1 = false;
     let isSuccess2 = false;
 
@@ -27,16 +48,20 @@ export default function UserMetaCard(user: User) {
         Authorization: sessionStorage.getItem("token"),
       },
     };
-    const selfId = sessionStorage.getItem("stylistId");
+    alert.setShowAlert(true);
+    alert.setVariant("info");
+    alert.setTitle("Updating user profile");
+    alert.setMessage("Updating user data...");
+    setIsUpdating(true);
     await axios
       .put(
-        api_address + "/api/stylists/" + selfId,
+        api_address + "/api/stylists/" + user._id,
         {
-          username: user.username,
-          name: user.name,
-          email: user.email,
-          bio: user.bio,
-          phoneNumber: user.phoneNumber,
+          username: username,
+          name: name,
+          email: email,
+          bio: bio,
+          phoneNumber: phoneNumber,
         },
         config
       )
@@ -45,13 +70,22 @@ export default function UserMetaCard(user: User) {
       })
       .catch((err) => {
         isSuccess1 = false;
-        console.log(err.response.data);
+        setBio(user.bio);
+        setEmail(user.email);
+        setName(user.name);
+        setPhoneNumber(user.phoneNumber);
+        setUsername(user.username);
+
+        alert.setShowAlert(true);
+        alert.setVariant("error");
+        alert.setTitle("Updating user profile");
+        alert.setMessage("Error: " + err.response.data.message);
       });
 
     await axios
       .put(
         api_address + "/api/stylists/profilePicture",
-        { profilePicture: user.profilePicture },
+        { profilePicture: profilePicture },
         config
       )
       .then((res: AxiosResponse) => {
@@ -59,21 +93,46 @@ export default function UserMetaCard(user: User) {
       })
       .catch((err) => {
         isSuccess2 = false;
-        console.log(err.response.data);
-      });
-    if (isSuccess1 && isSuccess2) {
-      user.setShowAlert(true);
-      user.setVariant("success");
-      user.setTitle("Updating user profile");
-      user.setMessage("Successfully updated user data.");
-    } else {
-      user.setShowAlert(true);
-      user.setVariant("error");
-      user.setTitle("Updating user profile");
-      user.setMessage("Error updating user data.");
-    }
+        setProfilePicture(user.profilePicture);
 
-    user.setIsLoading(false);
+        alert.setShowAlert(true);
+        alert.setVariant("error");
+        alert.setTitle("Updating user profile");
+        alert.setMessage("Error: " + err.response.data.message);
+      });
+
+    if (isSuccess1 && isSuccess2) {
+      user.fetchUserContext();
+      alert.setShowAlert(true);
+      alert.setVariant("success");
+      alert.setTitle("Updating user profile");
+      alert.setMessage("Successfully updated user data.");
+      /* the following setXXX() is to help with the loading */
+      user.setBio(bio);
+      user.setEmail(email);
+      user.setName(name);
+      user.setPhoneNumber(phoneNumber);
+      user.setProfilePicture(profilePicture);
+      user.setUsername(username);
+      console.log(profilePicture);
+      user.saveUserContext(
+        user._id,
+        username,
+        name,
+        email,
+        profilePicture,
+        phoneNumber,
+        bio,
+        user.role,
+        user.stylists,
+        user.expertises,
+        user.galleries
+      );
+    }
+    setIsUpdating(false);
+    setTimeout(() => {
+      alert.setShowAlert(false);
+    }, 10000);
   };
   return (
     <>
@@ -91,10 +150,6 @@ export default function UserMetaCard(user: User) {
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {user.role}
                 </p>
-                {/* <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Arizona, United States
-                </p> */}
               </div>
             </div>
             <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
@@ -184,6 +239,7 @@ export default function UserMetaCard(user: User) {
             </div>
           </div>
           <button
+            disabled={isUpdating}
             onClick={openModal}
             className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
           >
@@ -218,39 +274,6 @@ export default function UserMetaCard(user: User) {
           </div>
           <form className="flex flex-col" onSubmit={(e) => handleSave(e)}>
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              {/* <div>
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <Label>Facebook</Label>
-                    <Input
-                      type="text"
-                      value="https://www.facebook.com/PimjoHQ"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>X.com</Label>
-                    <Input type="text" value="https://x.com/PimjoHQ" />
-                  </div>
-
-                  <div>
-                    <Label>Linkedin</Label>
-                    <Input
-                      type="text"
-                      value="https://www.linkedin.com/company/pimjo"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Instagram</Label>
-                    <Input type="text" value="https://instagram.com/PimjoHQ" />
-                  </div>
-                </div>
-              </div> */}
               <div className="mt-2">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Personal Information
@@ -266,7 +289,7 @@ export default function UserMetaCard(user: User) {
                         }}
                       >
                         <img
-                          src={user.profilePicture || "/images/user/owner.jpg"}
+                          src={profilePicture || "/images/user/owner.jpg"}
                           alt="user"
                         />
                       </label>
@@ -282,7 +305,7 @@ export default function UserMetaCard(user: User) {
                         const file = files[0];
                         const reader = new FileReader();
                         reader.onloadend = () => {
-                          user.setProfilePicture(reader.result as string);
+                          setProfilePicture(reader.result as string);
                         };
                         reader.readAsDataURL(file);
                       }}
@@ -293,9 +316,9 @@ export default function UserMetaCard(user: User) {
                     <Input
                       type="text"
                       name="username"
-                      value={user.username}
+                      value={username}
                       placeholder="Username"
-                      onChange={(e) => user.setUsername(e.target.value)}
+                      onChange={(e) => setUsername(e.target.value)}
                     />
                   </div>
                   <div className="col-span-2 lg:col-span-1">
@@ -303,9 +326,9 @@ export default function UserMetaCard(user: User) {
                     <Input
                       type="text"
                       name="name"
-                      value={user.name}
+                      value={name}
                       placeholder="Name"
-                      onChange={(e) => user.setName(e.target.value)}
+                      onChange={(e) => setName(e.target.value)}
                     />
                   </div>
 
@@ -314,9 +337,9 @@ export default function UserMetaCard(user: User) {
                     <Input
                       type="text"
                       name="email"
-                      value={user.email}
+                      value={email}
                       placeholder="Email Address"
-                      onChange={(e) => user.setEmail(e.target.value)}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
                   <div className="col-span-2 lg:col-span-1">
@@ -324,7 +347,7 @@ export default function UserMetaCard(user: User) {
                     <Input
                       type="tel"
                       name="phoneNumber"
-                      value={user.phoneNumber}
+                      value={phoneNumber}
                       placeholder="Phone Number"
                       onChange={(e) => {
                         try {
@@ -332,10 +355,10 @@ export default function UserMetaCard(user: User) {
                             return;
                           }
                           if (isNaN(parseInt(e.target.value))) {
-                            user.setPhoneNumber("");
+                            setPhoneNumber("");
                             return;
                           }
-                          user.setPhoneNumber(e.target.value);
+                          setPhoneNumber(e.target.value);
                         } catch (err) {}
                       }}
                       pattern="[0-9]{8}"
@@ -346,9 +369,9 @@ export default function UserMetaCard(user: User) {
                     <Input
                       type="text"
                       name="bio"
-                      value={user.bio}
+                      value={bio}
                       placeholder="Bio"
-                      onChange={(e) => user.setBio(e.target.value)}
+                      onChange={(e) => setBio(e.target.value)}
                     />
                   </div>
                 </div>

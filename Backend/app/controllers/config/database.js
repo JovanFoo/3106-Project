@@ -12,6 +12,10 @@ const run = async () => {
   console.log("Connected to MongoDB");
 };
 
-run().catch((err) => console.error(err));
+const AdminController = require("../AdminController.js");
+
+run()
+  .then((res) => AdminController.initaliseAdmin())
+  .catch((err) => console.error(err));
 
 module.exports = mongodb;
