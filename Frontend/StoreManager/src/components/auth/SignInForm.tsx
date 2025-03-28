@@ -9,11 +9,15 @@ import Button from "../ui/button/Button";
 import { useNavigate } from "react-router-dom";
 import Alert from "../ui/alert/Alert";
 import { useUser } from "../../context/UserContext";
+import { Modal } from "../ui/modal";
+import { set } from "date-fns";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 export default function SignInForm() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [username, setUsername] = useState("");
@@ -38,6 +42,7 @@ export default function SignInForm() {
       setShowAlert(true);
       return;
     }
+    setIsLoading(true);
     await axios
       .post(`${api_address}/api/auth/stylists/login`, {
         username,
@@ -74,26 +79,19 @@ export default function SignInForm() {
         sessionStorage.setItem("token", res.data.token.token);
         sessionStorage.setItem("refreshToken", res.data.token.refreshToken);
         navigate("/");
+        setIsLoading(false);
       })
       .catch((err) => {
         setVariant("error");
         setTitle("Error");
         setMessage("Invalid credentials.");
         setShowAlert(true);
+        setIsLoading(false);
       });
   };
 
   return (
     <div className="flex flex-col flex-1">
-      <div className="w-full max-w-md pt-10 mx-auto">
-        {/* <Link
-          to="/"
-          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-        >
-          <ChevronLeftIcon className="size-5" />
-          Back to dashboard
-        </Link> */}
-      </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
@@ -182,6 +180,21 @@ export default function SignInForm() {
           </div>
         </div>
       </div>
+      <Modal
+        isOpen={isLoading}
+        onClose={() => {}}
+        showCloseButton={false}
+        isFullscreen={true}
+        className="bg-black dark:bg-gray-900 opacity-50 z-10 justify-center items-center"
+      >
+        <div className="bg-black mt-10 flex flex-col justify-center items-center">
+          <div className="text-white text-2xl font-semibold mb-4">
+            Signing in...
+          </div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white"></div>
+          <div className="text-white text-center mt-2">Loading...</div>
+        </div>
+      </Modal>
     </div>
   );
 }
