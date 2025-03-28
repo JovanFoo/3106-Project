@@ -6,7 +6,6 @@ import { useModal } from "../../hooks/useModal";
 import SettingsSidebar from "../SettingsSidebar";
 import axios, { AxiosResponse } from "axios";
 import { useUser } from "../../context/UserContext";
-import { set } from "date-fns";
 import Alert from "../../components/ui/alert/Alert";
 type Expertise = {
   _id: string;
@@ -94,8 +93,9 @@ export default function Expertise() {
           setExpertiseOptions(res.data);
           let userExpertises: string[] = user.expertises;
           let selectedExpertises: Expertise[] = [];
+          let data: any[] = res.data;
           for (let i = 0; i < userExpertises.length; i++) {
-            res.data.find((item: Expertise) => {
+            data.find((item: Expertise) => {
               if (item._id === userExpertises[i]) {
                 selectedExpertises.push(item);
               }
@@ -149,19 +149,20 @@ export default function Expertise() {
             Edit Expertise
           </h4>
           <div className="flex flex-wrap gap-3">
-            {expertiseOptions.map((expertise) => (
-              <button
-                key={expertiseOptions.indexOf(expertise)}
-                onClick={() => toggleSelection(expertise)}
-                className={`px-4 py-2 rounded-full text-sm font-medium shadow-md transition ${
-                  selectedExpertise.includes(expertise)
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-800 dark:bg-gray-700 dark:text-white border border-gray-300"
-                }`}
-              >
-                {expertise.name}
-              </button>
-            ))}
+            {expertiseOptions &&
+              expertiseOptions.map((expertise: Expertise) => (
+                <button
+                  key={expertiseOptions.indexOf(expertise)}
+                  onClick={() => toggleSelection(expertise)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium shadow-md transition ${
+                    selectedExpertise.includes(expertise)
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-800 dark:bg-gray-700 dark:text-white border border-gray-300"
+                  }`}
+                >
+                  {expertise.name}
+                </button>
+              ))}
           </div>
           <div className="flex items-center gap-3 mt-6 sm:justify-end">
             <button
