@@ -97,6 +97,32 @@ const AuthMiddleware = {
     next();
   },
 
+  // Middleware to check if the user is Admin/Stylist Manager/customer (for teams purpose)
+
+  async authCustomerStylistOrManagerToken(req, res, next) {
+    console.log("AuthMiddleware > allow Customer, Stylist, Admin, or StylistManager");
+
+    const token = req.headers["authorization"];
+    if (token == null) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.decodeToken(token);
+    if (!decoded.status) return res.status(401).json({ message: "Unauthorized" });
+
+    const role = decoded.values.type;
+
+    if (
+      role !== "Customer" &&
+      role !== "Stylist" &&
+      role !== "Admin" &&
+      role !== "StylistManager"
+    ) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    req.userId = decoded.values.userId;
+    next();
+  },
+
   // Middleware for reset password
   async authCustomerResetToken(req, res, next) {
     console.log("AuthMiddleware > only Customer with reset can access");

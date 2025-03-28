@@ -13,8 +13,9 @@ const StylistRouter = require("./StylistRoute.js");
 const ServiceRouter = require("./ServiceRoute.js");
 const ServiceRateRouter = require("./ServiceRateRoute.js");
 const PromotionRouter = require("./PromotionRoute.js");
-const DiscountRouter = require("./DiscountRoute.js");  
-const LeaveRequestRouter = require("./LeaveRequestRoute.js");  
+const DiscountRouter = require("./DiscountRoute.js");
+const LeaveRequestRouter = require("./LeaveRequestRoute.js");
+const TeamRouter = require("./TeamsRoute.js");
 
 ApiRouter.use("/customers", CustomerRouter);
 ApiRouter.use("/auth", AuthRouter);
@@ -33,6 +34,7 @@ ApiRouter.use("/servicerates", ServiceRateRouter);
 ApiRouter.use("/promotions", PromotionRouter);
 ApiRouter.use("/discounts", DiscountRouter);
 ApiRouter.use("/leave-requests", LeaveRequestRouter);
+ApiRouter.use("/teams", TeamRouter);
 
 ApiRouter.get("/", (req, res) => {
   res.send("API is working");
