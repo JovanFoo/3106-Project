@@ -61,12 +61,12 @@ export default function SignInForm() {
           res.data.stylist.username,
           res.data.stylist.name,
           res.data.stylist.email,
-          res.data.stylist.profilePicture,
-          res.data.stylist.phoneNumber,
-          res.data.stylist.bio,
+          res.data.stylist.profilePicture || "/images/user/owner.jpg",
+          res.data.stylist.phoneNumber || "Phone number has not been set yet.",
+          res.data.stylist.bio || "Bio has not been set yet.",
           res.data.stylist.stylists.length > 0 ? "Manager" : "Stylist",
-          res.data.stylist.stylists,
-          res.data.stylist.expertises
+          res.data.stylist.stylists || [],
+          res.data.stylist.expertises || []
         );
         sessionStorage.setItem("stylistId", res.data.stylist._id);
         sessionStorage.setItem("token", res.data.token.token);
