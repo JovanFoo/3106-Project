@@ -5,7 +5,9 @@ import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
 import SettingsSidebar from "../SettingsSidebar";
 import axios, { AxiosResponse } from "axios";
-
+import { useUser } from "../../context/UserContext";
+import { set } from "date-fns";
+import Alert from "../../components/ui/alert/Alert";
 type Expertise = {
   _id: string;
   name: string;
@@ -21,7 +23,16 @@ export default function Expertise() {
   const [selectedExpertise, setSelectedExpertise] = useState<Array<Expertise>>(
     []
   );
+  const user = useUser();
   const { isOpen, openModal, closeModal } = useModal();
+  const [showAlert, setShowAlert] = useState(false);
+  const [variant, setVariant] = useState<
+    "success" | "error" | "warning" | "info"
+  >("success");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const config = {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -38,6 +49,11 @@ export default function Expertise() {
   };
   const onSaveChanges = async () => {
     closeModal();
+    setShowAlert(true);
+    setVariant("info");
+    setTitle("Updating Expertise");
+    setMessage("Please wait...");
+    setIsUpdating(true);
     const updateExpertise = async () => {
       const selectedExpertiseIds = selectedExpertise.map((expertise) => {
         return expertise._id;
@@ -49,13 +65,25 @@ export default function Expertise() {
           config
         )
         .then((res: AxiosResponse) => {
-          console.log(res.data);
+          user.fetchUserContext();
+          setShowAlert(true);
+          setVariant("success");
+          setTitle("Success");
+          setMessage("Expertise updated successfully.");
+          setIsUpdating(false);
         })
         .catch((err) => {
-          console.log(err);
+          setShowAlert(true);
+          setVariant("error");
+          setTitle("Error updating Expertise");
+          setMessage(err.response.data.message);
+          setIsUpdating(false);
         });
     };
     updateExpertise();
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 5000);
   };
 
   useEffect(() => {
@@ -64,13 +92,23 @@ export default function Expertise() {
         .get(`${api_address}/api/expertises`, config)
         .then((res: AxiosResponse) => {
           setExpertiseOptions(res.data);
+          let userExpertises: string[] = user.expertises;
+          let selectedExpertises: Expertise[] = [];
+          for (let i = 0; i < userExpertises.length; i++) {
+            res.data.find((item: Expertise) => {
+              if (item._id === userExpertises[i]) {
+                selectedExpertises.push(item);
+              }
+            });
+          }
+          setSelectedExpertise(selectedExpertises);
         })
         .catch((err) => {
           console.log(err);
         });
     };
     fetchExpertise();
-  }, []);
+  }, [user]);
 
   return (
     <div className="flex min-h-screen">
@@ -78,6 +116,9 @@ export default function Expertise() {
       <div className="flex-1 p-5">
         <PageBreadcrumb pageTitle="Expertise" />
         <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+          <div className={showAlert ? "mb-5" : "hidden"}>
+            <Alert title={title} message={message} variant={variant} />
+          </div>
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
             Expertise
           </h4>
@@ -95,7 +136,7 @@ export default function Expertise() {
             ))}
           </div>
           <div className="flex items-center gap-3 mt-6 lg:justify-end">
-            <Button size="sm" onClick={openModal}>
+            <Button size="sm" onClick={openModal} disabled={isUpdating}>
               Edit
             </Button>
           </div>
