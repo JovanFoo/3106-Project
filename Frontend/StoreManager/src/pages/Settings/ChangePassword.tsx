@@ -8,10 +8,9 @@ import SettingsSidebar from "../SettingsSidebar";
 import Alert from "../../components/ui/alert/Alert";
 import { useState } from "react";
 import axios, { AxiosResponse } from "axios";
-import { set } from "date-fns";
 
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 export default function ChangePassword() {
   const config = {
