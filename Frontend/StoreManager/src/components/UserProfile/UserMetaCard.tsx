@@ -23,6 +23,8 @@ export default function UserMetaCard(alert: AlertType) {
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber);
   const [bio, setBio] = useState(user.bio);
 
+  const [isUpdating, setIsUpdating] = useState(false);
+
   useEffect(() => {
     setProfilePicture(user.profilePicture);
     setUsername(user.username);
@@ -50,6 +52,7 @@ export default function UserMetaCard(alert: AlertType) {
     alert.setVariant("info");
     alert.setTitle("Updating user profile");
     alert.setMessage("Updating user data...");
+    setIsUpdating(true);
     await axios
       .put(
         api_address + "/api/stylists/" + user._id,
@@ -90,6 +93,7 @@ export default function UserMetaCard(alert: AlertType) {
       alert.setVariant("success");
       alert.setTitle("Updating user profile");
       alert.setMessage("Successfully updated user data.");
+      setIsUpdating(false);
       /* the following setXXX() is to help with the loading */
       user.setBio(bio);
       user.setEmail(email);
@@ -101,6 +105,7 @@ export default function UserMetaCard(alert: AlertType) {
         alert.setShowAlert(false);
       }, 10000);
     } else {
+      setIsUpdating(false);
       alert.setShowAlert(true);
       alert.setVariant("error");
       alert.setTitle("Updating user profile");
@@ -212,6 +217,7 @@ export default function UserMetaCard(alert: AlertType) {
             </div>
           </div>
           <button
+            disabled={isUpdating}
             onClick={openModal}
             className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
           >
