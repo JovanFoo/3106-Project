@@ -148,25 +148,15 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
           console.log("Failed to fetch user data.");
           return;
         }
-        setId(res.data._id);
-        setName(res.data.name);
-        setUsername(res.data.username);
-        setEmail(res.data.email);
-        setProfilePicture(res.data.profilePicture);
-        setPhoneNumber(res.data.phoneNumber);
-        setBio(res.data.bio);
-        setRole(res.data.stylists.length > 0 ? "Manager" : "Stylist");
-        setStylists(res.data.stylists || []);
-        setExpertises(res.data.expertises || []);
         console.log("UserContext fetched.");
         saveUserContext(
           res.data._id,
           res.data.username,
           res.data.name,
           res.data.email,
-          res.data.profilePicture,
-          res.data.phoneNumber,
-          res.data.bio,
+          res.data.profilePicture || "/images/user/owner.jpg",
+          res.data.phoneNumber || "Phone number has not been set yet.",
+          res.data.bio || "Bio has not been set yet.",
           res.data.stylists.length > 0 ? "Manager" : "Stylist",
           res.data.stylists,
           res.data.expertises
