@@ -6,10 +6,10 @@ import Alert from "../components/ui/alert/Alert";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
-import StylistExpertise from "./Settings/Expertise";
-import PortfolioView from "./Settings/Portfolio";
-import TestimonialsView from "./Settings/Testimonials";
-import StylistProfilePage from "./Teams/profilePage";
+import StylistExpertise from "./Teams/stylistExpertise";
+import PortfolioView from "./Teams/stylistPortfolio";
+import StylistProfilePage from "./Teams/stylistProfilePage";
+import StylistTestimonials from "./Teams/stylistTestimonials";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -208,12 +208,9 @@ export default function Teams() {
                             {/* Main Content */}
                             <div className="flex-1 p-6 overflow-y-auto">
                                 {activeTab === "Profile" && <StylistProfilePage stylist={selectedStylist} />}
-                                {activeTab === "Expertise" && <StylistExpertise stylistId={selectedStylist._id} />}
-                                {activeTab === "Testimonials" && <TestimonialsView stylistId={selectedStylist._id} />}
-                                {activeTab === "Portfolio" && <PortfolioView stylistId={selectedStylist._id} />}
-                                {activeTab !== "Profile" && (
-                                    <p className="text-gray-500">Content for <strong>{activeTab}</strong> goes here...</p>
-                                )}
+                                {activeTab === "Expertise" && <StylistExpertise stylist={selectedStylist} />}
+                                {activeTab === "Testimonials" && <StylistTestimonials stylist={selectedStylist} />}
+                                {activeTab === "Portfolio" && <PortfolioView stylist={selectedStylist} />}
                             </div>
                         </div>
                     </Modal>

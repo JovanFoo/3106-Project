@@ -1,13 +1,12 @@
+import axios, { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
+import { useUser } from "../../context/UserContext";
 import { useModal } from "../../hooks/useModal";
 import SettingsSidebar from "../SettingsSidebar";
-import axios, { AxiosResponse } from "axios";
-import { useUser } from "../../context/UserContext";
-import { set } from "date-fns";
-import Alert from "../../components/ui/alert/Alert";
 type Expertise = {
   _id: string;
   name: string;
