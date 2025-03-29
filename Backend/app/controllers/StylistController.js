@@ -2,7 +2,8 @@ const mongodb = require("./config/database.js");
 const Stylist = require("../models/Stylist.js");
 const PasswordHash = require("../utils/passwordHash.js");
 const Expertise = require("../models/Expertise.js");
-
+const Customer = require("../models/Customer.js");
+const Service = require("../models/Service.js");
 const StylistController = {
   // Retrieve a stylist by id
   async retrieveById(req, res) {
@@ -120,10 +121,8 @@ const StylistController = {
   // Retrieve all stylist's appointments by id
   async retrieveAppointments(req, res) {
     console.log("StylistController > retrieveAppointments");
-    const id = req.userId;
-    const stylist = await Stylist.findOne({ _id: id }).populate("appointments");
-    const temp = await Stylist.findOne({ _id: id });
-    console.log(temp, id);
+    const id = req.params.id;
+    const stylist = await Stylist.findById(id).populate("appointments");
     if (stylist) {
       return res.status(200).json(stylist.appointments);
     } else {
@@ -188,6 +187,54 @@ const StylistController = {
       return res.status(200).json(stylists);
     } else {
       return res.status(400).json({ message: "Error retrieving stylists" });
+    }
+  },
+
+  async retrieveMyAppointments(req, res) {
+    console.log("StylistController > retrieveMyAppointments");
+    const stylistId = req.userId;
+    const stylist = await Stylist.findOne({ _id: stylistId }).populate(
+      "appointments"
+    );
+    if (!stylist) {
+      return res.status(400).json({ message: "Error retrieving appointments" });
+    }
+    const appointments = stylist.appointments;
+    const returnedAppointments = [];
+    for (let i = 0; i < appointments.length; i++) {
+      const customer = await Customer.findOne({}).where({
+        appointments: appointments[i]._id,
+      });
+      if (!customer) {
+        return res.status(400).json({ message: "Error retrieving customer" });
+      }
+      const serviceId = appointments[i].service;
+      const service = await Service.findOne({ _id: serviceId });
+      let addedDuration = 0;
+      if (service) {
+        addedDuration = service.duration;
+      }
+      const endDate = new Date(
+        appointments[i].date + addedDuration * 60 * 1000
+      );
+      customer.password = undefined;
+      appointments[i].customer = customer;
+      returnedAppointments.push({
+        _id: appointments[i]._id,
+        customer: customer,
+        startDate: appointments[i].date,
+        endDate: endDate,
+        request: appointments[i].request,
+        totalAmount: appointments[i].totalAmount,
+        isCompleted: appointments[i].isCompleted,
+        review: appointments[i].review,
+      });
+    }
+    console.log("appointments", returnedAppointments);
+    if (stylist) {
+      return res.status(200).json(returnedAppointments);
+    } else {
+      return res.status(400).json({ message: "Error retrieving appointments" });
     }
   },
 };

@@ -62,6 +62,7 @@ export default function SignInForm() {
         user.setStylists(res.data.stylist.stylists || []);
         user.setExpertises(res.data.stylist.expertises || []);
         user.setGalleries(res.data.stylist.galleries || []);
+        user.setAppointments(res.data.stylist.appointments || []);
         user.saveUserContext(
           res.data.stylist._id,
           res.data.stylist.username,
@@ -73,7 +74,8 @@ export default function SignInForm() {
           res.data.stylist.stylists.length > 0 ? "Manager" : "Stylist",
           res.data.stylist.stylists || [],
           res.data.stylist.expertises || [],
-          res.data.stylist.galleries || []
+          res.data.stylist.galleries || [],
+          res.data.stylist.appointments || []
         );
         sessionStorage.setItem("stylistId", res.data.stylist._id);
         sessionStorage.setItem("token", res.data.token.token);
