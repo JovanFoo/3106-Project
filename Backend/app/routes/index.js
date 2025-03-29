@@ -6,7 +6,7 @@ const AppointmentRouter = require("./AppointmentRoute.js");
 const AuthRouter = require("./AuthRoute.js");
 const BranchRoute = require("./BranchRoute.js");
 const CustomerRouter = require("./CustomerRoute.js");
-// const PaymentRouter = require("./PaymentRouter.js");
+const TransactionRouter = require("./TransactionRoute.js");
 const ReviewRouter = require("./ReviewRoute.js");
 const ExpertiseRouter = require("./ExpertiseRoute.js");
 const StylistRouter = require("./StylistRoute.js");
@@ -22,7 +22,7 @@ ApiRouter.use("/galleries", GalleryRouter);
 ApiRouter.use("/customers", CustomerRouter);
 ApiRouter.use("/auth", AuthRouter);
 ApiRouter.use("/appointments", AppointmentRouter);
-// ApiRouter.use("/payments", PaymentRouter);
+ApiRouter.use("/transactions", TransactionRouter);
 ApiRouter.use("/reviews", ReviewRouter);
 ApiRouter.use("/branches", BranchRoute);
 
