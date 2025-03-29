@@ -55,7 +55,7 @@ const Calendar: React.FC = () => {
     const userData = localStorage.getItem("user");
     if (userData) {
       const customer = JSON.parse(userData);
-      const token = customer.token;
+      const token = customer.tokens.token;
       try {
         const response = await fetch(`${API_URL}/api/services`, {
           method: "GET",
@@ -74,12 +74,12 @@ const Calendar: React.FC = () => {
     }
   };
 
-  // get list of all stylists for dropdown 
+  // get list of all stylists for dropdown
   const fetchStylists = async () => {
     const userData = localStorage.getItem("user");
     if (userData) {
       const customer = JSON.parse(userData);
-      const token = customer.token;
+      const token = customer.tokens.token;
       try {
         const response = await fetch(`${API_URL}/api/stylists`, {
           method: "GET",
@@ -104,7 +104,7 @@ const Calendar: React.FC = () => {
     if (userData) {
       const customer = JSON.parse(userData);
       const customerId = customer.customer._id;
-      const token = customer.token;
+      const token = customer.tokens.token;
       try {
         const response = await fetch(
           `${API_URL}/api/customers/${customerId}/appointments`,
@@ -234,6 +234,11 @@ const Calendar: React.FC = () => {
     resetModalFields();
   };
 
+  const closeModalResetFields = () => {
+    resetModalFields();
+    closeModal();
+  };
+
   const resetModalFields = () => {
     setStylist("");
     setRequest("");
@@ -242,7 +247,7 @@ const Calendar: React.FC = () => {
     // setEventLevel("");
     setSelectedEvent(null);
   };
-  
+
   // renders appointment bars on calendar
   const renderEventContent = (eventInfo: any) => {
     // map serviceId(in extendedProps) to service name in services list (got from backend)
@@ -297,7 +302,7 @@ const Calendar: React.FC = () => {
         </div>
         <Modal
           isOpen={isOpen}
-          onClose={closeModal}
+          onClose={closeModalResetFields}
           className="max-w-[700px] p-6 lg:p-10"
         >
           <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
