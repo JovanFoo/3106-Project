@@ -37,6 +37,11 @@ const Calendar: React.FC = () => {
   const [appt, setAppts] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
+  const {
+    isOpen: isDeleteModalOpen,
+    openModal: openDeleteModal,
+    closeModal: closeDeleteModal,
+  } = useModal();
 
   // const calendarsEvents = {
   //   Danger: "danger",
@@ -140,6 +145,44 @@ const Calendar: React.FC = () => {
     }
   };
 
+  const handleDeleteAppointment = async () => {
+    if (!selectedEvent) return;
+
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      console.error("No user data found");
+      return;
+    }
+
+    const customer = JSON.parse(userData);
+    const token = customer.tokens.token;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/appointments/${selectedEvent.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete appointment");
+      }
+
+      setAppts((prevEvents) =>
+        prevEvents.filter((event) => event.id !== selectedEvent.id)
+      );
+      closeDeleteModal();
+      closeModal();
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+    }
+  };
+
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
     setApptStartDate(selectInfo.startStr);
@@ -170,7 +213,7 @@ const Calendar: React.FC = () => {
       return;
     }
     const customer = JSON.parse(userData);
-    const token = customer.token;
+    const token = customer.tokens.token;
 
     if (selectedEvent) {
       // TODO: Update existing event
@@ -419,13 +462,19 @@ const Calendar: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
-              <button
-                onClick={closeModal}
-                type="button"
-                className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-              >
-                Close
-              </button>
+              {/* show cancel appointment button only if editing */}
+              {selectedEvent ? (
+                <button
+                  onClick={openDeleteModal}
+                  type="button"
+                  className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
+                >
+                  Cancel Appointment
+                </button>
+              ) : (
+                <div />
+              )}
+
               <button
                 onClick={handleAddOrUpdateEvent}
                 type="button"
@@ -439,6 +488,36 @@ const Calendar: React.FC = () => {
                 {selectedEvent ? "Update Appointment" : "Book Appointment"}
               </button>
             </div>
+          </div>
+        </Modal>
+        <Modal
+          isOpen={isDeleteModalOpen}
+          onClose={closeDeleteModal}
+          className="max-w-md p-6 lg:p-8"
+        >
+          <h5 className="mb-4 font-semibold text-gray-800 text-xl">
+            Confirm Deletion
+          </h5>
+          <p className="text-gray-600">
+            Are you sure you want to cancel this appointment? This action cannot
+            be undone.
+          </p>
+
+          <div className="flex items-center gap-3 mt-6 sm:justify-end">
+            <button
+              onClick={closeDeleteModal}
+              type="button"
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteAppointment}
+              type="button"
+              className="rounded-lg bg-red-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-600"
+            >
+              Confirm Cancellation
+            </button>
           </div>
         </Modal>
       </div>
