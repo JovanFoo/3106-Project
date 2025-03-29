@@ -187,7 +187,7 @@ export default function SignInForm() {
         isFullscreen={true}
         className="bg-black dark:bg-gray-900 opacity-50 z-10 justify-center items-center"
       >
-        <div className="bg-black mt-10 flex flex-col justify-center items-center">
+        <div className="w-full h-full flex flex-col justify-center items-center">
           <div className="text-white text-2xl font-semibold mb-4">
             Signing in...
           </div>
