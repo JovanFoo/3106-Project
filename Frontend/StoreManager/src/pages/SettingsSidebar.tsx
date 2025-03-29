@@ -1,31 +1,36 @@
 import { useCallback } from "react";
 import { Link, useLocation } from "react-router";
-import { InfoIcon } from "../icons";
+
+// MUI Icons
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LockResetIcon from "@mui/icons-material/LockReset";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
+import WorkIcon from "@mui/icons-material/Work";
 
 const settingsNavItems = [
   {
-    icon: <InfoIcon className="w-6 h-6" />,
+    icon: <AccountCircleIcon className="w-6 h-6" />,
     name: "Profile",
     path: "/settings/profile",
   },
   {
-    icon: <InfoIcon className="w-6 h-6" />,
+    icon: <LockResetIcon className="w-6 h-6" />,
     name: "Change Password",
     path: "/settings/change-password",
   },
-  // { icon: <InfoIcon className="w-6 h-6" />, name: "Notifications", path: "/settings/notifications" },
   {
-    icon: <InfoIcon className="w-6 h-6" />,
+    icon: <PsychologyIcon className="w-6 h-6" />,
     name: "Expertise",
     path: "/settings/expertise",
   },
   {
-    icon: <InfoIcon className="w-6 h-6" />,
+    icon: <WorkIcon className="w-6 h-6" />,
     name: "Portfolio",
     path: "/settings/portfolio",
   },
   {
-    icon: <InfoIcon className="w-6 h-6" />,
+    icon: <ThumbUpAltIcon className="w-6 h-6" />,
     name: "Testimonials",
     path: "/settings/testimonials",
   },

@@ -1,15 +1,20 @@
+import AnalyticsIcon from "@mui/icons-material/Analytics";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import GroupsIcon from "@mui/icons-material/Groups";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import LayersIcon from "@mui/icons-material/Layers";
+import PaidIcon from "@mui/icons-material/Paid";
+import SettingsIcon from "@mui/icons-material/Settings";
+import StoreIcon from "@mui/icons-material/Store";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import {
-  CalenderIcon,
-  ChevronDownIcon,
-  DollarLineIcon,
-  GridIcon,
-  HorizontaLDots,
-  InfoIcon,
-  PageIcon,
+  HorizontaLDots
 } from "../icons";
+
 
 type NavItem = {
   name: string;
@@ -20,30 +25,30 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    icon: <GridIcon />,
+    icon: <DashboardIcon />,
     name: "Dashboard",
     path: "/home",
   },
   {
-    icon: <InfoIcon />,
+    icon: <InfoOutlinedIcon />,
     name: "Appointments",
     path: "/appointments",
   },
   {
-    icon: <CalenderIcon />,
+    icon: <CalendarMonthIcon />,
     name: "Calendar",
     path: "/calendar",
   },
   {
-    icon: <DollarLineIcon />,
+    icon: <PaidIcon />,
     name: "Transactions",
     path: "/transactions",
   },
   {
     name: "Manage",
-    icon: <PageIcon />,
+    icon: <LayersIcon />,
     subItems: [
-      { name: "Leave Approval", path: "/leave-Management"},
+      { name: "Leave Approval", path: "/leave-Management" },
       { name: "Emergency Leave", path: "/emergency-leave", pro: false },
       { name: "Documentation Approval", path: "/leave-document-approval", pro: false },
       { name: "Expertise & Pricing", path: "/expertise", pro: false },
@@ -51,26 +56,27 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    icon: <HorizontaLDots />,
+    icon: <AnalyticsIcon />,
     name: "Analytics",
     path: "/analytics",
   },
   {
-    icon: <HorizontaLDots />,
+    icon: <GroupsIcon />,
     name: "Teams",
     path: "/teams",
   },
   {
-    icon: <HorizontaLDots />,
+    icon: <StoreIcon />,
     name: "Shop Settings",
     path: "/shops",
   },
   {
-    icon: <HorizontaLDots />,
+    icon: <SettingsIcon />,
     name: "Settings",
     path: "/settings",
   },
 ];
+
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
@@ -171,7 +177,7 @@ const AppSidebar: React.FC = () => {
                       </span>
                       {(isExpanded || isHovered || isMobileOpen) && <span className="menu-item-text">{nav.name}</span>}
                       {(isExpanded || isHovered || isMobileOpen) && (
-                        <ChevronDownIcon
+                        <ExpandMoreIcon
                           className={`ml-auto w-5 h-5 transition-transform duration-200 ${openSubmenu === index ? "rotate-180 text-brand-500" : ""}`}
                         />
                       )}
