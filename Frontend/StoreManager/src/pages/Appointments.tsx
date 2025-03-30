@@ -5,13 +5,7 @@ import Button from "../components/ui/button/Button";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
-const config = {
-    headers: {
-        Authorization: sessionStorage.getItem("token"),
-    }
-};
-
-interface Appointment {
+type Appointment = {
     id: string;
     name: string;
     date: string;
@@ -23,19 +17,24 @@ interface Appointment {
 
 export default function Appointments() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const config = {
+        headers: {
+            Authorization: sessionStorage.getItem("token"),
+        }
+    };
 
     useEffect(() => {
         fetchAppointments();
     }, []);
 
-    const stylistId = sessionStorage.getItem("userId");
 
     const fetchAppointments = async () => {
+        const stylistId = sessionStorage.getItem("userId");
+        console.log("Stylist ID:", stylistId);
         try {
-            console.log("Stylist ID:", stylistId);
+
             const res = await axios.get(`${api_address}/api/appointments/stylists/${stylistId}`, config);
-            
-            console.log("Raw appointment response:", res.data);
+            console.log("Raw appointments data:", res.data);
 
             const mapped = res.data.map((appt: any) => {
                 const dateObj = new Date(appt.date);
@@ -52,12 +51,12 @@ export default function Appointments() {
 
                 return {
                     id: appt._id,
-                    name: appt.customer?.name || "Customer",
+                    name: appt.customer.name || "Customer",
                     date: formattedDate,
                     time: formattedTime,
-                    service: appt.service?.name || "Service",
+                    service: appt.service || "Service",
                     remarks: appt.request || "NIL",
-                    image: appt.customer?.image || "/images/default-avatar.jpg",
+                    image: appt.customer.profilePicture || "/images/default-avatar.jpg",
                 };
             });
             setAppointments(mapped);
@@ -79,8 +78,8 @@ export default function Appointments() {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {appointments.map((appointment) => (
-                        <div key={appointment.id} className="p-4 border rounded-lg shadow-sm flex flex-col items-center bg-white dark:bg-gray-800">
+                    {appointments.map((appointment, index) => (
+                        <div key={appointment.id || index} className="p-4 border rounded-lg shadow-sm flex flex-col items-center bg-white dark:bg-gray-800">
                             <img
                                 src={appointment.image}
                                 alt={appointment.name}
@@ -88,7 +87,10 @@ export default function Appointments() {
                             />
                             <h5 className="font-semibold text-md">{appointment.name}</h5>
                             <p className="text-sm text-gray-500">{appointment.date} - {appointment.time}</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.service}</p>
+                            <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center">
+                                <strong>Service:</strong>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.service}</p>
+                            </div>
                             <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 <strong>Remarks:</strong>
                                 <p className="whitespace-pre-wrap">{appointment.remarks}</p>

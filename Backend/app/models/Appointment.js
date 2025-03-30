@@ -14,9 +14,10 @@ const appointmentSchema = new Schema({
     type: Number,
     required: true,
   },
-  isCompleted: {
-    type: Boolean,
-    default: false,
+  status: {
+    type: String,
+    enum: ["Pending", "Confirmed", "Cancelled"],
+    default: "Pending",
   },
   service: {
     type: Schema.Types.ObjectId,

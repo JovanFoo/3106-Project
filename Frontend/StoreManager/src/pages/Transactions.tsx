@@ -42,6 +42,7 @@ export default function Transactions() {
         bookingId: "",
         service: services[0],
         stylist: "",
+        stylistName: "",
         paymentMethod: paymentMethods[0],
         amount: "",
         status: statuses[0],
@@ -116,6 +117,7 @@ export default function Transactions() {
             bookingId: "",
             service: services[0],
             stylist: stylists.length > 0 ? stylists[0]._id : "",
+            stylistName: "", // ✅ Add this line
             paymentMethod: paymentMethods[0],
             amount: "",
             status: statuses[0],
@@ -130,6 +132,7 @@ export default function Transactions() {
             bookingId: txn.bookingId,
             service: txn.service,
             stylist: txn.stylist,
+            stylistName: txn.stylistName,
             paymentMethod: txn.paymentMethod,
             amount: txn.amount,
             status: txn.status,

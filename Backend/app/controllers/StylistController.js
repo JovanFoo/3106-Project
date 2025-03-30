@@ -2,6 +2,8 @@ const mongodb = require("./config/database.js");
 const Stylist = require("../models/Stylist.js");
 const PasswordHash = require("../utils/passwordHash.js");
 const Expertise = require("../models/Expertise.js");
+const Customer = require("../models/Customer"); // adjust path as needed
+
 
 const StylistController = {
   // Retrieve a stylist by id
@@ -123,14 +125,45 @@ const StylistController = {
   // Retrieve all stylist's appointments by id
   async retrieveAppointments(req, res) {
     console.log("StylistController > retrieveAppointments");
-    const id = req.userId;
-    const stylist = await Stylist.findOne({ _id: id }).populate("appointments");
-    const temp = await Stylist.findOne({ _id: id });
-    console.log(temp, id);
-    if (stylist) {
-      return res.status(200).json(stylist.appointments);
-    } else {
-      return res.status(400).json({ message: "Error retrieving appointments" });
+    const stylistId = req.userId;
+  
+    try {
+      // 1. Get stylist with appointments populated with service
+      const stylist = await Stylist.findOne({ _id: stylistId }).populate({
+        path: "appointments",
+        populate: { path: "service" },
+      });
+  
+      if (!stylist) {
+        return res.status(404).json({ message: "Stylist not found" });
+      }
+  
+      const results = [];
+  
+      // 2. For each appointment, find the customer who has it
+      for (const appt of stylist.appointments) {
+        const customer = await Customer.findOne({
+          appointments: appt._id,
+        }).lean(); // lean() for better performance
+  
+        console.log("Processing appt:", appt._id.toString());
+        console.log("Matched customer:", customer?.name);
+        customer.password = undefined;
+  
+        results.push({
+          id: appt._id.toString(),
+          customer: customer,
+          date: appt.date,
+          request: appt.request,
+          service: appt.service?.name || "Service",
+          image: customer?.profilePicture || "/images/default-avatar.jpg",
+        });
+      }
+  
+      return res.status(200).json(results);
+    } catch (err) {
+      console.error("Error in retrieveAppointments:", err);
+      return res.status(500).json({ message: "Internal server error" });
     }
   },
 
