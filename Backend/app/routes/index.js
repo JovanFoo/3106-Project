@@ -6,7 +6,7 @@ const AppointmentRouter = require("./AppointmentRoute.js");
 const AuthRouter = require("./AuthRoute.js");
 const BranchRoute = require("./BranchRoute.js");
 const CustomerRouter = require("./CustomerRoute.js");
-// const PaymentRouter = require("./PaymentRouter.js");
+const TransactionRouter = require("./TransactionRoute.js");
 const ReviewRouter = require("./ReviewRoute.js");
 const ExpertiseRouter = require("./ExpertiseRoute.js");
 const StylistRouter = require("./StylistRoute.js");
@@ -15,13 +15,14 @@ const ServiceRateRouter = require("./ServiceRateRoute.js");
 const PromotionRouter = require("./PromotionRoute.js");
 const DiscountRouter = require("./DiscountRoute.js");
 const LeaveRequestRouter = require("./LeaveRequestRoute.js");
+const TeamRouter = require("./TeamsRoute.js");
 const GalleryRouter = require("./GalleryRoute.js");
 
 ApiRouter.use("/galleries", GalleryRouter);
 ApiRouter.use("/customers", CustomerRouter);
 ApiRouter.use("/auth", AuthRouter);
 ApiRouter.use("/appointments", AppointmentRouter);
-// ApiRouter.use("/payments", PaymentRouter);
+ApiRouter.use("/transactions", TransactionRouter);
 ApiRouter.use("/reviews", ReviewRouter);
 ApiRouter.use("/branches", BranchRoute);
 
@@ -35,6 +36,7 @@ ApiRouter.use("/servicerates", ServiceRateRouter);
 ApiRouter.use("/promotions", PromotionRouter);
 ApiRouter.use("/discounts", DiscountRouter);
 ApiRouter.use("/leave-requests", LeaveRequestRouter);
+ApiRouter.use("/teams", TeamRouter);
 
 ApiRouter.get("/", (req, res) => {
   res.send("API is working");
