@@ -6,13 +6,14 @@ const ServiceController = {
   async create(req, res) {
     console.log("serviceController > create");
 
-    let { name, duration, description } = req.body;
+    let { name, duration, description, ServiceRate } = req.body;
 
     try {
       const newService = new Service({
         name,
         duration,
         description,
+        ServiceRate,
       });
 
       const savedService = await newService.save();
