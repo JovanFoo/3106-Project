@@ -10,6 +10,8 @@ import PageMeta from "../components/common/PageMeta";
 import { useUser } from "../context/UserContext";
 import axios from "axios";
 import moment from "moment";
+// import Input from "../components/form/input/InputField";
+import { Input } from "@mui/material";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -267,11 +269,12 @@ const Calendar: React.FC = () => {
                   Enter Start Date
                 </label>
                 <div className="relative">
-                  {eventStartDate?.toLocaleString("en-SG")}
+                  {eventStartDate?.toUTCString()}
                   <input
                     id="event-start-date"
                     type="datetime-local"
-                    value={eventStartDate?.toLocaleString("SG")}
+                    pattern="yyyy-MM-ddTHH:mm"
+                    value={eventStartDate?.toISOString().substring(0, 16)}
                     // value="2020-03-12T12:12"
                     onChange={(e) => {
                       try {
