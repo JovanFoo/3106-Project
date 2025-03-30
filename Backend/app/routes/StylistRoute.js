@@ -7,6 +7,23 @@ const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Stylist = require("../models/Stylist.js");
 const LeaveRequestController = require("../controllers/LeaveRequestController.js");
 
+// get list of all stylists
+StylistRouter.get(
+  "/",
+  // AuthMiddleware.authAdminOrStylistManagerToken,
+  StylistController.retrieveAllStylists
+);
+StylistRouter.put(
+  "/teams",
+  AuthMiddleware.authCustomerStylistOrManagerToken,
+  StylistController.retrieveAllStylists
+);
+// get stylist by id
+StylistRouter.get(
+  "/:id",
+  AuthMiddleware.authStylistToken,
+  StylistController.retrieveById
+);
 // update stylist profile picture
 StylistRouter.put(
   "/profilePicture",
@@ -49,7 +66,7 @@ StylistRouter.delete(
 );
 
 StylistRouter.get(
-  "/",
+  "/adminAccess",
   AuthMiddleware.authAdminOrStylistManagerToken,
   StylistController.retrieveAll
 );

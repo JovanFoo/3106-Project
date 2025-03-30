@@ -26,7 +26,7 @@ export default function UserInfoCard() {
             {
               method: "GET",
               headers: {
-                Authorization: `${user.token}`,
+                Authorization: `${user.tokens.token}`,
               },
             }
           );
@@ -60,7 +60,7 @@ export default function UserInfoCard() {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `${user.token}`, // Send token for authorization
+              Authorization: `${user.tokens.token}`, // Send token for authorization
             },
             body: JSON.stringify({
               name: firstName,

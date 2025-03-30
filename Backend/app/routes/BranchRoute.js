@@ -13,6 +13,12 @@ BranchRouter.get(
   BranchController.retrieveStylists
 );
 
+BranchRouter.get(
+  "/shops",
+  AuthMiddleware.authStylistManagerToken,
+  BranchController.retrieveBranchesByStylist
+);
+
 BranchRouter.put(
   "/assign/:id",
   AuthMiddleware.authAdminToken,

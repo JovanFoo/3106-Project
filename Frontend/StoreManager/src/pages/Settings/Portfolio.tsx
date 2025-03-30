@@ -1,15 +1,14 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import SettingsSidebar from "../SettingsSidebar";
-import { useUser } from "../../context/UserContext";
-import axios from "axios";
 import Input from "../../components/form/input/InputField";
 import Label from "../../components/form/Label";
+import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
+import { useUser } from "../../context/UserContext";
 import { useModal } from "../../hooks/useModal";
-import Alert from "../../components/ui/alert/Alert";
-import { set } from "date-fns";
+import SettingsSidebar from "../SettingsSidebar";
 
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -74,6 +73,7 @@ export default function PortfolioGallery() {
     };
     fetchGallery();
   }, [user._id]);
+
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Adding photos...");
@@ -87,6 +87,13 @@ export default function PortfolioGallery() {
       setVariant("error");
       setTitle("Error");
       setMessage("Please select an image.");
+      setIsUpdating(false);
+      setCurrentImage("");
+      setCurrentTitle("");
+      closeModal();
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 2000);
       return;
     }
     if (!currentTitle) {
@@ -94,6 +101,13 @@ export default function PortfolioGallery() {
       setVariant("error");
       setTitle("Error");
       setMessage("Please enter a title.");
+      setIsUpdating(false);
+      setCurrentImage("");
+      setCurrentTitle("");
+      closeModal();
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 2000);
       return;
     }
     try {
@@ -112,10 +126,7 @@ export default function PortfolioGallery() {
           setTitle("Success");
           setMessage("Photos added successfully.");
           setGallery((prev) => [...prev, response.data]);
-          setCurrentImage("");
-          setCurrentTitle("");
           user.addGalleries(response.data._id);
-          setIsUpdating(false);
         })
         .catch((error: any) => {
           setShowAlert(true);

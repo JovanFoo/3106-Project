@@ -37,6 +37,9 @@ const StylistController = {
   async retrieveAllStylists(req, res) {
     console.log("StylistController > retrieve all stylists");
     const stylists = await Stylist.find({}); // get all stylists
+    stylists.map((stylist) => {
+      stylist.password = undefined; // remove password from response
+    });
     if (stylists) {
       return res.status(200).json(stylists);
     } else {
