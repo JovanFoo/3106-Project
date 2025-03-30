@@ -360,7 +360,7 @@ const Calendar: React.FC = () => {
             <div className="mt-8">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Enter Start Date
+                  Enter Date
                 </label>
                 <div className="relative">
                   <input
