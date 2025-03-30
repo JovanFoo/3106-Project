@@ -24,7 +24,7 @@ export default function UserDropdown() {
             {
               method: "GET",
               headers: {
-                Authorization: `${user.token}`,
+                Authorization: `${user.tokens.token}`,
               },
             }
           );

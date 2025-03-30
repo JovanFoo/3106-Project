@@ -73,6 +73,7 @@ export default function PortfolioGallery() {
     };
     fetchGallery();
   }, [user._id]);
+
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Adding photos...");
@@ -86,6 +87,13 @@ export default function PortfolioGallery() {
       setVariant("error");
       setTitle("Error");
       setMessage("Please select an image.");
+      setIsUpdating(false);
+      setCurrentImage("");
+      setCurrentTitle("");
+      closeModal();
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 2000);
       return;
     }
     if (!currentTitle) {
@@ -93,6 +101,13 @@ export default function PortfolioGallery() {
       setVariant("error");
       setTitle("Error");
       setMessage("Please enter a title.");
+      setIsUpdating(false);
+      setCurrentImage("");
+      setCurrentTitle("");
+      closeModal();
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 2000);
       return;
     }
     try {
@@ -111,10 +126,7 @@ export default function PortfolioGallery() {
           setTitle("Success");
           setMessage("Photos added successfully.");
           setGallery((prev) => [...prev, response.data]);
-          setCurrentImage("");
-          setCurrentTitle("");
           user.addGalleries(response.data._id);
-          setIsUpdating(false);
         })
         .catch((error: any) => {
           setShowAlert(true);

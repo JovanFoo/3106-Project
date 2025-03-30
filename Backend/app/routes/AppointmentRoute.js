@@ -12,17 +12,17 @@ AppointmentRouter.post(
   AuthMiddleware.authCustomerToken,
   AppointmentController.create
 );
-// get a appointment by appointment id
-AppointmentRouter.get(
-  "/:id",
-  AuthMiddleware.authCustomerOrStylistToken,
-  AppointmentController.retrieve
-);
 // get all appointments of a customer by customer id
 AppointmentRouter.get(
   "/",
   AuthMiddleware.authCustomerToken,
   CustomerController.retrieveAppointments
+);
+// get a appointment by appointment id
+AppointmentRouter.get(
+  "/:id",
+  AuthMiddleware.authCustomerOrStylistToken,
+  AppointmentController.retrieve
 );
 // update appointment detail by id (only a login customer / stylist can update their appointment)
 AppointmentRouter.put(

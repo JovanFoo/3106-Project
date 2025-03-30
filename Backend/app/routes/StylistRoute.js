@@ -10,7 +10,7 @@ const LeaveRequestController = require("../controllers/LeaveRequestController.js
 // get list of all stylists
 StylistRouter.get(
   "/",
-  AuthMiddleware.authAdminOrStylistManagerToken,
+  // AuthMiddleware.authAdminOrStylistManagerToken,
   StylistController.retrieveAllStylists
 );
 StylistRouter.put(
