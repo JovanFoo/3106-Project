@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import axios, { AxiosResponse } from "axios";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
@@ -7,49 +7,91 @@ import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { useNavigate } from "react-router-dom";
+import Alert from "../ui/alert/Alert";
+import { useUser } from "../../context/UserContext";
+import { Modal } from "../ui/modal";
+import { set } from "date-fns";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 export default function SignInForm() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [variant, setVariant] = useState<
+    "success" | "error" | "warning" | "info"
+  >("error");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+
+  const user = useUser();
+
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    function next() {
-      navigate("/");
+    if (username === "" || password === "") {
+      setVariant("error");
+      setTitle("Error");
+      setMessage("Please fill in all fields.");
+      setShowAlert(true);
+      return;
     }
+    setIsLoading(true);
     await axios
-      .post(api_address, {
-        email,
+      .post(`${api_address}/api/auth/stylists/login`, {
+        username,
         password,
       })
       .then((res: AxiosResponse) => {
-        console.log(res.data);
-        sessionStorage.setItem("token", "res.data.token");
-
-        next();
-        // TODO: handle response
+        user.setId(res.data.stylist._id);
+        user.setUsername(res.data.stylist.username);
+        user.setName(res.data.stylist.name);
+        user.setEmail(res.data.stylist.email);
+        user.setProfilePicture(res.data.stylist.profilePicture);
+        user.setPhoneNumber(res.data.stylist.phoneNumber);
+        user.setBio(res.data.stylist.bio);
+        user.setRole(
+          res.data.stylist.stylists.length > 0 ? "Manager" : "Stylist"
+        );
+        user.setStylists(res.data.stylist.stylists || []);
+        user.setExpertises(res.data.stylist.expertises || []);
+        user.setGalleries(res.data.stylist.galleries || []);
+        user.saveUserContext(
+          res.data.stylist._id,
+          res.data.stylist.username,
+          res.data.stylist.name,
+          res.data.stylist.email,
+          res.data.stylist.profilePicture || "/images/user/owner.jpg",
+          res.data.stylist.phoneNumber || "Phone number has not been set yet.",
+          res.data.stylist.bio || "Bio has not been set yet.",
+          res.data.stylist.stylists.length > 0 ? "Manager" : "Stylist",
+          res.data.stylist.stylists || [],
+          res.data.stylist.expertises || [],
+          res.data.stylist.galleries || []
+        );
+        sessionStorage.setItem("stylistId", res.data.stylist._id);
+        sessionStorage.setItem("token", res.data.token.token);
+        sessionStorage.setItem("refreshToken", res.data.token.refreshToken);
+        navigate("/");
+        setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
-        // TODO: handle error
+        setVariant("error");
+        setTitle("Error");
+        setMessage("Invalid credentials.");
+        setShowAlert(true);
+        setIsLoading(false);
       });
   };
 
   return (
     <div className="flex flex-col flex-1">
-      <div className="w-full max-w-md pt-10 mx-auto">
-        {/* <Link
-          to="/"
-          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-        >
-          <ChevronLeftIcon className="size-5" />
-          Back to dashboard
-        </Link> */}
-      </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
@@ -66,13 +108,14 @@ export default function SignInForm() {
               <div className="space-y-6">
                 <div>
                   <Label>
-                    Email <span className="text-error-500">*</span>{" "}
+                    Username <span className="text-error-500">*</span>{" "}
                   </Label>
                   <Input
-                    placeholder="info@gmail.com"
-                    name="email"
-                    onChange={(e) => setEmail(e.target.value)}
-                    value={email}
+                    placeholder="username"
+                    name="username"
+                    type="text"
+                    onChange={(e) => setUsername(e.target.value)}
+                    value={username}
                   />
                 </div>
                 <div>
@@ -120,7 +163,9 @@ export default function SignInForm() {
                 </div>
               </div>
             </form>
-
+            <div className={showAlert ? " mt-5" : "mt-5 hidden"}>
+              <Alert variant={variant} title={title} message={message} />
+            </div>
             <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Don&apos;t have an account? {""}
@@ -135,6 +180,21 @@ export default function SignInForm() {
           </div>
         </div>
       </div>
+      <Modal
+        isOpen={isLoading}
+        onClose={() => {}}
+        showCloseButton={false}
+        isFullscreen={true}
+        className="bg-black dark:bg-gray-900 opacity-50 z-10 justify-center items-center"
+      >
+        <div className="bg-black mt-10 flex flex-col justify-center items-center">
+          <div className="text-white text-2xl font-semibold mb-4">
+            Signing in...
+          </div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white"></div>
+          <div className="text-white text-center mt-2">Loading...</div>
+        </div>
+      </Modal>
     </div>
   );
 }

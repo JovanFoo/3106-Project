@@ -22,12 +22,10 @@ const appointmentSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Service",
   },
-  reviews: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Review",
-    },
-  ],
+  review: {
+    type: Schema.Types.ObjectId,
+    ref: "Review",
+  },
   stylist: {
     type: Schema.Types.ObjectId,
     ref: "Stylist",

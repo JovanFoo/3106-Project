@@ -1,7 +1,7 @@
 const mongodb = require("./config/database.js");
 const Stylist = require("../models/Stylist.js");
 const PasswordHash = require("../utils/passwordHash.js");
-const { update } = require("./AppointmentController.js");
+const Expertise = require("../models/Expertise.js");
 
 const StylistController = {
   // Retrieve a stylist by id
@@ -13,7 +13,9 @@ const StylistController = {
       stylist.password = undefined;
       return res.status(200).json(stylist);
     } else {
-      return res.status(400).json({ message: "Error retrieving stylist by ID" });
+      return res
+        .status(400)
+        .json({ message: "Error retrieving stylist by ID" });
     }
   },
   // Retrieve a stylist by username
@@ -25,7 +27,9 @@ const StylistController = {
       stylist.password = undefined;
       return res.status(200).json(stylist);
     } else {
-      return res.status(400).json({ message: "Error retrieving stylist by Username" });
+      return res
+        .status(400)
+        .json({ message: "Error retrieving stylist by Username" });
     }
   },
   // Retrieve a list of all stylists
@@ -35,15 +39,38 @@ const StylistController = {
     if (stylists) {
       return res.status(200).json(stylists);
     } else {
-      return res.status(400).json({ message: "Error retrieving list of stylists" });
+      return res
+        .status(400)
+        .json({ message: "Error retrieving list of stylists" });
     }
+  },
+  // Update a stylist's expertise
+  async updateExpertises(req, res) {
+    console.log("StylistController > updateExpertises");
+    const id = req.userId;
+    console.log("id", id);
+    const { expertises } = req.body;
+    const stylist = await Stylist.findOne({ _id: id });
+    if (!stylist) {
+      return res
+        .status(400)
+        .json({ message: "Error updating stylist expertises" });
+    }
+    expertises.map(async (expertiseId) => {
+      console.log("expertiseId", expertiseId);
+      return await Expertise.findOne({ _id: expertiseId });
+    });
+    stylist.expertises = expertises;
+    await stylist.save();
+    stylist.password = undefined;
+    return res.status(200).json(stylist);
   },
   // Update a stylist's name, email by username
   async update(req, res) {
     console.log("StylistController > update");
     const { id } = req.params;
     const { name, email, username, bio, phoneNumber } = req.body;
-    const stylist = await Stylist.findOne({ _id: id });
+    const stylist = await Stylist.findById(id);
     let existingStylist = await Stylist.findOne({ username: username });
     if (
       existingStylist &&
@@ -76,6 +103,7 @@ const StylistController = {
     stylist.password = undefined;
     return res.status(200).json(stylist);
   },
+
   // Delete a stylist by username
   async delete(req, res) {
     console.log("StylistController > delete");
@@ -93,9 +121,7 @@ const StylistController = {
   async retrieveAppointments(req, res) {
     console.log("StylistController > retrieveAppointments");
     const id = req.userId;
-    const stylist = await Stylist.findOne({ _id: id }).populate(
-      "appointments"
-    );
+    const stylist = await Stylist.findOne({ _id: id }).populate("appointments");
     const temp = await Stylist.findOne({ _id: id });
     console.log(temp, id);
     if (stylist) {
@@ -107,10 +133,9 @@ const StylistController = {
 
   async updateProfilePicture(req, res) {
     console.log("StylistController > updateProfilePicture");
-    const  id  = req.userId;
+    const id = req.userId;
     const { profilePicture } = req.body;
-    try
-    {
+    try {
       // console.log( "id", id );
       // console.log( "profilePicture", profilePicture );
       const stylist = await Stylist.updateOne(
@@ -118,7 +143,9 @@ const StylistController = {
         { profilePicture: profilePicture }
       );
       if (!stylist) {
-        return res.status(400).json({ message: "Error updating stylist profile picture" });
+        return res
+          .status(400)
+          .json({ message: "Error updating stylist profile picture" });
       }
       const newStylist = await Stylist.findOne({ _id: id });
       // stylist.profilePicture = profilePicture
@@ -127,7 +154,7 @@ const StylistController = {
       // TO DO: use cloudinary to upload image
       // await stylist.save();
       return res.status(200).json(newStylist);
-    }catch (error){
+    } catch (error) {
       return res.status(400).json({ message: error.message });
     }
   },

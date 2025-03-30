@@ -34,6 +34,16 @@ const ExpertiseController = {
       return res.status(400).json({ message: "Error retrieving appointment" });
     }
   },
+  // List all Expertise
+  async list(req, res) {
+    console.log("ExpertiseController > list");
+    const expertise = await Expertise.find();
+    if (expertise) {
+      return res.status(200).json(expertise);
+    } else {
+      return res.status(400).json({ message: "Error retrieving appointments" });
+    }
+  },
   // Update Expertise TODO: require only admin/branch manager account
   async update(req, res) {
     console.log("ExpertiseController > update");
@@ -59,7 +69,7 @@ const ExpertiseController = {
   // Delete Expertise TODO: require only admin/branch manager account
   async delete(req, res) {
     console.log("ExpertiseController > delete");
-    const { id } = req.params; 
+    const { id } = req.params;
 
     try {
       const expertise = await Expertise.findOne({ _id: id });

@@ -77,14 +77,25 @@ const AppointmentController = {
     console.log("AppointmentController > delete");
     const customerId = req.userId;
     const appointmentId = req.params.id;
+    const currentAppt = await Appointment.findOne({_id: appointmentId});
+    const stylistId = currentAppt.stylist;
+
     const customer = await Customer.findOne({ _id: customerId });
-    customer.appointments.filter((appointment) => {
-      return appointment._id !== appointmentId;
+    // Remove appointment from customer 
+    customer.appointments = customer.appointments.filter((appointment) => {
+      return appointment._id.toString() !== appointmentId;
     });
     await customer.save();
+    // Remove appointment from stylist
+    const stylist = await Stylist.findOne({_id: stylistId});
+    stylist.appointments = stylist.appointments.filter((appointment) => {
+      return appointment._id.toString() !== appointmentId;
+    });
+    await stylist.save();
+    // Delete the appointment
     const appointment = await Appointment.findByIdAndDelete(appointmentId);
 
-    if (customer && appointment) {
+    if (customer && appointment && stylist) {
       return res
         .status(204)
         .json({ message: "Appointment deleted successfully" });
