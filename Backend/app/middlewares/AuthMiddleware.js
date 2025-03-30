@@ -6,11 +6,12 @@ const AuthMiddleware = {
     console.log("AuthMiddleware > only Customer can access");
     token = req.headers["authorization"];
     console.log(token);
-    if (token == null) return res.status(401).json({ message: "Unauthorized no token" });
+    if (token == null) return res.status(401).json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
-    if (!decoded.status) return res.status(401).json({ message: "Unauthorized no" });
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
     if (decoded.values.type != "Customer")
-      return res.status(401).json({ message: "Unauthorized not cust" });
+      return res.status(401).json({ message: "Unauthorized" });
     req.userId = decoded.values.userId;
     next();
   },
@@ -20,8 +21,12 @@ const AuthMiddleware = {
     token = req.headers["authorization"];
     if (token == null) return res.status(401).json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
-    if (!decoded.status) return res.status(401).json({ message: "Unauthorized" });
-    if (decoded.values.type != "Stylist" && decoded.values.type != "StylistManager")
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
+    if (
+      decoded.values.type != "Stylist" &&
+      decoded.values.type != "StylistManager"
+    )
       return res.status(401).json({ message: "Unauthorized" });
     req.userId = decoded.values.userId;
     next();
@@ -32,7 +37,8 @@ const AuthMiddleware = {
     token = req.headers["authorization"];
     if (token == null) return res.status(401).json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
-    if (!decoded.status) return res.status(401).json({ message: "Unauthorized" });
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
     if (decoded.values.type != "StylistManager")
       return res.status(401).json({ message: "Unauthorized" });
     req.userId = decoded.values.userId;
@@ -44,7 +50,8 @@ const AuthMiddleware = {
     token = req.headers["authorization"];
     if (token == null) return res.status(401).json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
-    if (!decoded.status) return res.status(401).json({ message: "Unauthorized" });
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
     if (decoded.values.type != "Admin")
       return res.status(401).json({ message: "Unauthorized" });
     req.userId = decoded.values.userId;
@@ -58,20 +65,21 @@ const AuthMiddleware = {
     token = req.headers["authorization"];
     if (token == null) return res.status(401).json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
-    if (!decoded.status) return res.status(401).json({ message: "Unauthorized" });
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
     if (decoded.values.type != "Customer" && decoded.values.type != "Stylist")
       return res.status(401).json({ message: "Unauthorized" });
-
     req.userId = decoded.values.userId;
     next();
   },
-  // Middleware to check if the user is Admin or Stylist  
+  // Middleware to check if the user is Admin or Stylist
   async authAdminOrStylistToken(req, res, next) {
     console.log("AuthMiddleware > only Admin or Stylist can access");
     token = req.headers["authorization"];
     if (token == null) return res.status(401).json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
-    if (!decoded.status) return res.status(401).json({ message: "Unauthorized" });
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
     if (
       decoded.values.type != "Admin" &&
       decoded.values.type != "Stylist" &&
@@ -87,7 +95,8 @@ const AuthMiddleware = {
     token = req.headers["authorization"];
     if (token == null) return res.status(401).json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
-    if (!decoded.status) return res.status(401).json({ message: "Unauthorized" });
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
     if (
       decoded.values.type != "Admin" &&
       decoded.values.type != "StylistManager"
@@ -100,13 +109,16 @@ const AuthMiddleware = {
   // Middleware to check if the user is Admin/Stylist Manager/customer (for teams purpose)
 
   async authCustomerStylistOrManagerToken(req, res, next) {
-    console.log("AuthMiddleware > allow Customer, Stylist, Admin, or StylistManager");
+    console.log(
+      "AuthMiddleware > allow Customer, Stylist, Admin, or StylistManager"
+    );
 
     const token = req.headers["authorization"];
     if (token == null) return res.status(401).json({ message: "Unauthorized" });
 
     const decoded = jwt.decodeToken(token);
-    if (!decoded.status) return res.status(401).json({ message: "Unauthorized" });
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
 
     const role = decoded.values.type;
 
