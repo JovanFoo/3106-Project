@@ -25,7 +25,7 @@ const AppSidebar: React.FC = () => {
     {
       icon: <DashboardIcon />,
       name: "Dashboard",
-      path: "/home",
+      path: "/",
     },
     {
       icon: <InfoOutlinedIcon />,

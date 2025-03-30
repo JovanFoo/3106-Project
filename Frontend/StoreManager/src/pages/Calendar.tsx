@@ -10,26 +10,18 @@ import PageMeta from "../components/common/PageMeta";
 import { useUser } from "../context/UserContext";
 import axios from "axios";
 import moment from "moment";
-// import Input from "../components/form/input/InputField";
-import { Input } from "@mui/material";
 
 interface CalendarEvent extends EventInput {
+  id: string;
+  start: Date;
+  end: Date;
+  title: string;
+  description: string;
+  type: string;
   extendedProps: {
     calendar: string;
   };
 }
-
-type Appointments = {
-  _id: string;
-  startdate: Date;
-  endDate: Date;
-  isCompleted: boolean;
-  request: string;
-  review: string;
-  stylist: string;
-  service: string[];
-  totalAmount: number;
-};
 
 const Calendar: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
@@ -39,17 +31,18 @@ const Calendar: React.FC = () => {
   const [eventStartDate, setEventStartDate] = useState<Date>();
   const [eventEndDate, setEventEndDate] = useState<Date>();
   const [eventLevel, setEventLevel] = useState("");
+  const [eventDescription, setEventDescription] = useState("");
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const user = useUser();
 
-  const calendarsEvents = {
-    Danger: "danger",
-    Success: "success",
-    Primary: "primary",
-    Warning: "warning",
-  };
+  // const calendarsEvents = {
+  //   Danger: "danger",
+  //   Success: "success",
+  //   Primary: "primary",
+  //   Warning: "warning",
+  // };
   const config = {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -58,26 +51,42 @@ const Calendar: React.FC = () => {
     },
   };
   useEffect(() => {
+    console.log();
     // Initialize with some events
     if (user._id === "") return;
+    const date = calendarRef.current?.getApi().getDate();
     axios
       .get(
         `${
           import.meta.env.VITE_APP_API_ADDRESS_DEV
-        }/api/stylists/my-appointments`,
+        }/api/calendar/my-events?currentYear=${date?.getFullYear()}&currentMonth=${date?.getMonth()}`,
         config
       )
       .then((res) => {
-        const appointments: Appointments[] = res.data;
-        console.log(appointments);
-        const events = appointments.map((event: any) => ({
-          id: event._id,
-          title: event.title,
-          start: event.startDate,
-          end: event.endDate,
-          allDay: true,
-          extendedProps: { calendar: event.calendar },
-        }));
+        const resEvents: CalendarEvent[] = res.data;
+        const events: CalendarEvent[] = resEvents.map(
+          (event: CalendarEvent) => {
+            return {
+              id: event._id,
+              title: event.title,
+              start: new Date(
+                new Date(event.start).setHours(
+                  new Date(event.start).getHours() - 8
+                )
+              ),
+              end: new Date(
+                new Date(event.end).setHours(new Date(event.end).getHours() - 8)
+              ),
+              description: event.description,
+              allDay: event.type === "Leave",
+              type: event.type,
+              extendedProps: {
+                calendar: event.type === "Leave" ? "Danger" : "Success",
+              },
+            };
+          }
+        );
+        setEvents(events);
         console.log(events);
       })
       .catch((err) => {
@@ -85,30 +94,30 @@ const Calendar: React.FC = () => {
       });
     // Set the events to the state
   }, [user._id]);
-  useEffect(() => {
-    setEvents([
-      {
-        id: "1",
-        title: "Event Conf.",
-        start: new Date().toISOString(),
-        end: new Date(Date.now() + 60 * 1000 * 1).toISOString(),
-        extendedProps: { calendar: "Danger" },
-      },
-      {
-        id: "2",
-        title: "Meeting",
-        start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Success" },
-      },
-      {
-        id: "3",
-        title: "Workshop",
-        start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
-        end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Primary" },
-      },
-    ]);
-  }, []);
+  // useEffect(() => {
+  //   setEvents([
+  //     {
+  //       id: "1",
+  //       title: "Event Conf.",
+  //       start: new Date().toISOString(),
+  //       end: new Date(Date.now() + 60 * 1000 * 1).toISOString(),
+  //       extendedProps: { calendar: "Danger" },
+  //     },
+  //     {
+  //       id: "2",
+  //       title: "Meeting",
+  //       start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
+  //       extendedProps: { calendar: "Success" },
+  //     },
+  //     {
+  //       id: "3",
+  //       title: "Workshop",
+  //       start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
+  //       end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
+  //       extendedProps: { calendar: "Primary" },
+  //     },
+  //   ]);
+  // }, []);
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
     // setEventStartDate(selectInfo.startStr);
@@ -122,7 +131,7 @@ const Calendar: React.FC = () => {
     setSelectedEvent(event as unknown as CalendarEvent);
     setEventTitle(event.title);
     setEventStartDate(event.start || undefined);
-
+    setEventDescription(event.extendedProps.description || undefined);
     setEventEndDate(event.end || undefined);
     setEventLevel(event.extendedProps.calendar);
     openModal();
@@ -181,10 +190,12 @@ const Calendar: React.FC = () => {
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
             headerToolbar={{
-              left: "prev,next addEventButton",
+              left: "prev,next",
               center: "title",
               right: "dayGridMonth,timeGridWeek,timeGridDay",
             }}
+            eventMaxStack={5}
+            eventInteractive={true}
             events={events}
             selectable={true}
             select={handleDateSelect}
@@ -198,7 +209,8 @@ const Calendar: React.FC = () => {
             }}
           />
         </div>
-        <Modal
+        <div id="calendar-modal" className="hidden">
+          {/* <Modal
           isOpen={isOpen}
           onClose={closeModal}
           className="max-w-[700px] p-6 lg:p-10"
@@ -269,38 +281,24 @@ const Calendar: React.FC = () => {
                   Enter Start Date
                 </label>
                 <div className="relative">
-                  {eventStartDate?.toUTCString()}
+                  {eventStartDateView}
                   <input
                     id="event-start-date"
                     type="datetime-local"
-                    pattern="yyyy-MM-ddTHH:mm"
-                    value={eventStartDate?.toISOString().substring(0, 16)}
+                    value={eventStartDateView}
+                    // value={eventStartDate?.toISOString().substring(0, 16) || ""}
                     // value="2020-03-12T12:12"
                     onChange={(e) => {
                       try {
-                        // console.log("e.target.value", e.target.value);
-                        moment.locale("sg");
-                        console.log(
-                          moment(e.target.value)
-                            .toDate()
-                            .toLocaleString("en-SG")
+                        const date: Date = new Date(
+                          new Date(e.target.value).setHours(
+                            new Date(e.target.value).getHours() + 8
+                          )
                         );
-                        // console.log(
-                        //   eventStartDate?.toISOString().substring(0, 16)
-                        // );
-                        // console.log(
-                        //   "new Date(e.target.value).toISOString().substring(0, 16)",
-                        //   new Date(e.target.value)
-                        //     .toISOString()
-                        //     .substring(0, 16)
-                        // );
-                        // console.log(
-                        //   "new Date(Date.parse(e.target.value)).toISOString().substring(0, 16)",
-                        //   new Date(Date.parse(e.target.value))
-                        //     .toISOString()
-                        //     .substring(0, 16)
-                        // );
-                        setEventStartDate(moment(e.target.value).toDate());
+                        setEventEndDateView(
+                          date.toISOString().substring(0, 16)
+                        );
+                        setEventStartDate(new Date(e.target.value));
                       } catch (error) {
                         console.log(error);
                       }
@@ -319,7 +317,21 @@ const Calendar: React.FC = () => {
                     id="event-end-date"
                     type="datetime-local"
                     value={eventEndDate?.toISOString().substring(0, 16)}
-                    onChange={(e) => setEventEndDate(new Date(e.target.value))}
+                    onChange={(e) => {
+                      try {
+                        const date: Date = new Date(
+                          new Date(e.target.value).setHours(
+                            new Date(e.target.value).getHours() - 8
+                          )
+                        );
+                        setEventEndDateView(
+                          date.toISOString().substring(0, 16)
+                        );
+                        setEventEndDate(new Date(e.target.value));
+                      } catch (error) {
+                        console.log(error);
+                      }
+                    }}
                     className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                   />
                 </div>
@@ -340,6 +352,41 @@ const Calendar: React.FC = () => {
               >
                 {selectedEvent ? "Update Changes" : "Add Event"}
               </button>
+            </div>
+          </div>
+        </Modal> */}
+        </div>
+        <Modal
+          isOpen={isOpen && selectedEvent !== null}
+          onClose={closeModal}
+          className="max-w-[700px] p-6 lg:p-10"
+        >
+          <div className="relative w-full max-w-[500px] rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-8">
+            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+              {selectedEvent?.title || eventTitle || "Event Title"}
+            </h4>
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+              {selectedEvent?.description ||
+                eventDescription ||
+                "No description"}
+            </p>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  Start Date:
+                </span>
+                <span className="text-sm text-gray-800 dark:text-white/90">
+                  {moment(eventStartDate).format("MMMM Do YYYY, h:mm a")}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  End Date:
+                </span>
+                <span className="text-sm text-gray-800 dark:text-white/90">
+                  {moment(eventEndDate).format("MMMM Do YYYY, h:mm a")}
+                </span>
+              </div>
             </div>
           </div>
         </Modal>
