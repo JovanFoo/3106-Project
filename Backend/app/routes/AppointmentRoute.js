@@ -5,6 +5,7 @@ const AppointmentRouter = express.Router();
 const AppointmentController = require("../controllers/AppointmentController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const CustomerController = require("../controllers/CustomerController.js");
+const StylistController = require("../controllers/StylistController.js");
 // create a new appointment (only a login customer can create an appointment)
 AppointmentRouter.post(
   "/",
@@ -41,5 +42,13 @@ AppointmentRouter.delete(
   AuthMiddleware.authCustomerToken,
   AppointmentController.delete
 );
+
+// get all appointments of a stylist (only login stylist can access this)
+AppointmentRouter.get(
+  "/stylists/:id",
+  AuthMiddleware.authStylistToken,
+  StylistController.retrieveAppointments
+);
+
 
 module.exports = AppointmentRouter;
