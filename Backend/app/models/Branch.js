@@ -44,7 +44,12 @@ const branchSchema = new Schema({
       ref: "Appointment",
     },
   ],
-  staffs: [
+  manager: {
+    type: Schema.Types.ObjectId,
+    ref: "Stylist",
+    required: true,
+  },
+  stylists: [
     {
       type: Schema.Types.ObjectId,
       ref: "Stylist",
