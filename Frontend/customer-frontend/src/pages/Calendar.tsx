@@ -51,24 +51,29 @@ const Calendar: React.FC = () => {
   // };
   useEffect(() => {
     fetchAppointments();
-    fetchServices();
     fetchStylists();
   }, []);
 
   // get a list of all services for dropdown
-  const fetchServices = async () => {
+  const fetchServices = async (date: Date) => {
     const userData = localStorage.getItem("user");
     if (userData) {
       const customer = JSON.parse(userData);
       const token = customer.tokens.token;
       try {
-        const response = await fetch(`${API_URL}/api/services`, {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const day = date.getDay();
+        const response = await fetch(
+          `${API_URL}/api/services?year=${year}&month=${month}&day=${day}`,
+          {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: token,
           },
-        });
+          }
+        );
         if (!response.ok) throw new Error("Failed to fetch services");
 
         const data = await response.json();
