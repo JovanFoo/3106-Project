@@ -13,7 +13,7 @@ type Appointment = {
     date: string;
     time: string;
     service: string;
-    remarks: string;
+    request: string;
     profilePicture?: string;
     status: string;
 };
@@ -69,7 +69,7 @@ export default function Appointments() {
                         date: formattedDate,
                         time: formattedTime,
                         service: appt.service || "Service",
-                        remarks: appt.request || "NIL",
+                        request: appt.request || "NIL",
                         profilePicture: appt.customer?.profilePicture || "/images/default-avatar.jpg",
                         status: appt.status || "Pending",
                     };
@@ -98,9 +98,9 @@ export default function Appointments() {
         }
 
         try {
-            await axios.put(`${api_address}/api/appointments/${updatedAppt.id}`, {
+            await axios.put(`${api_address}/api/appointments/${updatedAppt.id}/update`, {
                 service: updatedAppt.service,
-                remarks: updatedAppt.remarks,
+                request: updatedAppt.request,
                 status,
                 date: new Date(datetime),
             }, config);
@@ -148,7 +148,7 @@ export default function Appointments() {
                             </div>
                             <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 <strong>Remarks:</strong>
-                                <p className="whitespace-pre-wrap">{appointment.remarks}</p>
+                                <p className="whitespace-pre-wrap">{appointment.request}</p>
                             </div>
                             <Button
                                 size="sm"
@@ -211,8 +211,8 @@ export default function Appointments() {
                             <label className="block text-sm font-medium">Remarks</label>
                             <input
                                 type="text"
-                                value={updatedAppt.remarks}
-                                onChange={(e) => setUpdatedAppt(prev => prev ? { ...prev, remarks: e.target.value } : null)}
+                                value={updatedAppt.request}
+                                onChange={(e) => setUpdatedAppt(prev => prev ? { ...prev, request: e.target.value } : null)}
                                 className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
                             />
 
