@@ -67,7 +67,11 @@ const AuthMiddleware = {
     decoded = jwt.decodeToken(token);
     if (!decoded.status)
       return res.status(401).json({ message: "Unauthorized" });
-    if (decoded.values.type != "Customer" && decoded.values.type != "Stylist")
+    if (
+      decoded.values.type != "Customer" &&
+      decoded.values.type != "Stylist" &&
+      decoded.values.type != "StylistManager"
+    )
       return res.status(401).json({ message: "Unauthorized" });
     req.userId = decoded.values.userId;
     next();
