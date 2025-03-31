@@ -18,12 +18,6 @@ StylistRouter.put(
   AuthMiddleware.authAdminCustomerStylistOrManagerToken,
   StylistController.retrieveAllStylists
 );
-// get stylist by id
-StylistRouter.get(
-  "/:id",
-  AuthMiddleware.authStylistToken,
-  StylistController.retrieveById
-);
 // update stylist profile picture
 StylistRouter.put(
   "/profilePicture",
@@ -46,6 +40,18 @@ StylistRouter.get(
   AuthMiddleware.authCustomerOrStylistToken,
   StylistController.retrieveAppointments
 );
+
+StylistRouter.get(
+  "/adminAccess",
+  AuthMiddleware.authAdminOrStylistManagerToken,
+  StylistController.retrieveAll
+);
+// get list of all stylists
+StylistRouter.get(
+  "/",
+  AuthMiddleware.authCustomerOrStylistToken,
+  StylistController.retrieveAllStylists
+);
 // get stylist by id
 StylistRouter.get(
   "/:id",
@@ -63,17 +69,5 @@ StylistRouter.delete(
   "/:id",
   AuthMiddleware.authStylistToken,
   StylistController.delete
-);
-
-StylistRouter.get(
-  "/adminAccess",
-  AuthMiddleware.authAdminOrStylistManagerToken,
-  StylistController.retrieveAll
-);
-// get list of all stylists
-StylistRouter.get(
-  "/",
-  AuthMiddleware.authCustomerOrStylistToken,
-  StylistController.retrieveAllStylists
 );
 module.exports = StylistRouter;
