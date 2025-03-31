@@ -45,6 +45,9 @@ import { Link } from 'react-router-dom';
 // Create axios instance with default config
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
 
 // Add request interceptor
@@ -52,7 +55,8 @@ api.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('token');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      // Remove 'Bearer ' prefix if it exists, as the backend doesn't expect it
+      config.headers.Authorization = token.replace('Bearer ', '');
     }
     return config;
   },
@@ -64,9 +68,28 @@ api.interceptors.request.use(
 // Add response interceptor
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
-      sessionStorage.removeItem('token');
+      // Try to refresh the token
+      const refreshToken = sessionStorage.getItem('refreshToken');
+      if (refreshToken) {
+        try {
+          const response = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/refresh-token`, {
+            token: refreshToken.replace('Bearer ', '') // Remove prefix if it exists
+          });
+          if (response.data.token) {
+            sessionStorage.setItem('token', response.data.token);
+            // Retry the original request
+            const config = error.config;
+            config.headers.Authorization = response.data.token;
+            return api(config);
+          }
+        } catch (refreshError) {
+          console.error('Token refresh failed:', refreshError);
+        }
+      }
+      // If refresh fails or no refresh token, clear everything and redirect
+      sessionStorage.clear();
       window.location.href = '/signin';
     }
     return Promise.reject(error);
@@ -121,116 +144,66 @@ const LeaveManagement: React.FC = () => {
   };
 
   useEffect(() => {
-    // TODELETE: Test data
-    const testStaff: Staff[] = [
-      { _id: 'staff1', name: '[hardcoded] John Smith', email: 'john@example.com' },
-      { _id: 'staff2', name: '[hardcoded] Sarah Johnson', email: 'sarah@example.com' },
-      { _id: 'staff3', name: '[hardcoded] Michael Lee', email: 'michael@example.com' },
-      { _id: 'staff4', name: '[hardcoded] Emma Wilson', email: 'emma@example.com' },
-      { _id: 'staff5', name: '[hardcoded] David Chen', email: 'david@example.com' },
-      { _id: 'staff6', name: '[hardcoded] Lisa Wong', email: 'lisa@example.com' },
-      { _id: 'staff7', name: '[hardcoded] James Taylor', email: 'james@example.com' },
-    ];
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Check if we have a token
+        const token = sessionStorage.getItem('token');
+        if (!token) {
+          window.location.href = '/signin';
+          return;
+        }
 
-    const testLeaveRequests: LeaveRequest[] = [
-      {
-        _id: 'leave1',
-        stylist: testStaff[0],
-        startDate: '2025-03-24',
-        endDate: '2025-03-26',
-        status: 'Pending',
-        type: 'Casual',
-        reason: 'Family vacation'
-      },
-      {
-        _id: 'leave2',
-        stylist: testStaff[1],
-        startDate: '2025-03-25',
-        endDate: '2025-03-25',
-        status: 'Approved',
-        type: 'Sick',
-        reason: 'Medical appointment'
-      },
-      {
-        _id: 'leave3',
-        stylist: testStaff[2],
-        startDate: '2025-03-26',
-        endDate: '2025-03-28',
-        status: 'Pending',
-        type: 'Paid',
-        reason: 'Personal time off'
-      },
-      {
-        _id: 'leave4',
-        stylist: testStaff[3],
-        startDate: '2025-03-24',
-        endDate: '2025-03-27',
-        status: 'Approved',
-        type: 'Bereavement',
-        reason: 'Family emergency'
-      },
-      {
-        _id: 'leave5',
-        stylist: testStaff[4],
-        startDate: '2025-03-27',
-        endDate: '2025-03-28',
-        status: 'Pending',
-        type: 'Volunteer',
-        reason: 'Community service'
-      },
-      {
-        _id: 'leave6',
-        stylist: testStaff[5],
-        startDate: '2025-03-25',
-        endDate: '2025-03-26',
-        status: 'Approved',
-        type: 'Casual',
-        reason: 'Personal errands'
-      },
-      {
-        _id: 'leave7',
-        stylist: testStaff[6],
-        startDate: '2025-03-26',
-        endDate: '2025-03-28',
-        status: 'Pending',
-        type: 'Paid',
-        reason: 'Vacation'
+        // Fetch leave requests - using the correct endpoint
+        const leaveRequestsResponse = await api.get('/api/stylists/leave-requests');
+        const leaveRequestsData = leaveRequestsResponse.data;
+        
+        // Fetch staff data
+        const staffResponse = await api.get('/api/stylists');
+        const staffData = staffResponse.data;
+
+        setLeaveRequests(leaveRequestsData);
+        setStaff(staffData);
+        setError(null);
+      } catch (error: any) {
+        console.error('Error fetching data:', error);
+        if (error.response?.status === 401) {
+          setError('Your session has expired. Please sign in again.');
+          window.location.href = '/signin';
+        } else {
+          setError(error.response?.data?.message || 'Failed to fetch data');
+        }
+      } finally {
+        setLoading(false);
       }
-    ];
+    };
 
-    // Skip API call and directly set the test data
-    setStaff(testStaff);
-    setLeaveRequests(testLeaveRequests);
-    setLoading(false);
+    fetchData();
   }, []); // Empty dependency array means this runs once on mount
 
   const handleApprove = async (requestId: string) => {
     try {
-      // Update local state instead of making API call
-      setLeaveRequests(prev => 
-        prev.map(request => 
-          request._id === requestId 
-            ? { ...request, status: 'Approved' }
-            : request
-        )
-      );
+      await api.post(`/api/stylists/leave-requests/approve/${requestId}`);
+      // Refresh the leave requests list
+      const response = await api.get('/api/stylists/leave-requests');
+      setLeaveRequests(response.data);
+      setError(null);
     } catch (error: any) {
-      setError('Failed to approve leave request.');
+      console.error('Error approving leave request:', error);
+      setError(error.response?.data?.message || 'Failed to approve leave request');
     }
   };
 
   const handleReject = async (requestId: string) => {
     try {
-      // Update local state instead of making API call
-      setLeaveRequests(prev => 
-        prev.map(request => 
-          request._id === requestId 
-            ? { ...request, status: 'Rejected' }
-            : request
-        )
-      );
+      await api.post(`/api/stylists/leave-requests/reject/${requestId}`);
+      // Refresh the leave requests list
+      const response = await api.get('/api/stylists/leave-requests');
+      setLeaveRequests(response.data);
+      setError(null);
     } catch (error: any) {
-      setError('Failed to reject leave request.');
+      console.error('Error rejecting leave request:', error);
+      setError(error.response?.data?.message || 'Failed to reject leave request');
     }
   };
 

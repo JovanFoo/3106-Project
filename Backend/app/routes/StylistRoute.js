@@ -76,4 +76,30 @@ StylistRouter.get(
   AuthMiddleware.authCustomerOrStylistToken,
   StylistController.retrieveAllStylists
 );
+
+// Leave Request Routes
+StylistRouter.get(
+  "/leave-requests",
+  AuthMiddleware.authStylistManagerToken,
+  LeaveRequestController.getAllLeaveRequests
+);
+
+StylistRouter.get(
+  "/leave-requests/pending",
+  AuthMiddleware.authStylistManagerToken,
+  LeaveRequestController.getAllPendingLeaveRequests
+);
+
+StylistRouter.post(
+  "/leave-requests/approve/:id",
+  AuthMiddleware.authStylistManagerToken,
+  LeaveRequestController.approveLeaveRequest
+);
+
+StylistRouter.post(
+  "/leave-requests/reject/:id",
+  AuthMiddleware.authStylistManagerToken,
+  LeaveRequestController.rejectLeaveRequest
+);
+
 module.exports = StylistRouter;

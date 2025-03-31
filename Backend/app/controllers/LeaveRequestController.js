@@ -98,11 +98,15 @@ const LeaveRequestController = {
             {
                 return res.status( 404 ).json( { message: "Manager not found" } );
             }
-            if ( !(manager.stylists.length < 0) )
+            if ( manager.stylists.length === 0 )
             {
-                return res.status( 403 ).json( { message: "Not authorized" } );
+                return res.status( 403 ).json( { message: "Not authorized - No stylists under management" } );
             }
-            manager.stylists.forEach( async ( stylist ) => { await stylist.populate( "leaveRequests" ).execPopulate(); } );
+            
+            // Populate leave requests for all stylists
+            await Promise.all(manager.stylists.map(async (stylist) => {
+                await stylist.populate("leaveRequests");
+            }));
             
             const leaveRequests = manager.stylists.map( ( stylist ) => stylist.leaveRequests).flat();
             return res.status( 200 ).json( leaveRequests );
@@ -122,11 +126,15 @@ const LeaveRequestController = {
             {
                 return res.status( 404 ).json( { message: "Manager not found" } );
             }
-            if ( !( manager.stylists.length < 0 ) )
+            if ( manager.stylists.length === 0 )
             {
-                return res.status( 403 ).json( { message: "Not authorized" } );
+                return res.status( 403 ).json( { message: "Not authorized - No stylists under management" } );
             }
-            manager.stylists.forEach( async ( stylist ) => { await stylist.populate( "leaveRequests" ).execPopulate(); } );
+            
+            // Populate leave requests for all stylists
+            await Promise.all(manager.stylists.map(async (stylist) => {
+                await stylist.populate("leaveRequests");
+            }));
             
             const leaveRequests = manager.stylists.map( ( stylist ) => stylist.leaveRequests.filter(leaveRequest => leaveRequest.status == 'Pending') ).flat();
             return res.status( 200 ).json( leaveRequests );
