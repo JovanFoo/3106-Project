@@ -138,7 +138,7 @@ const TransactionController = {
     
             const transaction = new Transaction({
                 bookingId: appointment._id,
-                service: appointment.service || "Service",
+                service: appointment.service.name || "Service",
                 stylist: appointment.stylist._id,
                 paymentMethod: "Cash", // or from frontend later
                 amount: appointment.totalAmount,

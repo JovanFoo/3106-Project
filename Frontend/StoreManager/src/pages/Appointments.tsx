@@ -12,7 +12,8 @@ type Appointment = {
     name: string;
     date: string;
     time: string;
-    service: string;
+    service: string; // holds serviceId
+    serviceName: string; // name for display
     request: string;
     profilePicture?: string;
     status: string;
@@ -48,6 +49,8 @@ export default function Appointments() {
         const stylistId = sessionStorage.getItem("userId");
         try {
             const res = await axios.get(`${api_address}/api/appointments/stylists/${stylistId}`, config);
+            console.log("Fetched appointments raw:", res.data);
+
             const mapped = res.data
                 .filter((appt: any) => appt.status !== "Completed")
                 .map((appt: any) => {
@@ -68,7 +71,8 @@ export default function Appointments() {
                         name: appt.customer?.name || "Customer",
                         date: formattedDate,
                         time: formattedTime,
-                        service: appt.service || "Service",
+                        service: appt.service?._id || "",              // ID for backend
+                        serviceName: appt.service?.name || "Service",  // name for display
                         request: appt.request || "NIL",
                         profilePicture: appt.customer?.profilePicture || "/images/default-avatar.jpg",
                         status: appt.status || "Pending",
@@ -99,7 +103,7 @@ export default function Appointments() {
 
         try {
             await axios.put(`${api_address}/api/appointments/${updatedAppt.id}/update`, {
-                service: updatedAppt.service,
+                serviceId: updatedAppt.service,
                 request: updatedAppt.request,
                 status,
                 date: new Date(datetime),
@@ -144,7 +148,7 @@ export default function Appointments() {
                             </div>
                             <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 <strong>Service:</strong>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.service}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.serviceName}</p>
                             </div>
                             <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 <strong>Remarks:</strong>

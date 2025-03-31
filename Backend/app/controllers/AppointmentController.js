@@ -149,7 +149,9 @@ const AppointmentController = {
   
       appointment.date = date ? new Date(date) : appointment.date;
       appointment.request = request ?? appointment.request;
-      appointment.service = serviceId ?? appointment.service;
+      if (serviceId && serviceId.trim() !== "") {
+        appointment.service = serviceId;
+      }
       appointment.status = status ?? appointment.status;
   
       await appointment.save();
