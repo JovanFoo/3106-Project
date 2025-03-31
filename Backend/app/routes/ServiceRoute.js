@@ -33,7 +33,7 @@ ServiceRouter.get(
 // update svc by id
 ServiceRouter.put(
   "/:id",
-  AuthMiddleware.authCustomerToken,
+  AuthMiddleware.authAdminOrStylistManagerToken,
   ServiceController.update
 );
 // delete promo by id (only a login customer can delete their account)

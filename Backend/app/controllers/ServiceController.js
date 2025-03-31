@@ -89,7 +89,7 @@ const ServiceController = {
   async update(req, res) {
     console.log("serviceController > update");
     const { id } = req.params;
-    const { name, duration, description } = req.body;
+    const { name, duration, description, serviceRates } = req.body;
 
     try {
       const service = await Service.findOne({ _id: id });
@@ -100,7 +100,7 @@ const ServiceController = {
       service.name = name || service.name;
       service.duration = duration || service.duration;
       service.description = description || service.description;
-
+      service.serviceRates = serviceRates || service.serviceRates;
       await service.save();
       return res.status(200).json(service);
     } catch (error) {
@@ -108,7 +108,6 @@ const ServiceController = {
       return res.status(500).json({ message: "Error updating service" });
     }
   },
-
   // Delete a service by ID
   async delete(req, res) {
     console.log("svccontroller > delete");
@@ -135,21 +134,21 @@ const ServiceController = {
       "ServiceRateController > retrieve all Service Rates with all Service Rates"
     );
     try {
-      const services = await Service.find()
-        .where({
-          isDisabled: false,
-        })
-        .populate("serviceRates");
+      const services = await Service.find().populate("serviceRates");
+      for (let i = 0; i < services.length; i++) {
+        const service = services[i];
+        service.serviceRates = service.serviceRates.filter((serviceRate) => {
+          return !serviceRate.isDisabled;
+        });
+      }
       if (services) {
         return res.status(200).json(services);
       } else {
-        return res.status(404).json({ message: "No Service Rates found" });
+        return res.status(404).json({ message: "No Service found" });
       }
     } catch (error) {
       console.error(error.message);
-      return res
-        .status(500)
-        .json({ message: "Error retrieving all Service Rates" });
+      return res.status(500).json({ message: "Error retrieving all Service" });
     }
   },
 };

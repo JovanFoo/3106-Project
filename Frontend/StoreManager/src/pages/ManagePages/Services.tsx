@@ -12,17 +12,17 @@ import Button from "../../components/ui/button/Button";
 import { PencilIcon, TrashBinIcon } from "../../icons";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import TextArea from "../../components/form/input/TextArea";
+import { NativeSelect } from "@mui/material";
+import Alert from "../../components/ui/alert/Alert";
 import { set } from "date-fns";
-import Radio from "../../components/form/input/Radio";
+// import MultiSelect from "../../components/form/MultiSelect";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 type Service = {
   name: string;
   duration: number;
   description: string;
-  promotion: string[];
-  serviceRates: string[] | ServiceRate[];
+  serviceRates: ServiceRate[];
   expertiseRequired: string[];
   _id: string;
 };
@@ -39,18 +39,15 @@ export default function Services() {
   const [allServiceRates, setAllServiceRates] = useState<ServiceRate[]>([]);
 
   const [selectedService, setSelectedService] = useState<Service | undefined>();
-  const [selectedServiceRate, setSelectedServiceRate] = useState<ServiceRate[]>(
-    []
-  );
   const {
-    isOpen: isOpen1,
-    openModal: openModal1,
-    closeModal: closeModal1,
+    isOpen: isOpenNew,
+    openModal: openModalNew,
+    closeModal: closeModalNew,
   } = useModal();
   const {
-    isOpen: isOpen2,
-    openModal: openModal2,
-    closeModal: closeModal2,
+    isOpen: isOpenEdit,
+    openModal: openModalEdit,
+    closeModal: closeModalEdit,
   } = useModal();
   const config = {
     headers: {
@@ -59,26 +56,74 @@ export default function Services() {
   };
   const fetchServices = async () => {
     await axios
-      .get(`${api_address}/api/services?month=3&year=2025&day=3`, config)
+      .get(`${api_address}/api/services/all`, config)
       .then((response) => {
         setServices(response.data);
+        console.log("Services:", response.data);
       })
       .catch((error) => {
         console.error("Error fetching services:", error);
       });
   };
-  const fetchServiceRates = async (serviceId: string) => {
+  const fetchServiceRates = async () => {
     await axios
-      .get(`${api_address}/api/service-rates/${serviceId}`, config)
+      .get(`${api_address}/api/service-rates`, config)
       .then((response) => {
-        return response.data;
+        setAllServiceRates(response.data);
+        console.log("Service Rates:", response.data);
       })
       .catch((error) => {
         console.error("Error fetching service rates:", error);
       });
   };
+  const handleSave = async (service: Service) => {
+    axios
+      .put(
+        `${api_address}/api/services/${service._id}`,
+        {
+          name: service.name,
+          duration: service.duration,
+          description: service.description,
+          serviceRates: service.serviceRates,
+          expertiseRequired: service.expertiseRequired,
+        },
+        config
+      )
+      .then((response) => {
+        console.log("Service updated successfully:", response.data);
+        fetchServices(); // Refresh the services list after saving
+      })
+      .catch((error) => {
+        console.error("Error updating service:", error);
+      });
+    closeModalEdit();
+  };
+  const handleAdd = async (service: Service) => {
+    // Perform edit operation hereawait axios
+    axios
+      .post(
+        `${api_address}/api/services/`,
+        {
+          name: service.name,
+          duration: service.duration,
+          description: service.description,
+          serviceRates: service.serviceRates,
+          expertiseRequired: service.expertiseRequired,
+        },
+        config
+      )
+      .then((response) => {
+        console.log("Service saved successfully:", response.data);
+        fetchServices(); // Refresh the services list after saving
+      })
+      .catch((error) => {
+        console.error("Error saving service:", error);
+      });
+    closeModalNew();
+  };
   useEffect(() => {
     fetchServices();
+    fetchServiceRates();
   }, []);
   return (
     <>
@@ -92,7 +137,7 @@ export default function Services() {
           <Button
             onClick={() => {
               console.log("add");
-              openModal1();
+              openModalNew();
             }}
           >
             + Add new service
@@ -156,7 +201,7 @@ export default function Services() {
                       onClick={() => {
                         console.log("edit Service");
                         setSelectedService(service);
-                        openModal2();
+                        openModalEdit();
                       }}
                     >
                       <PencilIcon />
@@ -177,24 +222,20 @@ export default function Services() {
         </Table>
       </div>
       <CustomerModal
-        isOpen={isOpen1}
+        isOpen={isOpenNew}
         closeModal={() => {
-          closeModal1();
+          closeModalNew();
         }}
-        onSave={() => {
-          console.log("save service");
-          closeModal1();
-        }}
+        totalListOfServiceRates={allServiceRates}
+        onSave={handleAdd}
       />
       <CustomerModal
-        isOpen={isOpen2}
+        isOpen={isOpenEdit}
         closeModal={() => {
-          closeModal2();
+          closeModalEdit();
         }}
-        onSave={() => {
-          console.log("save service");
-          closeModal2();
-        }}
+        totalListOfServiceRates={allServiceRates}
+        onSave={handleSave}
         service={selectedService}
       />
     </>
@@ -204,8 +245,8 @@ interface ModalProps {
   isOpen: boolean;
   closeModal: () => void;
   service?: Service; // Optional prop to pass a service object for editing
-  serviceRates: ServiceRate[]; // Optional prop to pass service rates
-  onSave: () => void; // Function to call when saving the service
+  totalListOfServiceRates: ServiceRate[]; // List of all service rates
+  onSave: (service: Service) => void; // Function to call when saving the service
   showCloseButton?: boolean; // New prop to control close button visibility
   isFullscreen?: boolean; // Default to false for backwards compatibility
 }
@@ -213,34 +254,69 @@ const CustomerModal: React.FC<ModalProps> = ({
   isOpen,
   closeModal,
   service,
-  serviceRates,
+  totalListOfServiceRates,
   onSave,
   showCloseButton = true, // Default to true for backwards compatibility
   isFullscreen = false,
 }) => {
   const [serviceData, setServiceData] = useState<Service>({
-    name: service ? service.name : "",
-    duration: service ? service.duration : 0,
-    description: service ? service.description : "",
-    Promotion: service ? service.Promotion : [],
-    ServiceRate: service ? service.ServiceRate : [],
-    ExpertiseRequired: service ? service.ExpertiseRequired : [],
-    _id: service ? service._id : "",
+    name: "",
+    duration: 0,
+    description: "",
+    serviceRates: [],
+    expertiseRequired: [],
+    _id: "",
   });
-  const [serviceRate, setServiceRate] = useState<ServiceRate[]>(
-    service ? serviceRates : []
-  );
+  const handleSave = () => {
+    if (
+      !serviceData.name ||
+      !serviceData.duration ||
+      !serviceData.description
+    ) {
+      setShowAlert(true);
+      setTitle("Error");
+      setMessage("Please fill in all the required fields.");
+      setVariant("error");
+      setTimeout(() => {
+        setShowAlert(false);
+        setTitle("");
+        setMessage("");
+        setVariant("info");
+      }, 4000);
+      return;
+    }
+    // Perform save operation here
+    onSave(serviceData);
+  };
+  const [showAlert, setShowAlert] = useState(false);
+  const [title, setTitle] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [variant, setVariant] = useState<"info" | "error" | "success">("info");
+  const [filteredText, setFilteredText] = useState<string>("");
+  useEffect(() => {
+    setServiceData({
+      name: service ? service.name : "",
+      duration: service ? service.duration : 0,
+      description: service ? service.description : "",
+      serviceRates: service ? service.serviceRates : [],
+      expertiseRequired: service ? service.expertiseRequired : [],
+      _id: service ? service._id : "",
+    });
+  }, [isOpen]);
+
   return (
     <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] p-6">
       <div className="flex flex-col px-2 overflow-y-auto">
         <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
           {service ? "Edit Service" : "Add Service"}
         </h4>
-
+        <div className={showAlert ? " mt-2" : "hidden"}>
+          <Alert variant={variant} title={title} message={message} />
+        </div>
         <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Service Name
+              Service Name*
             </label>
             <input
               type="text"
@@ -256,7 +332,7 @@ const CustomerModal: React.FC<ModalProps> = ({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Service Duration (in minutes)
+              Service Duration (in minutes)*
             </label>
             <input
               type="number"
@@ -269,9 +345,10 @@ const CustomerModal: React.FC<ModalProps> = ({
                   e.target.value !== "" &&
                   parseInt(e.target.value) >= 0
                 ) {
+                  const x = parseInt(e.target.value);
                   setServiceData({
                     ...serviceData,
-                    duration: parseInt(e.target.value),
+                    duration: x,
                   });
                 }
               }}
@@ -282,7 +359,7 @@ const CustomerModal: React.FC<ModalProps> = ({
         <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-1">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Service Description
+              Service Description*
             </label>
             <textarea
               value={serviceData.description}
@@ -297,43 +374,57 @@ const CustomerModal: React.FC<ModalProps> = ({
             />
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-1">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Status
+              Service Rates
             </label>
-            <select
-              value={serviceData.ServiceRate}
-              // onChange={(e) =>
-              //   setServiceData({
-              //     ...serviceData,
-              //     ServiceRate: e.target.value,
-              //   })
-              // }
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-            >
-              {/* {statuses.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))} */}
-            </select>
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Amount
-            </label>
-            {/* <input
-              type="number"
-              value={transactionData.amount}
-              onChange={(e) =>
-                setTransactionData({
-                  ...transactionData,
-                  amount: e.target.value,
-                })
-              }
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-            /> */}
+            <input
+              type="text"
+              className="w-full mb-3 border rounded-md h-8 dark:bg-gray-700 dark:border-gray-600 font-extralight"
+              onKeyUp={(e) => {
+                setFilteredText((e.target as HTMLInputElement).value);
+              }}
+            />
+            <div className="w-full min-h-40 max-h-40 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 overflow-auto">
+              {totalListOfServiceRates.length === 0 && (
+                <div className="text-gray-500">No Service Rates available</div>
+              )}
+              {totalListOfServiceRates.length > 0 &&
+                totalListOfServiceRates
+                  .sort((x, y) => x.name.localeCompare(y.name.toString()))
+                  .filter((x) =>
+                    x.name.toLowerCase().includes(filteredText.toLowerCase())
+                  )
+                  .map((x: ServiceRate) => {
+                    return (
+                      <div
+                        key={x._id}
+                        className="flex items-center gap-2"
+                        id={`#serviceRate-${x._id}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={serviceData.serviceRates.some(
+                            (sr) => sr._id === x._id
+                          )}
+                          onChange={(e) => {
+                            const updatedServiceRates = e.target.checked
+                              ? [...serviceData.serviceRates, x]
+                              : serviceData.serviceRates.filter(
+                                  (sr) => sr._id !== x._id
+                                );
+                            setServiceData({
+                              ...serviceData,
+                              serviceRates: updatedServiceRates,
+                            });
+                          }}
+                        />
+                        <span>{x.name}</span>
+                      </div>
+                    );
+                  })}
+            </div>
           </div>
         </div>
 
@@ -345,7 +436,7 @@ const CustomerModal: React.FC<ModalProps> = ({
           >
             Close
           </button>
-          <Button size="sm" variant="primary" onClick={onSave}>
+          <Button size="sm" variant="primary" onClick={handleSave}>
             {service ? "Update Transaction" : "Create"}
           </Button>
         </div>
