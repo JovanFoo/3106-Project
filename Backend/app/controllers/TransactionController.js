@@ -22,7 +22,7 @@ const TransactionController = {
                 amount,
                 service,
                 stylist,
-                Date: new Date(),
+                date: new Date(),
                 paymentMethod: "Cash", // or from req.body
                 status,
                 point: amount / 10,
@@ -123,5 +123,36 @@ const TransactionController = {
         }
     },
 
+    async createTransactionFromAppointment(req, res) {
+        try {
+            const { id } = req.params;
+    
+            const appointment = await Appointment.findById(id)
+                .populate("service")
+                .populate("stylist");
+    
+            if (!appointment) return res.status(404).json({ message: "Appointment not found" });
+            if (appointment.status !== "Completed") {
+                return res.status(400).json({ message: "Appointment not completed" });
+            }
+    
+            const transaction = new Transaction({
+                bookingId: appointment._id,
+                service: appointment.service || "Service",
+                stylist: appointment.stylist._id,
+                paymentMethod: "Cash", // or from frontend later
+                amount: appointment.totalAmount,
+                point: appointment.totalAmount / 10,
+                date: new Date(),
+                status: "Completed",
+            });
+    
+            await transaction.save();
+            res.json(transaction);
+        } catch (err) {
+            console.error("Error creating transaction:", err);
+            res.status(500).json({ message: "Internal server error" });
+        }
+    },
 };
 module.exports = TransactionController;

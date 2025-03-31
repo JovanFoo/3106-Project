@@ -5,11 +5,18 @@ const ServiceRateRouter = express.Router();
 const ServiceRateController = require("../controllers/ServiceRateController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const ServiceRate = require("../models/ServiceRate.js");
+const Service = require("../models/Service.js");
 
+// get all ServiceRates
+ServiceRateRouter.get(
+  "/",
+  AuthMiddleware.authCustomerStylistOrManagerToken,
+  ServiceRateController.retrieveAll
+);
 // get ServiceRate by id
 ServiceRateRouter.get(
   "/:id",
-  AuthMiddleware.authCustomerToken,
+  AuthMiddleware.authCustomerStylistOrManagerToken,
   ServiceRateController.retrieve
 );
 // update ServiceRate by id --> TODO: (only stylist manager can create?)
@@ -29,6 +36,12 @@ ServiceRateRouter.delete(
   "/:id",
   AuthMiddleware.authStylistManagerToken,
   ServiceRateController.delete
+);
+
+ServiceRateRouter.post(
+  "/",
+  AuthMiddleware.authStylistManagerToken,
+  ServiceRateController.create
 );
 
 module.exports = ServiceRateRouter;
