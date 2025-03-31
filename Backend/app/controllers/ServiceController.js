@@ -52,6 +52,11 @@ const ServiceController = {
       const services = await Service.find({}).populate("serviceRates");
       console.log(services);
       const { month, year, day } = req.query;
+      if (!month || !year || !day) {
+        return res
+          .status(400)
+          .json({ message: "Please provide month, year and day" });
+      }
       const date = new Date(year, month - 1, day); // Month is 0-indexed in JavaScript
       const temp = [];
       for (let i = 0; i < services.length; i++) {
