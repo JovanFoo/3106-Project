@@ -64,19 +64,22 @@ const Calendar: React.FC = () => {
         const year = date.getFullYear();
         const month = date.getMonth();
         const day = date.getDay();
+        // Edit Back to endpoint URL
         const response = await fetch(
-          `${API_URL}/api/services?year=${year}&month=${month}&day=${day}`,
+          `http://localhost:3000/api/services?year=${year}&month=${month}&day=${day}`,
+          // `${API_URL}/api/services?year=${year}&month=${month}&day=${day}`,
           {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
           }
         );
         if (!response.ok) throw new Error("Failed to fetch services");
 
         const data = await response.json();
+        console.log(data);
         setServices(data);
       } catch (error) {
         console.error("Error fetching services:", error);
@@ -209,7 +212,9 @@ const Calendar: React.FC = () => {
       date.setHours(date.getHours() + 8);
     }
     await fetchServices(date);
-    const serviceObj = services.find((s) => s._id === appt.extendedProps.service);
+    const serviceObj = services.find(
+      (s) => s._id === appt.extendedProps.service
+    );
 
     setSelectedEvent(appt as unknown as CalendarEvent);
     setStylist(appt.extendedProps.stylist);
@@ -380,7 +385,10 @@ const Calendar: React.FC = () => {
                     id="event-start-date"
                     type="date"
                     value={apptStartDate}
-                    onChange={(e) => setApptStartDate(e.target.value)}
+                    onChange={(e) => {
+                      setApptStartDate(e.target.value);
+                      fetchServices(new Date(e.target.value));
+                    }}
                     className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                   />
                 </div>

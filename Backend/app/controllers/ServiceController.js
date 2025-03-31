@@ -55,21 +55,29 @@ const ServiceController = {
       const temp = [];
       for (let i = 0; i < services.length; i++) {
         const service = services[i];
+        const MAXRATE = 1000000000000000;
+        let rate = MAXRATE;
         for (let j = 0; j < service.serviceRates.length; j++) {
           const serviceRate = service.serviceRates[j];
           if (serviceRate.startDate <= date && serviceRate.endDate >= date) {
-            temp.push({
-              _id: service._id,
-              name: service.name,
-              duration: service.duration,
-              description: service.description,
-              serviceRate: serviceRate.rate,
-              promotion: service.promotion,
-              expertiseRequired: service.expertiseRequired,
-            });
+            if (serviceRate.rate < rate) {
+              rate = serviceRate.rate;
+            }
           }
         }
+        if (rate !== MAXRATE) {
+          temp.push({
+            _id: service._id,
+            name: service.name,
+            duration: service.duration,
+            description: service.description,
+            serviceRate: rate,
+            promotion: service.promotion,
+            expertiseRequired: service.expertiseRequired,
+          });
+        }
       }
+
       if (temp.length > 0) {
         return res.status(200).json(temp);
       } else {
