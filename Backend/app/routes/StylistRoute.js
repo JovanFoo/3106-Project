@@ -15,7 +15,7 @@ StylistRouter.get(
 );
 StylistRouter.put(
   "/teams",
-  AuthMiddleware.authCustomerStylistOrManagerToken,
+  AuthMiddleware.authAdminCustomerStylistOrManagerToken,
   StylistController.retrieveAllStylists
 );
 // get stylist by id

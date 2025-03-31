@@ -21,21 +21,21 @@ AppointmentRouter.get(
 // get a appointment by appointment id
 AppointmentRouter.get(
   "/:id",
-  AuthMiddleware.authCustomerOrStylistToken,
+  AuthMiddleware.authAdminCustomerStylistOrManagerToken,
   AppointmentController.retrieve
 );
 
 // update appointment status by id (only a login admin/stylist can update their appointment)
 AppointmentRouter.put(
   "/:id/status",
-  AuthMiddleware.authAdminOrStylistToken,
+  AuthMiddleware.authAdminStylistOrManagerToken,
   AppointmentController.updateStatus
 )
 
 // update appointment detail by id (only a login customer / stylist can update their appointment)
 AppointmentRouter.put(
   "/:id",
-  AuthMiddleware.authCustomerOrStylistToken,
+  AuthMiddleware.authAdminCustomerStylistOrManagerToken,
   AppointmentController.update
 );
 // update appointment completion by appointment id (only a login stylist can update appointment completion)
