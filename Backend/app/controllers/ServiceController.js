@@ -49,11 +49,31 @@ const ServiceController = {
   async retrieveAll(req, res) {
     console.log("svccontroller > retrieve all svcs");
     try {
-      const services = await Service.find();
-      if (services) {
-        return res.status(200).json(services);
+      const services = await Service.find().populate("serviceRates");
+      const { month, year, day } = req.query;
+      const date = new Date(year, month, day);
+      const temp = [];
+      for (let i = 0; i < services.length; i++) {
+        const service = services[i];
+        for (let j = 0; j < service.serviceRates.length; j++) {
+          const serviceRate = service.serviceRates[j];
+          if (serviceRate.startDate <= date && serviceRate.endDate >= date) {
+            temp.push({
+              _id: service._id,
+              name: service.name,
+              duration: service.duration,
+              description: service.description,
+              serviceRate: serviceRate.rate,
+              promotion: service.promotion,
+              expertiseRequired: service.expertiseRequired,
+            });
+          }
+        }
+      }
+      if (temp.length > 0) {
+        return res.status(200).json(temp);
       } else {
-        return res.status(404).json({message: "No services found"});
+        return res.status(404).json({ message: "No services found" });
       }
     } catch (error) {
       console.error(error.message);
