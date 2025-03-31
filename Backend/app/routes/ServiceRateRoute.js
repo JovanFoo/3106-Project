@@ -10,13 +10,13 @@ const Service = require("../models/Service.js");
 // get all ServiceRates
 ServiceRateRouter.get(
   "/",
-  AuthMiddleware.authCustomerStylistOrManagerToken,
+  AuthMiddleware.authAny,
   ServiceRateController.retrieveAll
 );
 // get ServiceRate by id
 ServiceRateRouter.get(
   "/:id",
-  AuthMiddleware.authCustomerStylistOrManagerToken,
+  AuthMiddleware.authAny,
   ServiceRateController.retrieve
 );
 // update ServiceRate by id --> TODO: (only stylist manager can create?)
