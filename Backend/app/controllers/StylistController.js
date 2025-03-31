@@ -156,6 +156,7 @@ const StylistController = {
           request: appt.request,
           service: appt.service?.name || "Service",
           image: customer?.profilePicture || "/images/default-avatar.jpg",
+          status: appt.status || "Pending",
         });
       }
 

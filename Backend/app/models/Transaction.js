@@ -16,7 +16,7 @@ const transactionSchema = new Schema({
         ref: "Stylist",
         required: true,
     },
-    Date: {
+    date: {
         type: Date,
         required: true,
     },
@@ -26,7 +26,8 @@ const transactionSchema = new Schema({
     },
     status: {
         type: String,
-        required: true,
+        enum: ["Pending", "Confirmed", "Cancelled", "Completed"],
+        default: "Pending",
     },
     point: {
         type: Number,
