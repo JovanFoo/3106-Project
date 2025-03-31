@@ -57,7 +57,23 @@ const AuthMiddleware = {
     req.userId = decoded.values.userId;
     next();
   },
-
+  async authAny(req, res, next) {
+    console.log("AuthMiddleware > any user can access");
+    token = req.headers["authorization"];
+    if (token == null) return res.status(401).json({ message: "Unauthorized" });
+    decoded = jwt.decodeToken(token);
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
+    if (
+      decoded.values.type != "Customer" &&
+      decoded.values.type != "Stylist" &&
+      decoded.values.type != "StylistManager" &&
+      decoded.values.type != "Admin"
+    )
+      return res.status(401).json({ message: "Unauthorized" });
+    req.userId = decoded.values.userId;
+    next();
+  },
   // Multiple Auth Middleware
   // Middleware to check if the user is Customer or Stylist
   async authCustomerOrStylistToken(req, res, next) {
@@ -67,7 +83,11 @@ const AuthMiddleware = {
     decoded = jwt.decodeToken(token);
     if (!decoded.status)
       return res.status(401).json({ message: "Unauthorized" });
-    if (decoded.values.type != "Customer" && decoded.values.type != "Stylist")
+    if (
+      decoded.values.type != "Customer" &&
+      decoded.values.type != "Stylist" &&
+      decoded.values.type != "StylistManager"
+    )
       return res.status(401).json({ message: "Unauthorized" });
     req.userId = decoded.values.userId;
     next();
@@ -105,10 +125,29 @@ const AuthMiddleware = {
     req.userId = decoded.values.userId;
     next();
   },
+  // Middleware to check if the user is Admin, Stylist, or Stylist Manager
+  async authAdminStylistOrManagerToken(req, res, next) {
+    console.log(
+      "AuthMiddleware > only Admin, Stylist, or Stylist Manager can access"
+    );
 
+    const token = req.headers["authorization"];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.decodeToken(token);
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
+
+    const userType = decoded.values.type;
+    if (!["Admin", "Stylist", "StylistManager"].includes(userType)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    req.userId = decoded.values.userId;
+    next();
+  },
   // Middleware to check if the user is Admin/Stylist Manager/customer (for teams purpose)
-
-  async authCustomerStylistOrManagerToken(req, res, next) {
+  async authAdminCustomerStylistOrManagerToken(req, res, next) {
     console.log(
       "AuthMiddleware > allow Customer, Stylist, Admin, or StylistManager"
     );

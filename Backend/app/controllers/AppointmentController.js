@@ -115,6 +115,26 @@ const AppointmentController = {
     await appointment.save();
     return res.status(200).json(appointment);
   },
+
+  async updateStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const updated = await Appointment.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true }
+      );
+
+      if (!updated) return res.status(404).json({ message: "Appointment not found" });
+
+      res.json(updated);
+    } catch (err) {
+      console.error("Error updating appointment:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
 };
 
 module.exports = AppointmentController;
