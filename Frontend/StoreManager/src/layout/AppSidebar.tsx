@@ -53,8 +53,9 @@ const AppSidebar: React.FC = () => {
           path: "/leave-document-approval",
           pro: false,
         },
-        { name: "Expertise & Pricing", path: "/expertise", pro: false },
-        { name: "Ratings & Reviews", path: "/ratings", pro: false },
+        { name: "Services", path: "/manage/services", pro: false },
+        { name: "Service rates", path: "/manage/service-rates", pro: false },
+        // { name: "Ratings & Reviews", path: "/ratings", pro: false },
       ],
     },
     {

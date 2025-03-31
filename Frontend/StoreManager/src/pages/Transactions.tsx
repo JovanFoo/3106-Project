@@ -51,9 +51,22 @@ export default function Transactions() {
   const { isOpen, openModal, closeModal } = useModal();
 
   useEffect(() => {
+    fetchAllServices();
     fetchTransactions();
     fetchStylists();
   }, []);
+
+  const fetchAllServices = async () => {
+    await axios
+      .get(`${api_address}/api/services`, config)
+      .then((response) => {
+        // response.data;
+        console.log("Services fetched successfully:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching services:", error);
+      });
+  };
 
   const fetchTransactions = async () => {
     try {
