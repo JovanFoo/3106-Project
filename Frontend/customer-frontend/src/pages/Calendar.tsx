@@ -54,7 +54,7 @@ const Calendar: React.FC = () => {
     fetchStylists();
   }, []);
 
-  // get a list of all services for dropdown
+  // get a list of all services and their prices for dropdown
   const fetchServices = async (date: Date) => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -129,6 +129,9 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch appointments");
 
         const data = await response.json();
+        // const test = data.map((appointment: any) => {
+        //   console.log(appointment)
+        // });
 
         const formattedAppointments = data
           .filter((appointment: any) => !appointment.isCompleted) // only show active appointments
@@ -190,23 +193,28 @@ const Calendar: React.FC = () => {
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
+    // get the service (thus rate) for the current date
+    fetchServices(new Date(selectInfo.startStr));
     setApptStartDate(selectInfo.startStr);
     openModal();
   };
 
   // clicking the appointment tab on calendar
-  const handleEventClick = (clickInfo: EventClickArg) => {
+  const handleEventClick = async (clickInfo: EventClickArg) => {
     // get the appointment details and set the fields
     const appt = clickInfo.event;
-    setSelectedEvent(appt as unknown as CalendarEvent);
-    setStylist(appt.extendedProps.stylist);
-    setRequest(appt.extendedProps.request);
-    setService(appt.extendedProps.service);
     // convert to SGT
     const date = appt.start ? new Date(appt.start) : new Date();
     if (date) {
       date.setHours(date.getHours() + 8);
     }
+    await fetchServices(date);
+    const serviceObj = services.find((s) => s._id === appt.extendedProps.service);
+
+    setSelectedEvent(appt as unknown as CalendarEvent);
+    setStylist(appt.extendedProps.stylist);
+    setRequest(appt.extendedProps.request);
+    setService(serviceObj?._id || "");
     setApptStartDate(date.toISOString().split("T")[0]);
     openModal();
   };
@@ -298,7 +306,7 @@ const Calendar: React.FC = () => {
 
   // renders appointment bars on calendar
   const renderEventContent = (eventInfo: any) => {
-    // map serviceId(in extendedProps) to service name in services list (got from backend)
+    // // map serviceId(in extendedProps) to service name in services list (got from backend)
     const getServiceName = (serviceId: string) => {
       const serviceObj = services.find((s) => s._id === serviceId);
       return serviceObj ? serviceObj.name : "Unknown Service";
@@ -448,7 +456,7 @@ const Calendar: React.FC = () => {
                   {services.map((s) => (
                     <option key={s._id} value={s._id}>
                       {s.name}{" "}
-                      {/* display service name, save service value as the id */}
+                      {/* display service name, save service value as name also */}
                     </option>
                   ))}
                 </select>
