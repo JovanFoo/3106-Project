@@ -24,6 +24,14 @@ AppointmentRouter.get(
   AuthMiddleware.authCustomerOrStylistToken,
   AppointmentController.retrieve
 );
+
+// update appointment status by id (only a login admin/stylist can update their appointment)
+AppointmentRouter.put(
+  "/:id/status",
+  AuthMiddleware.authAdminOrStylistToken,
+  AppointmentController.updateStatus
+)
+
 // update appointment detail by id (only a login customer / stylist can update their appointment)
 AppointmentRouter.put(
   "/:id",
@@ -49,6 +57,5 @@ AppointmentRouter.get(
   AuthMiddleware.authStylistToken,
   StylistController.retrieveAppointments
 );
-
 
 module.exports = AppointmentRouter;

@@ -40,4 +40,11 @@ TransactionRouter.put(
     TransactionController.update
 );
 
+// Create a transaction record when an appointment is marked as Completed.
+TransactionRouter.post(
+    "/from-appointment/:id",
+    AuthMiddleware.authAdminOrStylistManagerToken,
+    TransactionController.createTransactionFromAppointment
+)
+
 module.exports = TransactionRouter;
