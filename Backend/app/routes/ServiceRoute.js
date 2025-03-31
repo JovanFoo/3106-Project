@@ -6,18 +6,24 @@ const ServiceController = require("../controllers/ServiceController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Service = require("../models/Service.js");
 
+ServiceRouter.get(
+  "/all",
+  AuthMiddleware.authStylistToken,
+  ServiceController.retrieveAllWithAllServiceRates
+);
+
 // create new service
 ServiceRouter.post(
   "/",
   AuthMiddleware.authStylistToken, // TODO: change accordingly to desired person
   ServiceController.create
-)
+);
 // get all services
 ServiceRouter.get(
   "/",
   AuthMiddleware.authCustomerOrStylistToken,
   ServiceController.retrieveAll
-)
+);
 // get svc by id
 ServiceRouter.get(
   "/:id",
@@ -27,7 +33,7 @@ ServiceRouter.get(
 // update svc by id
 ServiceRouter.put(
   "/:id",
-  AuthMiddleware.authCustomerToken,
+  AuthMiddleware.authAdminOrStylistManagerToken,
   ServiceController.update
 );
 // delete promo by id (only a login customer can delete their account)

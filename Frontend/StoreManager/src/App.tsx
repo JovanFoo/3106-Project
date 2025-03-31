@@ -30,6 +30,8 @@ import Testimonials from "./pages/Settings/Testimonials";
 import ShopSettings from "./pages/ShopSettings";
 import Teams from "./pages/Teams";
 import Transactions from "./pages/Transactions";
+import Service from "./pages/ManagePages/Services";
+import ServiceRates from "./pages/ManagePages/ServiceRates";
 // import Alerts from "./pages/UiElements/Alerts";
 // import Avatars from "./pages/UiElements/Avatars";
 // import Badges from "./pages/UiElements/Badges";
@@ -116,7 +118,8 @@ export default function App() {
             <Route path="/settings/testimonials" element={<Testimonials />} />
 
             {/* Other Routes */}
-            <Route path="/expertise-pricing" element={<Expertise />} />
+            <Route path="/manage/services" element={<Service />} />
+            <Route path="/manage/service-rates" element={<ServiceRates />} />
             <Route path="/ratings-reviews" element={<Testimonials />} />
             <Route path="/blank" element={<Blank />} />
           </Route>

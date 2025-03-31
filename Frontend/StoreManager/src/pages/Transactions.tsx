@@ -26,14 +26,21 @@ type Stylist = {
 const services = ["Haircut", "Beard Trim", "Shave", "Hair Coloring"];
 const paymentMethods = ["Cash", "Card"];
 const statuses = ["Pending", "Completed", "Cancelled"];
-
+type Service = {
+  description: string;
+  duration: number;
+  expertiseRequired: string[];
+  name: string;
+  serviceRates: ServiceRate[];
+  _id: string;
+};
 export default function Transactions() {
   const config = {
     headers: {
       Authorization: sessionStorage.getItem("token"),
     },
   };
-
+  const [services, setServices] = useState<Service[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [selectedTransaction, setSelectedTransaction] =
@@ -51,9 +58,22 @@ export default function Transactions() {
   const { isOpen, openModal, closeModal } = useModal();
 
   useEffect(() => {
+    fetchAllServices();
     fetchTransactions();
     fetchStylists();
   }, []);
+
+  const fetchAllServices = async () => {
+    await axios
+      .get(`${api_address}/api/services/all`, config)
+      .then((response) => {
+        // response.data;
+        console.log("Services fetched successfully:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching services:", error);
+      });
+  };
 
   const fetchTransactions = async () => {
     try {

@@ -1,5 +1,6 @@
 const mongodb = require("./config/database.js");
 const Service = require("../models/Service.js");
+const path = require("path");
 
 const ServiceController = {
   // Create a new service
@@ -48,11 +49,36 @@ const ServiceController = {
   async retrieveAll(req, res) {
     console.log("svccontroller > retrieve all svcs");
     try {
-      const services = await Service.find();
-      if (services) {
-        return res.status(200).json(services);
+      const services = await Service.find({}).populate("serviceRates");
+      console.log(services);
+      const { month, year, day } = req.query;
+      if (!month || !year || !day) {
+        return res
+          .status(400)
+          .json({ message: "Please provide month, year and day" });
+      }
+      const date = new Date(year, month - 1, day); // Month is 0-indexed in JavaScript
+      const temp = [];
+      for (let i = 0; i < services.length; i++) {
+        const service = services[i];
+        for (let j = 0; j < service.serviceRates.length; j++) {
+          const serviceRate = service.serviceRates[j];
+          if (serviceRate.startDate <= date && serviceRate.endDate >= date) {
+            temp.push({
+              name: service.name,
+              duration: service.duration,
+              description: service.description,
+              serviceRate: serviceRate.rate,
+              promotion: service.promotion,
+              expertiseRequired: service.expertiseRequired,
+            });
+          }
+        }
+      }
+      if (temp.length > 0) {
+        return res.status(200).json(temp);
       } else {
-        return res.status(404).json({message: "No services found"});
+        return res.status(404).json({ message: "No services found" });
       }
     } catch (error) {
       console.error(error.message);
@@ -63,7 +89,7 @@ const ServiceController = {
   async update(req, res) {
     console.log("serviceController > update");
     const { id } = req.params;
-    const { name, duration, description } = req.body;
+    const { name, duration, description, serviceRates } = req.body;
 
     try {
       const service = await Service.findOne({ _id: id });
@@ -74,7 +100,7 @@ const ServiceController = {
       service.name = name || service.name;
       service.duration = duration || service.duration;
       service.description = description || service.description;
-
+      service.serviceRates = serviceRates || service.serviceRates;
       await service.save();
       return res.status(200).json(service);
     } catch (error) {
@@ -82,7 +108,6 @@ const ServiceController = {
       return res.status(500).json({ message: "Error updating service" });
     }
   },
-
   // Delete a service by ID
   async delete(req, res) {
     console.log("svccontroller > delete");
@@ -101,6 +126,29 @@ const ServiceController = {
     } catch (error) {
       console.error(error.message);
       return res.status(500).json({ message: "Error deleting service" });
+    }
+  },
+
+  async retrieveAllWithAllServiceRates(req, res) {
+    console.log(
+      "ServiceRateController > retrieve all Service Rates with all Service Rates"
+    );
+    try {
+      const services = await Service.find().populate("serviceRates");
+      for (let i = 0; i < services.length; i++) {
+        const service = services[i];
+        service.serviceRates = service.serviceRates.filter((serviceRate) => {
+          return !serviceRate.isDisabled;
+        });
+      }
+      if (services) {
+        return res.status(200).json(services);
+      } else {
+        return res.status(404).json({ message: "No Service found" });
+      }
+    } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ message: "Error retrieving all Service" });
     }
   },
 };
