@@ -248,7 +248,7 @@ export default function Transactions() {
 
         <table className="w-full border-collapse border border-gray-300">
           <thead>
-            <tr className="bg-gray-100">
+            <tr className="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300">
               <th className="border p-2">#</th>
               <th className="border p-2">Service</th>
               <th className="border p-2">Stylist</th>
@@ -261,25 +261,27 @@ export default function Transactions() {
             {transactions.map((txn, index) => (
               <tr
                 key={txn.id}
-                className="text-center border cursor-pointer hover:bg-gray-100"
+                className="text-center border cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-slate-300"
                 onClick={() => handleTransactionClick(txn)}
               >
                 <td className="border p-2">{index + 1}</td>
                 <td className="border p-2">{txn.service}</td>
                 <td className="border p-2">{txn.stylistName || txn.stylist}</td>
                 <td className="border p-2">{txn.paymentMethod}</td>
-                <td className="border p-2">${txn.amount}</td>
+                <td className="border p-2">
+                  ${parseFloat(txn.amount.toString()).toFixed(2)}
+                </td>
                 <td
                   className={
                     txn.status == "Cancelled"
-                      ? "text-red-500 border p-2 font-semibold"
+                      ? "text-red-500 border p-2 font-semibold dark:text-red-300"
                       : txn.status == "Completed"
-                      ? "text-green-500 border p-2 font-semibold"
+                      ? "text-green-500 border p-2 font-semibold dark:text-green-300"
                       : txn.status == "Pending"
-                      ? "text-yellow-500 border p-2 font-semibold"
+                      ? "text-yellow-500 border p-2 font-semibold dark:text-yellow-300"
                       : txn.status == "Confirmed"
-                      ? "text-blue-500 border p-2 font-semibold"
-                      : "text-teal-300 border p-2 font-semibold"
+                      ? "text-blue-500 border p-2 font-semibold dark:text-blue-300"
+                      : "text-teal-500 border p-2 font-semibold dark:text-teal-300"
                   }
                 >
                   {txn.status}
@@ -371,7 +373,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   service: e.target.value,
                 })
               }
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-slate-300"
             >
               {listOfServices.map((option) => (
                 <option key={option._id} value={option.name}>
@@ -392,7 +394,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   stylist: e.target.value,
                 })
               }
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-slate-300"
             >
               {listOfStylists.map((stylist) => (
                 <option key={stylist._id} value={stylist._id}>
@@ -415,7 +417,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   });
                 }
               }}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-slate-300"
             >
               {["Card", "Cash"].map((option) => (
                 <option key={option} value={option}>
@@ -447,7 +449,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   });
                 }
               }}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-slate-300"
             >
               {["Completed", "Pending", "Cancelled", "Confirmed"].map(
                 (option) => (
@@ -488,7 +490,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   amount: parseFloat(e.target.value),
                 });
               }}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-slate-300"
             />
           </div>
         </div>

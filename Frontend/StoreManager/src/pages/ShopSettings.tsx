@@ -139,7 +139,7 @@ export default function ShopSettings() {
           </div>
 
           {shopData ? (
-            <div className="relative p-4 border rounded-md mb-4">
+            <div className="relative p-4 border rounded-md mb-4 dark:bg-gray-800 dark:border-gray-700 dark:text-white/90">
               <p>
                 <strong>Location:</strong> {shopData.location}
               </p>
@@ -202,7 +202,7 @@ export default function ShopSettings() {
                     onChange={(e) =>
                       setShopData({ ...shopData, location: e.target.value })
                     }
-                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
                   />
                 </div>
                 <div>
@@ -215,7 +215,7 @@ export default function ShopSettings() {
                     onChange={(e) =>
                       setShopData({ ...shopData, phoneNumber: e.target.value })
                     }
-                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
                   />
                 </div>
                 {["weekday", "weekend", "holiday"].map((key) => (
@@ -234,7 +234,7 @@ export default function ShopSettings() {
                             [`${key}OpeningTime`]: e.target.value,
                           })
                         }
-                        className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                        className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
                       >
                         {openingHours.map((hour) => (
                           <option key={hour} value={hour}>
@@ -252,7 +252,7 @@ export default function ShopSettings() {
                             [`${key}ClosingTime`]: e.target.value,
                           })
                         }
-                        className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                        className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
                       >
                         {openingHours.map((hour) => (
                           <option key={hour} value={hour}>

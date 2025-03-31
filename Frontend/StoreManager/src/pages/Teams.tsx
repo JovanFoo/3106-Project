@@ -160,7 +160,9 @@ export default function Teams() {
                   alt={member.name}
                   className="w-24 h-24 object-cover rounded-full border"
                 />
-                <h5 className="font-semibold text-md mt-2">{member.name}</h5>
+                <h5 className="font-semibold text-md mt-2 dark:text-white/90">
+                  {member.name}
+                </h5>
                 <p className="text-sm text-gray-500">{member.role}</p>
                 {member.rating && (
                   <p className="text-yellow-500">⭐ {member.rating}</p>
