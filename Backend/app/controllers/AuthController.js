@@ -98,10 +98,10 @@ const AuthController = {
         stylist.password = undefined;
         if (stylist.stylists.length > 0) {
           const token = jwt.generateStylistManagerToken(stylist._id);
-          return res.status(200).json({ stylist, token });
+          return res.status(200).json({ stylist, tokens: token });
         } else {
           const token = jwt.generateStylistToken(stylist._id);
-          return res.status(200).json({ stylist, token });
+          return res.status(200).json({ stylist, tokens: token });
         }
       }
     }
@@ -168,7 +168,7 @@ const AuthController = {
       if (isMatch) {
         admin.password = undefined;
         const token = jwt.generateAdminToken(admin._id);
-        return res.status(200).json({ admin, token });
+        return res.status(200).json({ admin, tokens: token });
       }
     }
     return res.status(400).json({ message: "Invalid username or password" });
