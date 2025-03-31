@@ -33,7 +33,7 @@ ApiRouter.use("/services", ServiceRouter);
 ApiRouter.use("/stylists", StylistRouter);
 ApiRouter.use("/expertises", ExpertiseRouter);
 ApiRouter.use("/services", ServiceRouter);
-ApiRouter.use("/servicerates", ServiceRateRouter);
+ApiRouter.use("/service-rates", ServiceRateRouter);
 ApiRouter.use("/promotions", PromotionRouter);
 ApiRouter.use("/discounts", DiscountRouter);
 ApiRouter.use("/leave-requests", LeaveRequestRouter);

@@ -19,6 +19,10 @@ const serviceRateSchema = new Schema({
     type: Date,
     required: true,
   },
+  isDisabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const ServiceRate = mongoose.model("ServiceRate", serviceRateSchema);
