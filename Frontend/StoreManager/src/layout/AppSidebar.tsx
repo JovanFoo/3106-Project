@@ -137,12 +137,12 @@ const AppSidebar: React.FC = () => {
             <>
               <img
                 className="dark:hidden w-full h-auto object-contain"
-                src="/images/logo/LogoSide.png"
+                src="/images/logo/logobuzzbook_cropped.png"
                 alt="Logo"
               />
               <img
-                className="hidden dark:block w-full h-auto object-contain"
-                src="/images/logo/LogoSide.png"
+                className="hidden dark:block w-full h-auto object-contain brightness-0 invert"
+                src="/images/logo/logobuzzbook_cropped.png"
                 alt="Logo"
               />
             </>
