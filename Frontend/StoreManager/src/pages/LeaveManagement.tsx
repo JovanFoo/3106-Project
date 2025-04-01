@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ReactElement } from "react";
 import {
   Box,
   Container,
@@ -127,7 +127,7 @@ interface LeaveRequest {
   endDate: string;
   status: "Pending" | "Approved" | "Rejected";
   reason: string;
-  type: "Bereavement" | "Casual" | "Paid" | "Sick" | "Volunteer";
+  type: "Paid" | "Childcare" | "Maternity" | "Paternity" | "Sick" | "Unpaid";
   response?: string;
   approvedBy?: {
     _id: string;
@@ -144,8 +144,9 @@ interface ApiResponse {
 }
 
 type ViewMode = "status" | "type";
+type LeaveType = "Paid" | "Childcare" | "Maternity" | "Paternity" | "Sick" | "Unpaid";
 
-const LeaveManagement: React.FC = () => {
+const LeaveManagement = (): ReactElement => {
   const theme = useTheme();
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
@@ -159,18 +160,19 @@ const LeaveManagement: React.FC = () => {
     "Approved",
   ]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([
-    "Bereavement",
-    "Casual",
     "Paid",
+    "Childcare",
+    "Maternity",
+    "Paternity",
     "Sick",
-    "Volunteer",
+    "Unpaid",
   ]);
 
   // Group leave types into categories
   const leaveCategories = {
-    "Time Off": ["Paid", "Casual"],
-    "Medical & Family": ["Sick", "Bereavement"],
-    "Special Leave": ["Volunteer"],
+    "Time Off": ["Paid", "Unpaid"],
+    "Family": ["Childcare", "Maternity", "Paternity"],
+    "Medical": ["Sick"],
   };
 
   useEffect(() => {
@@ -204,6 +206,7 @@ const LeaveManagement: React.FC = () => {
         // Merge stylist details with leave requests
         leaveRequestsData = leaveRequestsData.map((request: any) => ({
           ...request,
+          type: request.reason || 'Paid Time Off', // Use reason as the leave type
           stylist: stylistMap[request.stylist] || {
             _id: request.stylist,
             name: 'Unknown',
@@ -268,15 +271,37 @@ const LeaveManagement: React.FC = () => {
     return colors[status] || theme.palette.grey[500];
   };
 
-  const getLeaveTypeColor = (type: LeaveRequest["type"]) => {
-    const colors = {
-      Bereavement: "#7C3AED", // Purple for bereavement
-      Casual: "#2563EB", // Blue for casual
-      Paid: "#059669", // Green for paid
-      Sick: "#DC2626", // Red for sick
-      Volunteer: "#EA580C", // Orange for volunteer
+  const getLeaveTypeColor = (type: string | undefined) => {
+    if (!type) return theme.palette.grey[500];
+    
+    // Map of leave type variations to their normalized form
+    const typeMapping: { [key: string]: LeaveType } = {
+      'Paid Time Off': 'Paid',
+      'paid': 'Paid',
+      'Childcare': 'Childcare',
+      'childcare': 'Childcare',
+      'Maternity': 'Maternity',
+      'maternity': 'Maternity',
+      'Paternity': 'Paternity',
+      'paternity': 'Paternity',
+      'Sick Leave': 'Sick',
+      'sick': 'Sick',
+      'Unpaid': 'Unpaid',
+      'unpaid': 'Unpaid'
     };
-    return colors[type] || theme.palette.grey[500];
+
+    // Get the normalized type or use the original if not found in mapping
+    const normalizedType = typeMapping[type.toLowerCase()] || type;
+    
+    const colors: { [key in LeaveType]: string } = {
+      Paid: "#059669",        // Green for paid
+      Childcare: "#2563EB",   // Blue for childcare
+      Maternity: "#7C3AED",   // Purple for maternity
+      Paternity: "#6366F1",   // Indigo for paternity
+      Sick: "#DC2626",        // Red for sick
+      Unpaid: "#F97316"       // Orange for unpaid
+    };
+    return colors[normalizedType as LeaveType] || theme.palette.grey[500];
   };
 
   const handleStatusToggle = (status: string) => {
@@ -295,9 +320,25 @@ const LeaveManagement: React.FC = () => {
 
   const filteredRequests = leaveRequests.filter(
     (request) =>
-      selectedStatus.includes(request.status) &&
-      selectedTypes.includes(request.type)
+      (viewMode === "status" 
+        ? selectedStatus.includes(request.status)
+        : selectedTypes.includes(request.reason))
   );
+
+  // Update the leave type mapping in the stats section
+  const leaveTypeLabels: { [key in LeaveType]: string } = {
+    Paid: "Paid",
+    Childcare: "Childcare",
+    Maternity: "Maternity",
+    Paternity: "Paternity",
+    Sick: "Sick",
+    Unpaid: "Unpaid"
+  };
+
+  // Add type guard to check if a string is a valid LeaveType
+  const isValidLeaveType = (type: string): type is LeaveType => {
+    return ['Paid', 'Childcare', 'Maternity', 'Paternity', 'Sick', 'Unpaid'].includes(type);
+  };
 
   const renderStats = () => (
     <Card
@@ -356,30 +397,21 @@ const LeaveManagement: React.FC = () => {
             Types of Leave
           </Typography>
           <Stack spacing={1} sx={{ mt: 1 }}>
-            {Object.entries({
-              "Bereavement / Marriage": "Bereavement",
-              "Casual Leave": "Casual",
-              "Paid Time Off": "Paid",
-              "Sick / Carer": "Sick",
-              "Volunteer Time": "Volunteer",
-            }).map(([label, type]) => (
+            {Object.entries(leaveTypeLabels).map(([type, label]) => (
               <Chip
                 key={type}
                 label={label}
                 onClick={() => handleTypeToggle(type)}
                 sx={{
                   bgcolor: selectedTypes.includes(type)
-                    ? getLeaveTypeColor(type as LeaveRequest["type"])
+                    ? getLeaveTypeColor(type)
                     : "grey.100",
                   color: selectedTypes.includes(type)
                     ? "white"
                     : "text.primary",
                   "&:hover": {
                     bgcolor: selectedTypes.includes(type)
-                      ? alpha(
-                          getLeaveTypeColor(type as LeaveRequest["type"]),
-                          0.8
-                        )
+                      ? alpha(getLeaveTypeColor(type), 0.8)
                       : "grey.200",
                   },
                 }}
@@ -559,7 +591,9 @@ const LeaveManagement: React.FC = () => {
                             r.stylist._id === member._id &&
                             day >= new Date(r.startDate) &&
                             day <= new Date(r.endDate) &&
-                            selectedStatus.includes(r.status)
+                            (viewMode === "status" 
+                              ? selectedStatus.includes(r.status)
+                              : selectedTypes.includes(r.reason))
                         );
 
                         return (
@@ -698,10 +732,10 @@ const LeaveManagement: React.FC = () => {
                       </Typography>
                     </Box>
                     <Chip
-                      label={request.type}
+                      label={request.reason}
                       size="small"
                       sx={{
-                        bgcolor: getLeaveTypeColor(request.type),
+                        bgcolor: getLeaveTypeColor(request.reason),
                         color: "white",
                         fontWeight: "medium",
                         borderRadius: "8px",
@@ -770,7 +804,7 @@ const LeaveManagement: React.FC = () => {
     if (viewMode === "status") {
       return getStatusColor(request.status as "Pending" | "Approved");
     }
-    return getLeaveTypeColor(request.type);
+    return getLeaveTypeColor(request.reason);
   };
 
   if (loading) {
