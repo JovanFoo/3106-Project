@@ -12,8 +12,9 @@ type Appointment = {
     name: string;
     date: string;
     time: string;
-    service: string;
-    remarks: string;
+    service: string; // holds serviceId
+    serviceName: string; // name for display
+    request: string;
     profilePicture?: string;
     status: string;
 };
@@ -48,6 +49,8 @@ export default function Appointments() {
         const stylistId = sessionStorage.getItem("userId");
         try {
             const res = await axios.get(`${api_address}/api/appointments/stylists/${stylistId}`, config);
+            console.log("Fetched appointments raw:", res.data);
+
             const mapped = res.data
                 .filter((appt: any) => appt.status !== "Completed")
                 .map((appt: any) => {
@@ -68,8 +71,9 @@ export default function Appointments() {
                         name: appt.customer?.name || "Customer",
                         date: formattedDate,
                         time: formattedTime,
-                        service: appt.service || "Service",
-                        remarks: appt.request || "NIL",
+                        service: appt.service?._id || "",              // ID for backend
+                        serviceName: appt.service?.name || "Service",  // name for display
+                        request: appt.request || "NIL",
                         profilePicture: appt.customer?.profilePicture || "/images/default-avatar.jpg",
                         status: appt.status || "Pending",
                     };
@@ -98,9 +102,9 @@ export default function Appointments() {
         }
 
         try {
-            await axios.put(`${api_address}/api/appointments/${updatedAppt.id}`, {
-                service: updatedAppt.service,
-                remarks: updatedAppt.remarks,
+            await axios.put(`${api_address}/api/appointments/${updatedAppt.id}/update`, {
+                serviceId: updatedAppt.service,
+                request: updatedAppt.request,
                 status,
                 date: new Date(datetime),
             }, config);
@@ -144,11 +148,11 @@ export default function Appointments() {
                             </div>
                             <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 <strong>Service:</strong>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.service}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.serviceName}</p>
                             </div>
                             <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 <strong>Remarks:</strong>
-                                <p className="whitespace-pre-wrap">{appointment.remarks}</p>
+                                <p className="whitespace-pre-wrap">{appointment.request}</p>
                             </div>
                             <Button
                                 size="sm"
@@ -211,8 +215,8 @@ export default function Appointments() {
                             <label className="block text-sm font-medium">Remarks</label>
                             <input
                                 type="text"
-                                value={updatedAppt.remarks}
-                                onChange={(e) => setUpdatedAppt(prev => prev ? { ...prev, remarks: e.target.value } : null)}
+                                value={updatedAppt.request}
+                                onChange={(e) => setUpdatedAppt(prev => prev ? { ...prev, request: e.target.value } : null)}
                                 className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
                             />
 

@@ -116,25 +116,52 @@ const AppointmentController = {
     return res.status(200).json(appointment);
   },
 
-  async updateStatus(req, res) {
+  // async updateStatus(req, res) {
+  //   try {
+  //     const { id } = req.params;
+  //     const { status } = req.body;
+
+  //     const updated = await Appointment.findByIdAndUpdate(
+  //       id,
+  //       { status },
+  //       { new: true }
+  //     );
+
+  //     if (!updated) return res.status(404).json({ message: "Appointment not found" });
+
+  //     res.json(updated);
+  //   } catch (err) {
+  //     console.error("Error updating appointment:", err);
+  //     res.status(500).json({ message: "Internal server error" });
+  //   }
+  // },
+
+  async updateAppointment(req, res) {
+    console.log("AppointmentController > updateAppointment");
+    const { id } = req.params;
+    const { date, request, serviceId, status } = req.body;
+  
     try {
-      const { id } = req.params;
-      const { status } = req.body;
-
-      const updated = await Appointment.findByIdAndUpdate(
-        id,
-        { status },
-        { new: true }
-      );
-
-      if (!updated) return res.status(404).json({ message: "Appointment not found" });
-
-      res.json(updated);
-    } catch (err) {
-      console.error("Error updating appointment:", err);
-      res.status(500).json({ message: "Internal server error" });
+      const appointment = await Appointment.findById(id);
+      if (!appointment) {
+        return res.status(404).json({ message: "Appointment not found" });
+      }
+  
+      appointment.date = date ? new Date(date) : appointment.date;
+      appointment.request = request ?? appointment.request;
+      if (serviceId && serviceId.trim() !== "") {
+        appointment.service = serviceId;
+      }
+      appointment.status = status ?? appointment.status;
+  
+      await appointment.save();
+      return res.status(200).json(appointment);
+    } catch (error) {
+      console.error("Error updating appointment:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
-  },
+  }
+  
 };
 
 module.exports = AppointmentController;

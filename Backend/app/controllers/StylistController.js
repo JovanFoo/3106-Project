@@ -132,6 +132,7 @@ const StylistController = {
         path: "appointments",
         populate: { path: "service" },
       });
+      console.log("Stylist appointments:", stylist.appointments);
 
       if (!stylist) {
         return res.status(404).json({ message: "Stylist not found" });
@@ -154,7 +155,7 @@ const StylistController = {
           customer: customer,
           date: appt.date,
           request: appt.request,
-          service: appt.service?.name || "Service",
+          service: appt.service || "Service",
           image: customer?.profilePicture || "/images/default-avatar.jpg",
           status: appt.status || "Pending",
         });
