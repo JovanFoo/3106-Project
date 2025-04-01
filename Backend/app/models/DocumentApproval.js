@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const documentApprovalSchema = new mongoose.Schema({
     employeeId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Employee',
+        ref: 'Stylist',
         required: true
     },
     leaveId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Leave',
+        ref: 'LeaveRequest',
         required: true
     },
     documentType: {
@@ -28,7 +28,7 @@ const documentApprovalSchema = new mongoose.Schema({
     },
     approvedBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Employee'
+        ref: 'Stylist'
     },
     approvalDate: {
         type: Date

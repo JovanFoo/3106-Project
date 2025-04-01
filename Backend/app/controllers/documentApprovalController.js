@@ -1,6 +1,6 @@
 const DocumentApproval = require('../models/DocumentApproval');
-const Leave = require('../models/Leave');
-const Employee = require('../models/Employee');
+const LeaveRequest = require('../models/LeaveRequest');
+const Stylist = require('../models/Stylist');
 
 // Get all document approvals for an employee
 exports.getDocumentApprovals = async (req, res) => {
@@ -47,11 +47,11 @@ exports.createDocumentApproval = async (req, res) => {
         const { employeeId, leaveId, documentType, documentUrl } = req.body;
 
         // Verify leave exists and belongs to employee
-        const leave = await Leave.findOne({ _id: leaveId, employeeId });
+        const leave = await LeaveRequest.findOne({ _id: leaveId, stylist: employeeId });
         if (!leave) {
             return res.status(404).json({
                 success: false,
-                error: 'Leave not found'
+                error: 'Leave request not found'
             });
         }
 

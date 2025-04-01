@@ -1,21 +1,21 @@
 const express = require('express');
 const router = express.Router();
+const AuthMiddleware = require('../middlewares/AuthMiddleware');
 const documentApprovalController = require('../controllers/documentApprovalController');
-const { protect, authorize } = require('../middlewares/auth');
 
 // Get all document approvals for an employee
-router.get('/employee/:employeeId', protect, documentApprovalController.getDocumentApprovals);
+router.get('/employee/:employeeId', AuthMiddleware.authStylistToken, documentApprovalController.getDocumentApprovals);
 
 // Get pending document approvals for managers
-router.get('/pending', protect, authorize('manager', 'admin'), documentApprovalController.getPendingApprovals);
+router.get('/pending', AuthMiddleware.authStylistManagerToken, documentApprovalController.getPendingApprovals);
 
 // Create a new document approval request
-router.post('/', protect, documentApprovalController.createDocumentApproval);
+router.post('/', AuthMiddleware.authStylistToken, documentApprovalController.createDocumentApproval);
 
 // Approve a document
-router.put('/:approvalId/approve', protect, authorize('manager', 'admin'), documentApprovalController.approveDocument);
+router.put('/:approvalId/approve', AuthMiddleware.authStylistManagerToken, documentApprovalController.approveDocument);
 
 // Reject a document
-router.put('/:approvalId/reject', protect, authorize('manager', 'admin'), documentApprovalController.rejectDocument);
+router.put('/:approvalId/reject', AuthMiddleware.authStylistManagerToken, documentApprovalController.rejectDocument);
 
 module.exports = router; 
