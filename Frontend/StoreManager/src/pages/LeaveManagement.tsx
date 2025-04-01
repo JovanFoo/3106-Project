@@ -126,8 +126,9 @@ interface LeaveRequest {
   startDate: string;
   endDate: string;
   status: "Pending" | "Approved" | "Rejected";
-  reason: string;
-  type: "Paid" | "Childcare" | "Maternity" | "Paternity" | "Sick" | "Unpaid";
+  reason: LeaveType;  // This is actually the leave type (backward compatibility)
+  description?: string; // Optional field for actual reason
+  type: LeaveType;     // This will be same as reason for now (backward compatibility)
   response?: string;
   approvedBy?: {
     _id: string;
@@ -271,12 +272,12 @@ const LeaveManagement = (): ReactElement => {
     return colors[status] || theme.palette.grey[500];
   };
 
-  const getLeaveTypeColor = (type: string | undefined) => {
-    if (!type) return theme.palette.grey[500];
+  const getLeaveTypeColor = (leaveType: string | undefined) => {
+    if (!leaveType) return theme.palette.grey[500];
     
     // Map of leave type variations to their normalized form
     const typeMapping: { [key: string]: LeaveType } = {
-      'Paid Time Off': 'Paid',
+      'Paid': 'Paid',
       'paid': 'Paid',
       'Childcare': 'Childcare',
       'childcare': 'Childcare',
@@ -284,14 +285,14 @@ const LeaveManagement = (): ReactElement => {
       'maternity': 'Maternity',
       'Paternity': 'Paternity',
       'paternity': 'Paternity',
-      'Sick Leave': 'Sick',
+      'Sick': 'Sick',
       'sick': 'Sick',
       'Unpaid': 'Unpaid',
       'unpaid': 'Unpaid'
     };
 
     // Get the normalized type or use the original if not found in mapping
-    const normalizedType = typeMapping[type.toLowerCase()] || type;
+    const normalizedType = typeMapping[leaveType.toLowerCase()] || leaveType;
     
     const colors: { [key in LeaveType]: string } = {
       Paid: "#059669",        // Green for paid
@@ -620,12 +621,14 @@ const LeaveManagement = (): ReactElement => {
                                 return (
                                   <Tooltip
                                     key={request._id}
-                                    title={`${request.type} (${
+                                    title={`${request.reason} (${
                                       request.status
                                     }): ${format(
                                       startDate,
                                       "MMM dd"
-                                    )} - ${format(endDate, "MMM dd")}`}
+                                    )} - ${format(endDate, "MMM dd")}${
+                                      request.description ? `\n${request.description}` : ''
+                                    }`}
                                   >
                                     <Box
                                       sx={{
@@ -769,7 +772,7 @@ const LeaveManagement = (): ReactElement => {
                         bgcolor: theme.palette.grey[50],
                       }}
                     >
-                      {request.reason}
+                      {request.description || 'No additional details provided'}
                     </Typography>
                   </Stack>
                 </CardContent>
