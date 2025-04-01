@@ -558,7 +558,8 @@ const LeaveManagement: React.FC = () => {
                           (r) =>
                             r.stylist._id === member._id &&
                             day >= new Date(r.startDate) &&
-                            day <= new Date(r.endDate)
+                            day <= new Date(r.endDate) &&
+                            selectedStatus.includes(r.status)
                         );
 
                         return (
@@ -794,46 +795,6 @@ const LeaveManagement: React.FC = () => {
           <Typography variant="h4" gutterBottom>
             Leave Management
           </Typography>
-          <Box
-            sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 3 }}
-          >
-            <ToggleButtonGroup
-              value={viewMode}
-              exclusive
-              onChange={(e, newValue) => setViewMode(newValue as ViewMode)}
-              aria-label="view mode"
-              sx={{ mb: 2 }}
-            >
-              {/* <ToggleButton value="status" aria-label="status view">
-                Leave Status
-              </ToggleButton>
-              <ToggleButton value="type" aria-label="type view">
-                Leave Types
-              </ToggleButton> */}
-            </ToggleButtonGroup>
-          </Box>
-          <Box
-            sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 3 }}
-          >
-            <ToggleButtonGroup
-              value={selectedStatus}
-              exclusive
-              onChange={(e, newStatus) =>
-                setSelectedStatus(newStatus || ["Pending", "Approved"])
-              }
-              aria-label="status filter"
-            >
-              {/* <ToggleButton value="all" aria-label="all statuses">
-                All
-              </ToggleButton>
-              <ToggleButton value="pending" aria-label="pending status">
-                Pending
-              </ToggleButton>
-              <ToggleButton value="approved" aria-label="approved status">
-                Approved
-              </ToggleButton> */}
-            </ToggleButtonGroup>
-          </Box>
         </Box>
 
         {error && (
