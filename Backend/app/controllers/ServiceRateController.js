@@ -28,20 +28,59 @@ const ServiceRateController = {
   },
   async retrieveAll(req, res) {
     console.log("ServiceRateController > retrieve all Service Rates");
-    try {
-      const serviceRates = await ServiceRate.find().where({
-        isDisabled: false,
-      });
-      if (serviceRates) {
-        return res.status(200).json(serviceRates);
-      } else {
-        return res.status(404).json({ message: "No Service Rates found" });
+    const { paginated } = req.params;
+    const { page, limit } = req.query;
+    if (paginated === "true") {
+      console.log("ServiceRateController > retrieve paginated Service Rates");
+      const pageNumber = parseInt(page);
+      const limitNumber = parseInt(limit);
+      if (isNaN(pageNumber) || isNaN(limitNumber)) {
+        return res.status(400).json({ message: "Invalid page or limit" });
       }
-    } catch (error) {
-      console.error(error.message);
-      return res
-        .status(500)
-        .json({ message: "Error retrieving all Service Rates" });
+
+      try {
+        const serviceRates = await ServiceRate.find().where({
+          isDisabled: false,
+        });
+
+        const totalServiceRates = serviceRates.length;
+        const startIndex = (pageNumber - 1) * limitNumber;
+        const endIndex = pageNumber * limitNumber;
+        const paginatedServiceRates = serviceRates.slice(startIndex, endIndex);
+
+        const paginated = {
+          total: totalServiceRates,
+          page: pageNumber,
+          limit: limitNumber,
+          totalPages: Math.ceil(totalServiceRates / limitNumber),
+          hasNextPage: endIndex < totalServiceRates,
+          serviceRates: paginatedServiceRates,
+        };
+        return res.status(200).json(paginated);
+      } catch (error) {
+        console.error(error.message);
+        return res
+          .status(500)
+          .json({ message: "Error retrieving Service Rates" });
+      }
+    }
+    // If not paginated, return all Service Rates
+    else {
+      try {
+        const serviceRates = await ServiceRate.find().where({
+          isDisabled: false,
+        });
+        if (serviceRates) {
+          return res.status(200).json(serviceRates);
+        } else {
+          return res.status(404).json({ message: "No Service Rates found" });
+        }
+      } catch (error) {
+        console.error(error.message);
+        return res
+          .status(500)
+          .json({ message: "Error retrieving all Service Rates" });
+      }
     }
   },
   // Retrieve a ServiceRate by ID
