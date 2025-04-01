@@ -196,12 +196,16 @@ const LeaveManagement: React.FC = () => {
         
         // Extract unique staff members from leave requests
         const stylistSet = new Set<{ _id: string; name: string; email: string; profilePicture?: string }>();
-        leaveRequestsData.forEach((req: LeaveRequest) => stylistSet.add(req.stylist));
+        leaveRequestsData.forEach((req: LeaveRequest) => {
+          if (req.stylist && req.stylist._id && req.stylist.name) {
+            stylistSet.add(req.stylist);
+          }
+        });
         
         const uniqueStaff = Array.from(stylistSet).map(stylist => ({
           _id: stylist._id,
-          name: stylist.name,
-          email: stylist.email,
+          name: stylist.name || 'Unknown',
+          email: stylist.email || 'No email',
           profilePicture: stylist.profilePicture
         }));
         setStaff(uniqueStaff);
@@ -224,9 +228,9 @@ const LeaveManagement: React.FC = () => {
 
   const handleApprove = async (requestId: string) => {
     try {
-      await api.post(`/api/stylists/leave-requests/approve/${requestId}`);
+      await api.post(`/api/leave-requests/approve/${requestId}`);
       // Refresh the leave requests list
-      const response = await api.get("/api/stylists/leave-requests");
+      const response = await api.get("/api/leave-requests");
       setLeaveRequests(response.data);
       setError(null);
     } catch (error: any) {
@@ -239,9 +243,9 @@ const LeaveManagement: React.FC = () => {
 
   const handleReject = async (requestId: string) => {
     try {
-      await api.post(`/api/stylists/leave-requests/reject/${requestId}`);
+      await api.post(`/api/leave-requests/reject/${requestId}`);
       // Refresh the leave requests list
-      const response = await api.get("/api/stylists/leave-requests");
+      const response = await api.get("/api/leave-requests");
       setLeaveRequests(response.data);
       setError(null);
     } catch (error: any) {
@@ -518,29 +522,27 @@ const LeaveManagement: React.FC = () => {
                       }}
                     >
                       <Avatar
-                        src={member.avatar}
+                        src={member.profilePicture}
                         sx={{
                           width: 32,
                           height: 32,
                           flexShrink: 0,
                         }}
                       >
-                        {member.name.charAt(0)}
+                        {member?.name ? member.name.charAt(0) : '?'}
                       </Avatar>
-                      <Tooltip title={member.name} placement="right-start">
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            maxWidth: "calc(100% - 40px)", // Account for avatar width
-                            cursor: "pointer",
-                          }}
-                        >
-                          {member.name}
-                        </Typography>
-                      </Tooltip>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: "calc(100% - 40px)", // Account for avatar width
+                          cursor: "pointer",
+                        }}
+                      >
+                        {member?.name || 'Unknown'}
+                      </Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={10}>
@@ -671,21 +673,18 @@ const LeaveManagement: React.FC = () => {
                     }}
                   >
                     <Avatar
-                      src={request.stylist.avatar}
+                      src={request.stylist.profilePicture}
                       sx={{
                         width: 48,
                         height: 48,
                         bgcolor: theme.palette.primary.main,
                       }}
                     >
-                      {request.stylist.name.charAt(0)}
+                      {request.stylist?.name ? request.stylist.name.charAt(0) : '?'}
                     </Avatar>
                     <Box sx={{ flexGrow: 1 }}>
                       <Typography variant="subtitle1" fontWeight="medium">
-                        {request.stylist.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {request.stylist.email}
+                        {request.stylist?.name || 'Unknown'}
                       </Typography>
                     </Box>
                     <Chip
