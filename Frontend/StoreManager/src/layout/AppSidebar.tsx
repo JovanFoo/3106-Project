@@ -38,6 +38,11 @@ const AppSidebar: React.FC = () => {
       path: "/calendar",
     },
     {
+      icon: <CalendarMonthIcon />,
+      name: "Barber Leave",
+      path: "/barber-leave",
+    },
+    {
       icon: <PaidIcon />,
       name: "Transactions",
       path: "/transactions",
@@ -55,7 +60,6 @@ const AppSidebar: React.FC = () => {
         },
         { name: "Services", path: "/manage/services", pro: false },
         { name: "Service rates", path: "/manage/service-rates", pro: false },
-        // { name: "Ratings & Reviews", path: "/ratings", pro: false },
       ],
     },
     {

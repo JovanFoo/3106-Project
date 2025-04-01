@@ -29,17 +29,32 @@ const LeaveRequestController = {
     },
     async getMyLeaveRequests ( req, res ) {
         console.log( "LeaveRequestController > get my leave requests" );
-        const { userId: stylistId } = req;
-        const stylist = await Stylist
-            .findById( stylistId )
-
-            .populate( "leaveRequests" )
-            .exec();
-        if ( !stylist )
-        {
-            return res.status( 404 ).json( { message: "Stylist not found" } );
+        try {
+            const { userId: stylistId } = req;
+            const stylist = await Stylist
+                .findById(stylistId)
+                .populate("leaveRequests")
+                .exec();
+            
+            if (!stylist) {
+                return res.status(404).json({ 
+                    success: false,
+                    message: "Stylist not found" 
+                });
+            }
+            
+            return res.status(200).json({ 
+                success: true,
+                data: stylist.leaveRequests 
+            });
+        } catch (error) {
+            console.error("Error in getMyLeaveRequests:", error);
+            return res.status(500).json({ 
+                success: false,
+                message: "Error fetching leave requests",
+                error: error.message 
+            });
         }
-        return res.status( 200 ).json( stylist.leaveRequests );
     },
     async update ( req, res ) {
         console.log( "LeaveRequestController > update leave request" );
@@ -66,24 +81,44 @@ const LeaveRequestController = {
     },
     async delete ( req, res ) {
         console.log( "LeaveRequestController > delete leave request" );
-        const { id } = req.params;
-        const { userId: stylistId } = req;
-        const stylist = await Stylist
-            .findById( stylistId )
-            .populate( "leaveRequests" )
-            .exec();
-        if ( !stylist ) return res.status( 404 ).json( { message: "Stylist not found" } );
-        const leaveRequest = stylist.leaveRequests.find( ( leaveRequest ) => leaveRequest._id == id );
-        if ( !leaveRequest ) return res.status( 404 ).json( { message: "Leave request not found" } );
-        if ( leaveRequest.status != "Pending" ) return res.status( 400 ).json( { message: "Leave request is already " + leaveRequest.status } );
-        try
-        {
-            await leaveRequest.remove();
-            return res.status( 200 ).json( leaveRequest );
-        } catch ( error )
-        {
-            console.log( error.message );
-            return res.status( 400 ).json( { message: error.message } );
+        try {
+            const { id } = req.params;
+            const { userId: stylistId } = req;
+
+            // Find the leave request and check if it belongs to the stylist
+            const leaveRequest = await LeaveRequest.findOne({ 
+                _id: id,
+                stylist: stylistId,
+                status: "Pending" // Only allow deletion of pending requests
+            });
+
+            if (!leaveRequest) {
+                return res.status(404).json({ 
+                    success: false,
+                    message: "Leave request not found or cannot be withdrawn" 
+                });
+            }
+
+            // Delete the leave request
+            await LeaveRequest.deleteOne({ _id: id });
+
+            // Remove the reference from the stylist's leaveRequests array
+            await Stylist.updateOne(
+                { _id: stylistId },
+                { $pull: { leaveRequests: id } }
+            );
+
+            return res.status(200).json({ 
+                success: true,
+                message: "Leave request withdrawn successfully" 
+            });
+        } catch (error) {
+            console.error("Error in delete leave request:", error);
+            return res.status(500).json({ 
+                success: false,
+                message: "Error withdrawing leave request",
+                error: error.message 
+            });
         }
     },
 

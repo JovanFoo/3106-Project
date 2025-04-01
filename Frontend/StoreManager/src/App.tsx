@@ -20,7 +20,8 @@ import Calendar from "./pages/Calendar";
 import Home from "./pages/Dashboard/Home";
 import EmergencyLeaveManagement from "./pages/EmergencyLeaveManagement";
 import LeaveDocumentApproval from "./pages/LeaveDocumentApproval";
-import LeaveManagement from "./pages/LeaveManagement";
+import LeaveApplicationApproval from "./pages/LeaveApplicationApproval";
+import BarberLeaveManagement from "./pages/BarberLeaveManagement";
 import NotFound from "./pages/OtherPage/NotFound";
 import ChangePassword from "./pages/Settings/ChangePassword";
 import Expertise from "./pages/Settings/Expertise";
@@ -92,15 +93,11 @@ export default function App() {
             <Route path="/shops" element={<ShopSettings />} />
 
             {/* Leave Management Routes */}
-            <Route path="/leave-management" element={<LeaveManagement />} />
-            <Route
-              path="/emergency-leave"
-              element={<EmergencyLeaveManagement />}
-            />
-            <Route
-              path="/leave-document-approval"
-              element={<LeaveDocumentApproval />}
-            />
+            <Route path="/leave-management" element={<LeaveApplicationApproval />} />
+            <Route path="/emergency-leave" element={<EmergencyLeaveManagement />} />
+            <Route path="/leave-document-approval" element={<LeaveDocumentApproval />} />
+            <Route path="/leave-application-approval" element={<LeaveApplicationApproval />} />
+            <Route path="/barber-leave" element={<BarberLeaveManagement />} />
 
             {/* Settings */}
             <Route
