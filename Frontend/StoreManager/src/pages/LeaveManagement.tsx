@@ -621,7 +621,6 @@ const LeaveManagement = (): ReactElement => {
                   <Grid item xs={10}>
                     <Grid container>
                       {days.map((day, i) => {
-                        // Set current day to midnight for comparison
                         const currentDay = new Date(day);
                         currentDay.setHours(0, 0, 0, 0);
 
@@ -636,11 +635,15 @@ const LeaveManagement = (): ReactElement => {
                             r.stylist._id === member._id &&
                             currentDay >= startDate &&
                             currentDay <= endDate &&
+                            r.status !== "Rejected" &&
                             (viewMode === "status"
                               ? selectedStatus.includes(r.status)
                               : selectedTypes.includes(r.reason))
                           );
                         });
+
+                        const isOneDayLeave = dayRequests.length === 1 && 
+                          new Date(dayRequests[0].startDate).getTime() === new Date(dayRequests[0].endDate).getTime();
 
                         return (
                           <Grid item xs key={i}>
