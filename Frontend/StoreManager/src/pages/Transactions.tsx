@@ -11,9 +11,8 @@ const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 type Transaction = {
   id: string;
   bookingId: string;
-  service: string;
-  stylist: string;
-  stylistName: string;
+  service: Service;
+  stylist: Stylist;
   paymentMethod: "Cash" | "Card";
   amount: number;
   status: "Pending" | "Completed" | "Cancelled" | "Confirmed";
@@ -42,6 +41,34 @@ type ServiceRate = {
   startDate: Date;
   endDate: Date;
 };
+const dummyService: Service = {
+  _id: "1",
+  name: "Dummy",
+  duration: 30,
+  description: "Dummy service",
+  serviceRates: [
+    {
+      _id: "1",
+      name: "Dummy Rate",
+      rate: 20,
+      startDate: new Date(),
+      endDate: new Date(),
+    },
+  ],
+  expertiseRequired: [],
+};
+const dummyStylist: Stylist = {
+  _id: "1",
+  name: "Dummy Stylist",
+};
+type PaginationData = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  transactions: Transaction[];
+};
 export default function Transactions() {
   const config = {
     headers: {
@@ -51,7 +78,16 @@ export default function Transactions() {
   const [services, setServices] = useState<Service[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [stylists, setStylists] = useState<Stylist[]>([]);
+  // For pagination
+  const [pageSizeOptions] = useState([5, 10, 20, 50]);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(pageSizeOptions[1]); // Default to 10
+  const [totalPages, setTotalPages] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [totalTransactions, setTotalTransactions] = useState(0);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction>();
 
+  const [isLoading, setIsLoading] = useState(false);
   const {
     isOpen: isOpenEdit,
     openModal: openModalEdit,
@@ -63,46 +99,17 @@ export default function Transactions() {
     closeModal: closeModalNew,
   } = useModal();
 
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction>();
-  const [newTransaction, setNewTransaction] = useState<Transaction>();
-
-  useEffect(() => {
-    setNewTransaction({
-      id: "",
-      bookingId: "",
-      service: services[0]?.name || "",
-      stylist: "",
-      stylistName: "string",
-      paymentMethod: "Cash",
-      amount: 0,
-      status: "Pending",
-    });
-  }, []);
-
-  // const [transactionData, setTransactionData] = useState<Transaction>({
-  //   id: "",
-  //   bookingId: "",
-  //   service: services[0],
-  //   stylist: "",
-  //   stylistName: "string",
-  //   paymentMethod: paymentMethods[0],
-  //   amount: "",
-  //   status: statuses[0],
-  // });
-
   useEffect(() => {
     fetchAllServices();
     fetchTransactions();
     fetchStylists();
-  }, []);
+  }, [pageNumber, pageSize, isLoading]);
 
   const fetchAllServices = async () => {
     await axios
       .get(`${api_address}/api/services/all`, config)
       .then((response) => {
-        // response.data;
         setServices(response.data);
-        console.log("Services fetched successfully:", response.data);
       })
       .catch((error) => {
         console.error("Error fetching services:", error);
@@ -110,72 +117,78 @@ export default function Transactions() {
   };
 
   const fetchTransactions = async () => {
-    try {
-      const res = await axios.get(`${api_address}/api/transactions`, config);
-      const mapped = res.data.map((txn: any) => ({
-        id: txn._id,
-        bookingId: txn.bookingId || "-",
-        service: txn.service,
-        stylist:
-          typeof txn.stylist === "object" ? txn.stylist._id : txn.stylist,
-        stylistName:
-          typeof txn.stylist === "object" ? txn.stylist.name : txn.stylist,
-        paymentMethod: txn.paymentMethod,
-        amount: txn.amount.toString(),
-        status: txn.status.toString(),
-      }));
-      setTransactions(mapped);
-    } catch (err) {
-      console.error("Error fetching transactions:", err);
-    }
+    await axios
+      .get(
+        `${api_address}/api/transactions?page=${pageNumber}&limit=${pageSize}`,
+        config
+      )
+      .then((response) => {
+        console.log(response.data);
+        const res: PaginationData = response.data;
+        setTotalTransactions(res.total);
+
+        setTotalPages(res.totalPages);
+        setHasNextPage(res.hasNextPage);
+        const mapped = res.transactions.map((txn: any) => ({
+          id: txn._id,
+          bookingId: txn.bookingId || "-",
+          service: txn.service,
+          stylist: txn.stylist,
+          paymentMethod: txn.paymentMethod,
+          amount: txn.amount.toString(),
+          status: txn.status.toString(),
+        }));
+        setTransactions(mapped);
+      })
+      .catch((error) => {
+        console.error("Error fetching transactions:", error);
+      });
   };
 
   const fetchStylists = async () => {
     try {
       const res = await axios.get(`${api_address}/api/stylists`, config);
       setStylists(res.data);
-      // if (res.data.length > 0) {
-      //   // setTransactions((prev) => ({ ...prev, stylist: res.data[0]._id }));
-      // }
     } catch (err) {
       console.error("Error fetching stylists:", err);
     }
   };
 
-  const handleAddOrUpdate = async () => {
-    const payload = {
-      service: transactionData.service,
-      stylist: transactionData.stylist,
-      paymentMethod: transactionData.paymentMethod,
-      amount: parseFloat(transactionData.amount),
-      status: transactionData.status,
-    };
+  // const handleAddOrUpdate = async () => {
+  //   const payload = {
+  //     service: transactionData.service,
+  //     stylist: transactionData.stylist,
+  //     paymentMethod: transactionData.paymentMethod,
+  //     amount: parseFloat(transactionData.amount),
+  //     status: transactionData.status,
+  //   };
 
-    try {
-      if (selectedTransaction) {
-        await axios.put(
-          `${api_address}/api/transactions/${selectedTransaction.id}`,
-          payload,
-          config
-        );
-      } else {
-        const res = await axios.post(
-          `${api_address}/api/transactions`,
-          payload,
-          config
-        );
-        payload["id"] = res.data._id;
-      }
+  //   try {
+  //     if (selectedTransaction) {
+  //       await axios.put(
+  //         `${api_address}/api/transactions/${selectedTransaction.id}`,
+  //         payload,
+  //         config
+  //       );
+  //     } else {
+  //       const res = await axios.post(
+  //         `${api_address}/api/transactions`,
+  //         payload,
+  //         config
+  //       );
+  //       payload["id"] = res.data._id;
+  //     }
 
-      await fetchTransactions();
-      closeModal();
-      resetFields();
-    } catch (err: any) {
-      console.error("Save error:", err);
-      if (err.response) console.error("Backend error:", err.response.data);
-    }
-  };
+  //     await fetchTransactions();
+  //     closeModal();
+  //     resetFields();
+  //   } catch (err: any) {
+  //     console.error("Save error:", err);
+  //     if (err.response) console.error("Backend error:", err.response.data);
+  //   }
+  // };
   const handleAddNewTransaction = async (transaction: Transaction) => {
+    setIsLoading(true);
     try {
       const res = await axios.post(
         `${api_address}/api/transactions`,
@@ -190,6 +203,7 @@ export default function Transactions() {
     } catch (err) {
       console.error("Error adding transaction:", err);
     }
+    setIsLoading(false);
   };
   const handleUpdateTransaction = async (transaction: Transaction) => {
     try {
@@ -198,6 +212,9 @@ export default function Transactions() {
         transaction,
         config
       );
+      transaction.service =
+        services.find((s) => s._id === transaction.service)?.name ||
+        transaction.service;
       setTransactions((prev) =>
         prev.map((txn) => (txn.id === transaction.id ? transaction : txn))
       );
@@ -207,25 +224,25 @@ export default function Transactions() {
     }
   };
 
-  // const resetFields = () => {
-  //   setTransactionData({
-  //     id: "",
-  //     bookingId: "",
-  //     service: services[0],
-  //     stylist: stylists.length > 0 ? stylists[0]._id : "",
-  //     stylistName: "string",
-  //     paymentMethod: paymentMethods[0],
-  //     amount: "",
-  //     status: statuses[0],
-  //   });
-  //   setSelectedTransaction(null);
-  // };
-
   const handleTransactionClick = (txn: Transaction) => {
     setSelectedTransaction(txn);
     openModalEdit();
   };
 
+  const handleNext = () => {
+    if (pageNumber < totalPages) {
+      setPageNumber(pageNumber + 1);
+    }
+  };
+  const handlePrev = () => {
+    if (pageNumber > 1) {
+      setPageNumber(pageNumber - 1);
+    }
+  };
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setPageNumber(1); // Reset to first page on page size change
+  };
   return (
     <div>
       <PageBreadcrumb pageTitle="Transaction" />
@@ -265,8 +282,8 @@ export default function Transactions() {
                 onClick={() => handleTransactionClick(txn)}
               >
                 <td className="border p-2">{index + 1}</td>
-                <td className="border p-2">{txn.service}</td>
-                <td className="border p-2">{txn.stylistName || txn.stylist}</td>
+                <td className="border p-2">{txn.service.name}</td>
+                <td className="border p-2">{txn.stylist.name}</td>
                 <td className="border p-2">{txn.paymentMethod}</td>
                 <td className="border p-2">
                   ${parseFloat(txn.amount.toString()).toFixed(2)}
@@ -290,6 +307,40 @@ export default function Transactions() {
             ))}
           </tbody>
         </table>
+        <div className="flex justify-between items-center mt-4">
+          <div className="flex gap-2 items-center">
+            <span className="text-gray-700 dark:text-gray-400 mt-4">
+              Page {pageNumber} of {totalPages}
+            </span>
+            <span className="text-gray-700 dark:text-gray-400 mt-4 ml-2">
+              Showing {transactions.length} of {totalTransactions} transactions
+            </span>
+            <span className="text-gray-700 dark:text-gray-400 mt-4 ">
+              Page Size:
+            </span>
+            {pageSizeOptions.map((size) => (
+              <span
+                key={size}
+                onClick={() => handlePageSizeChange(size)}
+                className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${
+                  pageSize === size
+                    ? "font-bold text-black dark:text-white"
+                    : ""
+                }`}
+              >
+                {size}
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-2 items-center">
+            <Button onClick={handlePrev} disabled={pageNumber === 1}>
+              Previous
+            </Button>
+            <Button onClick={handleNext} disabled={pageNumber === totalPages}>
+              Next
+            </Button>
+          </div>
+        </div>
         <CustomerModal
           isOpen={isOpenNew}
           closeModal={closeModalNew}
@@ -332,9 +383,8 @@ const CustomerModal: React.FC<ModalProps> = ({
   const [transactionData, setTransactionData] = useState<Transaction>({
     id: "",
     bookingId: "",
-    service: "",
-    stylist: "",
-    stylistName: "",
+    service: listOfServices[0] || dummyService,
+    stylist: listOfStylists[0] || dummyStylist,
     paymentMethod: "Cash",
     amount: 0,
     status: "Pending",
@@ -346,9 +396,12 @@ const CustomerModal: React.FC<ModalProps> = ({
     setTransactionData({
       id: transaction ? transaction.id : "",
       bookingId: transaction ? transaction.bookingId : "",
-      service: transaction ? transaction.service : "",
-      stylist: transaction ? transaction.stylist : "",
-      stylistName: transaction ? transaction.stylistName : "",
+      service: transaction
+        ? transaction.service
+        : listOfServices[0] || dummyService,
+      stylist: transaction
+        ? transaction.stylist
+        : listOfStylists[0] || dummyStylist,
       paymentMethod: transaction ? transaction.paymentMethod : "Cash",
       amount: transaction ? transaction.amount : 0,
       status: transaction ? transaction.status : "Pending",
@@ -366,17 +419,25 @@ const CustomerModal: React.FC<ModalProps> = ({
               Service
             </label>
             <select
-              value={transactionData.service}
-              onChange={(e) =>
-                setTransactionData({
-                  ...transactionData,
-                  service: e.target.value,
-                })
-              }
+              value={transactionData.service._id}
+              onChange={(e) => {
+                if (
+                  listOfServices.filter((x) => x._id == e.target.value).length >
+                  0
+                ) {
+                  setTransactionData({
+                    ...transactionData,
+                    service: listOfServices.filter(
+                      (x) => x._id == e.target.value
+                    )[0],
+                  });
+                }
+              }}
+              title="Select Service"
               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-slate-300"
             >
               {listOfServices.map((option) => (
-                <option key={option._id} value={option.name}>
+                <option key={option._id} value={option._id}>
                   {option.name}
                 </option>
               ))}
@@ -387,13 +448,20 @@ const CustomerModal: React.FC<ModalProps> = ({
               Stylist
             </label>
             <select
-              value={transactionData.stylist}
-              onChange={(e) =>
-                setTransactionData({
-                  ...transactionData,
-                  stylist: e.target.value,
-                })
-              }
+              value={transactionData.stylist._id}
+              onChange={(e) => {
+                if (
+                  listOfStylists.filter((x) => x._id == e.target.value).length >
+                  0
+                ) {
+                  setTransactionData({
+                    ...transactionData,
+                    stylist: listOfStylists.filter(
+                      (x) => x._id == e.target.value
+                    )[0],
+                  });
+                }
+              }}
               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-slate-300"
             >
               {listOfStylists.map((stylist) => (
