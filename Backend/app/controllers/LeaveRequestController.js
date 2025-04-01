@@ -204,69 +204,107 @@ const LeaveRequestController = {
         console.log( "LeaveRequestController > approve leave request" );
         const { id:leaveRequestId } = req.params;
         const { userId: managerId } = req;
-        const manager = await Stylist.findById( managerId );
-        manager.populate("stylists");
-        manager.stylists.forEach(async (stylist) => {
-          await stylist.populate("leaveRequests").execPopulate();
-        });
-        const consists = manager.stylists
-          .map((stylist) => stylist.leaveRequests)
-          .flat()
-          .some((leaveRequest) => leaveRequest._id == leaveRequestId);
-        if (!consists) {
-          return res.status(403).json({ message: "Stylist not under manager" });
+        
+        // First get the leave request to find the stylist
+        const leaveRequest = await LeaveRequest.findById(leaveRequestId);
+        if (!leaveRequest) {
+            return res.status(404).json({ message: "Leave request not found" });
         }
-        if ( !manager )
-        {
-            return res.status( 404 ).json( { message: "Manager not found" } );
+
+        // Get the manager and populate their stylists
+        const manager = await Stylist.findById(managerId);
+        if (!manager) {
+            return res.status(404).json({ message: "Manager not found" });
         }
-        const leaveRequest = await LeaveRequest.findById( leaveRequestId );
-        if ( !leaveRequest )
-        {
-            return res.status( 404 ).json( { message: "Leave request not found" } );
+
+        await manager.populate("stylists");
+        
+        // Check if the stylist is under the manager's management
+        const stylistUnderManagement = manager.stylists.some(
+            stylist => stylist._id.toString() === leaveRequest.stylist.toString()
+        );
+
+        if (!stylistUnderManagement) {
+            return res.status(403).json({ message: "Stylist not under manager" });
         }
-        if ( leaveRequest.status != "Pending" )
-        {
-            return res.status( 400 ).json( { message: "Leave request is already " + leaveRequest.status } );
+
+        if (leaveRequest.status.toLowerCase() !== "pending") {
+            return res.status(400).json({ message: "Leave request is already " + leaveRequest.status });
         }
+
         leaveRequest.status = "Approved";
         leaveRequest.approvedBy = manager;
         await leaveRequest.save();
-        return res.status( 200 ).json( leaveRequest );
+
+        // Get the stylist information
+        const stylist = await Stylist.findById(leaveRequest.stylist)
+            .select('_id name email profilePicture');
+
+        // Create response with stylist information
+        const response = {
+            ...leaveRequest.toObject(),
+            stylist: {
+                _id: stylist._id,
+                name: stylist.name,
+                email: stylist.email,
+                profilePicture: stylist.profilePicture
+            }
+        };
+
+        return res.status(200).json(response);
     },
     async rejectLeaveRequest ( req, res ) {
         console.log( "LeaveRequestController > reject leave request" );
         const { id: leaveRequestId } = req.params;
         const { userId: managerId } = req;
-        const manager = await Stylist.findById( managerId );
-        manager.populate("stylists");
-        manager.stylists.forEach(async (stylist) => {
-          await stylist.populate("leaveRequests").execPopulate();
-        });
-        const consists = manager.stylists
-          .map((stylist) => stylist.leaveRequests)
-          .flat()
-          .some((leaveRequest) => leaveRequest._id == leaveRequestId);
-        if (!consists) {
-          return res.status(403).json({ message: "Stylist not under manager" });
+        
+        // First get the leave request to find the stylist
+        const leaveRequest = await LeaveRequest.findById(leaveRequestId);
+        if (!leaveRequest) {
+            return res.status(404).json({ message: "Leave request not found" });
         }
-        if ( !manager )
-        {
-            return res.status( 404 ).json( { message: "Manager not found" } );
+
+        // Get the manager and populate their stylists
+        const manager = await Stylist.findById(managerId);
+        if (!manager) {
+            return res.status(404).json({ message: "Manager not found" });
         }
-        const leaveRequest = await LeaveRequest.findById( leaveRequestId );
-        if ( !leaveRequest )
-        {
-            return res.status( 404 ).json( { message: "Leave request not found" } );
+
+        await manager.populate("stylists");
+        
+        // Check if the stylist is under the manager's management
+        const stylistUnderManagement = manager.stylists.some(
+            stylist => stylist._id.toString() === leaveRequest.stylist.toString()
+        );
+
+        if (!stylistUnderManagement) {
+            return res.status(403).json({ message: "Stylist not under manager" });
         }
-        if ( leaveRequest.status != "Pending" )
-        {
-            return res.status( 400 ).json( { message: "Leave request is already " + leaveRequest.status } );
+
+        if (leaveRequest.status.toLowerCase() !== "pending") {
+            return res.status(400).json({ message: "Leave request is already " + leaveRequest.status });
         }
+
         leaveRequest.status = "Rejected";
         leaveRequest.approvedBy = manager;
         await leaveRequest.save();
-        return res.status( 200 ).json( leaveRequest );
+
+        // Get the stylist information
+        const stylist = await Stylist.findById(leaveRequest.stylist)
+            .select('_id name email profilePicture');
+
+        // Create response with stylist information
+        const response = {
+            ...leaveRequest.toObject(),
+            stylist: {
+                _id: stylist._id,
+                name: stylist.name,
+                email: stylist.email,
+                profilePicture: stylist.profilePicture
+            }
+        };
+
+        return res.status(200).json(response);
     },
 };
 

@@ -236,13 +236,18 @@ const LeaveManagement = (): ReactElement => {
 
   const handleApprove = async (requestId: string) => {
     try {
-      await api.post(`/api/leave-requests/approve/${requestId}`);
+      console.log('Approving request:', requestId);
+      const response = await api.post(`/api/leave-requests/approve/${requestId}`);
+      console.log('Approve response:', response);
+      
       // Refresh the leave requests list
-      const response = await api.get("/api/leave-requests");
-      setLeaveRequests(response.data);
+      const updatedResponse = await api.get("/api/leave-requests");
+      setLeaveRequests(updatedResponse.data);
       setError(null);
     } catch (error: any) {
       console.error("Error approving leave request:", error);
+      console.error("Response data:", error.response?.data);
+      console.error("Status code:", error.response?.status);
       setError(
         error.response?.data?.message || "Failed to approve leave request"
       );
@@ -251,13 +256,18 @@ const LeaveManagement = (): ReactElement => {
 
   const handleReject = async (requestId: string) => {
     try {
-      await api.post(`/api/leave-requests/reject/${requestId}`);
+      console.log('Rejecting request:', requestId);
+      const response = await api.post(`/api/leave-requests/reject/${requestId}`);
+      console.log('Reject response:', response);
+      
       // Refresh the leave requests list
-      const response = await api.get("/api/leave-requests");
-      setLeaveRequests(response.data);
+      const updatedResponse = await api.get("/api/leave-requests");
+      setLeaveRequests(updatedResponse.data);
       setError(null);
     } catch (error: any) {
       console.error("Error rejecting leave request:", error);
+      console.error("Response data:", error.response?.data);
+      console.error("Status code:", error.response?.status);
       setError(
         error.response?.data?.message || "Failed to reject leave request"
       );
