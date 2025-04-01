@@ -361,9 +361,21 @@ const LeaveManagement = (): ReactElement => {
 
       {viewMode === "status" && (
         <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" gutterBottom>
-            Leave Status
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Typography variant="subtitle2">
+              Leave Status
+            </Typography>
+            <Button
+              size="small"
+              onClick={() => 
+                selectedStatus.length === 2 
+                  ? setSelectedStatus([])
+                  : setSelectedStatus(["Pending", "Approved"])
+              }
+            >
+              {selectedStatus.length === 2 ? "Deselect All" : "Select All"}
+            </Button>
+          </Box>
           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
             {["Pending", "Approved"].map((status) => (
               <Chip
@@ -394,9 +406,21 @@ const LeaveManagement = (): ReactElement => {
 
       {viewMode === "type" && (
         <Box>
-          <Typography variant="subtitle2" gutterBottom>
-            Types of Leave
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Typography variant="subtitle2">
+              Types of Leave
+            </Typography>
+            <Button
+              size="small"
+              onClick={() => 
+                selectedTypes.length === Object.keys(leaveTypeLabels).length
+                  ? setSelectedTypes([])
+                  : setSelectedTypes(Object.keys(leaveTypeLabels))
+              }
+            >
+              {selectedTypes.length === Object.keys(leaveTypeLabels).length ? "Deselect All" : "Select All"}
+            </Button>
+          </Box>
           <Stack spacing={1} sx={{ mt: 1 }}>
             {Object.entries(leaveTypeLabels).map(([type, label]) => (
               <Chip
