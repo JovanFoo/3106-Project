@@ -200,9 +200,24 @@ const BarberLeaveManagement: React.FC = () => {
   };
 
   const handleApplyLeave = async () => {
+    // Validate required fields
+    if (!newApplication.startDate || !newApplication.endDate || !newApplication.type || !newApplication.reason) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    // Validate date range
+    const startDate = new Date(newApplication.startDate);
+    const endDate = new Date(newApplication.endDate);
+    if (startDate > endDate) {
+      alert('End date must be after start date');
+      return;
+    }
+
     try {
+      console.log('Submitting leave application:', newApplication);
       const response = await axios.post(
-        `${api_address}/api/leave/apply`,
+        `${api_address}/api/leave-requests`,
         {
           startDate: newApplication.startDate,
           endDate: newApplication.endDate,
@@ -216,13 +231,29 @@ const BarberLeaveManagement: React.FC = () => {
         }
       );
       
-      if (response.data.success) {
+      console.log('Leave application response:', response.data);
+      
+      // Check if the response contains the created leave request
+      if (response.data && response.data._id) {
+        alert('Leave application submitted successfully');
         setOpenApplyDialog(false);
+        // Reset form
+        setNewApplication({
+          startDate: '',
+          endDate: '',
+          type: 'paid',
+          reason: ''
+        });
+        // Refresh data
         fetchLeaveBalance();
         fetchLeaveRequests();
+      } else {
+        alert('Failed to submit leave application. Please try again.');
       }
-    } catch (error) {
-      console.error('Error applying for leave:', error);
+    } catch (error: any) {
+      console.error('Error submitting leave application:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to submit leave application. Please try again later.';
+      alert(errorMessage);
     }
   };
 
@@ -246,14 +277,17 @@ const BarberLeaveManagement: React.FC = () => {
       );
       
       console.log('Withdraw response:', response);
-      if (response.data.success) {
+      // Check if the response indicates success
+      if (response.status === 200 || response.status === 204) {
         // Show success message
-        alert(response.data.message || 'Leave request withdrawn successfully');
+        alert('Leave request withdrawn successfully');
         // Refresh the leave requests list
         fetchLeaveRequests();
         // Close the dialog
         setWithdrawDialogOpen(false);
         setSelectedRequestId(null);
+      } else {
+        throw new Error('Failed to withdraw leave request');
       }
     } catch (error: any) {
       console.error('Error withdrawing leave request:', error);
@@ -366,7 +400,7 @@ const BarberLeaveManagement: React.FC = () => {
     console.log('Current leave applications:', leaveApplications);
     const filteredApplications = leaveApplications.filter(application => {
       if (filter === 'all') return true;
-      if (filter === 'review') return application.status.toLowerCase() === 'pending';
+      if (filter === 'pending') return application.status.toLowerCase() === 'pending';
       if (filter === 'approved') return application.status.toLowerCase() === 'approved';
       if (filter === 'rejected') return application.status.toLowerCase() === 'rejected';
       return true;
@@ -385,7 +419,7 @@ const BarberLeaveManagement: React.FC = () => {
             size="small"
           >
             <ToggleButton value="all">All</ToggleButton>
-            <ToggleButton value="review">Review</ToggleButton>
+            <ToggleButton value="pending">Pending</ToggleButton>
             <ToggleButton value="approved">Approved</ToggleButton>
             <ToggleButton value="rejected">Rejected</ToggleButton>
           </ToggleButtonGroup>
@@ -576,12 +610,13 @@ const BarberLeaveManagement: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 2 }}>
-            <FormControl fullWidth>
+            <FormControl fullWidth required>
               <InputLabel>Leave Type</InputLabel>
               <Select
                 label="Leave Type"
                 value={newApplication.type}
                 onChange={(e) => setNewApplication({ ...newApplication, type: e.target.value })}
+                required
               >
                 <MenuItem value="paid">Paid Leave</MenuItem>
                 <MenuItem value="unpaid">Unpaid Leave</MenuItem>
@@ -593,23 +628,28 @@ const BarberLeaveManagement: React.FC = () => {
               label="Start Date"
               type="date"
               fullWidth
+              required
               InputLabelProps={{ shrink: true }}
               value={newApplication.startDate}
               onChange={(e) => setNewApplication({ ...newApplication, startDate: e.target.value })}
+              inputProps={{ min: new Date().toISOString().split('T')[0] }}
             />
             <TextField
               label="End Date"
               type="date"
               fullWidth
+              required
               InputLabelProps={{ shrink: true }}
               value={newApplication.endDate}
               onChange={(e) => setNewApplication({ ...newApplication, endDate: e.target.value })}
+              inputProps={{ min: newApplication.startDate || new Date().toISOString().split('T')[0] }}
             />
             <TextField
               label="Reason"
               multiline
               rows={4}
               fullWidth
+              required
               value={newApplication.reason}
               onChange={(e) => setNewApplication({ ...newApplication, reason: e.target.value })}
             />
@@ -617,7 +657,13 @@ const BarberLeaveManagement: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenApplyDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleApplyLeave}>Submit Application</Button>
+          <Button 
+            variant="contained" 
+            onClick={handleApplyLeave}
+            disabled={!newApplication.startDate || !newApplication.endDate || !newApplication.type || !newApplication.reason}
+          >
+            Submit Application
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>
