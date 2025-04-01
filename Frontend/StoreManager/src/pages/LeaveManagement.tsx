@@ -352,7 +352,7 @@ const LeaveManagement = (): ReactElement => {
         bgcolor: theme.palette.background.paper,
       }}
     >
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h6" sx={{ fontSize: '1.5rem' }} gutterBottom>
         Leave to Approve
       </Typography>
       <Typography variant="h3" color="primary.main" sx={{ mb: 3 }}>
@@ -362,7 +362,7 @@ const LeaveManagement = (): ReactElement => {
       {viewMode === "status" && (
         <Box sx={{ mb: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Typography variant="subtitle2">
+            <Typography variant="subtitle1" fontWeight="medium">
               Leave Status
             </Typography>
             <Button
@@ -407,7 +407,7 @@ const LeaveManagement = (): ReactElement => {
       {viewMode === "type" && (
         <Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Typography variant="subtitle2">
+            <Typography variant="subtitle1" fontWeight="medium">
               Types of Leave
             </Typography>
             <Button
@@ -611,15 +611,26 @@ const LeaveManagement = (): ReactElement => {
                   <Grid item xs={10}>
                     <Grid container>
                       {days.map((day, i) => {
-                        const dayRequests = leaveRequests.filter(
-                          (r) =>
+                        // Set current day to midnight for comparison
+                        const currentDay = new Date(day);
+                        currentDay.setHours(0, 0, 0, 0);
+
+                        const dayRequests = leaveRequests.filter((r) => {
+                          // Set request dates to midnight
+                          const startDate = new Date(r.startDate);
+                          const endDate = new Date(r.endDate);
+                          startDate.setHours(0, 0, 0, 0);
+                          endDate.setHours(0, 0, 0, 0);
+
+                          return (
                             r.stylist._id === member._id &&
-                            day >= new Date(r.startDate) &&
-                            day <= new Date(r.endDate) &&
-                            (viewMode === "status" 
+                            currentDay >= startDate &&
+                            currentDay <= endDate &&
+                            (viewMode === "status"
                               ? selectedStatus.includes(r.status)
                               : selectedTypes.includes(r.reason))
-                        );
+                          );
+                        });
 
                         return (
                           <Grid item xs key={i}>
@@ -635,12 +646,13 @@ const LeaveManagement = (): ReactElement => {
                               {dayRequests.map((request) => {
                                 const startDate = new Date(request.startDate);
                                 const endDate = new Date(request.endDate);
-                                const isFirstDay =
-                                  day.getTime() === startDate.getTime();
-                                const isLastDay =
-                                  day.getTime() === endDate.getTime();
-                                const isMiddleDay =
-                                  day > startDate && day < endDate;
+                                startDate.setHours(0, 0, 0, 0);
+                                endDate.setHours(0, 0, 0, 0);
+
+                                const isOneDay = format(startDate, 'yyyy-MM-dd') === format(endDate, 'yyyy-MM-dd');
+                                const isFirstDay = format(currentDay, 'yyyy-MM-dd') === format(startDate, 'yyyy-MM-dd');
+                                const isLastDay = format(currentDay, 'yyyy-MM-dd') === format(endDate, 'yyyy-MM-dd');
+                                const isMiddleDay = !isOneDay && currentDay > startDate && currentDay < endDate;
 
                                 return (
                                   <Tooltip
@@ -650,7 +662,13 @@ const LeaveManagement = (): ReactElement => {
                                     }): ${format(
                                       startDate,
                                       "MMM dd"
-                                    )} - ${format(endDate, "MMM dd")}${
+                                    )}${isOneDay ? '' : ` - ${format(
+                                      endDate,
+                                      "MMM dd"
+                                    )}`}, ${format(
+                                      startDate,
+                                      "yyyy"
+                                    )}${
                                       request.description ? `\n${request.description}` : ''
                                     }`}
                                   >
@@ -664,7 +682,7 @@ const LeaveManagement = (): ReactElement => {
                                         opacity: 0.8,
                                         left: isFirstDay ? "8px" : 0,
                                         right: isLastDay ? "8px" : 0,
-                                        borderRadius: `${
+                                        borderRadius: isOneDay ? "4px" : `${
                                           isFirstDay ? "4px" : "0"
                                         } ${isLastDay ? "4px" : "0"} ${
                                           isLastDay ? "4px" : "0"
@@ -696,7 +714,9 @@ const LeaveManagement = (): ReactElement => {
   };
 
   const renderQuickApproval = () => {
-    const pendingRequests = leaveRequests.filter((r) => r.status === "Pending");
+    const pendingRequests = leaveRequests
+      .filter((r) => r.status === "Pending")
+      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
     if (pendingRequests.length === 0) {
       return (
