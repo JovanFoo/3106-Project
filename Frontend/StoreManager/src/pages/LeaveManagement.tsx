@@ -184,31 +184,35 @@ const LeaveManagement: React.FC = () => {
           return;
         }
 
-        // Fetch leave requests - using the correct endpoint
+        // Fetch leave requests
         const leaveRequestsResponse = await api.get("/api/leave-requests");
-        const leaveRequestsData = leaveRequestsResponse.data;
+        let leaveRequestsData = leaveRequestsResponse.data;
 
-        // Fetch staff data
-        const staffResponse = await api.get("/api/stylists");
-        const staffData = staffResponse.data;
+        // Get unique stylist IDs from leave requests
+        const stylistIds = [...new Set(leaveRequestsData.map((req: any) => req.stylist))];
+        
+        // Fetch stylist details for each ID
+        const stylistsResponse = await api.get("/api/stylists");
+        const stylistsData = stylistsResponse.data;
+        
+        // Create a map of stylist details by ID
+        const stylistMap = stylistsData.reduce((acc: any, stylist: any) => {
+          acc[stylist._id] = stylist;
+          return acc;
+        }, {});
+
+        // Merge stylist details with leave requests
+        leaveRequestsData = leaveRequestsData.map((request: any) => ({
+          ...request,
+          stylist: stylistMap[request.stylist] || {
+            _id: request.stylist,
+            name: 'Unknown',
+            email: 'No email'
+          }
+        }));
 
         setLeaveRequests(leaveRequestsData);
-        
-        // Extract unique staff members from leave requests
-        const stylistSet = new Set<{ _id: string; name: string; email: string; profilePicture?: string }>();
-        leaveRequestsData.forEach((req: LeaveRequest) => {
-          if (req.stylist && req.stylist._id && req.stylist.name) {
-            stylistSet.add(req.stylist);
-          }
-        });
-        
-        const uniqueStaff = Array.from(stylistSet).map(stylist => ({
-          _id: stylist._id,
-          name: stylist.name || 'Unknown',
-          email: stylist.email || 'No email',
-          profilePicture: stylist.profilePicture
-        }));
-        setStaff(uniqueStaff);
+        setStaff(stylistsData);
         setLoading(false);
       } catch (error: any) {
         console.error("Error fetching data:", error);
@@ -531,18 +535,20 @@ const LeaveManagement: React.FC = () => {
                       >
                         {member?.name ? member.name.charAt(0) : '?'}
                       </Avatar>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          maxWidth: "calc(100% - 40px)", // Account for avatar width
-                          cursor: "pointer",
-                        }}
-                      >
-                        {member?.name || 'Unknown'}
-                      </Typography>
+                      <Tooltip title={member?.name || 'Unknown'} placement="right-start">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            maxWidth: "calc(100% - 40px)", // Account for avatar width
+                            cursor: "pointer",
+                          }}
+                        >
+                          {member?.name || 'Unknown'}
+                        </Typography>
+                      </Tooltip>
                     </Box>
                   </Grid>
                   <Grid item xs={10}>
@@ -673,7 +679,7 @@ const LeaveManagement: React.FC = () => {
                     }}
                   >
                     <Avatar
-                      src={request.stylist.profilePicture}
+                      src={request.stylist?.profilePicture}
                       sx={{
                         width: 48,
                         height: 48,
@@ -685,6 +691,9 @@ const LeaveManagement: React.FC = () => {
                     <Box sx={{ flexGrow: 1 }}>
                       <Typography variant="subtitle1" fontWeight="medium">
                         {request.stylist?.name || 'Unknown'}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {request.stylist?.email || 'No email'}
                       </Typography>
                     </Box>
                     <Chip
