@@ -98,8 +98,8 @@ const AppSidebar: React.FC = () => {
   }, [user.role]);
 
   const filterBasedOnRole = () => {
-    if (user.role !== "Manager") {
-      console.log("User role is not Manager, filtering nav items.");
+    if (user.role !== "StylistManager") {
+      console.log("User role is not StylistManager, filtering nav items.");
       setNavItems(
         navItems
           .filter((item) => {

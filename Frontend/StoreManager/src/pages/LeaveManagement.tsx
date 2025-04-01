@@ -44,10 +44,7 @@ import { Link } from 'react-router-dom';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
-  headers: {
-    'Content-Type': 'application/json',
-  }
+  baseURL: import.meta.env.VITE_APP_API_ADDRESS_PROD,
 });
 
 // Add request interceptor
@@ -55,8 +52,7 @@ api.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('token');
     if (token) {
-      // Remove 'Bearer ' prefix if it exists, as the backend doesn't expect it
-      config.headers.Authorization = token.replace('Bearer ', '');
+      config.headers.Authorization = token; // Remove Bearer prefix as it's handled by backend
     }
     return config;
   },
@@ -69,29 +65,37 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      // Try to refresh the token
-      const refreshToken = sessionStorage.getItem('refreshToken');
-      if (refreshToken) {
-        try {
-          const response = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/refresh-token`, {
-            token: refreshToken.replace('Bearer ', '') // Remove prefix if it exists
-          });
-          if (response.data.token) {
-            sessionStorage.setItem('token', response.data.token);
-            // Retry the original request
-            const config = error.config;
-            config.headers.Authorization = response.data.token;
-            return api(config);
-          }
-        } catch (refreshError) {
-          console.error('Token refresh failed:', refreshError);
+    const originalRequest = error.config;
+
+    // If error is 401 and we haven't tried to refresh token yet
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = sessionStorage.getItem('refreshToken');
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
         }
+
+        // Try to refresh the token
+        const response = await api.post('/api/auth/refresh-token', {
+          token: refreshToken
+        });
+
+        const { token } = response.data;
+        sessionStorage.setItem('token', token);
+
+        // Retry the original request with new token
+        originalRequest.headers.Authorization = token;
+        return api(originalRequest);
+      } catch (refreshError) {
+        // If refresh fails, clear storage and redirect
+        sessionStorage.clear();
+        window.location.href = '/signin';
+        return Promise.reject(refreshError);
       }
-      // If refresh fails or no refresh token, clear everything and redirect
-      sessionStorage.clear();
-      window.location.href = '/signin';
     }
+
     return Promise.reject(error);
   }
 );
@@ -99,19 +103,28 @@ api.interceptors.response.use(
 interface Staff {
   _id: string;
   name: string;
-  email?: string;
-  avatar?: string;
+  email: string;
+  profilePicture?: string;
 }
 
 interface LeaveRequest {
   _id: string;
-  stylist: Staff;
+  stylist: {
+    _id: string;
+    name: string;
+    email: string;
+    profilePicture?: string;
+  };
   startDate: string;
   endDate: string;
   status: 'Pending' | 'Approved' | 'Rejected';
   reason: string;
   type: 'Bereavement' | 'Casual' | 'Paid' | 'Sick' | 'Volunteer';
   response?: string;
+  approvedBy?: {
+    _id: string;
+    name: string;
+  };
 }
 
 interface ApiResponse {
@@ -144,52 +157,53 @@ const LeaveManagement: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchLeaveRequests = async () => {
       try {
-        setLoading(true);
-        // Check if we have a token
+        console.log('Fetching leave requests...');
         const token = sessionStorage.getItem('token');
-        if (!token) {
-          window.location.href = '/signin';
-          return;
-        }
-
-        // Fetch leave requests - using the correct endpoint
-        const leaveRequestsResponse = await api.get('/api/stylists/leave-requests');
-        const leaveRequestsData = leaveRequestsResponse.data;
+        console.log('Current token:', token);
         
-        // Fetch staff data
-        const staffResponse = await api.get('/api/stylists');
-        const staffData = staffResponse.data;
-
+        const response = await api.get('/api/leave-requests');
+        console.log('Response received:', response.data);
+        
+        const leaveRequestsData = response.data;
         setLeaveRequests(leaveRequestsData);
-        setStaff(staffData);
-        setError(null);
+        
+        // Extract unique staff members from leave requests
+        const stylistSet = new Set<{ _id: string; name: string; email: string; profilePicture?: string }>();
+        leaveRequestsData.forEach((req: LeaveRequest) => stylistSet.add(req.stylist));
+        
+        const uniqueStaff = Array.from(stylistSet).map(stylist => ({
+          _id: stylist._id,
+          name: stylist.name,
+          email: stylist.email,
+          profilePicture: stylist.profilePicture
+        }));
+        setStaff(uniqueStaff);
+        setLoading(false);
       } catch (error: any) {
-        console.error('Error fetching data:', error);
-        if (error.response?.status === 401) {
-          setError('Your session has expired. Please sign in again.');
-          window.location.href = '/signin';
-        } else {
-          setError(error.response?.data?.message || 'Failed to fetch data');
-        }
-      } finally {
+        console.error('Error fetching leave requests:', error);
+        console.error('Error response:', error.response);
+        console.error('Error message:', error.message);
+        setError(error.response?.data?.message || 'Failed to fetch leave requests');
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, []); // Empty dependency array means this runs once on mount
+    fetchLeaveRequests();
+  }, []);
 
   const handleApprove = async (requestId: string) => {
     try {
       await api.post(`/api/stylists/leave-requests/approve/${requestId}`);
-      // Refresh the leave requests list
-      const response = await api.get('/api/stylists/leave-requests');
-      setLeaveRequests(response.data);
-      setError(null);
+      setLeaveRequests(prev => 
+        prev.map(request => 
+          request._id === requestId 
+            ? { ...request, status: 'Approved' }
+            : request
+        )
+      );
     } catch (error: any) {
-      console.error('Error approving leave request:', error);
       setError(error.response?.data?.message || 'Failed to approve leave request');
     }
   };
@@ -197,12 +211,14 @@ const LeaveManagement: React.FC = () => {
   const handleReject = async (requestId: string) => {
     try {
       await api.post(`/api/stylists/leave-requests/reject/${requestId}`);
-      // Refresh the leave requests list
-      const response = await api.get('/api/stylists/leave-requests');
-      setLeaveRequests(response.data);
-      setError(null);
+      setLeaveRequests(prev => 
+        prev.map(request => 
+          request._id === requestId 
+            ? { ...request, status: 'Rejected' }
+            : request
+        )
+      );
     } catch (error: any) {
-      console.error('Error rejecting leave request:', error);
       setError(error.response?.data?.message || 'Failed to reject leave request');
     }
   };
@@ -447,7 +463,7 @@ const LeaveManagement: React.FC = () => {
                       minHeight: '48px'
                     }}>
                       <Avatar 
-                        src={member.avatar}
+                        src={member.profilePicture}
                         sx={{ 
                           width: 32, 
                           height: 32,
@@ -576,7 +592,7 @@ const LeaveManagement: React.FC = () => {
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                     <Avatar 
-                      src={request.stylist.avatar}
+                      src={request.stylist.profilePicture}
                       sx={{ 
                         width: 48, 
                         height: 48,

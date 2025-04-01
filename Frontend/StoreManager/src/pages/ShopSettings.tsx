@@ -43,7 +43,7 @@ type Shop = {
 
 export default function ShopSettings() {
   const user = useUser();
-  if (user.role != "Manager") {
+  if (user.role != "StylistManager") {
     return <Navigate to="/" />;
   }
   const { isOpen, openModal, closeModal } = useModal();

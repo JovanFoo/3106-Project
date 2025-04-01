@@ -43,53 +43,83 @@ export default function SignInForm() {
       return;
     }
     setIsLoading(true);
-    await axios
-      .post(`${api_address}/api/auth/stylists/login`, {
+    console.log('Attempting login with:', { 
+      username, 
+      api_address,
+      env: {
+        prod: import.meta.env.VITE_APP_API_ADDRESS_PROD,
+        dev: import.meta.env.VITE_APP_API_ADDRESS_DEV
+      }
+    });
+    
+    try {
+      const response = await axios.post(`${api_address}/api/auth/stylists/login`, {
         username,
         password,
-      })
-      .then((res: AxiosResponse) => {
-        user.setId(res.data.stylist._id);
-        user.setUsername(res.data.stylist.username);
-        user.setName(res.data.stylist.name);
-        user.setEmail(res.data.stylist.email);
-        user.setProfilePicture(res.data.stylist.profilePicture);
-        user.setPhoneNumber(res.data.stylist.phoneNumber);
-        user.setBio(res.data.stylist.bio);
-        user.setRole(
-          res.data.stylist.stylists.length > 0 ? "Manager" : "Stylist"
-        );
-        user.setStylists(res.data.stylist.stylists || []);
-        user.setExpertises(res.data.stylist.expertises || []);
-        user.setGalleries(res.data.stylist.galleries || []);
-        user.setAppointments(res.data.stylist.appointments || []);
-        user.saveUserContext(
-          res.data.stylist._id,
-          res.data.stylist.username,
-          res.data.stylist.name,
-          res.data.stylist.email,
-          res.data.stylist.profilePicture || "/images/user/owner.jpg",
-          res.data.stylist.phoneNumber || "Phone number has not been set yet.",
-          res.data.stylist.bio || "Bio has not been set yet.",
-          res.data.stylist.stylists.length > 0 ? "Manager" : "Stylist",
-          res.data.stylist.stylists || [],
-          res.data.stylist.expertises || [],
-          res.data.stylist.galleries || [],
-          res.data.stylist.appointments || []
-        );
-        sessionStorage.setItem("stylistId", res.data.stylist._id);
-        sessionStorage.setItem("token", res.data.token.token);
-        sessionStorage.setItem("refreshToken", res.data.token.refreshToken);
-        navigate("/");
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        setVariant("error");
-        setTitle("Error");
-        setMessage("Invalid credentials.");
-        setShowAlert(true);
-        setIsLoading(false);
       });
+      
+      console.log('Login response:', response.data);
+      
+      if (!response.data.stylist || !response.data.token) {
+        console.error('Invalid response format:', response.data);
+        throw new Error('Invalid response format from server');
+      }
+
+      user.setId(response.data.stylist._id);
+      user.setUsername(response.data.stylist.username);
+      user.setName(response.data.stylist.name);
+      user.setEmail(response.data.stylist.email);
+      user.setProfilePicture(response.data.stylist.profilePicture);
+      user.setPhoneNumber(response.data.stylist.phoneNumber);
+      user.setBio(response.data.stylist.bio);
+      user.setRole(
+        response.data.stylist.stylists.length > 0 ? "StylistManager" : "Stylist"
+      );
+      user.setStylists(response.data.stylist.stylists || []);
+      user.setExpertises(response.data.stylist.expertises || []);
+      user.setGalleries(response.data.stylist.galleries || []);
+      user.setAppointments(response.data.stylist.appointments || []);
+      
+      user.saveUserContext(
+        response.data.stylist._id,
+        response.data.stylist.username,
+        response.data.stylist.name,
+        response.data.stylist.email,
+        response.data.stylist.profilePicture || "/images/user/owner.jpg",
+        response.data.stylist.phoneNumber || "Phone number has not been set yet.",
+        response.data.stylist.bio || "Bio has not been set yet.",
+        response.data.stylist.stylists.length > 0 ? "StylistManager" : "Stylist",
+        response.data.stylist.stylists || [],
+        response.data.stylist.expertises || [],
+        response.data.stylist.galleries || [],
+        response.data.stylist.appointments || []
+      );
+      
+      sessionStorage.setItem("stylistId", response.data.stylist._id);
+      sessionStorage.setItem("token", response.data.token.token);
+      sessionStorage.setItem("refreshToken", response.data.token.refreshToken);
+      
+      console.log('Login successful, tokens stored');
+      navigate("/");
+    } catch (error: any) {
+      console.error('Login error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers
+      });
+      
+      setVariant("error");
+      setTitle("Error");
+      setMessage(
+        error.response?.data?.message || 
+        error.message || 
+        "Invalid credentials. Please try again."
+      );
+      setShowAlert(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

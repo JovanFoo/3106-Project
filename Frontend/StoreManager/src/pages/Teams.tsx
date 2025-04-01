@@ -26,7 +26,7 @@ type TeamMember = {
 
 export default function Teams() {
   const user = useUser();
-  if (user.role != "Manager") {
+  if (user.role != "StylistManager") {
     return <Navigate to="/" />;
   }
   const { isOpen, openModal, closeModal } = useModal();
