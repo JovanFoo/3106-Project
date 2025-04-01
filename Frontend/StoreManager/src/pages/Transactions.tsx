@@ -212,9 +212,6 @@ export default function Transactions() {
         transaction,
         config
       );
-      transaction.service =
-        services.find((s) => s._id === transaction.service)?.name ||
-        transaction.service;
       setTransactions((prev) =>
         prev.map((txn) => (txn.id === transaction.id ? transaction : txn))
       );
