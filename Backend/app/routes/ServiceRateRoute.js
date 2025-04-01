@@ -19,6 +19,11 @@ ServiceRateRouter.get(
   AuthMiddleware.authAny,
   ServiceRateController.retrieve
 );
+ServiceRateRouter.get(
+  "/",
+  AuthMiddleware.authAny,
+  ServiceRateController.retrieveAll
+);
 // update ServiceRate by id --> TODO: (only stylist manager can create?)
 ServiceRateRouter.put(
   "/:id",

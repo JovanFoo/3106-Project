@@ -261,8 +261,8 @@ export default function Transactions() {
         </div>
 
         <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300">
+          <thead className="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300">
+            <tr className="text-center">
               <th className="border p-2">#</th>
               <th className="border p-2">Service</th>
               <th className="border p-2">Stylist</th>

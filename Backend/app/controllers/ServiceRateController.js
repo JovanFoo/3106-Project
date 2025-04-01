@@ -30,7 +30,7 @@ const ServiceRateController = {
     console.log("ServiceRateController > retrieve all Service Rates");
     const { paginated } = req.params;
     const { page, limit } = req.query;
-    if (paginated === "true") {
+    if (typeof paginated !== "undefined") {
       console.log("ServiceRateController > retrieve paginated Service Rates");
       const pageNumber = parseInt(page);
       const limitNumber = parseInt(limit);

@@ -160,70 +160,34 @@ export default function Services() {
               openModalNew();
             }}
           >
-            + Add new service
+            + Add new service rate
           </Button>
         </div>
-        <Table className="min-w-full">
-          <TableHeader className="bg-gray-50 border-b-2 border-gray-200 ">
-            <TableRow className="bg-gray-100 dark:bg-slate-700 ">
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-slate-300 uppercase tracking-wider border p-2"
-              >
-                Service rate ID
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-slate-300 uppercase tracking-wider border p-2"
-              >
-                Service rate Name
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-slate-300 uppercase tracking-wider border p-2"
-              >
-                Service rate Amount
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-slate-300 uppercase tracking-wider border p-2"
-              >
-                Service rate Start Date
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-slate-300 uppercase tracking-wider border p-2"
-              >
-                Service rate End Date
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-slate-300 uppercase tracking-wider border p-2"
-              >
-                Actions
-              </TableCell>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableCell isHeader={true}>Service rate ID</TableCell>
+              <TableCell isHeader={true}>Service rate Name</TableCell>
+              <TableCell isHeader={true}>Service rate Amount</TableCell>
+              <TableCell isHeader={true}>Service rate Start Date</TableCell>
+              <TableCell isHeader={true}>Service rate End Date</TableCell>
+              <TableCell isHeader={true}>Actions</TableCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {serviceRates &&
               serviceRates.map((serviceRate: ServiceRate, index) => (
-                <TableRow key={serviceRate._id} className="bg-white border-b">
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
-                    {index + 1}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
-                    {serviceRate.name}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
-                    {serviceRate.rate.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
+                <TableRow key={serviceRate._id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{serviceRate.name}</TableCell>
+                  <TableCell>${serviceRate.rate.toFixed(2)}</TableCell>
+                  <TableCell>
                     {new Date(serviceRate.startDate).toLocaleDateString()}
                   </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
+                  <TableCell>
                     {new Date(serviceRate.endDate).toLocaleDateString()}
                   </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2 justify-between  flex">
+                  <TableCell className="justify-around  flex">
                     <Button
                       variant="outline"
                       className="bg-yellow-500 dark:bg-yellow-500 dark:text-gray-900"

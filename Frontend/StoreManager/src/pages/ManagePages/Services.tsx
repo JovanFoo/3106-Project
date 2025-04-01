@@ -12,7 +12,7 @@ import Button from "../../components/ui/button/Button";
 import { PencilIcon, TrashBinIcon } from "../../icons";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import { NativeSelect } from "@mui/material";
+import { NativeSelect, TableBody } from "@mui/material";
 import Alert from "../../components/ui/alert/Alert";
 import { set } from "date-fns";
 // import MultiSelect from "../../components/form/MultiSelect";
@@ -54,6 +54,14 @@ export default function Services() {
       Authorization: sessionStorage.getItem("token"),
     },
   };
+  // For pagination
+  const [pageSizeOptions] = useState([5, 10, 20, 50]);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(pageSizeOptions[1]); // Default to 10
+  const [totalPages, setTotalPages] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [totalTransactions, setTotalTransactions] = useState(0);
+
   const fetchServices = async () => {
     await axios
       .get(`${api_address}/api/services/all`, config)
@@ -125,6 +133,21 @@ export default function Services() {
     fetchServices();
     fetchServiceRates();
   }, []);
+
+  const handleNext = () => {
+    if (pageNumber < totalPages) {
+      setPageNumber(pageNumber + 1);
+    }
+  };
+  const handlePrev = () => {
+    if (pageNumber > 1) {
+      setPageNumber(pageNumber - 1);
+    }
+  };
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setPageNumber(1); // Reset to first page on page size change
+  };
   return (
     <>
       <PageMeta
@@ -145,59 +168,30 @@ export default function Services() {
         </div>
         <Table className="min-w-full">
           <TableHeader className="bg-gray-50 border-b-2 border-gray-200">
-            <TableRow className="bg-gray-50">
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border p-2"
-              >
-                Service ID
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border p-2"
-              >
-                Service Name
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border p-2"
-              >
-                Duration
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border p-2"
-              >
-                Description
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border p-2"
-              >
-                Actions
-              </TableCell>
+            <TableRow isHeader={true}>
+              <TableCell isHeader={true}>#</TableCell>
+              <TableCell isHeader={true}>Service Name</TableCell>
+              <TableCell isHeader={true}>Duration</TableCell>
+              <TableCell isHeader={true}>Description</TableCell>
+              <TableCell isHeader={true}>Actions</TableCell>
             </TableRow>
+          </TableHeader>
+          <TableBody>
             {services &&
               services.map((service, index) => (
-                <TableRow key={service._id} className="bg-white border-b">
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
-                    {index + 1}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
-                    {service.name}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
-                    {service.duration}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
+                <TableRow key={service._id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{service.name}</TableCell>
+                  <TableCell>{service.duration}</TableCell>
+                  <TableCell>
                     {service.description.length > 50
                       ? service.description.substring(0, 80) + " ..."
                       : service.description}
                   </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2 justify-between  flex">
+                  <TableCell className="justify-around flex">
                     <Button
                       variant="outline"
-                      className="bg-yellow-500"
+                      className="bg-yellow-500 dark:bg-yellow-500 dark:text-white"
                       onClick={() => {
                         console.log("edit Service");
                         setSelectedService(service);
@@ -208,7 +202,7 @@ export default function Services() {
                     </Button>
                     <Button
                       variant="outline"
-                      className="bg-red-500"
+                      className="bg-red-500 dark:bg-red-500 dark:text-white"
                       onClick={() => {
                         console.log("disable Service");
                       }}
@@ -218,8 +212,42 @@ export default function Services() {
                   </TableCell>
                 </TableRow>
               ))}
-          </TableHeader>
+          </TableBody>
         </Table>
+        <div className="flex justify-between items-center mt-4">
+          <div className="flex gap-2 items-center">
+            <span className="text-gray-700 dark:text-gray-400 mt-4">
+              Page {pageNumber} of {totalPages}
+            </span>
+            <span className="text-gray-700 dark:text-gray-400 mt-4 ml-2">
+              Showing {services.length} of {totalTransactions} transactions
+            </span>
+            <span className="text-gray-700 dark:text-gray-400 mt-4 ">
+              Page Size:
+            </span>
+            {pageSizeOptions.map((size) => (
+              <span
+                key={size}
+                onClick={() => handlePageSizeChange(size)}
+                className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${
+                  pageSize === size
+                    ? "font-bold text-black dark:text-white"
+                    : ""
+                }`}
+              >
+                {size}
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-2 items-center">
+            <Button onClick={handlePrev} disabled={pageNumber === 1}>
+              Previous
+            </Button>
+            <Button onClick={handleNext} disabled={pageNumber === totalPages}>
+              Next
+            </Button>
+          </div>
+        </div>
       </div>
       <CustomerModal
         isOpen={isOpenNew}
@@ -315,7 +343,7 @@ const CustomerModal: React.FC<ModalProps> = ({
         </div>
         <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 ">
               Service Name*
             </label>
             <input
@@ -327,7 +355,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   name: e.target.value,
                 });
               }}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
             />
           </div>
           <div>
@@ -352,7 +380,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   });
                 }
               }}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
             />
           </div>
         </div>
@@ -369,7 +397,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   description: e.target.value,
                 });
               }}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
               rows={5}
             />
           </div>
@@ -381,7 +409,7 @@ const CustomerModal: React.FC<ModalProps> = ({
             </label>
             <input
               type="text"
-              className="w-full mb-3 border rounded-md h-8 dark:bg-gray-700 dark:border-gray-600 font-extralight"
+              className="w-full mb-3 border rounded-md h-8 dark:bg-gray-700 dark:border-gray-600 font-extralight dark:text-gray-200"
               onKeyUp={(e) => {
                 setFilteredText((e.target as HTMLInputElement).value);
               }}
@@ -400,11 +428,12 @@ const CustomerModal: React.FC<ModalProps> = ({
                     return (
                       <div
                         key={x._id}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 dark:text-gray-200"
                         id={`#serviceRate-${x._id}`}
                       >
                         <input
                           type="checkbox"
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 "
                           checked={serviceData.serviceRates.some(
                             (sr) => sr._id === x._id
                           )}
