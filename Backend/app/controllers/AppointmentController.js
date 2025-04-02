@@ -115,6 +115,18 @@ const AppointmentController = {
     await appointment.save();
     return res.status(200).json(appointment);
   },
+  // Update a appointment's status to cancelled by id
+  async updateCancelled(req, res) {
+    console.log("AppointmentController > update cancelled");
+    const { id } = req.params;
+    const appointment = await Appointment.findOne({ _id: id });
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+    appointment.status = "Cancelled";
+    await appointment.save();
+    return res.status(200).json(appointment);
+  },
 
   async updateStatus(req, res) {
     try {

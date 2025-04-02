@@ -44,6 +44,12 @@ AppointmentRouter.put(
   AuthMiddleware.authStylistToken,
   AppointmentController.updateCompleted
 );
+// update appointment cancellation by appointment id (only a login customer can update appointment cancellation)
+AppointmentRouter.put(
+  "/:id/cancelled",
+  AuthMiddleware.authCustomerToken,
+  AppointmentController.updateCancelled
+);
 // delete customer by id (only a login customer can delete their account)
 AppointmentRouter.delete(
   "/:id",

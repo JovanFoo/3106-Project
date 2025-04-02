@@ -52,6 +52,8 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     fetchAppointments();
     fetchStylists();
+    fetchServices(new Date()); //to allow initial rendering of appointment service types on calendar
+    // MIGHT BREAK THE SERVICE RATE CALCULATION //
   }, []);
 
   // get a list of all services and their prices for dropdown
@@ -137,7 +139,7 @@ const Calendar: React.FC = () => {
         // });
 
         const formattedAppointments = data
-          .filter((appointment: any) => !appointment.isCompleted) // only show active appointments
+          .filter((appointment: any) => appointment.status.toString() === "Pending") // only show active appointments
           .map((appointment: any) => ({
             id: appointment._id.toString(),
             start: new Date(appointment.date).toISOString().split("T")[0] || "",
@@ -170,18 +172,19 @@ const Calendar: React.FC = () => {
 
     try {
       const response = await fetch(
-        `${API_URL}/api/appointments/${selectedEvent.id}`,
+        `${API_URL}/api/appointments/${selectedEvent.id}/cancelled`,
         {
-          method: "DELETE",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: token,
           },
+          body: JSON.stringify({status: "Cancelled"}),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to delete appointment");
+        throw new Error("Failed to cancel appointment");
       }
 
       setAppts((prevEvents) =>
@@ -190,7 +193,7 @@ const Calendar: React.FC = () => {
       closeDeleteModal();
       closeModal();
     } catch (error) {
-      console.error("Error deleting appointment:", error);
+      console.error("Error cancelling appointment:", error);
     }
   };
 
@@ -517,7 +520,7 @@ const Calendar: React.FC = () => {
           className="max-w-md p-6 lg:p-8"
         >
           <h5 className="mb-4 font-semibold text-gray-800 text-xl">
-            Confirm Deletion
+            Confirm Cancellation
           </h5>
           <p className="text-gray-600">
             Are you sure you want to cancel this appointment? This action cannot
