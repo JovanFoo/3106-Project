@@ -137,22 +137,55 @@ const ServiceController = {
     console.log(
       "ServiceRateController > retrieve all Service Rates with all Service Rates"
     );
-    try {
-      const services = await Service.find().populate("serviceRates");
-      for (let i = 0; i < services.length; i++) {
-        const service = services[i];
-        service.serviceRates = service.serviceRates.filter((serviceRate) => {
-          return !serviceRate.isDisabled;
-        });
+    const { paginated } = req.params;
+    const { page, limit } = req.query;
+    if (typeof paginated !== "undefined" && paginated === "true") {
+      const pageNumber = parseInt(page);
+      const limitNumber = parseInt(limit);
+      if (isNaN(pageNumber) || isNaN(limitNumber)) {
+        return res.status(400).json({ message: "Invalid page or limit" });
       }
-      if (services) {
-        return res.status(200).json(services);
-      } else {
-        return res.status(404).json({ message: "No Service found" });
+      const startIndex = (pageNumber - 1) * limitNumber;
+      const endIndex = startIndex + limitNumber;
+      try {
+        const services = await Service.find().populate("serviceRates");
+        const totalServices = services.length;
+        const paginatedServices = services.slice(startIndex, endIndex);
+        const paginated = {
+          total: totalServices,
+          page: pageNumber,
+          limit: limitNumber,
+          totalPages: Math.ceil(totalServices / limitNumber),
+          hasNextPage: endIndex < totalServices,
+          services: paginatedServices,
+        };
+        return res.status(200).json(paginated);
+      } catch (error) {
+        console.error(error.message);
+        return res
+          .status(500)
+          .json({ message: "Error retrieving all Service" });
       }
-    } catch (error) {
-      console.error(error.message);
-      return res.status(500).json({ message: "Error retrieving all Service" });
+    } else {
+      try {
+        const services = await Service.find().populate("serviceRates");
+        for (let i = 0; i < services.length; i++) {
+          const service = services[i];
+          service.serviceRates = service.serviceRates.filter((serviceRate) => {
+            return !serviceRate.isDisabled;
+          });
+        }
+        if (services) {
+          return res.status(200).json(services);
+        } else {
+          return res.status(404).json({ message: "No Service found" });
+        }
+      } catch (error) {
+        console.error(error.message);
+        return res
+          .status(500)
+          .json({ message: "Error retrieving all Service" });
+      }
     }
   },
 };

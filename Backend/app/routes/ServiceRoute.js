@@ -11,7 +11,11 @@ ServiceRouter.get(
   AuthMiddleware.authStylistToken,
   ServiceController.retrieveAllWithAllServiceRates
 );
-
+ServiceRouter.get(
+  "/paginated/:paginated",
+  AuthMiddleware.authStylistToken,
+  ServiceController.retrieveAllWithAllServiceRates
+);
 // create new service
 ServiceRouter.post(
   "/",

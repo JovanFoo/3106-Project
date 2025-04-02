@@ -9,7 +9,7 @@ const Service = require("../models/Service.js");
 
 // get all ServiceRates
 ServiceRateRouter.get(
-  "/:paginated",
+  "/paginated/:paginated",
   AuthMiddleware.authAny,
   ServiceRateController.retrieveAll
 );
