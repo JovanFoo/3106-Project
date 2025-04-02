@@ -16,7 +16,7 @@ const Button: React.FC<ButtonProps> = ({
   children,
   size = "md",
   variant = "primary",
-  type = "neutral",
+  type = "info",
   startIcon,
   endIcon,
   onClick,
