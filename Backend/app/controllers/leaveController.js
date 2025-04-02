@@ -69,7 +69,7 @@ exports.getLeaveHistory = async (req, res) => {
 
 exports.applyForLeave = async (req, res) => {
     try {
-        const { startDate, endDate, type, reason } = req.body;
+        const { startDate, endDate, leaveType, description } = req.body;
         const days = differenceInDays(new Date(endDate), new Date(startDate)) + 1;
         const currentYear = new Date().getFullYear();
 
@@ -98,8 +98,8 @@ exports.applyForLeave = async (req, res) => {
             stylist: req.userId,
             startDate,
             endDate,
-            reason,
-            type
+            leaveType,
+            description
         });
 
         res.status(201).json({
@@ -148,7 +148,8 @@ exports.getStylistLeaveRequests = async (req, res) => {
     try {
         const leaveRequests = await LeaveRequest.find({
             stylist: req.userId
-        }).sort({ createdAt: -1 }); // Most recent first
+        }).select('startDate endDate status leaveType description response')
+          .sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,
@@ -159,5 +160,29 @@ exports.getStylistLeaveRequests = async (req, res) => {
             success: false,
             error: "Error fetching leave requests"
         });
+    }
+};
+
+exports.createLeaveRequest = async (req, res) => {
+    try {
+        const { startDate, endDate, leaveType, description } = req.body;
+        const stylistId = req.user._id;
+
+        // Create new leave request
+        const leaveRequest = new LeaveRequest({
+            stylist: stylistId,
+            startDate,
+            endDate,
+            leaveType,
+            description,
+            status: 'Pending'
+        });
+
+        await leaveRequest.save();
+
+        res.status(201).json(leaveRequest);
+    } catch (error) {
+        console.error('Error creating leave request:', error);
+        res.status(500).json({ message: 'Error creating leave request' });
     }
 }; 

@@ -188,7 +188,7 @@ const LeaveRequestController = {
                         const stylistWithRequests = await Stylist.findById(stylist._id)
                             .populate({
                                 path: 'leaveRequests',
-                                select: '_id startDate endDate status reason type'
+                                select: '_id startDate endDate status leaveType description'
                             });
                         
                         if (stylistWithRequests && stylistWithRequests.leaveRequests) {
