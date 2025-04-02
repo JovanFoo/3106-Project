@@ -44,40 +44,27 @@ export default function SignInForm() {
     }
     setIsLoading(true);
     await axios
-      .post(`${api_address}/api/auth/stylists/login`, {
+      .post(`${api_address}/api/auth/admins/login`, {
         username,
         password,
       })
       .then((res: AxiosResponse) => {
-        user.setId(res.data.stylist._id);
-        user.setUsername(res.data.stylist.username);
-        user.setName(res.data.stylist.name);
-        user.setEmail(res.data.stylist.email);
-        user.setProfilePicture(res.data.stylist.profilePicture);
-        user.setPhoneNumber(res.data.stylist.phoneNumber);
-        user.setBio(res.data.stylist.bio);
-        user.setRole(
-          res.data.stylist.stylists.length > 0 ? "Manager" : "Stylist"
-        );
-        user.setStylists(res.data.stylist.stylists || []);
-        user.setExpertises(res.data.stylist.expertises || []);
-        user.setGalleries(res.data.stylist.galleries || []);
-        user.setAppointments(res.data.stylist.appointments || []);
+        console.log(res.data);
+        user.setId(res.data.admin._id);
+        user.setUsername(res.data.admin.username);
+        user.setName(res.data.admin.name);
+        user.setEmail(res.data.admin.email);
+        user.setProfilePicture(res.data.admin.profilePicture);
+        user.setPhoneNumber(res.data.admin.phoneNumber);
         user.saveUserContext(
-          res.data.stylist._id,
-          res.data.stylist.username,
-          res.data.stylist.name,
-          res.data.stylist.email,
-          res.data.stylist.profilePicture || "/images/user/owner.jpg",
-          res.data.stylist.phoneNumber || "Phone number has not been set yet.",
-          res.data.stylist.bio || "Bio has not been set yet.",
-          res.data.stylist.stylists.length > 0 ? "Manager" : "Stylist",
-          res.data.stylist.stylists || [],
-          res.data.stylist.expertises || [],
-          res.data.stylist.galleries || [],
-          res.data.stylist.appointments || []
+          res.data.admin._id,
+          res.data.admin.username,
+          res.data.admin.name,
+          res.data.admin.email,
+          res.data.admin.profilePicture || "/images/user/owner.jpg",
+          res.data.admin.phoneNumber || "Phone number has not been set yet."
         );
-        sessionStorage.setItem("stylistId", res.data.stylist._id);
+        sessionStorage.setItem("adminId", res.data.admin._id);
         sessionStorage.setItem("token", res.data.token.token);
         sessionStorage.setItem("refreshToken", res.data.token.refreshToken);
         navigate("/");
