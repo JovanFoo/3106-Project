@@ -19,9 +19,12 @@ const leaveRequestSchema = new Schema({
         type: String,
         default: "Pending",
     },
-    reason: {
+    leaveType: {
         type: String,
         required: true,
+    },
+    description: {
+        type: String,
     },
     response: {
         type: String,

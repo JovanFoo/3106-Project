@@ -5,7 +5,7 @@ const mongodb = require("./config/database.js");
 const LeaveRequestController = {
     async createLeaveRequest ( req, res ) {
         console.log( "LeaveRequestController > create leave request" );
-        const { startDate, endDate, reason } = req.body;
+        const { startDate, endDate, leaveType, description } = req.body;
         const { userId: stylistId } = req;
         const stylist = await Stylist.findById( stylistId );
         if ( !stylist ) return res.status( 404 ).json( { message: "Stylist not found" } );
@@ -13,7 +13,8 @@ const LeaveRequestController = {
             stylist: stylistId,
             startDate,
             endDate,
-            reason,
+            leaveType,
+            description,
         } );
         try
         {
@@ -59,7 +60,7 @@ const LeaveRequestController = {
     async update ( req, res ) {
         console.log( "LeaveRequestController > update leave request" );
         const { id } = req.params;
-        const { startDate, endDate, reason } = req.body;
+        const { startDate, endDate, leaveType, description } = req.body;
         const { userId: stylistId } = req;
         const stylist = await Stylist.findById( stylistId ).populate( "leaveRequests" ).exec();
         if ( !stylist ) return res.status( 404 ).json( { message: "Stylist not found" } );
@@ -68,7 +69,8 @@ const LeaveRequestController = {
         if ( leaveRequest.status != "Pending" ) return res.status( 400 ).json( { message: "Leave request is already " + leaveRequest.status } );
         leaveRequest.startDate = startDate;
         leaveRequest.endDate = endDate;
-        leaveRequest.reason = reason;
+        leaveRequest.leaveType = leaveType;
+        leaveRequest.description = description;
         try
         {
             await leaveRequest.save();

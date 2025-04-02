@@ -52,8 +52,8 @@ interface LeaveApplication {
   endDate: string;
   totalDays: number;
   status: string;
-  type: string;
-  reason: string;
+  leaveType: string;
+  description: string;
 }
 
 interface DocumentSubmission {
@@ -67,14 +67,14 @@ interface DocumentSubmission {
 interface NewApplication {
   startDate: string;
   endDate: string;
-  type: string;
-  reason: string;
+  leaveType: string;
+  description: string;
 }
 
 interface ServerHighlight {
   date: Date;
   status: string;
-  type: string;
+  leaveType: string;
 }
 
 const BarberLeaveManagement: React.FC = () => {
@@ -89,8 +89,8 @@ const BarberLeaveManagement: React.FC = () => {
   const [newApplication, setNewApplication] = useState<NewApplication>({
     startDate: '',
     endDate: '',
-    type: 'paid',
-    reason: ''
+    leaveType: 'Paid',
+    description: ''
   });
   const [leaveApplications, setLeaveApplications] = useState<LeaveApplication[]>([]);
   const [documentSubmissions, setDocumentSubmissions] = useState<DocumentSubmission[]>([
@@ -159,8 +159,8 @@ const BarberLeaveManagement: React.FC = () => {
         endDate: format(new Date(request.endDate), 'yyyy-MM-dd'),
         totalDays: differenceInDays(new Date(request.endDate), new Date(request.startDate)) + 1,
         status: request.status || 'Pending',
-        type: request.type || 'paid',
-        reason: request.reason || ''
+        leaveType: request.leaveType || 'paid',
+        description: request.description || ''
       }));
 
       // Update calendar highlights
@@ -176,7 +176,7 @@ const BarberLeaveManagement: React.FC = () => {
           newHighlights.push({
             date,
             status: request.status,
-            type: request.type
+            leaveType: request.leaveType
           });
         }
       });
@@ -203,7 +203,7 @@ const BarberLeaveManagement: React.FC = () => {
 
   const handleApplyLeave = async () => {
     // Validate required fields
-    if (!newApplication.startDate || !newApplication.endDate || !newApplication.type || !newApplication.reason) {
+    if (!newApplication.startDate || !newApplication.endDate || !newApplication.leaveType) {
       alert('Please fill in all required fields');
       return;
     }
@@ -217,18 +217,33 @@ const BarberLeaveManagement: React.FC = () => {
     }
 
     try {
-      console.log('Submitting leave application:', newApplication);
+      // Get the stylist ID from the token
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Decode the JWT token to get the userId
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const stylistId = payload.userId.split(' ')[0]; // Remove the role suffix
+
+      console.log('Submitting leave application:', {
+        ...newApplication,
+        stylist: stylistId
+      });
+
       const response = await axios.post(
         `${api_address}/api/leave-requests`,
         {
           startDate: newApplication.startDate,
           endDate: newApplication.endDate,
-          type: newApplication.type,
-          reason: newApplication.reason
+          leaveType: newApplication.leaveType,
+          description: newApplication.description || '',
+          stylist: stylistId
         },
         {
           headers: {
-            Authorization: sessionStorage.getItem("token"),
+            Authorization: token,
           },
         }
       );
@@ -243,8 +258,8 @@ const BarberLeaveManagement: React.FC = () => {
         setNewApplication({
           startDate: '',
           endDate: '',
-          type: 'paid',
-          reason: ''
+          leaveType: 'Paid',
+          description: ''
         });
         // Refresh data
         fetchLeaveBalance();
@@ -435,9 +450,9 @@ const BarberLeaveManagement: React.FC = () => {
                     </Grid>
                     <Grid item xs={12} md={3}>
                       <Typography variant="subtitle2" color="text.secondary">
-                        Type
+                        Leave Type
                       </Typography>
-                      <Typography sx={{ textTransform: 'capitalize' }}>{application.type} Leave</Typography>
+                      <Typography sx={{ textTransform: 'capitalize' }}>{application.leaveType} Leave</Typography>
                     </Grid>
                     <Grid item xs={12} md={4}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end' }}>
@@ -468,9 +483,9 @@ const BarberLeaveManagement: React.FC = () => {
                     </Grid>
                   </Grid>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>
-                    Reason
+                    Description
                   </Typography>
-                  <Typography>{application.reason}</Typography>
+                  <Typography>{application.description}</Typography>
                 </CardContent>
               </Card>
             ))}
@@ -593,14 +608,16 @@ const BarberLeaveManagement: React.FC = () => {
               <InputLabel>Leave Type</InputLabel>
               <Select
                 label="Leave Type"
-                value={newApplication.type}
-                onChange={(e) => setNewApplication({ ...newApplication, type: e.target.value })}
+                value={newApplication.leaveType}
+                onChange={(e) => setNewApplication({ ...newApplication, leaveType: e.target.value })}
                 required
               >
-                <MenuItem value="paid">Paid Leave</MenuItem>
-                <MenuItem value="unpaid">Unpaid Leave</MenuItem>
-                <MenuItem value="medical">Medical Leave</MenuItem>
-                <MenuItem value="emergency">Emergency Leave</MenuItem>
+                <MenuItem value="Paid">Paid Leave</MenuItem>
+                <MenuItem value="Unpaid">Unpaid Leave</MenuItem>
+                <MenuItem value="Sick">Medical Leave</MenuItem>
+                <MenuItem value="Childcare">Childcare Leave</MenuItem>
+                <MenuItem value="Maternity">Maternity Leave</MenuItem>
+                <MenuItem value="Paternity">Paternity Leave</MenuItem>
               </Select>
             </FormControl>
             <TextField
@@ -624,13 +641,13 @@ const BarberLeaveManagement: React.FC = () => {
               inputProps={{ min: newApplication.startDate || new Date().toISOString().split('T')[0] }}
             />
             <TextField
-              label="Reason"
+              label="Description"
               multiline
               rows={4}
               fullWidth
               required
-              value={newApplication.reason}
-              onChange={(e) => setNewApplication({ ...newApplication, reason: e.target.value })}
+              value={newApplication.description}
+              onChange={(e) => setNewApplication({ ...newApplication, description: e.target.value })}
             />
           </Stack>
         </DialogContent>
@@ -639,7 +656,7 @@ const BarberLeaveManagement: React.FC = () => {
           <Button 
             variant="contained" 
             onClick={handleApplyLeave}
-            disabled={!newApplication.startDate || !newApplication.endDate || !newApplication.type || !newApplication.reason}
+            disabled={!newApplication.startDate || !newApplication.endDate || !newApplication.leaveType}
           >
             Submit Application
           </Button>
