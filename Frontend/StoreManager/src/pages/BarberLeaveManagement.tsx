@@ -33,6 +33,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import axios from 'axios';
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
@@ -45,6 +46,7 @@ interface LeaveStats {
 
 interface LeaveApplication {
   id: string;
+  _id?: string;
   date: string;
   startDate: string;
   endDate: string;
@@ -258,15 +260,19 @@ const BarberLeaveManagement: React.FC = () => {
   };
 
   const handleWithdrawClick = (requestId: string) => {
+    console.log('Selected request ID for withdrawal:', requestId);
     setSelectedRequestId(requestId);
     setWithdrawDialogOpen(true);
   };
 
   const handleConfirmWithdraw = async () => {
-    if (!selectedRequestId) return;
+    if (!selectedRequestId) {
+      console.error('No request ID selected for withdrawal');
+      return;
+    }
     
     try {
-      console.log('Withdrawing leave request:', selectedRequestId);
+      console.log('Attempting to withdraw leave request:', selectedRequestId);
       const response = await axios.delete(
         `${api_address}/api/leave-requests/${selectedRequestId}`,
         {
@@ -277,27 +283,21 @@ const BarberLeaveManagement: React.FC = () => {
       );
       
       console.log('Withdraw response:', response);
-      // Check if the response indicates success
+      setWithdrawDialogOpen(false);
+      setSelectedRequestId(null);
+      
       if (response.status === 200 || response.status === 204) {
-        // Show success message
         alert('Leave request withdrawn successfully');
-        // Refresh the leave requests list
         fetchLeaveRequests();
-        // Close the dialog
-        setWithdrawDialogOpen(false);
-        setSelectedRequestId(null);
+        fetchLeaveBalance();
       } else {
         throw new Error('Failed to withdraw leave request');
       }
     } catch (error: any) {
       console.error('Error withdrawing leave request:', error);
       console.error('Error details:', error.response?.data);
-      
-      // Show specific error message from backend if available
       const errorMessage = error.response?.data?.message || 'Failed to withdraw leave request. Please try again later.';
       alert(errorMessage);
-      
-      // Close the dialog
       setWithdrawDialogOpen(false);
       setSelectedRequestId(null);
     }
@@ -327,48 +327,21 @@ const BarberLeaveManagement: React.FC = () => {
     };
 
     return (
-      <Badge
-        key={day.toString()}
-        overlap="circular"
-        badgeContent={" "}
+      <PickersDay 
+        day={day} 
+        {...other}
         sx={{
-          '& .MuiBadge-badge': {
+          backgroundColor: getStatusColor(matchingHighlight.status),
+          '&:hover': {
             backgroundColor: getStatusColor(matchingHighlight.status),
-            color: getStatusColor(matchingHighlight.status),
-            width: '100%',
-            height: '100%',
-            borderRadius: '50%',
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 0,
-            '&::after': {
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              border: '1px solid currentColor',
-              content: '""',
-            },
           },
+          '&.Mui-selected': {
+            backgroundColor: `${getStatusColor(matchingHighlight.status)} !important`,
+          },
+          position: 'relative',
+          zIndex: 1,
         }}
-      >
-        <Box sx={{ position: 'relative', zIndex: 1 }}>
-          <PickersDay 
-            day={day} 
-            {...other}
-            sx={{
-              '& .MuiPickersDay-root': {
-                position: 'relative',
-                zIndex: 2,
-              }
-            }}
-          />
-        </Box>
-      </Badge>
+      />
     );
   };
 
@@ -445,7 +418,7 @@ const BarberLeaveManagement: React.FC = () => {
             {filteredApplications.map((application) => (
               <Card key={application.id}>
                 <CardContent>
-                  <Grid container alignItems="center">
+                  <Grid container alignItems="center" spacing={2}>
                     <Grid item xs={12} md={3}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Leave Date
@@ -466,26 +439,32 @@ const BarberLeaveManagement: React.FC = () => {
                       </Typography>
                       <Typography sx={{ textTransform: 'capitalize' }}>{application.type} Leave</Typography>
                     </Grid>
-                    <Grid item xs={12} md={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      {application.status === 'Pending' && (
-                        <Chip label="Pending Approval" color="warning" />
-                      )}
-                      {application.status === 'Approved' && (
-                        <Chip label="Approved" color="success" />
-                      )}
-                      {application.status === 'Rejected' && (
-                        <Chip label="Rejected" color="error" />
-                      )}
-                      {application.status === 'Pending' && (
-                        <Button 
-                          onClick={() => handleWithdrawClick(application.id)} 
-                          variant="outlined" 
-                          color="error" 
-                          size="small"
-                        >
-                          Withdraw
-                        </Button>
-                      )}
+                    <Grid item xs={12} md={4}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end' }}>
+                        {application.status === 'Pending' && (
+                          <>
+                            <Chip label="Pending" color="warning" />
+                            <IconButton
+                              onClick={() => handleWithdrawClick(application.id)}
+                              color="error"
+                              size="small"
+                              sx={{ 
+                                '&:hover': { 
+                                  backgroundColor: 'rgba(211, 47, 47, 0.04)' 
+                                }
+                              }}
+                            >
+                              <DeleteOutlineIcon />
+                            </IconButton>
+                          </>
+                        )}
+                        {application.status === 'Approved' && (
+                          <Chip label="Approved" color="success" />
+                        )}
+                        {application.status === 'Rejected' && (
+                          <Chip label="Rejected" color="error" />
+                        )}
+                      </Box>
                     </Grid>
                   </Grid>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>
