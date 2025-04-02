@@ -49,6 +49,11 @@ export default function Services() {
     openModal: openModalEdit,
     closeModal: closeModalEdit,
   } = useModal();
+  const {
+    isOpen: isOpenDelete,
+    openModal: openModalDelete,
+    closeModal: closeModalDelete,
+  } = useModal();
   const config = {
     headers: {
       Authorization: sessionStorage.getItem("token"),
@@ -60,14 +65,20 @@ export default function Services() {
   const [pageSize, setPageSize] = useState(pageSizeOptions[1]); // Default to 10
   const [totalPages, setTotalPages] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
-  const [totalTransactions, setTotalTransactions] = useState(0);
+  const [totalService, setTotalService] = useState(0);
 
   const fetchServices = async () => {
     await axios
-      .get(`${api_address}/api/services/all`, config)
+      .get(
+        `${api_address}/api/services/paginated/true?page=${pageNumber}&limit=${pageSize}`,
+        config
+      )
       .then((response) => {
-        setServices(response.data);
         console.log("Services:", response.data);
+        setTotalPages(response.data.totalPages);
+        setTotalService(response.data.total);
+        setHasNextPage(response.data.hasNextPage);
+        setServices(response.data.services);
       })
       .catch((error) => {
         console.error("Error fetching services:", error);
@@ -129,11 +140,26 @@ export default function Services() {
       });
     closeModalNew();
   };
+  const handleDelete = async (service: Service) => {
+    // Perform delete operation here
+    axios
+      .delete(`${api_address}/api/services/${service._id}`, config)
+      .then((response) => {
+        console.log("Service deleted successfully:", response.data);
+        fetchServices(); // Refresh the services list after deleting
+      })
+      .catch((error) => {
+        console.error("Error deleting service:", error);
+      });
+    closeModalDelete();
+  };
   useEffect(() => {
     fetchServices();
     fetchServiceRates();
   }, []);
-
+  useEffect(() => {
+    fetchServices();
+  }, [pageNumber, pageSize]);
   const handleNext = () => {
     if (pageNumber < totalPages) {
       setPageNumber(pageNumber + 1);
@@ -155,11 +181,13 @@ export default function Services() {
         description="This is React.js Chart Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <PageBreadcrumb pageTitle="Services" />
+
       <div className="space-y-6">
         <div>
           <Button
+            variant="primary"
+            type="info"
             onClick={() => {
-              console.log("add");
               openModalNew();
             }}
           >
@@ -190,10 +218,9 @@ export default function Services() {
                   </TableCell>
                   <TableCell className="justify-around flex">
                     <Button
-                      variant="outline"
-                      className="bg-yellow-500 dark:bg-yellow-500 dark:text-white"
+                      variant="primary"
+                      type="warning"
                       onClick={() => {
-                        console.log("edit Service");
                         setSelectedService(service);
                         openModalEdit();
                       }}
@@ -201,10 +228,11 @@ export default function Services() {
                       <PencilIcon />
                     </Button>
                     <Button
-                      variant="outline"
-                      className="bg-red-500 dark:bg-red-500 dark:text-white"
+                      variant="primary"
+                      type="danger"
                       onClick={() => {
-                        console.log("disable Service");
+                        setSelectedService(service);
+                        openModalDelete();
                       }}
                     >
                       <TrashBinIcon />
@@ -220,7 +248,7 @@ export default function Services() {
               Page {pageNumber} of {totalPages}
             </span>
             <span className="text-gray-700 dark:text-gray-400 mt-4 ml-2">
-              Showing {services.length} of {totalTransactions} transactions
+              Showing {services.length} of {totalService} transactions
             </span>
             <span className="text-gray-700 dark:text-gray-400 mt-4 ">
               Page Size:
@@ -240,10 +268,20 @@ export default function Services() {
             ))}
           </div>
           <div className="flex gap-2 items-center">
-            <Button onClick={handlePrev} disabled={pageNumber === 1}>
+            <Button
+              onClick={handlePrev}
+              variant="primary"
+              type="info"
+              disabled={pageNumber === 1}
+            >
               Previous
             </Button>
-            <Button onClick={handleNext} disabled={pageNumber === totalPages}>
+            <Button
+              onClick={handleNext}
+              variant="primary"
+              type="info"
+              disabled={pageNumber === totalPages}
+            >
               Next
             </Button>
           </div>
@@ -266,6 +304,15 @@ export default function Services() {
         onSave={handleSave}
         service={selectedService}
       />
+
+      <DeleteModal
+        isOpen={isOpenDelete}
+        closeModal={() => {
+          closeModalDelete();
+        }}
+        onDelete={handleDelete}
+        service={selectedService}
+      />
     </>
   );
 }
@@ -273,8 +320,9 @@ interface ModalProps {
   isOpen: boolean;
   closeModal: () => void;
   service?: Service; // Optional prop to pass a service object for editing
-  totalListOfServiceRates: ServiceRate[]; // List of all service rates
-  onSave: (service: Service) => void; // Function to call when saving the service
+  totalListOfServiceRates?: ServiceRate[]; // List of all service rates
+  onSave?: (service: Service) => void; // Function to call when saving the service
+  onDelete?: (serviceRate: Service) => void; // Function to call when deleting a service rate
   showCloseButton?: boolean; // New prop to control close button visibility
   isFullscreen?: boolean; // Default to false for backwards compatibility
 }
@@ -282,8 +330,8 @@ const CustomerModal: React.FC<ModalProps> = ({
   isOpen,
   closeModal,
   service,
-  totalListOfServiceRates,
-  onSave,
+  totalListOfServiceRates = [],
+  onSave = () => {},
   showCloseButton = true, // Default to true for backwards compatibility
   isFullscreen = false,
 }) => {
@@ -467,6 +515,81 @@ const CustomerModal: React.FC<ModalProps> = ({
           </button>
           <Button size="sm" variant="primary" onClick={handleSave}>
             {service ? "Update Transaction" : "Create"}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+};
+
+const DeleteModal: React.FC<ModalProps> = ({
+  isOpen,
+  closeModal,
+  service,
+  onDelete = () => {},
+}) => {
+  const handleDelete = () => {
+    if (service?.name === serviceName) {
+      onDelete(service);
+    } else {
+      setShowAlert(true);
+      setAlertTitle("Error");
+      setAlertMessage("Service name does not match.");
+      setAlertType("error");
+      return;
+    }
+  };
+  const [serviceName, setServiceName] = useState<string>("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState<"success" | "error">("success");
+
+  return (
+    <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] p-6">
+      <div className="flex flex-col px-2 overflow-y-auto">
+        <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
+          Delete Service{" "}
+        </h4>
+        <p className="dark:text-white">
+          Are you sure you want to delete this service?
+        </p>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
+          Type the service name (
+          <b className="text-black dark:text-white">{service?.name}</b>) to
+          confirm:
+        </p>
+
+        <input
+          type="text"
+          value={serviceName}
+          onChange={(e) => {
+            setServiceName(e.target.value);
+          }}
+          className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+        />
+        <div className={showAlert ? "mt-4" : "hidden"}>
+          <Alert
+            variant={alertType}
+            title={alertTitle}
+            message={alertMessage}
+          />
+        </div>
+        <div className="flex items-center gap-3 mt-6 sm:justify-end">
+          <button
+            onClick={closeModal}
+            type="button"
+            className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+          >
+            Cancel
+          </button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="bg-red-500"
+            onClick={handleDelete}
+          >
+            Delete
           </Button>
         </div>
       </div>

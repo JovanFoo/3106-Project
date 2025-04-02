@@ -72,7 +72,7 @@ export default function Services() {
       setIsLoading(true);
       await axios
         .get(
-          `${api_address}/api/service-rates/true?page=${pageNumber}&limit=${pageSize}`,
+          `${api_address}/api/service-rates/paginated/true?page=${pageNumber}&limit=${pageSize}`,
           config
         )
         .then((response) => {
@@ -129,7 +129,7 @@ export default function Services() {
 
   useEffect(() => {
     fetchServiceRates();
-  }, [isLoading, pageNumber, pageSize]);
+  }, [pageNumber, pageSize]);
 
   const handleNext = () => {
     if (pageNumber < totalPages) {
@@ -155,6 +155,8 @@ export default function Services() {
       <div className="space-y-6">
         <div>
           <Button
+            variant="primary"
+            type="info"
             onClick={() => {
               console.log("add");
               openModalNew();
@@ -189,8 +191,8 @@ export default function Services() {
                   </TableCell>
                   <TableCell className="justify-around  flex">
                     <Button
-                      variant="outline"
-                      className="bg-yellow-500 dark:bg-yellow-500 dark:text-gray-900"
+                      variant="primary"
+                      type="warning"
                       onClick={() => {
                         console.log("edit Service");
                         setSelectedServiceRate(serviceRate);
@@ -200,8 +202,8 @@ export default function Services() {
                       <PencilIcon />
                     </Button>
                     <Button
-                      variant="outline"
-                      className="bg-red-500 dark:bg-red-500 dark:text-gray-900"
+                      variant="primary"
+                      type="danger"
                       onClick={() => {
                         console.log("delete Service");
                         setSelectedServiceRate(serviceRate);
@@ -241,10 +243,20 @@ export default function Services() {
             ))}
           </div>
           <div className="flex gap-2 items-center">
-            <Button onClick={handlePrev} disabled={pageNumber === 1}>
+            <Button
+              onClick={handlePrev}
+              variant="primary"
+              type="info"
+              disabled={pageNumber === 1}
+            >
               Previous
             </Button>
-            <Button onClick={handleNext} disabled={pageNumber === totalPages}>
+            <Button
+              onClick={handleNext}
+              variant="primary"
+              type="info"
+              disabled={pageNumber === totalPages}
+            >
               Next
             </Button>
           </div>
