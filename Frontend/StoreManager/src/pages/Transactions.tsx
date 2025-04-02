@@ -9,7 +9,7 @@ import { set } from "date-fns";
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 type Transaction = {
-  id: string;
+  _id: string;
   bookingId: string;
   service: Service;
   stylist: Stylist;
@@ -125,19 +125,22 @@ export default function Transactions() {
       .then((response) => {
         console.log(response.data);
         const res: PaginationData = response.data;
+
         setTotalTransactions(res.total);
 
         setTotalPages(res.totalPages);
         setHasNextPage(res.hasNextPage);
-        const mapped = res.transactions.map((txn: any) => ({
-          id: txn._id,
-          bookingId: txn.bookingId || "-",
-          service: txn.service,
-          stylist: txn.stylist,
-          paymentMethod: txn.paymentMethod,
-          amount: txn.amount.toString(),
-          status: txn.status.toString(),
-        }));
+        const mapped: Transaction[] = res.transactions.map(
+          (txn: Transaction) => ({
+            _id: txn._id,
+            bookingId: txn.bookingId || "-",
+            service: txn.service,
+            stylist: txn.stylist,
+            paymentMethod: txn.paymentMethod,
+            amount: txn.amount,
+            status: txn.status,
+          })
+        );
         setTransactions(mapped);
       })
       .catch((error) => {
@@ -208,12 +211,12 @@ export default function Transactions() {
   const handleUpdateTransaction = async (transaction: Transaction) => {
     try {
       await axios.put(
-        `${api_address}/api/transactions/${transaction.id}`,
+        `${api_address}/api/transactions/${transaction._id}`,
         transaction,
         config
       );
       setTransactions((prev) =>
-        prev.map((txn) => (txn.id === transaction.id ? transaction : txn))
+        prev.map((txn) => (txn._id === transaction._id ? transaction : txn))
       );
       closeModalEdit();
     } catch (err) {
@@ -274,7 +277,7 @@ export default function Transactions() {
           <tbody>
             {transactions.map((txn, index) => (
               <tr
-                key={txn.id}
+                key={txn._id}
                 className="text-center border cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-slate-300"
                 onClick={() => handleTransactionClick(txn)}
               >
@@ -371,14 +374,14 @@ const CustomerModal: React.FC<ModalProps> = ({
   isOpen,
   closeModal,
   transaction,
-  listOfServices,
-  listOfStylists,
+  listOfServices = [],
+  listOfStylists = [],
   onSave,
   showCloseButton = true, // Default to true for backwards compatibility
   isFullscreen = false,
 }) => {
   const [transactionData, setTransactionData] = useState<Transaction>({
-    id: "",
+    _id: "",
     bookingId: "",
     service: listOfServices[0] || dummyService,
     stylist: listOfStylists[0] || dummyStylist,
@@ -391,7 +394,7 @@ const CustomerModal: React.FC<ModalProps> = ({
   };
   useEffect(() => {
     setTransactionData({
-      id: transaction ? transaction.id : "",
+      _id: transaction ? transaction._id : "",
       bookingId: transaction ? transaction.bookingId : "",
       service: transaction
         ? transaction.service
@@ -433,11 +436,12 @@ const CustomerModal: React.FC<ModalProps> = ({
               title="Select Service"
               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-slate-300"
             >
-              {listOfServices.map((option) => (
-                <option key={option._id} value={option._id}>
-                  {option.name}
-                </option>
-              ))}
+              {listOfServices &&
+                listOfServices.map((option) => (
+                  <option key={option._id} value={option._id}>
+                    {option.name}
+                  </option>
+                ))}
             </select>
           </div>
           <div>
