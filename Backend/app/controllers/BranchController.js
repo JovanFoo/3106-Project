@@ -6,12 +6,18 @@ const BranchController = {
   // Create a new branch
   async create(req, res) {
     console.log("BranchController > create");
-    const { branchId, location, isDisabled } = req.body;
+    const { location, isDisabled, phoneNumber, weekdayOpeningTime, weekdayClosingTime, weekendOpeningTime, weekendClosingTime, holidayOpeningTime, holidayClosingTime } = req.body;
 
     try {
       const branch = new Branch({
-        branchId,
         location,
+        phoneNumber,
+        weekdayOpeningTime,
+        weekdayClosingTime,
+        weekendOpeningTime,
+        weekendClosingTime,
+        holidayOpeningTime,
+        holidayClosingTime,
         isDisabled: isDisabled ?? false, // Default to false if not provided
       });
 
@@ -99,20 +105,22 @@ const BranchController = {
   async retrieveStylists ( req, res ) {
     console.log( "BranchController > retrieveStylists" );
     const { branchId } = req.body;
-    const {userId} = req.user;
+    const {userId} = req;
 
     try
     {
-      const stylist = await Stylist.findOne( { userId } );
+      const stylist = await Stylist.findById(userId).populate( "stylists" ).exec();
       if ( !stylist )
       {
         return res.status( 404 ).json( { message: "Stylist not found" } );
       }
-      const branch = await Branch.findOne({ staffs: stylist._id });
-      if ( !branch )
-      {
-        return res.status( 404 ).json( { message: "Branch not found" } );
-      }
+      // const branch = await Branch.findOne({ staffs: stylist._id });
+      // if ( !branch )
+      // {
+      //   return res.status( 404 ).json( { message: "Branch not found" } );
+      // }
+      stylist.stylists.map( ( stylist ) => stylist.password = undefined );
+      return res.status( 200 ).json( stylist.stylists );
     }
     catch ( error )
     {
@@ -132,14 +140,22 @@ const BranchController = {
       }
       const stylistManager = await Stylist.findOne({ _id: stylistManagerId });
       if (!stylistManager) {
-        return res.status(400).json({ message: "Stylist not found" });
+        return res.status(400).json({ message: "Stylist Manager not found" });
       }
       const branch = await Branch.findOne({ _id: id });
       if (!branch) {
         return res.status(400).json({ message: "Branch not found" });
-      }
+    }
+    if ( branch.staffs.includes( stylist._id ) )
+    {
+      return res.status( 400 ).json( { message: "Stylist already assigned to branch" } );
+    }
+    stylistManager.stylists.push( stylist );
+    if ( !branch.staffs.includes( stylistManager._id ) )
+    {
+      branch.staffs.push( stylistManager );
+    }
       branch.staffs.push( stylist );
-      stylistManager.stylists.push( stylist );
       await branch.save();
       await stylistManager.save();
       return res.status(200).json(branch);
@@ -155,18 +171,40 @@ const BranchController = {
       }
       const stylistManager = await Stylist.findOne({ _id: stylistManagerId });
       if (!stylistManager) {
-        return res.status(400).json({ message: "Stylist not found" });
+        return res.status(400).json({ message: "Stylist Manager not found" });
       }
       const branch = await Branch.findOne({ _id: id });
       if (!branch) {
         return res.status(400).json({ message: "Branch not found" });
       }
-      branch.staffs.filter(x=> stylist._id.toHexString() !== x._id.toHexString());
-      stylistManager.stylists.filter(x=> stylist._id.toHexString() !== x._id.toHexString());
+      branch.staffs = branch.staffs.filter( x => !stylist._id.equals( x._id ) );
+      stylistManager.stylists = stylistManager.stylists.filter(
+        (x) => !stylist._id.equals(x._id)
+      );
       await branch.save();
       await stylistManager.save();
       return res.status(200).json(branch);
+  },
+
+  // Retrieve all branches a stylist is assigned to
+  async retrieveBranchesByStylist(req, res) {
+    console.log("BranchController > retrieveBranchesByStylist");
+
+    try {
+      const stylist = await Stylist.findById(req.userId);
+      if (!stylist) {
+        return res.status(404).json({ message: "Stylist not found" });
+      }
+
+      const branches = await Branch.find({ staffs: stylist._id });
+
+      return res.status(200).json(branches);
+    } catch (error) {
+      console.log(error.message);
+      return res.status(400).json({ message: "Error retrieving branches for stylist" });
+    }
   }
+
 };
 
 module.exports = BranchController;

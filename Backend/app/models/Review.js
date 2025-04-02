@@ -2,6 +2,10 @@ const mongose = require("mongoose");
 const Schema = mongose.Schema;
 
 const reviewSchema = new Schema({
+  title: {
+    type: String,
+    required: true,
+  },
   text: {
     type: String,
     required: true,

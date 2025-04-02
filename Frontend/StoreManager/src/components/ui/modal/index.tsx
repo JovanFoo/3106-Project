@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -87,7 +87,7 @@ export const Modal: React.FC<ModalProps> = ({
             </svg>
           </button>
         )}
-        <div>{children}</div>
+        {children}
       </div>
     </div>
   );

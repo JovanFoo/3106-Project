@@ -6,6 +6,34 @@ const branchSchema = new Schema({
     type: String,
     required: true,
   },
+  phoneNumber: {
+    type: Number,
+    required: true,
+  },
+  weekdayOpeningTime: {
+    type: String,
+    required: true,
+  },
+  weekdayClosingTime: {
+    type: String,
+    required: true,
+  },
+  weekendOpeningTime: {
+    type: String,
+    required: true,
+  },
+  weekendClosingTime: {
+    type: String,
+    required: true,
+  },
+  holidayOpeningTime: {
+    type: String,
+    required: true,
+  },
+  holidayClosingTime: {
+    type: String,
+    required: true,
+  },
   isDisabled: {
     type: Boolean,
     default: false,
