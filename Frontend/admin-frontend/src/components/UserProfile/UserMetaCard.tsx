@@ -3,13 +3,136 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import axios, { AxiosResponse } from "axios";
+import { AlertType } from "../../pages/UserProfiles";
+import { useUser } from "../../context/UserContext";
+import { useEffect, useState } from "react";
 
-export default function UserMetaCard() {
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+
+// export default function UserMetaCard(user: User) {
+export default function UserMetaCard(alert: AlertType) {
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
+  const user = useUser();
+
+  const [profilePicture, setProfilePicture] = useState(user.profilePicture);
+  const [username, setUsername] = useState(user.username);
+  const [name, setName] = useState(user.name);
+  const [email, setEmail] = useState(user.email);
+  const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber);
+  const [bio, setBio] = useState(user.bio);
+
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    setProfilePicture(user.profilePicture);
+    setUsername(user.username);
+    setName(user.name);
+    setEmail(user.email);
+    setPhoneNumber(user.phoneNumber);
+    setBio(user.bio);
+  }, [user]);
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     // Handle save logic here
-    console.log("Saving changes...");
+    e.preventDefault();
     closeModal();
+    // user.setIsLoading(true);
+    let isSuccess1 = false;
+    let isSuccess2 = false;
+
+    const config = {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        Authorization: sessionStorage.getItem("token"),
+      },
+    };
+    alert.setShowAlert(true);
+    alert.setVariant("info");
+    alert.setTitle("Updating user profile");
+    alert.setMessage("Updating user data...");
+    setIsUpdating(true);
+    await axios
+      .put(
+        api_address + "/api/stylists/" + user._id,
+        {
+          username: username,
+          name: name,
+          email: email,
+          bio: bio,
+          phoneNumber: phoneNumber,
+        },
+        config
+      )
+      .then((res: AxiosResponse) => {
+        isSuccess1 = true;
+      })
+      .catch((err) => {
+        isSuccess1 = false;
+        setBio(user.bio);
+        setEmail(user.email);
+        setName(user.name);
+        setPhoneNumber(user.phoneNumber);
+        setUsername(user.username);
+
+        alert.setShowAlert(true);
+        alert.setVariant("error");
+        alert.setTitle("Updating user profile");
+        alert.setMessage("Error: " + err.response.data.message);
+      });
+
+    await axios
+      .put(
+        api_address + "/api/stylists/profilePicture",
+        { profilePicture: profilePicture },
+        config
+      )
+      .then((res: AxiosResponse) => {
+        isSuccess2 = true;
+      })
+      .catch((err) => {
+        isSuccess2 = false;
+        setProfilePicture(user.profilePicture);
+
+        alert.setShowAlert(true);
+        alert.setVariant("error");
+        alert.setTitle("Updating user profile");
+        alert.setMessage("Error: " + err.response.data.message);
+      });
+
+    if (isSuccess1 && isSuccess2) {
+      user.fetchUserContext();
+      alert.setShowAlert(true);
+      alert.setVariant("success");
+      alert.setTitle("Updating user profile");
+      alert.setMessage("Successfully updated user data.");
+      /* the following setXXX() is to help with the loading */
+      user.setBio(bio);
+      user.setEmail(email);
+      user.setName(name);
+      user.setPhoneNumber(phoneNumber);
+      user.setProfilePicture(profilePicture);
+      user.setUsername(username);
+      console.log(profilePicture);
+      user.saveUserContext(
+        user._id,
+        username,
+        name,
+        email,
+        profilePicture,
+        phoneNumber,
+        bio,
+        user.role,
+        user.stylists,
+        user.expertises,
+        user.galleries
+      );
+    }
+    setIsUpdating(false);
+    setTimeout(() => {
+      alert.setShowAlert(false);
+    }, 10000);
   };
   return (
     <>
@@ -17,24 +140,20 @@ export default function UserMetaCard() {
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
             <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-              <img src="/images/user/owner.jpg" alt="user" />
+              <img src={user.profilePicture} />
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                Musharof Chowdhury
+                {user.name}
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Team Manager
-                </p>
-                <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Arizona, United States
+                  {user.role}
                 </p>
               </div>
             </div>
             <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
-              <a
+              {/* <a
                 href="https://www.facebook.com/PimjoHQ"
                 target="_blank"
                 rel="noopener"
@@ -116,10 +235,11 @@ export default function UserMetaCard() {
                     fill=""
                   />
                 </svg>
-              </a>
+              </a> */}
             </div>
           </div>
           <button
+            disabled={isUpdating}
             onClick={openModal}
             className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
           >
@@ -152,70 +272,107 @@ export default function UserMetaCard() {
               Update your details to keep your profile up-to-date.
             </p>
           </div>
-          <form className="flex flex-col">
+          <form className="flex flex-col" onSubmit={(e) => handleSave(e)}>
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              <div>
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <Label>Facebook</Label>
-                    <Input
-                      type="text"
-                      value="https://www.facebook.com/PimjoHQ"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>X.com</Label>
-                    <Input type="text" value="https://x.com/PimjoHQ" />
-                  </div>
-
-                  <div>
-                    <Label>Linkedin</Label>
-                    <Input
-                      type="text"
-                      value="https://www.linkedin.com/company/pimjo"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Instagram</Label>
-                    <Input type="text" value="https://instagram.com/PimjoHQ" />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-7">
+              <div className="mt-2">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Personal Information
                 </h5>
-
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input type="text" value="Musharof" />
+                  <div className="col-span-2 justify-center flex flex-col items-center gap-6 xl:flex-row">
+                    <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
+                      <label
+                        htmlFor="profilePicture"
+                        style={{ cursor: "pointer" }}
+                        onClick={(e) => {
+                          document.getElementById("profilePicture")?.click();
+                        }}
+                      >
+                        <img
+                          src={profilePicture || "/images/user/owner.jpg"}
+                          alt="user"
+                        />
+                      </label>
+                    </div>
+                    <Input
+                      className="hidden"
+                      id="profilePicture"
+                      type="file"
+                      name="profilePicture"
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (!files) return;
+                        const file = files[0];
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setProfilePicture(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
                   </div>
-
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input type="text" value="Chowdhury" />
+                    <Label>Username</Label>
+                    <Input
+                      type="text"
+                      name="username"
+                      value={username}
+                      placeholder="Username"
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label>Name</Label>
+                    <Input
+                      type="text"
+                      name="name"
+                      value={name}
+                      placeholder="Name"
+                      onChange={(e) => setName(e.target.value)}
+                    />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
-                    <Input type="text" value="randomuser@pimjo.com" />
+                    <Input
+                      type="text"
+                      name="email"
+                      value={email}
+                      placeholder="Email Address"
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
                   </div>
-
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
-                    <Input type="text" value="+09 363 398 46" />
+                    <Label>Phone Number</Label>
+                    <Input
+                      type="tel"
+                      name="phoneNumber"
+                      value={phoneNumber}
+                      placeholder="Phone Number"
+                      onChange={(e) => {
+                        try {
+                          if (e.target.value.length > 8) {
+                            return;
+                          }
+                          if (isNaN(parseInt(e.target.value))) {
+                            setPhoneNumber("");
+                            return;
+                          }
+                          setPhoneNumber(e.target.value);
+                        } catch (err) {}
+                      }}
+                      pattern="[0-9]{8}"
+                    />
                   </div>
-
                   <div className="col-span-2">
                     <Label>Bio</Label>
-                    <Input type="text" value="Team Manager" />
+                    <Input
+                      type="text"
+                      name="bio"
+                      value={bio}
+                      placeholder="Bio"
+                      onChange={(e) => setBio(e.target.value)}
+                    />
                   </div>
                 </div>
               </div>
@@ -224,9 +381,7 @@ export default function UserMetaCard() {
               <Button size="sm" variant="outline" onClick={closeModal}>
                 Close
               </Button>
-              <Button size="sm" onClick={handleSave}>
-                Save Changes
-              </Button>
+              <Button size="sm">Save Changes</Button>
             </div>
           </form>
         </div>
