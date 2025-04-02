@@ -77,7 +77,7 @@ const CalendarEventController = {
           start: leaveStartDate,
           end: leaveEndDate,
           title: "Leave",
-          description: `${leave.description} approved by ${leave.approvedBy.name}`,
+          description: `${leave.reason} approved by ${leave.approvedBy.name}`,
           type: "Leave",
         };
       });

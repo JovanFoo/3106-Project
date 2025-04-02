@@ -126,8 +126,9 @@ interface LeaveRequest {
   startDate: string;
   endDate: string;
   status: "Pending" | "Approved" | "Rejected";
-  leaveType: LeaveType;
-  description?: string;
+  reason: LeaveType;  // This is actually the leave type (backward compatibility)
+  description?: string; // Optional field for actual reason
+  type: LeaveType;     // This will be same as reason for now (backward compatibility)
   response?: string;
   approvedBy?: {
     _id: string;
@@ -206,7 +207,7 @@ const LeaveManagement = (): ReactElement => {
         // Merge stylist details with leave requests
         leaveRequestsData = leaveRequestsData.map((request: any) => ({
           ...request,
-          leaveType: request.leaveType || 'Paid',
+          type: request.reason || 'Paid Time Off', // Use reason as the leave type
           stylist: stylistMap[request.stylist] || {
             _id: request.stylist,
             name: 'Unknown',
@@ -332,7 +333,7 @@ const LeaveManagement = (): ReactElement => {
     (request) =>
       (viewMode === "status" 
         ? selectedStatus.includes(request.status)
-        : selectedTypes.includes(request.leaveType))
+        : selectedTypes.includes(request.reason))
   );
 
   // Update the leave type mapping in the stats section
@@ -637,7 +638,7 @@ const LeaveManagement = (): ReactElement => {
                             r.status !== "Rejected" &&
                             (viewMode === "status"
                               ? selectedStatus.includes(r.status)
-                              : selectedTypes.includes(r.leaveType))
+                              : selectedTypes.includes(r.reason))
                           );
                         });
 
@@ -669,7 +670,7 @@ const LeaveManagement = (): ReactElement => {
                                 return (
                                   <Tooltip
                                     key={request._id}
-                                    title={`${request.leaveType} (${
+                                    title={`${request.reason} (${
                                       request.status
                                     }): ${format(
                                       startDate,
@@ -791,10 +792,10 @@ const LeaveManagement = (): ReactElement => {
                       </Typography>
                     </Box>
                     <Chip
-                      label={request.leaveType}
+                      label={request.reason}
                       size="small"
                       sx={{
-                        bgcolor: getLeaveTypeColor(request.leaveType),
+                        bgcolor: getLeaveTypeColor(request.reason),
                         color: "white",
                         fontWeight: "medium",
                         borderRadius: "8px",
@@ -863,7 +864,7 @@ const LeaveManagement = (): ReactElement => {
     if (viewMode === "status") {
       return getStatusColor(request.status as "Pending" | "Approved");
     }
-    return getLeaveTypeColor(request.leaveType);
+    return getLeaveTypeColor(request.reason);
   };
 
   if (loading) {
