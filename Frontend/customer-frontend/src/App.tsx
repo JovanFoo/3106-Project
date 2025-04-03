@@ -20,6 +20,14 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import { Navigate } from "react-router";
 
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const config = {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+  },
+};
 export default function App() {
   return (
     <>

@@ -11,6 +11,7 @@ PromotionRouter.get(
   AuthMiddleware.authCustomerToken,
   PromotionController.retrieve
 );
+
 PromotionRouter.post(
   "/",
   AuthMiddleware.authCustomerToken,
