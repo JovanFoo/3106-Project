@@ -9,8 +9,8 @@ import Alert from "../../components/ui/alert/Alert";
 import { useState } from "react";
 import axios, { AxiosResponse } from "axios";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 export default function ChangePassword() {
   const config = {
@@ -69,7 +69,7 @@ export default function ChangePassword() {
     setIsUpdating(true);
     await axios
       .put(
-        `${api_address}/api/auth/stylists/update-password`,
+        `${api_address}/api/auth/admins/update-password`,
         {
           currentPassword: currentPassword,
           newPassword: newPassword,

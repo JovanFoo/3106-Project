@@ -66,7 +66,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     phoneNumber: string
   ) => {
     sessionStorage.setItem(
-      "stylist",
+      "admin",
       JSON.stringify({
         _id,
         username,
@@ -88,15 +88,15 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       setUsername(userObj.username);
       setName(userObj.name);
       setEmail(userObj.email);
-      setProfilePicture(userObj.profilePicture);
+      setProfilePicture(userObj.profilePicture || "/images/user/owner.jpg");
       setPhoneNumber(userObj.phoneNumber);
       console.log("UserContext loaded.");
     }
   };
 
   const fetchUserContext = async () => {
-    const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-    // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+    // const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+    const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
     const config = {
       headers: {
         "Access-Control-Allow-Origin": "*",

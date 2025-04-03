@@ -19,21 +19,21 @@ const settingsNavItems = [
     name: "Change Password",
     path: "/settings/change-password",
   },
-  {
-    icon: <PsychologyIcon className="w-6 h-6" />,
-    name: "Expertise",
-    path: "/settings/expertise",
-  },
-  {
-    icon: <WorkIcon className="w-6 h-6" />,
-    name: "Portfolio",
-    path: "/settings/portfolio",
-  },
-  {
-    icon: <ThumbUpAltIcon className="w-6 h-6" />,
-    name: "Testimonials",
-    path: "/settings/testimonials",
-  },
+  // {
+  //   icon: <PsychologyIcon className="w-6 h-6" />,
+  //   name: "Expertise",
+  //   path: "/settings/expertise",
+  // },
+  // {
+  //   icon: <WorkIcon className="w-6 h-6" />,
+  //   name: "Portfolio",
+  //   path: "/settings/portfolio",
+  // },
+  // {
+  //   icon: <ThumbUpAltIcon className="w-6 h-6" />,
+  //   name: "Testimonials",
+  //   path: "/settings/testimonials",
+  // },
 ];
 
 const SettingsSidebar = () => {
