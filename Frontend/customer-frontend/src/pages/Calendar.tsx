@@ -33,8 +33,10 @@ const Calendar: React.FC = () => {
   const [apptStartDate, setApptStartDate] = useState("");
   const [request, setRequest] = useState("");
   const [service, setService] = useState("");
-  // only take the _id and name of the service object
-  const [services, setServices] = useState<{ _id: string; name: string }[]>([]);
+  // only take the _id, name and serviceRate of the service object
+  const [services, setServices] = useState<
+    { _id: string; name: string; serviceRate: Number }[]
+  >([]);
   const [branch, setBranch] = useState("");
   const [branches, setBranches] = useState<{ _id: string; location: string }[]>(
     []
@@ -232,7 +234,6 @@ const Calendar: React.FC = () => {
       console.error("Error cancelling appointment:", error);
     }
   };
-
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
     // get the service (thus rate) for the current date
@@ -240,7 +241,6 @@ const Calendar: React.FC = () => {
     setApptStartDate(selectInfo.startStr);
     openModal();
   };
-
   // clicking the appointment tab on calendar
   const handleEventClick = async (clickInfo: EventClickArg) => {
     // get the appointment details and set the fields
@@ -267,8 +267,7 @@ const Calendar: React.FC = () => {
     setApptStartDate(date.toISOString().split("T")[0]);
     openModal();
   };
-
-  // Handle branch selection change
+  // handle branch selection change
   const handleBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const branchId = e.target.value;
     setBranch(branchId);
@@ -292,8 +291,14 @@ const Calendar: React.FC = () => {
     const customer = JSON.parse(userData);
     const token = customer.tokens.token;
 
+    // find the selected service to get its rate
+    const selectedService = services.find((s) => s._id === service);
+    const serviceRate = selectedService?.serviceRate || 0;
+
     if (selectedEvent) {
       // TODO: Update existing event
+      const serviceRate = services.filter((e) => e._id === service);
+      console.log(serviceRate);
       setAppts((prevEvents) =>
         prevEvents.map((event) =>
           event.id === selectedEvent.id
@@ -315,7 +320,7 @@ const Calendar: React.FC = () => {
       const newAppointmentData = {
         date: apptStartDate,
         request: request,
-        totalAmount: 0, // Adjust as necessary
+        totalAmount: serviceRate,
         serviceId: service,
         stylistId: stylist,
       };
