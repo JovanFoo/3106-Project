@@ -4,9 +4,6 @@ import { Link, useLocation } from "react-router";
 // MUI Icons
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LockResetIcon from "@mui/icons-material/LockReset";
-import PsychologyIcon from "@mui/icons-material/Psychology";
-import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
-import WorkIcon from "@mui/icons-material/Work";
 
 const settingsNavItems = [
   {
@@ -18,21 +15,6 @@ const settingsNavItems = [
     icon: <LockResetIcon className="w-6 h-6" />,
     name: "Change Password",
     path: "/settings/change-password",
-  },
-  {
-    icon: <PsychologyIcon className="w-6 h-6" />,
-    name: "Expertise",
-    path: "/settings/expertise",
-  },
-  {
-    icon: <WorkIcon className="w-6 h-6" />,
-    name: "Portfolio",
-    path: "/settings/portfolio",
-  },
-  {
-    icon: <ThumbUpAltIcon className="w-6 h-6" />,
-    name: "Testimonials",
-    path: "/settings/testimonials",
   },
 ];
 

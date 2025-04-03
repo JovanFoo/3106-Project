@@ -8,36 +8,26 @@ import {
 } from "react-router-dom";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import AppLayout from "./layout/AppLayout";
-import Analytics from "./pages/Analytics";
-import Appointments from "./pages/Appointments";
 import ForgetPassword from "./pages/AuthPages/ForgetPassword";
 import SignIn from "./pages/AuthPages/SignIn";
-import SignUp from "./pages/AuthPages/SignUp";
 import Blank from "./pages/Blank";
-import Calendar from "./pages/Calendar";
 // import BarChart from "./pages/Charts/BarChart";
 // import LineChart from "./pages/Charts/LineChart";
 import Home from "./pages/Dashboard/Home";
-import EmergencyLeaveManagement from "./pages/EmergencyLeaveManagement";
-import LeaveDocumentApproval from "./pages/LeaveDocumentApproval";
 import LeaveManagement from "./pages/LeaveManagement";
+import ServiceRates from "./pages/ManagePages/ServiceRates";
+import Service from "./pages/ManagePages/Services";
 import NotFound from "./pages/OtherPage/NotFound";
 import ChangePassword from "./pages/Settings/ChangePassword";
-import Expertise from "./pages/Settings/Expertise";
-import Notifications from "./pages/Settings/Notifications";
-import Portfolio from "./pages/Settings/Portfolio";
-import Testimonials from "./pages/Settings/Testimonials";
-import ShopSettings from "./pages/ShopSettings";
-import Teams from "./pages/Teams";
 import Transactions from "./pages/Transactions";
-import Service from "./pages/ManagePages/Services";
-import ServiceRates from "./pages/ManagePages/ServiceRates";
 // import Alerts from "./pages/UiElements/Alerts";
 // import Avatars from "./pages/UiElements/Avatars";
 // import Badges from "./pages/UiElements/Badges";
 // import Buttons from "./pages/UiElements/Buttons";
 // import Images from "./pages/UiElements/Images";
 // import Videos from "./pages/UiElements/Videos";
+import Expertise from "./pages/Expertise";
+import Shop from "./pages/Shop";
 import UserProfiles from "./pages/UserProfiles";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
@@ -81,26 +71,17 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
+            <Route index path="/home" element={<Home />} />
 
             {/* Main Page */}
-            <Route path="/appointments" element={<Appointments />} />
-            <Route path="/calendar" element={<Calendar />} />
             <Route path="/transactions" element={<Transactions />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/teams" element={<Teams />} />
-            <Route path="/shops" element={<ShopSettings />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/expertise" element={<Expertise />} />
+            <Route path="/services" element={<Service />} />
+            <Route path="/service-rates" element={<ServiceRates />} />
 
             {/* Leave Management Routes */}
             <Route path="/leave-management" element={<LeaveManagement />} />
-            <Route
-              path="/emergency-leave"
-              element={<EmergencyLeaveManagement />}
-            />
-            <Route
-              path="/leave-document-approval"
-              element={<LeaveDocumentApproval />}
-            />
 
             {/* Settings */}
             <Route
@@ -112,15 +93,8 @@ export default function App() {
               path="/settings/change-password"
               element={<ChangePassword />}
             />
-            <Route path="/settings/notifications" element={<Notifications />} />
-            <Route path="/settings/expertise" element={<Expertise />} />
-            <Route path="/settings/portfolio" element={<Portfolio />} />
-            <Route path="/settings/testimonials" element={<Testimonials />} />
 
-            {/* Other Routes */}
-            <Route path="/manage/services" element={<Service />} />
-            <Route path="/manage/service-rates" element={<ServiceRates />} />
-            <Route path="/ratings-reviews" element={<Testimonials />} />
+            {/* Others Page */}
             <Route path="/blank" element={<Blank />} />
           </Route>
 

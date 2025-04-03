@@ -1,18 +1,17 @@
-import AnalyticsIcon from "@mui/icons-material/Analytics";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import BuildIcon from "@mui/icons-material/Build";
+import ContentCutIcon from "@mui/icons-material/ContentCut";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import GroupsIcon from "@mui/icons-material/Groups";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import LayersIcon from "@mui/icons-material/Layers";
 import PaidIcon from "@mui/icons-material/Paid";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 import SettingsIcon from "@mui/icons-material/Settings";
-import StoreIcon from "@mui/icons-material/Store";
-import { use, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
-import { HorizontaLDots } from "../icons";
 import { useUser } from "../context/UserContext";
+import { HorizontaLDots } from "../icons";
 
 type NavItem = {
   name: string;
@@ -25,17 +24,12 @@ const AppSidebar: React.FC = () => {
     {
       icon: <DashboardIcon />,
       name: "Dashboard",
-      path: "/",
+      path: "/home",
     },
     {
-      icon: <InfoOutlinedIcon />,
-      name: "Appointments",
-      path: "/appointments",
-    },
-    {
-      icon: <CalendarMonthIcon />,
-      name: "Calendar",
-      path: "/calendar",
+      icon: <ContentCutIcon />,
+      name: "Stylists",
+      path: "/stylists",
     },
     {
       icon: <PaidIcon />,
@@ -43,35 +37,24 @@ const AppSidebar: React.FC = () => {
       path: "/transactions",
     },
     {
-      name: "Manage",
-      icon: <LayersIcon />,
-      subItems: [
-        { name: "Leave Approval", path: "/leave-Management" },
-        { name: "Emergency Leave", path: "/emergency-leave", pro: false },
-        {
-          name: "Documentation Approval",
-          path: "/leave-document-approval",
-          pro: false,
-        },
-        { name: "Services", path: "/manage/services", pro: false },
-        { name: "Service rates", path: "/manage/service-rates", pro: false },
-        // { name: "Ratings & Reviews", path: "/ratings", pro: false },
-      ],
+      icon: <InfoOutlinedIcon />,
+      name: "Shop",
+      path: "/shop",
     },
     {
-      icon: <AnalyticsIcon />,
-      name: "Analytics",
-      path: "/analytics",
+      icon: <PsychologyIcon />,
+      name: "Expertise",
+      path: "/expertise",
     },
     {
-      icon: <GroupsIcon />,
-      name: "Teams",
-      path: "/teams",
+      icon: <BuildIcon />,
+      name: "Services",
+      path: "/services",
     },
     {
-      icon: <StoreIcon />,
-      name: "Shop Settings",
-      path: "/shops",
+      icon: <RequestQuoteIcon />,
+      name: "Service rates",
+      path: "/service-rates",
     },
     {
       icon: <SettingsIcon />,
