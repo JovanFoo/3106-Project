@@ -91,7 +91,7 @@ export default function Expertise() {
 
     return (
         <div className="flex min-h-screen">
-            <div className="flex-1 p-5">
+            <div className="flex-1">
                 <PageMeta title="Expertise Management" description="Manage expertise tags" />
                 <PageBreadcrumb pageTitle="Expertise" />
 
@@ -111,7 +111,7 @@ export default function Expertise() {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 dark:text-white/90">
                         {expertises.map((exp) => (
                             <div
                                 key={exp._id}
@@ -128,7 +128,7 @@ export default function Expertise() {
                                 </div>
                                 <Button
                                     size="sm"
-                                    variant="destructive"
+                                    variant="outline"
                                     onClick={() => deleteExpertise(exp._id)}
                                 >
                                     Delete
