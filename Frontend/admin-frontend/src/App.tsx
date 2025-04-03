@@ -71,7 +71,7 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-            <Route index path="/home" element={<Home />} />
+            <Route index path="/" element={<Home />} />
 
             {/* Main Page */}
             <Route path="/transactions" element={<Transactions />} />
