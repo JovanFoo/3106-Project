@@ -76,4 +76,10 @@ StylistRouter.get(
   AuthMiddleware.authCustomerOrStylistToken,
   StylistController.retrieveAllStylists
 );
+// get stylist's available times based on date and service, for Customer
+StylistRouter.get(
+  "/:id/availability",
+  AuthMiddleware.authCustomerToken,
+  StylistController.getStylistAvailabilityByDateAndService
+);
 module.exports = StylistRouter;
