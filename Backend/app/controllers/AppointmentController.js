@@ -12,9 +12,10 @@ const AppointmentController = {
   async create(req, res) {
     console.log("AppointmentController > create");
     const id = req.userId;
-    let { date, request, totalAmount, serviceId, stylistId } = req.body;
+    let { date, request, totalAmount, serviceId, stylistId, branchId } =
+      req.body;
     const modDate = new Date(date);
-    modDate.setHours(modDate.getHours() + 8)
+    modDate.setUTCHours(modDate.getUTCHours() + 8); // set to SGT
     totalAmount = parseFloat(totalAmount);
     try {
       const appointment = new Appointment({
@@ -22,7 +23,8 @@ const AppointmentController = {
         request,
         totalAmount,
         service: serviceId,
-        stylist: stylistId
+        stylist: stylistId,
+        branch: branchId,
       });
       const newAppointment = await appointment.save();
       const customer = await Customer.findById(id);
@@ -77,17 +79,17 @@ const AppointmentController = {
     console.log("AppointmentController > delete");
     const customerId = req.userId;
     const appointmentId = req.params.id;
-    const currentAppt = await Appointment.findOne({_id: appointmentId});
+    const currentAppt = await Appointment.findOne({ _id: appointmentId });
     const stylistId = currentAppt.stylist;
 
     const customer = await Customer.findOne({ _id: customerId });
-    // Remove appointment from customer 
+    // Remove appointment from customer
     customer.appointments = customer.appointments.filter((appointment) => {
       return appointment._id.toString() !== appointmentId;
     });
     await customer.save();
     // Remove appointment from stylist
-    const stylist = await Stylist.findOne({_id: stylistId});
+    const stylist = await Stylist.findOne({ _id: stylistId });
     stylist.appointments = stylist.appointments.filter((appointment) => {
       return appointment._id.toString() !== appointmentId;
     });
@@ -139,7 +141,8 @@ const AppointmentController = {
         { new: true }
       );
 
-      if (!updated) return res.status(404).json({ message: "Appointment not found" });
+      if (!updated)
+        return res.status(404).json({ message: "Appointment not found" });
 
       res.json(updated);
     } catch (err) {

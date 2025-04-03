@@ -31,6 +31,10 @@ const appointmentSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Stylist",
   },
+  branch: {
+    type: Schema.Types.ObjectId,
+    ref: "Branch",
+  }
 });
 
 const Appointment = mongose.model("Appointment", appointmentSchema);

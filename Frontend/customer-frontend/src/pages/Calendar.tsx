@@ -186,6 +186,7 @@ const Calendar: React.FC = () => {
               stylist: appointment.stylist,
               request: appointment.request,
               service: appointment.service,
+              branch: appointment.branch,
             },
           }));
 
@@ -195,7 +196,6 @@ const Calendar: React.FC = () => {
       }
     }
   };
-
   const handleDeleteAppointment = async () => {
     if (!selectedEvent) return;
 
@@ -323,6 +323,7 @@ const Calendar: React.FC = () => {
         totalAmount: serviceRate,
         serviceId: service,
         stylistId: stylist,
+        branchId: branch,
       };
 
       try {
@@ -519,7 +520,7 @@ const Calendar: React.FC = () => {
                   <option value="">Select a service</option>
                   {services.map((s) => (
                     <option key={s._id} value={s._id}>
-                      {s.name}{" "}
+                      {s.name} (${s.serviceRate.toString()})
                       {/* display service name, save service value as name also */}
                     </option>
                   ))}
