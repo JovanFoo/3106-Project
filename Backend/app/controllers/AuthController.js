@@ -241,6 +241,25 @@ const AuthController = {
     await stylist.save();
     return res.status(200).json({ message: "Password updated" });
   },
+  async updatePasswordAdmin(req, res) {
+    console.log("AuthController > update password");
+    const { currentPassword, newPassword } = req.body;
+    const id = req.userId;
+    const admin = await Admin.findOne({ _id: id });
+    if (!admin) {
+      res.status(404).json({ message: "Admin not found" });
+    }
+    const isMatch = await PasswordHash.comparePassword(
+      currentPassword,
+      admin.password
+    );
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid current password" });
+    }
+    admin.password = await PasswordHash.hashPassword(newPassword);
+    await admin.save();
+    return res.status(200).json({ message: "Password updated" });
+  },
 };
 
 module.exports = AuthController;
