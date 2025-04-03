@@ -150,7 +150,7 @@ export default function CreateShop() {
                             Add Shop +
                         </Button>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {shops.map((shop) => (
                             <div
@@ -257,7 +257,7 @@ export default function CreateShop() {
                             >
                                 Cancel
                             </button>
-                            <Button size="sm" variant="outline" onClick={handleDeleteShop}>
+                            <Button size="sm" variant="outline" type="danger" onClick={handleDeleteShop}>
                                 Delete
                             </Button>
                         </div>
