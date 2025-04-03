@@ -1,6 +1,6 @@
 const mongodb = require("./config/database.js");
 const Expertise = require("../models/Expertise.js");
-
+const Stylist = require("../models/Stylist.js");
 const ExpertiseController = {
   // Create new Expertise TODO: require only admin/branch manager account
   async create(req, res) {
@@ -16,7 +16,7 @@ const ExpertiseController = {
       if (!newExpertise) {
         return res.status(400).json({ message: "Error creating expertise" });
       }
-      return res.status(201).json(savedService);
+      return res.status(201).json(newExpertise);
     } catch (error) {
       console.log(error.message);
       return res.status(400).json({ message: error.message });
@@ -75,6 +75,8 @@ const ExpertiseController = {
       const expertise = await Expertise.findOne({ _id: id });
 
       if (expertise) {
+        await Expertise.findByIdAndDelete({ _id: id });
+        await Stylist.find();
         return res
           .status(204)
           .json({ message: "Expertise deleted successfully" });
