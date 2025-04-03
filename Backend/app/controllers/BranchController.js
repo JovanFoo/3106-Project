@@ -238,6 +238,24 @@ const BranchController = {
         .json({ message: "Error retrieving branches for stylist" });
     }
   },
+  // Retrieve all stylists in a branch
+  async retrieveStylistsForBranch(req, res) {
+    console.log("BranchController > retrieveStylistsForBranch");
+    const { id } = req.params;
+
+    try {
+      const branch = await Branch.findById(id).populate("stylists");
+      const stylists = branch.stylists;
+      if (!branch) {
+        return res.status(404).json({ message: "Branch not found" });
+      }
+      stylists.map((stylist) => (stylist.password = undefined));
+      return res.status(200).json(stylists);
+    } catch (error) {
+      console.log(error.message);
+      return res.status(400).json({ message: "Error retrieving branch" });
+    }
+  },
 };
 
 module.exports = BranchController;

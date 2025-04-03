@@ -36,10 +36,10 @@ BranchRouter.put(
   BranchController.removeStylist
 );
 
-// Get all branches (Auth: admin)
+// Get all branches (Auth: admin and customer)
 BranchRouter.get(
   "/",
-  AuthMiddleware.authAdminToken,
+  AuthMiddleware.authAdminCustomerStylistOrManagerToken,
   BranchController.retrieveAll
 );
 
@@ -62,6 +62,13 @@ BranchRouter.delete(
   "/:id",
   AuthMiddleware.authStylistManagerToken,
   BranchController.delete
+);
+
+// Retrieve all stylists in a branch (Auth: customer)
+BranchRouter.get(
+  "/:id/stylists",
+  AuthMiddleware.authCustomerToken,
+  BranchController.retrieveStylistsForBranch
 );
 
 module.exports = BranchRouter;

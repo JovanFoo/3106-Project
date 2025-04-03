@@ -19,6 +19,7 @@ interface CalendarEvent extends EventInput {
     stylist: string;
     request: string;
     service: string;
+    branch: string;
   };
 }
 
@@ -34,6 +35,10 @@ const Calendar: React.FC = () => {
   const [service, setService] = useState("");
   // only take the _id and name of the service object
   const [services, setServices] = useState<{ _id: string; name: string }[]>([]);
+  const [branch, setBranch] = useState("");
+  const [branches, setBranches] = useState<{ _id: string; location: string }[]>(
+    []
+  );
   const [appt, setAppts] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
@@ -51,10 +56,36 @@ const Calendar: React.FC = () => {
   // };
   useEffect(() => {
     fetchAppointments();
-    fetchStylists();
+    // fetchStylists();
+    fetchBranches();
     fetchServices(new Date()); //to allow initial rendering of appointment service types on calendar
     // MIGHT BREAK THE SERVICE RATE CALCULATION //
   }, []);
+
+  // get list of all available branches
+  const fetchBranches = async () => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.tokens.token;
+      try {
+        const response = await fetch(`${API_URL}/api/branches`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch branches");
+
+        const data = await response.json();
+        console.log(data);
+        setBranches(data);
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    }
+  };
 
   // get a list of all services and their prices for dropdown
   const fetchServices = async (date: Date) => {
@@ -89,20 +120,23 @@ const Calendar: React.FC = () => {
     }
   };
 
-  // get list of all stylists for dropdown
-  const fetchStylists = async () => {
+  // get list of all stylists for SPECIFIC BRANCH for dropdown
+  const fetchStylists = async (branchId: string) => {
     const userData = localStorage.getItem("user");
     if (userData) {
       const customer = JSON.parse(userData);
       const token = customer.tokens.token;
       try {
-        const response = await fetch(`${API_URL}/api/stylists`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        });
+        const response = await fetch(
+          `${API_URL}/api/branches/${branchId}/stylists`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
         if (!response.ok) throw new Error("Failed to fetch stylists");
 
         const data = await response.json();
@@ -139,7 +173,9 @@ const Calendar: React.FC = () => {
         // });
 
         const formattedAppointments = data
-          .filter((appointment: any) => appointment.status.toString() === "Pending") // only show active appointments
+          .filter(
+            (appointment: any) => appointment.status.toString() === "Pending"
+          ) // only show active appointments
           .map((appointment: any) => ({
             id: appointment._id.toString(),
             start: new Date(appointment.date).toISOString().split("T")[0] || "",
@@ -179,7 +215,7 @@ const Calendar: React.FC = () => {
             "Content-Type": "application/json",
             Authorization: token,
           },
-          body: JSON.stringify({status: "Cancelled"}),
+          body: JSON.stringify({ status: "Cancelled" }),
         }
       );
 
@@ -214,7 +250,12 @@ const Calendar: React.FC = () => {
     if (date) {
       date.setHours(date.getHours() + 8);
     }
+    // Set the branch first
+    setBranch(appt.extendedProps.branch);
+
     await fetchServices(date);
+    await fetchStylists(appt.extendedProps.branch);
+
     const serviceObj = services.find(
       (s) => s._id === appt.extendedProps.service
     );
@@ -225,6 +266,21 @@ const Calendar: React.FC = () => {
     setService(serviceObj?._id || "");
     setApptStartDate(date.toISOString().split("T")[0]);
     openModal();
+  };
+
+  // Handle branch selection change
+  const handleBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const branchId = e.target.value;
+    setBranch(branchId);
+
+    // Reset dependent fields
+    setStylist("");
+    setService("");
+
+    // Fetch services and stylists for the selected branch
+    if (branchId && apptStartDate) {
+      fetchStylists(branchId);
+    }
   };
 
   const handleAddOrUpdateEvent = async () => {
@@ -248,6 +304,7 @@ const Calendar: React.FC = () => {
                   stylist: stylist,
                   service: service,
                   request: request,
+                  branch: branch,
                 },
               }
             : event
@@ -283,6 +340,7 @@ const Calendar: React.FC = () => {
           start: createdAppointment.date,
           allDay: true,
           extendedProps: {
+            branch: createdAppointment.branch,
             stylist: createdAppointment.stylist,
             service: createdAppointment.service,
             request: createdAppointment.request,
@@ -310,6 +368,7 @@ const Calendar: React.FC = () => {
     setApptStartDate("");
     // setEventLevel("");
     setSelectedEvent(null);
+    setBranch("");
   };
 
   // renders appointment bars on calendar
@@ -392,66 +451,51 @@ const Calendar: React.FC = () => {
                       setApptStartDate(e.target.value);
                       fetchServices(new Date(e.target.value));
                     }}
-                    className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                    className={`dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800`}
+                    required
                   />
                 </div>
               </div>
-              {/* <div className="mt-6">
-                <label className="block mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Event Color
-                </label>
-                <div className="flex flex-wrap items-center gap-4 sm:gap-5">
-                  {Object.entries(calendarsEvents).map(([key, value]) => (
-                    <div key={key} className="n-chk">
-                      <div
-                        className={`form-check form-check-${value} form-check-inline`}
-                      >
-                        <label
-                          className="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
-                          htmlFor={`modal${key}`}
-                        >
-                          <span className="relative">
-                            <input
-                              className="sr-only form-check-input"
-                              type="radio"
-                              name="event-level"
-                              value={key}
-                              id={`modal${key}`}
-                              checked={eventLevel === key}
-                              onChange={() => setEventLevel(key)}
-                            />
-                            <span className="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                              <span className="w-2 h-2 bg-white rounded-full dark:bg-transparent"></span>
-                            </span>
-                          </span>
-                          {key}
-                        </label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div> */}
-
               <div className="mt-6">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Stylist
-                  </label>
-                  <select
-                    id="stylist"
-                    value={stylist}
-                    onChange={(e) => setStylist(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-                  >
-                    <option value="">Select a stylist</option>
-                    {stylists.map((s) => (
-                      <option key={s._id} value={s._id}>
-                        {s.name}{" "}
-                        {/* display stylist name, save stylist value as the id */}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Select Branch
+                </label>
+                <select
+                  id="branch"
+                  value={branch}
+                  onChange={handleBranchChange}
+                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  required
+                >
+                  <option value="">Select a branch</option>
+                  {branches.map((b) => (
+                    <option key={b._id} value={b._id}>
+                      {b.location}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mt-6">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Stylist
+                </label>
+                <select
+                  id="stylist"
+                  value={stylist}
+                  onChange={(e) => setStylist(e.target.value)}
+                  className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${
+                    !branch ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!branch}
+                  required
+                >
+                  <option value="">Select a stylist</option>
+                  {stylists.map((s) => (
+                    <option key={s._id} value={s._id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="mt-6">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -461,7 +505,11 @@ const Calendar: React.FC = () => {
                   id="service"
                   value={service}
                   onChange={(e) => setService(e.target.value)}
-                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${
+                    !branch ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!branch}
+                  required
                 >
                   <option value="">Select a service</option>
                   {services.map((s) => (
@@ -481,7 +529,10 @@ const Calendar: React.FC = () => {
                   type="text"
                   value={request}
                   onChange={(e) => setRequest(e.target.value)}
-                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                  className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${
+                    !branch ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!branch}
                 />
               </div>
             </div>
