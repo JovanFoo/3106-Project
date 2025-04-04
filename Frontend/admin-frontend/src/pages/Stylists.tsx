@@ -96,9 +96,9 @@ export default function StylistPage() {
   const fetchBranchesData = async () => {
     await axios.get(`${api_address}/api/branches`, config).then((response) => {
       console.log(response.data);
-      const data = response.data.map((branch) => {
+      const data = response.data.map((branch: any) => {
         return {
-          _id: branch._id,
+          _id: branch?._id,
           name: branch?.location,
         };
       });
