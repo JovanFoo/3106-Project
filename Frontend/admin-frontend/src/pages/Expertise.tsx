@@ -91,7 +91,7 @@ export default function Expertise() {
 
     return (
         <div className="flex min-h-screen">
-            <div className="flex-1">
+            <div className="flex-1 p-5">
                 <PageMeta title="Expertise Management" description="Manage expertise tags" />
                 <PageBreadcrumb pageTitle="Expertise" />
 

@@ -1,20 +1,18 @@
+import { TableBody } from "@mui/material";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
-import axios from "axios";
+import Alert from "../../components/ui/alert/Alert";
+import Button from "../../components/ui/button/Button";
+import { Modal } from "../../components/ui/modal";
 import {
   Table,
   TableCell,
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import Button from "../../components/ui/button/Button";
-import { PencilIcon, TrashBinIcon } from "../../icons";
-import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import { NativeSelect, TableBody } from "@mui/material";
-import Alert from "../../components/ui/alert/Alert";
-import { set } from "date-fns";
+import { PencilIcon, TrashBinIcon } from "../../icons";
 // import MultiSelect from "../../components/form/MultiSelect";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -176,143 +174,145 @@ export default function Services() {
   };
   return (
     <>
-      <PageMeta
-        title="React.js Chart Dashboard | TailAdmin - React.js Admin Dashboard Template"
-        description="This is React.js Chart Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
-      />
-      <PageBreadcrumb pageTitle="Services" />
+      <div className="flex min-h-screen">
+        <div className="flex-1 p-5">
+          <PageBreadcrumb pageTitle="Services" />
 
-      <div className="space-y-6">
-        <div>
-          <Button
-            variant="primary"
-            type="info"
-            onClick={() => {
-              openModalNew();
-            }}
-          >
-            + Add new service
-          </Button>
-        </div>
-        <Table className="min-w-full">
-          <TableHeader className="bg-gray-50 border-b-2 border-gray-200">
-            <TableRow isHeader={true}>
-              <TableCell isHeader={true}>#</TableCell>
-              <TableCell isHeader={true}>Service Name</TableCell>
-              <TableCell isHeader={true}>Duration</TableCell>
-              <TableCell isHeader={true}>Description</TableCell>
-              <TableCell isHeader={true}>Actions</TableCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {services &&
-              services.map((service, index) => (
-                <TableRow key={service._id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{service.name}</TableCell>
-                  <TableCell>{service.duration}</TableCell>
-                  <TableCell>
-                    {service.description.length > 50
-                      ? service.description.substring(0, 80) + " ..."
-                      : service.description}
-                  </TableCell>
-                  <TableCell className="justify-around flex">
-                    <Button
-                      variant="primary"
-                      type="warning"
-                      onClick={() => {
-                        setSelectedService(service);
-                        openModalEdit();
-                      }}
-                    >
-                      <PencilIcon />
-                    </Button>
-                    <Button
-                      variant="primary"
-                      type="danger"
-                      onClick={() => {
-                        setSelectedService(service);
-                        openModalDelete();
-                      }}
-                    >
-                      <TrashBinIcon />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex gap-2 items-center">
-            <span className="text-gray-700 dark:text-gray-400 mt-4">
-              Page {pageNumber} of {totalPages}
-            </span>
-            <span className="text-gray-700 dark:text-gray-400 mt-4 ml-2">
-              Showing {services.length} of {totalService} transactions
-            </span>
-            <span className="text-gray-700 dark:text-gray-400 mt-4 ">
-              Page Size:
-            </span>
-            {pageSizeOptions.map((size) => (
-              <span
-                key={size}
-                onClick={() => handlePageSizeChange(size)}
-                className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${
-                  pageSize === size
-                    ? "font-bold text-black dark:text-white"
-                    : ""
-                }`}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6 space-y-6">
+          <div className="flex justify-between items-center mb-6">
+          <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            Manage Services
+          </h4>
+              <Button
+                variant="primary"
+                type="info"
+                onClick={() => {
+                  openModalNew();
+                }}
               >
-                {size}
-              </span>
-            ))}
+                + Add new service
+              </Button>
+            </div>
+            <Table className="min-w-full">
+              <TableHeader className="bg-gray-50 border-b-2 border-gray-200">
+                <TableRow isHeader={true}>
+                  <TableCell isHeader={true}>#</TableCell>
+                  <TableCell isHeader={true}>Service Name</TableCell>
+                  <TableCell isHeader={true}>Duration</TableCell>
+                  <TableCell isHeader={true}>Description</TableCell>
+                  <TableCell isHeader={true}>Actions</TableCell>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {services &&
+                  services.map((service, index) => (
+                    <TableRow key={service._id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{service.name}</TableCell>
+                      <TableCell>{service.duration}</TableCell>
+                      <TableCell>
+                        {service.description.length > 50
+                          ? service.description.substring(0, 80) + " ..."
+                          : service.description}
+                      </TableCell>
+                      <TableCell className="justify-around flex">
+                        <Button
+                          variant="primary"
+                          type="warning"
+                          onClick={() => {
+                            setSelectedService(service);
+                            openModalEdit();
+                          }}
+                        >
+                          <PencilIcon />
+                        </Button>
+                        <Button
+                          variant="primary"
+                          type="danger"
+                          onClick={() => {
+                            setSelectedService(service);
+                            openModalDelete();
+                          }}
+                        >
+                          <TrashBinIcon />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex gap-2 items-center">
+                <span className="text-gray-700 dark:text-gray-400 mt-4">
+                  Page {pageNumber} of {totalPages}
+                </span>
+                <span className="text-gray-700 dark:text-gray-400 mt-4 ml-2">
+                  Showing {services.length} of {totalService} transactions
+                </span>
+                <span className="text-gray-700 dark:text-gray-400 mt-4 ">
+                  Page Size:
+                </span>
+                {pageSizeOptions.map((size) => (
+                  <span
+                    key={size}
+                    onClick={() => handlePageSizeChange(size)}
+                    className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${pageSize === size
+                        ? "font-bold text-black dark:text-white"
+                        : ""
+                      }`}
+                  >
+                    {size}
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-2 items-center">
+                <Button
+                  onClick={handlePrev}
+                  variant="primary"
+                  type="info"
+                  disabled={pageNumber === 1}
+                >
+                  Previous
+                </Button>
+                <Button
+                  onClick={handleNext}
+                  variant="primary"
+                  type="info"
+                  disabled={pageNumber === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2 items-center">
-            <Button
-              onClick={handlePrev}
-              variant="primary"
-              type="info"
-              disabled={pageNumber === 1}
-            >
-              Previous
-            </Button>
-            <Button
-              onClick={handleNext}
-              variant="primary"
-              type="info"
-              disabled={pageNumber === totalPages}
-            >
-              Next
-            </Button>
-          </div>
+          <CustomerModal
+            isOpen={isOpenNew}
+            closeModal={() => {
+              closeModalNew();
+            }}
+            totalListOfServiceRates={allServiceRates}
+            onSave={handleAdd}
+          />
+          <CustomerModal
+            isOpen={isOpenEdit}
+            closeModal={() => {
+              closeModalEdit();
+            }}
+            totalListOfServiceRates={allServiceRates}
+            onSave={handleSave}
+            service={selectedService}
+          />
+
+          <DeleteModal
+            isOpen={isOpenDelete}
+            closeModal={() => {
+              closeModalDelete();
+            }}
+            onDelete={handleDelete}
+            service={selectedService}
+          />
         </div>
       </div>
-      <CustomerModal
-        isOpen={isOpenNew}
-        closeModal={() => {
-          closeModalNew();
-        }}
-        totalListOfServiceRates={allServiceRates}
-        onSave={handleAdd}
-      />
-      <CustomerModal
-        isOpen={isOpenEdit}
-        closeModal={() => {
-          closeModalEdit();
-        }}
-        totalListOfServiceRates={allServiceRates}
-        onSave={handleSave}
-        service={selectedService}
-      />
-
-      <DeleteModal
-        isOpen={isOpenDelete}
-        closeModal={() => {
-          closeModalDelete();
-        }}
-        onDelete={handleDelete}
-        service={selectedService}
-      />
     </>
   );
 }
@@ -331,7 +331,7 @@ const CustomerModal: React.FC<ModalProps> = ({
   closeModal,
   service,
   totalListOfServiceRates = [],
-  onSave = () => {},
+  onSave = () => { },
   showCloseButton = true, // Default to true for backwards compatibility
   isFullscreen = false,
 }) => {
@@ -489,8 +489,8 @@ const CustomerModal: React.FC<ModalProps> = ({
                             const updatedServiceRates = e.target.checked
                               ? [...serviceData.serviceRates, x]
                               : serviceData.serviceRates.filter(
-                                  (sr) => sr._id !== x._id
-                                );
+                                (sr) => sr._id !== x._id
+                              );
                             setServiceData({
                               ...serviceData,
                               serviceRates: updatedServiceRates,
@@ -526,7 +526,7 @@ const DeleteModal: React.FC<ModalProps> = ({
   isOpen,
   closeModal,
   service,
-  onDelete = () => {},
+  onDelete = () => { },
 }) => {
   const handleDelete = () => {
     if (service?.name === serviceName) {
