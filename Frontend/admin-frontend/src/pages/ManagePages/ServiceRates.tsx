@@ -1,19 +1,19 @@
+import { TableBody } from "@mui/material";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
-import axios from "axios";
+import Alert from "../../components/ui/alert/Alert";
+import Button from "../../components/ui/button/Button";
+import { Modal } from "../../components/ui/modal";
 import {
   Table,
   TableCell,
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import Button from "../../components/ui/button/Button";
-import { PencilIcon, TrashBinIcon } from "../../icons";
-import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import { TableBody } from "@mui/material";
-import Alert from "../../components/ui/alert/Alert";
+import { PencilIcon, TrashBinIcon } from "../../icons";
+import PageMeta from "../../components/common/PageMeta";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -225,8 +225,8 @@ export default function Services() {
                   {`Page ${pageNumber} of ${totalPages}`}
                 </span>
                 <span className="text-gray-700 dark:text-gray-400 mt-4 ml-2">
-                  Showing {serviceRates.length} of {totalServiceRates}{" "}
-                  transactions
+                  Showing {serviceRates.length} of {totalServiceRates} Service
+                  Rates
                 </span>
                 <span className="text-gray-700 dark:text-gray-400 mt-4 ">
                   Page Size:
@@ -265,31 +265,31 @@ export default function Services() {
               </div>
             </div>
           </div>
+          <CustomerModal
+            isOpen={isOpenNew}
+            closeModal={() => {
+              closeModalNew();
+            }}
+            onSave={handleAddServiceRate}
+          />
+          <CustomerModal
+            isOpen={isOpenEdit}
+            closeModal={() => {
+              closeModalEdit();
+            }}
+            onSave={handleEditServiceRate}
+            serviceRate={selectedServiceRate}
+          />
+          <DeleteModal
+            isOpen={isOpenDelete}
+            closeModal={() => {
+              closeModalDelete();
+            }}
+            onDelete={handleDeleteServiceRate}
+            serviceRate={selectedServiceRate}
+          />
         </div>
       </div>
-      <CustomerModal
-        isOpen={isOpenNew}
-        closeModal={() => {
-          closeModalNew();
-        }}
-        onSave={handleAddServiceRate}
-      />
-      <CustomerModal
-        isOpen={isOpenEdit}
-        closeModal={() => {
-          closeModalEdit();
-        }}
-        onSave={handleEditServiceRate}
-        serviceRate={selectedServiceRate}
-      />
-      <DeleteModal
-        isOpen={isOpenDelete}
-        closeModal={() => {
-          closeModalDelete();
-        }}
-        onDelete={handleDeleteServiceRate}
-        serviceRate={selectedServiceRate}
-      />
     </>
   );
 }

@@ -28,6 +28,7 @@ import Transactions from "./pages/Transactions";
 // import Videos from "./pages/UiElements/Videos";
 import Expertise from "./pages/Expertise";
 import Shop from "./pages/Shop";
+import Stylists from "./pages/Stylists";
 import UserProfiles from "./pages/UserProfiles";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
@@ -74,6 +75,7 @@ export default function App() {
             <Route index path="/" element={<Home />} />
 
             {/* Main Page */}
+            <Route path="/stylists" element={<Stylists />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/expertise" element={<Expertise />} />

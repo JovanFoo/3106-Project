@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
-import PageMeta from "../components/common/PageMeta";
 import Alert from "../components/ui/alert/Alert";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
@@ -126,8 +125,7 @@ export default function CreateShop() {
 
     return (
         <div className="flex min-h-screen">
-            <div className="flex-1">
-                <PageMeta title="Shops" description="View and create shops" />
+            <div className="flex-1 p-5">
                 <PageBreadcrumb pageTitle="Shops" />
 
                 {showAlert && (
