@@ -55,7 +55,7 @@ StylistRouter.get(
 // get stylist by id
 StylistRouter.get(
   "/:id",
-  AuthMiddleware.authStylistToken,
+  AuthMiddleware.authAdminStylistOrManagerToken,
   StylistController.retrieveById
 );
 // update stylist by id (only logged in stylist can update)
