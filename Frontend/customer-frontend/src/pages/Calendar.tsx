@@ -22,6 +22,11 @@ interface CalendarEvent extends EventInput {
     branch: string;
   };
 }
+interface TimeSlot {
+  startTime: string;
+  endTime: string;
+  displayTime: string;
+}
 
 const Calendar: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
@@ -42,8 +47,10 @@ const Calendar: React.FC = () => {
     []
   );
   const [appt, setAppts] = useState<CalendarEvent[]>([]);
-  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
-  const [selectedTime, setSelectedTime] = useState("");
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(
+    null
+  );
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
@@ -71,8 +78,8 @@ const Calendar: React.FC = () => {
     if (apptStartDate && branch && service && stylist) {
       fetchAvailableTimes();
     } else {
-      setAvailableTimes([]);
-      setSelectedTime("");
+      setAvailableTimeSlots([]);
+      setSelectedTimeSlot(null);
     }
   }, [apptStartDate, branch, service, stylist]);
 
@@ -290,12 +297,13 @@ const Calendar: React.FC = () => {
       fetchStylists(branchId);
     }
   };
+  // get available times of stylist based on service
   const fetchAvailableTimes = async () => {
     if (!apptStartDate || !branch || !service || !stylist) return;
 
     setIsLoadingTimes(true);
-    setAvailableTimes([]);
-    setSelectedTime("");
+    setAvailableTimeSlots([]);
+    setSelectedTimeSlot(null);
 
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -344,7 +352,8 @@ const Calendar: React.FC = () => {
     const selectedService = services.find((s) => s._id === service);
     const serviceRate = selectedService?.serviceRate || 0;
 
-    const dateTime = `${apptStartDate}T${selectedTime}`;
+    // get the selected date time
+    const dateTime = selectedTimeSlot?.startTime;
 
     if (selectedEvent) {
       // TODO: Update existing event
@@ -426,6 +435,7 @@ const Calendar: React.FC = () => {
     // setEventLevel("");
     setSelectedEvent(null);
     setBranch("");
+    setSelectedTimeSlot(null);
   };
 
   // renders appointment bars on calendar
@@ -579,12 +589,17 @@ const Calendar: React.FC = () => {
               </div>
               <div className="mt-6">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Time
+                  Time Slot
                 </label>
                 <select
-                  id="time"
-                  value={selectedTime}
-                  onChange={(e) => setSelectedTime(e.target.value)}
+                  id="timeSlot"
+                  value={selectedTimeSlot ? selectedTimeSlot.startTime : ""}
+                  onChange={(e) => {
+                    const selected = availableTimeSlots.find(
+                      (slot) => slot.startTime === e.target.value
+                    );
+                    setSelectedTimeSlot(selected || null);
+                  }}
                   className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${
                     !(apptStartDate && branch && service && stylist)
                       ? "opacity-50 cursor-not-allowed"
@@ -596,21 +611,21 @@ const Calendar: React.FC = () => {
                   }
                   required
                 >
-                  <option value="">Select a time</option>
+                  <option value="">Select a time slot</option>
                   {isLoadingTimes ? (
                     <option value="" disabled>
-                      Loading available times...
+                      Loading available time slots...
                     </option>
-                  ) : availableTimes.length > 0 ? (
-                    availableTimes.map((time) => (
-                      <option key={time} value={time}>
-                        {time}
+                  ) : availableTimeSlots.length > 0 ? (
+                    availableTimeSlots.map((slot) => (
+                      <option key={slot.startTime} value={slot.startTime}>
+                        {slot.displayTime}
                       </option>
                     ))
                   ) : (
                     <option value="" disabled>
                       {apptStartDate && branch && service && stylist
-                        ? "No available times for this selection"
+                        ? "No available time slots for this selection"
                         : "Select date, branch, service, and stylist first"}
                     </option>
                   )}
@@ -649,7 +664,9 @@ const Calendar: React.FC = () => {
               <button
                 onClick={handleAddOrUpdateEvent}
                 type="button"
-                disabled={!apptStartDate || !stylist || !service}
+                disabled={
+                  !apptStartDate || !stylist || !service || !selectedTimeSlot
+                }
                 className={`btn btn-success btn-update-event flex w-full justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-white sm:w-auto ${
                   !apptStartDate || !stylist || !service
                     ? "bg-gray-400 cursor-not-allowed"
