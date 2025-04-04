@@ -88,6 +88,25 @@ const ExpertiseController = {
       return res.status(500).json({ message: "Error deleting expertise" });
     }
   },
+
+  async getExpertisePagination(req, res) {
+    console.log("ExpertiseController > getExpertisePagination");
+    const { page = 1, limit = 10 } = req.query;
+    const expertise = await Expertise.find()
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+    const count = await Expertise.countDocuments();
+    if (expertise) {
+      return res.status(200).json({
+        expertise,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+      });
+    } else {
+      return res.status(400).json({ message: "Error retrieving appointments" });
+    }
+  },
 };
 
 module.exports = ExpertiseController;

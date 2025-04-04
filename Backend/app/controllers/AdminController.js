@@ -34,7 +34,7 @@ const AdminController = {
   async update(req, res) {
     console.log("AdminController > update");
     const id = req.userId;
-    const { name, email, username } = req.body;
+    const { name, email, username, phoneNumber } = req.body;
     const admin = await Admin.findOne({ _id: id });
     let existingAdmin = await Admin.findOne({ username: username });
     if (
@@ -62,6 +62,7 @@ const AdminController = {
     admin.name = name ? name : admin.name;
     admin.username = username ? username : admin.username;
     admin.email = email ? email : admin.email;
+    admin.phoneNumber = phoneNumber ? phoneNumber : admin.phoneNumber;
     await admin.save();
     admin.password = undefined;
     return res.status(200).json(admin);

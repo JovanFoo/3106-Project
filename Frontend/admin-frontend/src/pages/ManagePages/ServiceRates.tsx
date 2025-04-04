@@ -147,118 +147,123 @@ export default function Services() {
   };
   return (
     <>
-      <PageMeta
-        title="React.js Chart Dashboard | TailAdmin - React.js Admin Dashboard Template"
-        description="This is React.js Chart Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
-      />
-      <PageBreadcrumb pageTitle="Service rates" />
-      <div className="space-y-6">
-        <div>
-          <Button
-            variant="primary"
-            type="info"
-            onClick={() => {
-              console.log("add");
-              openModalNew();
-            }}
-          >
-            + Add new service rate
-          </Button>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableCell isHeader={true}>Service rate ID</TableCell>
-              <TableCell isHeader={true}>Service rate Name</TableCell>
-              <TableCell isHeader={true}>Service rate Amount</TableCell>
-              <TableCell isHeader={true}>Service rate Start Date</TableCell>
-              <TableCell isHeader={true}>Service rate End Date</TableCell>
-              <TableCell isHeader={true}>Actions</TableCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {serviceRates &&
-              serviceRates.map((serviceRate: ServiceRate, index) => (
-                <TableRow key={serviceRate._id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{serviceRate.name}</TableCell>
-                  <TableCell>${serviceRate.rate.toFixed(2)}</TableCell>
-                  <TableCell>
-                    {new Date(serviceRate.startDate).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(serviceRate.endDate).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="justify-around  flex">
-                    <Button
-                      variant="primary"
-                      type="warning"
-                      onClick={() => {
-                        console.log("edit Service");
-                        setSelectedServiceRate(serviceRate);
-                        openModalEdit();
-                      }}
-                    >
-                      <PencilIcon />
-                    </Button>
-                    <Button
-                      variant="primary"
-                      type="danger"
-                      onClick={() => {
-                        console.log("delete Service");
-                        setSelectedServiceRate(serviceRate);
-                        openModalDelete();
-                      }}
-                    >
-                      <TrashBinIcon />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex gap-2 items-center">
-            <span className="text-gray-700 dark:text-gray-400 mt-4">
-              {`Page ${pageNumber} of ${totalPages}`}
-            </span>
-            <span className="text-gray-700 dark:text-gray-400 mt-4 ml-2">
-              Showing {serviceRates.length} of {totalServiceRates} transactions
-            </span>
-            <span className="text-gray-700 dark:text-gray-400 mt-4 ">
-              Page Size:
-            </span>
-            {pageSizeOptions.map((size) => (
-              <span
-                key={size}
-                onClick={() => handlePageSizeChange(size)}
-                className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${
-                  pageSize === size
-                    ? "font-bold text-black dark:text-white"
-                    : ""
-                }`}
+      <div className="flex min-h-screen">
+        <div className="flex-1">
+          <PageMeta
+            title="React.js Chart Dashboard | TailAdmin - React.js Admin Dashboard Template"
+            description="This is React.js Chart Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+          />
+          <PageBreadcrumb pageTitle="Service rates" />
+          <div className="space-y-6">
+            <div>
+              <Button
+                variant="primary"
+                type="info"
+                onClick={() => {
+                  console.log("add");
+                  openModalNew();
+                }}
               >
-                {size}
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-2 items-center">
-            <Button
-              onClick={handlePrev}
-              variant="primary"
-              type="info"
-              disabled={pageNumber === 1}
-            >
-              Previous
-            </Button>
-            <Button
-              onClick={handleNext}
-              variant="primary"
-              type="info"
-              disabled={pageNumber === totalPages}
-            >
-              Next
-            </Button>
+                + Add new service rate
+              </Button>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableCell isHeader={true}>Service rate ID</TableCell>
+                  <TableCell isHeader={true}>Service rate Name</TableCell>
+                  <TableCell isHeader={true}>Service rate Amount</TableCell>
+                  <TableCell isHeader={true}>Service rate Start Date</TableCell>
+                  <TableCell isHeader={true}>Service rate End Date</TableCell>
+                  <TableCell isHeader={true}>Actions</TableCell>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {serviceRates &&
+                  serviceRates.map((serviceRate: ServiceRate, index) => (
+                    <TableRow key={serviceRate._id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{serviceRate.name}</TableCell>
+                      <TableCell>${serviceRate.rate.toFixed(2)}</TableCell>
+                      <TableCell>
+                        {new Date(serviceRate.startDate).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(serviceRate.endDate).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="justify-around  flex">
+                        <Button
+                          variant="primary"
+                          type="warning"
+                          onClick={() => {
+                            console.log("edit Service");
+                            setSelectedServiceRate(serviceRate);
+                            openModalEdit();
+                          }}
+                        >
+                          <PencilIcon />
+                        </Button>
+                        <Button
+                          variant="primary"
+                          type="danger"
+                          onClick={() => {
+                            console.log("delete Service");
+                            setSelectedServiceRate(serviceRate);
+                            openModalDelete();
+                          }}
+                        >
+                          <TrashBinIcon />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex gap-2 items-center">
+                <span className="text-gray-700 dark:text-gray-400 mt-4">
+                  {`Page ${pageNumber} of ${totalPages}`}
+                </span>
+                <span className="text-gray-700 dark:text-gray-400 mt-4 ml-2">
+                  Showing {serviceRates.length} of {totalServiceRates}{" "}
+                  transactions
+                </span>
+                <span className="text-gray-700 dark:text-gray-400 mt-4 ">
+                  Page Size:
+                </span>
+                {pageSizeOptions.map((size) => (
+                  <span
+                    key={size}
+                    onClick={() => handlePageSizeChange(size)}
+                    className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${
+                      pageSize === size
+                        ? "font-bold text-black dark:text-white"
+                        : ""
+                    }`}
+                  >
+                    {size}
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-2 items-center">
+                <Button
+                  onClick={handlePrev}
+                  variant="primary"
+                  type="info"
+                  disabled={pageNumber === 1}
+                >
+                  Previous
+                </Button>
+                <Button
+                  onClick={handleNext}
+                  variant="primary"
+                  type="info"
+                  disabled={pageNumber === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -437,7 +442,7 @@ const CustomerModal: React.FC<ModalProps> = ({
             Close
           </button>
           <Button size="sm" variant="primary" onClick={handleSave}>
-            {serviceRate ? "Update Transaction" : "Create"}
+            {serviceRate ? "Update Service Rate" : "Create Service Rate"}
           </Button>
         </div>
       </div>
