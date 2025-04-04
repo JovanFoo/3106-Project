@@ -42,6 +42,9 @@ const Calendar: React.FC = () => {
     []
   );
   const [appt, setAppts] = useState<CalendarEvent[]>([]);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [selectedTime, setSelectedTime] = useState("");
+  const [isLoadingTimes, setIsLoadingTimes] = useState(false);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const {
@@ -63,6 +66,15 @@ const Calendar: React.FC = () => {
     fetchServices(new Date()); //to allow initial rendering of appointment service types on calendar
     // MIGHT BREAK THE SERVICE RATE CALCULATION //
   }, []);
+  // to re-get the list of available times if any of the values change
+  useEffect(() => {
+    if (apptStartDate && branch && service && stylist) {
+      fetchAvailableTimes();
+    } else {
+      setAvailableTimes([]);
+      setSelectedTime("");
+    }
+  }, [apptStartDate, branch, service, stylist]);
 
   // get list of all available branches
   const fetchBranches = async () => {
@@ -88,7 +100,6 @@ const Calendar: React.FC = () => {
       }
     }
   };
-
   // get a list of all services and their prices for dropdown
   const fetchServices = async (date: Date) => {
     const userData = localStorage.getItem("user");
@@ -121,7 +132,6 @@ const Calendar: React.FC = () => {
       }
     }
   };
-
   // get list of all stylists for SPECIFIC BRANCH for dropdown
   const fetchStylists = async (branchId: string) => {
     const userData = localStorage.getItem("user");
@@ -149,7 +159,6 @@ const Calendar: React.FC = () => {
       }
     }
   };
-
   const fetchAppointments = async () => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -281,6 +290,46 @@ const Calendar: React.FC = () => {
       fetchStylists(branchId);
     }
   };
+  const fetchAvailableTimes = async () => {
+    if (!apptStartDate || !branch || !service || !stylist) return;
+
+    setIsLoadingTimes(true);
+    setAvailableTimes([]);
+    setSelectedTime("");
+
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.tokens.token;
+
+      const dateSplits = apptStartDate.split("-");
+      const year = Number(dateSplits[0]);
+      const month = Number(dateSplits[1]);
+      const day = Number(dateSplits[2]);
+      try {
+        const response = await fetch(
+          `${API_URL}/api/stylists/${stylist}/availability?branchId=${branch}&serviceId=${service}&year=${year}&month=${month}&day=${day}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch available times");
+
+        const data = await response.json();
+        console.log(data);
+        setAvailableTimes(data.times || []);
+      } catch (error) {
+        console.error("Error fetching available times:", error);
+      } finally {
+        setIsLoadingTimes(false);
+      }
+    }
+  };
 
   const handleAddOrUpdateEvent = async () => {
     const userData = localStorage.getItem("user");
@@ -294,6 +343,8 @@ const Calendar: React.FC = () => {
     // find the selected service to get its rate
     const selectedService = services.find((s) => s._id === service);
     const serviceRate = selectedService?.serviceRate || 0;
+
+    const dateTime = `${apptStartDate}T${selectedTime}`;
 
     if (selectedEvent) {
       // TODO: Update existing event
@@ -318,7 +369,7 @@ const Calendar: React.FC = () => {
     } else {
       // Add new appointment
       const newAppointmentData = {
-        date: apptStartDate,
+        date: dateTime,
         request: request,
         totalAmount: serviceRate,
         serviceId: service,
@@ -524,6 +575,45 @@ const Calendar: React.FC = () => {
                       {/* display service name, save service value as name also */}
                     </option>
                   ))}
+                </select>
+              </div>
+              <div className="mt-6">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Time
+                </label>
+                <select
+                  id="time"
+                  value={selectedTime}
+                  onChange={(e) => setSelectedTime(e.target.value)}
+                  className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${
+                    !(apptStartDate && branch && service && stylist)
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                  disabled={
+                    !(apptStartDate && branch && service && stylist) ||
+                    isLoadingTimes
+                  }
+                  required
+                >
+                  <option value="">Select a time</option>
+                  {isLoadingTimes ? (
+                    <option value="" disabled>
+                      Loading available times...
+                    </option>
+                  ) : availableTimes.length > 0 ? (
+                    availableTimes.map((time) => (
+                      <option key={time} value={time}>
+                        {time}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>
+                      {apptStartDate && branch && service && stylist
+                        ? "No available times for this selection"
+                        : "Select date, branch, service, and stylist first"}
+                    </option>
+                  )}
                 </select>
               </div>
               <div className="mt-6">
