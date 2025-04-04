@@ -14,12 +14,12 @@ const AppointmentController = {
     const id = req.userId;
     let { date, request, totalAmount, serviceId, stylistId, branchId } =
       req.body;
-    const modDate = new Date(date);
-    modDate.setUTCHours(modDate.getUTCHours() + 8); // set to SGT
+    // const modDate = new Date(date);
+    // modDate.setUTCHours(modDate.getUTCHours() + 8); // set to SGT
     totalAmount = parseFloat(totalAmount);
     try {
       const appointment = new Appointment({
-        date: modDate,
+        date: date,
         request,
         totalAmount,
         service: serviceId,
