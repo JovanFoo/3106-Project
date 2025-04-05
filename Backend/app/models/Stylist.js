@@ -59,6 +59,10 @@ const stylistSchema = new Schema({
       ref: "Gallery",
     },
   ],
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const Stylist = mongose.model("Stylist", stylistSchema);

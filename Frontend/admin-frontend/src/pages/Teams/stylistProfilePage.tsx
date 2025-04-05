@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import ToggleSwitch from "../../components/ui/button/ToggleSwitch";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -13,6 +14,8 @@ type Stylist = {
   bio?: string;
   username?: string;
   role: string;
+  stylists: string[]; // Assuming this is an array of stylist IDs
+  isActive: boolean;
 };
 
 type Props = {
@@ -21,7 +24,6 @@ type Props = {
 
 export default function StylistProfilePage({ stylist }: Props) {
   const [fullStylist, setFullStylist] = useState<Stylist | null>(null);
-
   useEffect(() => {
     const fetchStylist = async () => {
       try {
@@ -42,7 +44,28 @@ export default function StylistProfilePage({ stylist }: Props) {
 
     if (stylist._id) fetchStylist();
   }, [stylist._id]);
-
+  const handleToggle = () => {
+    const token = sessionStorage.getItem("token");
+    axios
+      .put(
+        `${api_address}/api/stylists/toggleActive/${stylist._id}`,
+        {},
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      )
+      .then((res) => {
+        setFullStylist((prev) => ({
+          ...prev!,
+          isActive: !prev!.isActive,
+        }));
+      })
+      .catch((err) => {
+        console.error("Failed to update stylist status", err);
+      });
+  };
   if (!fullStylist) return <p className="text-gray-500">Loading profile...</p>;
 
   return (
@@ -51,7 +74,7 @@ export default function StylistProfilePage({ stylist }: Props) {
         <div className="space-y-4 mr-4">
           <div className="flex flex-col items-center">
             <img
-              src={fullStylist.profilePicture || "/images/default-avatar.jpg"}
+              src={fullStylist.profilePicture || "/images/user/owner.jpg"}
               alt={fullStylist.name}
               className="w-32 h-32 object-cover rounded-full border mb-2"
             />
@@ -97,7 +120,7 @@ export default function StylistProfilePage({ stylist }: Props) {
               <label>Role</label>
               <input
                 className="w-full border p-2 rounded"
-                value={fullStylist.role}
+                value={fullStylist.stylists.length > 0 ? "Manager" : "Stylist"}
                 disabled
               />
             </div>
@@ -105,9 +128,10 @@ export default function StylistProfilePage({ stylist }: Props) {
 
           <div className="mt-6 flex items-center justify-between border p-2 rounded-md">
             <span className="text-sm font-medium">Enabled</span>
-            <div className="bg-blue-600 text-white px-4 py-1 rounded-md">
-              Yes
-            </div>
+            <ToggleSwitch
+              checked={fullStylist.isActive}
+              onChange={handleToggle}
+            />
           </div>
         </div>
       </div>

@@ -88,7 +88,10 @@ const AuthController = {
   async loginStylist(req, res) {
     console.log("AuthController > login stylist");
     const { username, password } = req.body;
-    const stylist = await Stylist.findOne({ username: username });
+    const stylist = await Stylist.findOne({ username: username }).where(
+      "isActive",
+      true
+    );
     if (stylist) {
       const isMatch = await PasswordHash.comparePassword(
         password,
@@ -105,7 +108,9 @@ const AuthController = {
         }
       }
     }
-    return res.status(400).json({ message: "Invalid username or password" });
+    return res
+      .status(400)
+      .json({ message: "Invalid username or password or is disabled" });
   },
 
   async registerStylist(req, res) {

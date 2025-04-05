@@ -4,6 +4,7 @@ const PasswordHash = require("../utils/passwordHash.js");
 const Expertise = require("../models/Expertise.js");
 const Customer = require("../models/Customer.js");
 const Service = require("../models/Service.js");
+const Branch = require("../models/Branch.js");
 const StylistController = {
   // Retrieve a stylist by id
   async retrieveById(req, res) {
@@ -227,6 +228,30 @@ const StylistController = {
       return res.status(400).json({ message: "Error retrieving stylists" });
     }
   },
+  // Retrieve all stylists with pagination (only admin can retrieve)
+  async retrieveAllWithPagination(req, res) {
+    console.log("StylistController > retrieveAllWithPagination");
+    const { page = 1, limit = 10 } = req.query;
+    const stylists = await Stylist.find({});
+
+    const totalStylists = stylists.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const paginatedstylists = stylists.slice(startIndex, endIndex);
+    const paginated = {
+      total: totalStylists,
+      page: page,
+      limit: limit,
+      totalPages: Math.ceil(totalStylists / limit),
+      hasNextPage: endIndex < totalStylists,
+      stylists: paginatedstylists,
+    };
+    if (paginatedstylists) {
+      return res.status(200).json(paginated);
+    } else {
+      return res.status(400).json({ message: "Error retrieving stylists" });
+    }
+  },
 
   async retrieveMyAppointments(req, res) {
     console.log("StylistController > retrieveMyAppointments");
@@ -273,6 +298,66 @@ const StylistController = {
       return res.status(200).json(returnedAppointments);
     } else {
       return res.status(400).json({ message: "Error retrieving appointments" });
+    }
+  },
+
+  async toggleActive(req, res) {
+    console.log("StylistController > toggleActive");
+    const { id } = req.params;
+    const stylist = await Stylist.findById(id);
+    if (!stylist) {
+      return res.status(400).json({ message: "Error updating stylist" });
+    }
+    stylist.isActive = !stylist.isActive;
+    await stylist.save();
+    return res.status(200).json(stylist);
+  },
+  async createStylistWithBranch(req, res) {
+    console.log("StylistController > createStylistWithBranch");
+    const { name, username, email, password, branch, phoneNumber, role } =
+      req.body;
+    const hashedPassword = await PasswordHash.hashPassword(password);
+    const stylist = new Stylist({
+      name,
+      username,
+      email,
+      password: hashedPassword,
+      phoneNumber,
+    });
+
+    const branchFromId = await Branch.findOne({ _id: branch });
+    if (!branchFromId) {
+      return res.status(400).json({ message: "Error creating stylist" });
+    }
+    let existingStylist = await Stylist.findOne({ username: username });
+    if (existingStylist) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
+    existingStylist = await Stylist.findOne({ email: email });
+    if (existingStylist) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+    const manager = await Stylist.findOne({ _id: branchFromId.manager });
+    if (!manager) {
+      return res.status(400).json({ message: "Error creating stylist" });
+    }
+    branchFromId.stylists.push(stylist._id); //addming new stylist to branch
+    if (role === "Manager") {
+      const managerStylists = manager.stylists;
+      manager.stylists = [];
+      stylist.stylists = managerStylists;
+      branchFromId.manager = stylist._id;
+    } else {
+      manager.stylists.push(stylist._id); //adding new stylist to manager
+    }
+    await branchFromId.save();
+    await manager.save();
+    await stylist.save();
+    if (stylist) {
+      stylist.password = undefined;
+      return res.status(200).json(stylist);
+    } else {
+      return res.status(400).json({ message: "Error creating stylist" });
     }
   },
 };
