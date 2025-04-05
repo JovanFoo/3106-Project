@@ -38,9 +38,8 @@ const Calendar: React.FC = () => {
   const [apptStartDate, setApptStartDate] = useState("");
   const [request, setRequest] = useState("");
   const [service, setService] = useState("");
-  // only take the _id, name and serviceRate of the service object
   const [services, setServices] = useState<
-    { _id: string; name: string; serviceRate: Number }[]
+    { _id: string; name: string; serviceRate: Number; duration: Number }[]
   >([]);
   const [branch, setBranch] = useState("");
   const [branches, setBranches] = useState<{ _id: string; location: string }[]>(
@@ -132,7 +131,6 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch services");
 
         const data = await response.json();
-        console.log(data);
         setServices(data);
       } catch (error) {
         console.error("Error fetching services:", error);
@@ -159,7 +157,6 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch stylists");
 
         const data = await response.json();
-        console.log(data);
         setStylists(data);
       } catch (error) {
         console.error("Error fetching stylist:", error);
@@ -276,6 +273,34 @@ const Calendar: React.FC = () => {
       (s) => s._id === appt.extendedProps.service
     );
 
+    // Create a time slot object for the existing appointment
+    // Helper function to format time range
+    const formatTimeRange = (start: Date | null, end: Date | null) => {
+      if (!start || !end) return "";
+
+      const startTime = start.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const endTime = end.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      return `${startTime.toUpperCase()} - ${endTime.toUpperCase()}`;
+    };
+    const serviceTime = Number(serviceObj?.duration);
+    console.log(appt.start);
+    if (appt.start && serviceTime) {
+      const endTime = new Date(appt.start.getTime() + serviceTime * 60000); // Convert minutes to milliseconds
+      const existingTimeSlot: TimeSlot = {
+        startTime: appt.start.toISOString(),
+        endTime: endTime.toISOString(),
+        displayTime: formatTimeRange(appt.start, endTime),
+      };
+      setSelectedTimeSlot(existingTimeSlot);
+    }
     setSelectedEvent(appt as unknown as CalendarEvent);
     setStylist(appt.extendedProps.stylist);
     setRequest(appt.extendedProps.request);
@@ -303,7 +328,7 @@ const Calendar: React.FC = () => {
 
     setIsLoadingTimes(true);
     setAvailableTimeSlots([]);
-    setSelectedTimeSlot(null);
+    // setSelectedTimeSlot(null); to allow setting of existing timeslot when editing
 
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -329,7 +354,18 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch available times");
 
         const data = await response.json();
-        setAvailableTimeSlots(data.timeSlots || []);
+        setAvailableTimeSlots(() => {
+          // get all stylist available slots NOW
+          const slots = data.timeSlots || [];
+          // add the selected appt's selectedTimeSlot into the list
+          return selectedTimeSlot &&
+            !slots.some(
+              (s: { startTime: string }) =>
+                s.startTime === selectedTimeSlot.startTime
+            )
+            ? [selectedTimeSlot, ...slots]
+            : slots;
+        });
       } catch (error) {
         console.error("Error fetching available times:", error);
       } finally {
@@ -431,7 +467,6 @@ const Calendar: React.FC = () => {
     setRequest("");
     setService("");
     setApptStartDate("");
-    // setEventLevel("");
     setSelectedEvent(null);
     setBranch("");
     setSelectedTimeSlot(null);
@@ -446,10 +481,10 @@ const Calendar: React.FC = () => {
     };
     return (
       <div
-        className={`event-fc-color flex fc-event-main fc-bg-primary p-1 rounded`}
+        className={`event-fc-color flex fc-event-main fc-bg-primary p-1 rounded items-center truncate`}
       >
         <div className="fc-daygrid-event-dot"></div>
-        <div className="fc-event-time">{eventInfo.timeText}</div>
+        <div className="fc-event-time">{eventInfo.timeText.toUpperCase()+"M"}</div>
         <div className="fc-event-title">
           {getServiceName(eventInfo.event.extendedProps.service)}
         </div>
@@ -474,7 +509,7 @@ const Calendar: React.FC = () => {
             headerToolbar={{
               left: "prev,next addEventButton",
               center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay",
+              right: ""//"dayGridMonth,timeGridWeek,timeGridDay",
             }}
             events={appt}
             selectable={true}
