@@ -196,7 +196,7 @@ const Calendar: React.FC = () => {
           ) // only show active appointments
           .map((appointment: any) => ({
             id: appointment._id.toString(),
-            start: new Date(appointment.date).toISOString().split("T")[0] || "",
+            start: new Date(appointment.date).toISOString() || "",
             extendedProps: {
               // stores the stylistId and serviceId
               stylist: appointment.stylist,
@@ -329,8 +329,7 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch available times");
 
         const data = await response.json();
-        console.log(data);
-        setAvailableTimes(data.times || []);
+        setAvailableTimeSlots(data.timeSlots || []);
       } catch (error) {
         console.error("Error fetching available times:", error);
       } finally {
