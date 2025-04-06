@@ -390,16 +390,45 @@ const Calendar: React.FC = () => {
     // get the selected date time
     const dateTime = selectedTimeSlot?.startTime;
 
-    if (selectedEvent) {
-      // TODO: Update existing event
-      const serviceRate = services.filter((e) => e._id === service);
-      console.log(serviceRate);
+    if (selectedEvent) { 
+      // Edit appointment
+      // const serviceRate = services.filter((e) => e._id === service);
+      const apptId = selectedEvent.id;
+      const updatedAppointment = {
+        date: dateTime,
+        request: request,
+        totalAmount: serviceRate,
+        serviceId: service,
+        stylistId: stylist,
+        branchId: branch,
+      };
+      // console.log(serviceRate);
+      // console.log(updatedAppointment);
+      // API call to update appt
+      try {
+        const response = await fetch(`${API_URL}/api/appointments/${apptId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify(updatedAppointment),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create appointment");
+        }
+      } catch (err) {
+        window.confirm("Error updating appointment!");
+        console.log("Error creating appointment: ", err);
+      }
+      // set the new updated appointment to be displayed
       setAppts((prevEvents) =>
         prevEvents.map((event) =>
           event.id === selectedEvent.id
             ? {
                 ...event,
-                start: apptStartDate,
+                start: dateTime,
                 extendedProps: {
                   stylist: stylist,
                   service: service,
@@ -450,6 +479,7 @@ const Calendar: React.FC = () => {
         // update calendar's state to reflect new appointment
         setAppts((prevEvents) => [...prevEvents, newAppointment]);
       } catch (error) {
+        window.confirm("Error creating appointment!");
         console.error("Error creating appointment:", error);
       }
     }
@@ -484,7 +514,9 @@ const Calendar: React.FC = () => {
         className={`event-fc-color flex fc-event-main fc-bg-primary p-1 rounded items-center truncate`}
       >
         <div className="fc-daygrid-event-dot"></div>
-        <div className="fc-event-time">{eventInfo.timeText.toUpperCase()+"M"}</div>
+        <div className="fc-event-time">
+          {eventInfo.timeText.toUpperCase() + "M"}
+        </div>
         <div className="fc-event-title">
           {getServiceName(eventInfo.event.extendedProps.service)}
         </div>
@@ -509,7 +541,7 @@ const Calendar: React.FC = () => {
             headerToolbar={{
               left: "prev,next addEventButton",
               center: "title",
-              right: ""//"dayGridMonth,timeGridWeek,timeGridDay",
+              right: "", //"dayGridMonth,timeGridWeek,timeGridDay",
             }}
             events={appt}
             selectable={true}
