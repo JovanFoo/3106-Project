@@ -528,7 +528,7 @@ const Calendar: React.FC = () => {
     <>
       <PageMeta
         title="Customer | Appointments"
-        description="This is React.js Calendar Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+        description="View Customer Appointments"
       />
       <PageBreadcrumb pageTitle="Appointments" />
       <div className="rounded-2xl border  border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
@@ -775,9 +775,8 @@ const Calendar: React.FC = () => {
           </div>
         </Modal>
       </div>
-      <div className="p-4">
-        <ComponentCard title="Current appointments">
-          <Button children="Completed Appointments" />
+      <div className="mt-8">
+        <ComponentCard title="Past appointments">
           <BasicTableOne />
         </ComponentCard>
       </div>
