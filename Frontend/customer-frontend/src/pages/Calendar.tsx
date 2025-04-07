@@ -57,6 +57,7 @@ const Calendar: React.FC = () => {
 
   // get a list of all services for dropdown
   const fetchServices = async () => {
+    console.log("fetch svc");
     const userData = localStorage.getItem("user");
     if (userData) {
       const customer = JSON.parse(userData);
@@ -82,6 +83,8 @@ const Calendar: React.FC = () => {
   // get list of all stylists for dropdown
   const fetchStylists = async () => {
     const userData = localStorage.getItem("user");
+
+    console.log(userData);
     if (userData) {
       const customer = JSON.parse(userData);
       const token = customer.tokens.token;
@@ -96,7 +99,7 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch stylists");
 
         const data = await response.json();
-        console.log(data);
+        console.log(data, "data");
         setStylists(data);
       } catch (error) {
         console.error("Error fetching stylist:", error);

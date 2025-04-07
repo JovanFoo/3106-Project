@@ -5,6 +5,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import { useNavigate } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,16 +35,13 @@ export default function SignUpForm() {
     setSuccessMessage("");
 
     try {
-      const response = await fetch(
-        "http://localhost:3000/api/auth/customers/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/auth/customers/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
       if (!response.ok) {
