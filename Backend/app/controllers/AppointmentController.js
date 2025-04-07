@@ -12,17 +12,19 @@ const AppointmentController = {
   async create(req, res) {
     console.log("AppointmentController > create");
     const id = req.userId;
-    let { date, request, totalAmount, serviceId, stylistId } = req.body;
-    const modDate = new Date(date);
-    modDate.setHours(modDate.getHours() + 8)
+    let { date, request, totalAmount, serviceId, stylistId, branchId } =
+      req.body;
+    // const modDate = new Date(date);
+    // modDate.setUTCHours(modDate.getUTCHours() + 8); // set to SGT
     totalAmount = parseFloat(totalAmount);
     try {
       const appointment = new Appointment({
-        date: modDate,
+        date: date,
         request,
         totalAmount,
         service: serviceId,
-        stylist: stylistId
+        stylist: stylistId,
+        branch: branchId,
       });
       const newAppointment = await appointment.save();
       const customer = await Customer.findById(id);
@@ -77,17 +79,17 @@ const AppointmentController = {
     console.log("AppointmentController > delete");
     const customerId = req.userId;
     const appointmentId = req.params.id;
-    const currentAppt = await Appointment.findOne({_id: appointmentId});
+    const currentAppt = await Appointment.findOne({ _id: appointmentId });
     const stylistId = currentAppt.stylist;
 
     const customer = await Customer.findOne({ _id: customerId });
-    // Remove appointment from customer 
+    // Remove appointment from customer
     customer.appointments = customer.appointments.filter((appointment) => {
       return appointment._id.toString() !== appointmentId;
     });
     await customer.save();
     // Remove appointment from stylist
-    const stylist = await Stylist.findOne({_id: stylistId});
+    const stylist = await Stylist.findOne({ _id: stylistId });
     stylist.appointments = stylist.appointments.filter((appointment) => {
       return appointment._id.toString() !== appointmentId;
     });
@@ -114,6 +116,39 @@ const AppointmentController = {
     appointment.isCompleted = true;
     await appointment.save();
     return res.status(200).json(appointment);
+  },
+  // Update a appointment's status to cancelled by id
+  async updateCancelled(req, res) {
+    console.log("AppointmentController > update cancelled");
+    const { id } = req.params;
+    const appointment = await Appointment.findOne({ _id: id });
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+    appointment.status = "Cancelled";
+    await appointment.save();
+    return res.status(200).json(appointment);
+  },
+
+  async updateStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const updated = await Appointment.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true }
+      );
+
+      if (!updated)
+        return res.status(404).json({ message: "Appointment not found" });
+
+      res.json(updated);
+    } catch (err) {
+      console.error("Error updating appointment:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
   },
 };
 

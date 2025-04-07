@@ -14,9 +14,10 @@ const appointmentSchema = new Schema({
     type: Number,
     required: true,
   },
-  isCompleted: {
-    type: Boolean,
-    default: false,
+  status: {
+    type: String,
+    enum: ["Pending", "Confirmed", "Cancelled", "Completed"],
+    default: "Pending",
   },
   service: {
     type: Schema.Types.ObjectId,
@@ -30,6 +31,10 @@ const appointmentSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Stylist",
   },
+  branch: {
+    type: Schema.Types.ObjectId,
+    ref: "Branch",
+  }
 });
 
 const Appointment = mongose.model("Appointment", appointmentSchema);

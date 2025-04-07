@@ -44,7 +44,7 @@ export default function StylistProfilePage({ stylist }: Props) {
 
     return (
         <div className="flex min-h-screen mr-4">
-            <div className="flex-1 p-5">
+            <div className="flex-1 p-5 mr-4">
                 <PageBreadcrumb pageTitle="Profile Page" />
                 <div className="space-y-4 mr-4">
                     <div className="flex flex-col items-center">

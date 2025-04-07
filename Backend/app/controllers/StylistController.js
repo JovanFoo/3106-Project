@@ -2,7 +2,10 @@ const mongodb = require("./config/database.js");
 const Stylist = require("../models/Stylist.js");
 const PasswordHash = require("../utils/passwordHash.js");
 const Expertise = require("../models/Expertise.js");
-
+const Customer = require("../models/Customer.js");
+const Service = require("../models/Service.js");
+const Branch = require("../models/Branch.js");
+const Appointment = require("../models/Appointment.js");
 const StylistController = {
   // Retrieve a stylist by id
   async retrieveById(req, res) {
@@ -123,14 +126,46 @@ const StylistController = {
   // Retrieve all stylist's appointments by id
   async retrieveAppointments(req, res) {
     console.log("StylistController > retrieveAppointments");
-    const id = req.userId;
-    const stylist = await Stylist.findOne({ _id: id }).populate("appointments");
-    const temp = await Stylist.findOne({ _id: id });
-    console.log(temp, id);
-    if (stylist) {
-      return res.status(200).json(stylist.appointments);
-    } else {
-      return res.status(400).json({ message: "Error retrieving appointments" });
+    const stylistId = req.userId;
+
+    try {
+      // 1. Get stylist with appointments populated with service
+      const stylist = await Stylist.findOne({ _id: stylistId }).populate({
+        path: "appointments",
+        populate: { path: "service" },
+      });
+
+      if (!stylist) {
+        return res.status(404).json({ message: "Stylist not found" });
+      }
+
+      const results = [];
+
+      // 2. For each appointment, find the customer who has it
+      for (const appt of stylist.appointments) {
+        const customer = await Customer.findOne({
+          appointments: appt._id,
+        }).lean(); // lean() for better performance
+
+        console.log("Processing appt:", appt._id.toString());
+        console.log("Matched customer:", customer?.name);
+        customer.password = undefined;
+
+        results.push({
+          id: appt._id.toString(),
+          customer: customer,
+          date: appt.date,
+          request: appt.request,
+          service: appt.service?.name || "Service",
+          image: customer?.profilePicture || "/images/default-avatar.jpg",
+          status: appt.status || "Pending",
+        });
+      }
+
+      return res.status(200).json(results);
+    } catch (err) {
+      console.error("Error in retrieveAppointments:", err);
+      return res.status(500).json({ message: "Internal server error" });
     }
   },
 
@@ -191,6 +226,196 @@ const StylistController = {
       return res.status(200).json(stylists);
     } else {
       return res.status(400).json({ message: "Error retrieving stylists" });
+    }
+  },
+
+  async retrieveMyAppointments(req, res) {
+    console.log("StylistController > retrieveMyAppointments");
+    const stylistId = req.userId;
+    const stylist = await Stylist.findOne({ _id: stylistId }).populate(
+      "appointments"
+    );
+    if (!stylist) {
+      return res.status(400).json({ message: "Error retrieving appointments" });
+    }
+    const appointments = stylist.appointments;
+    const returnedAppointments = [];
+    for (let i = 0; i < appointments.length; i++) {
+      const customer = await Customer.findOne({}).where({
+        appointments: appointments[i]._id,
+      });
+      if (!customer) {
+        return res.status(400).json({ message: "Error retrieving customer" });
+      }
+      const serviceId = appointments[i].service;
+      const service = await Service.findOne({ _id: serviceId });
+      let addedDuration = 0;
+      if (service) {
+        addedDuration = service.duration;
+      }
+      const endDate = new Date(
+        appointments[i].date + addedDuration * 60 * 1000
+      );
+      customer.password = undefined;
+      appointments[i].customer = customer;
+      returnedAppointments.push({
+        _id: appointments[i]._id,
+        customer: customer,
+        startDate: appointments[i].date,
+        endDate: endDate,
+        request: appointments[i].request,
+        totalAmount: appointments[i].totalAmount,
+        isCompleted: appointments[i].isCompleted,
+        review: appointments[i].review,
+      });
+    }
+    console.log("appointments", returnedAppointments);
+    if (stylist) {
+      return res.status(200).json(returnedAppointments);
+    } else {
+      return res.status(400).json({ message: "Error retrieving appointments" });
+    }
+  },
+  async getStylistAvailabilityByDateAndService(req, res) {
+    console.log("StylistController > getStylistAvailabilityByDateAndService");
+    const { id } = req.params;
+    const { branchId, serviceId, month, year, day } = req.query;
+    const date = new Date(year, month - 1, day);
+    date.setHours(date.getHours() + 8); //set to SGT
+    console.log(date);
+
+    function parseTime(timeStr, date) {
+      let [time, modifier] = timeStr.split(" ");
+      let [hours, minutes] = time.split(":").map(Number);
+
+      if (modifier === "PM" && hours !== 12) {
+        hours += 12;
+      } else if (modifier === "AM" && hours === 12) {
+        hours = 0;
+      }
+
+      let now = new Date(date);
+      now.setUTCHours(now.getUTCHours() + 8); // SGT
+      // console.log(`before set hours: ${now}`)
+      now.setHours(hours, minutes, 0, 0);
+      // console.log(`after set hours: ${now}`)
+
+      return now;
+    }
+
+    // Get service duration
+    const service = await Service.findById(serviceId);
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+    const serviceDuration = service.duration;
+
+    // Salon Branch Operating Hours
+    const branch = await Branch.findById(branchId);
+    const selectedDate = new Date(date);
+    const isWeekday =
+      selectedDate.getDay() >= 1 || selectedDate.getDay() <= 6 ? true : false;
+    const branchOpenTime = isWeekday
+      ? parseTime(branch.weekdayOpeningTime, date)
+      : parseTime(branch.weekendOpeningTime, date);
+    const branchCloseTime = isWeekday
+      ? parseTime(branch.weekdayClosingTime, date)
+      : parseTime(branch.weekendClosingTime, date);
+
+    const slotInterval = serviceDuration; // minutes between slots
+
+    // Get stylist's appointments for the day, according to branch opening and closing times
+    const appointments = await Appointment.find({
+      stylist: id,
+      date: {
+        $gte: branchOpenTime,
+        $lte: branchCloseTime,
+      },
+      status: { $in: ["Pending", "Confirmed"] }, // Only consider "active" appointments
+    }).sort({ date: 1 });
+    // console.log(`branch OT: ${branchOpenTime}`)
+    console.log(appointments);
+
+    // Generate all possible time slots for the day
+    const allSlots = [];
+    let currentTime = branchOpenTime;
+    while (
+      currentTime.getHours() < branchCloseTime.getHours() 
+    ) {
+      allSlots.push(new Date(currentTime));
+      currentTime = new Date(currentTime.getTime() + slotInterval * 60000);
+    }
+
+    // Mark occupied slots
+    const occupiedSlots = [];
+    for (const appointment of appointments) {
+      const appointmentStart = appointment.date;
+      const appointmentServiceId = appointment.service;
+      const service = await Service.findById(appointmentServiceId);
+      const appointmentEnd = new Date(
+        appointmentStart.getTime() + service.duration * 60000
+      );
+
+      // Mark all slots that overlap with this appointment
+      for (const slot of allSlots) {
+        const slotEnd = new Date(slot.getTime() + service.duration * 60000);
+        if (
+          (slot >= appointmentStart && slot < appointmentEnd) ||
+          (slotEnd > appointmentStart && slotEnd <= appointmentEnd) ||
+          (slot <= appointmentStart && slotEnd >= appointmentEnd)
+        ) {
+          occupiedSlots.push(slot);
+        }
+      }
+    }
+    // console.log(occupiedSlots);
+
+    // Filter out occupied slots and slots that don't have enough time before closing
+    const availableSlots = allSlots.filter((slot) => {
+      // Check if slot is occupied
+      const isOccupied = occupiedSlots.some(
+        (occupied) => occupied.getTime() === slot.getTime()
+      );
+      // Check if there's enough time before closing
+      const slotEnd = new Date(slot.getTime() + serviceDuration * 60000);
+      const isBeforeClosing =
+        slotEnd.getHours() <= branchCloseTime.getHours() || // up till closing time
+        (slotEnd.getHours() === branchCloseTime.getHours() &&
+          slotEnd.getMinutes() === 0);
+
+      return !isOccupied && isBeforeClosing;
+    });
+    // console.log(availableSlots);
+
+    // Format the available slots for response
+    const formattedSlots = availableSlots.map((slot) => {
+      const displayStartTime = slot.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const displayEndTime = new Date(
+        slot.getTime() + serviceDuration * 60000
+      ).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      return {
+        startTime: slot.toISOString(),
+        endTime: new Date(
+          slot.getTime() + serviceDuration * 60000
+        ).toISOString(),
+        displayTime: `${displayStartTime} - ${displayEndTime}`,
+      };
+    });
+
+    if (formattedSlots) {
+      return res.status(200).json({ timeSlots: formattedSlots });
+    } else {
+      return res.status(400).json({
+        message:
+          "Error retrieving available time slots for stylist, service and branch",
+      });
     }
   },
 };

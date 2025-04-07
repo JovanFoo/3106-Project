@@ -56,7 +56,7 @@ export default function ClientTestimonials() {
 
     return (
         <div className="flex min-h-screen mr-4">
-            <div className="flex-1 p-5">
+            <div className="flex-1 p-5 mr-4">
                 <PageBreadcrumb pageTitle="Client Testimonials" />
 
                 <div className="space-y-4">

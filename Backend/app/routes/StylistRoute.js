@@ -15,7 +15,7 @@ StylistRouter.get(
 );
 StylistRouter.put(
   "/teams",
-  AuthMiddleware.authCustomerStylistOrManagerToken,
+  AuthMiddleware.authAdminCustomerStylistOrManagerToken,
   StylistController.retrieveAllStylists
 );
 // get stylist by id
@@ -35,6 +35,23 @@ StylistRouter.put(
   AuthMiddleware.authStylistToken,
   StylistController.updateExpertises
 );
+StylistRouter.get(
+  "/my-appointments",
+  AuthMiddleware.authStylistToken,
+  StylistController.retrieveMyAppointments
+);
+// get appointments of a stylist by id
+StylistRouter.get(
+  "/appointments/:id",
+  AuthMiddleware.authCustomerOrStylistToken,
+  StylistController.retrieveAppointments
+);
+// get stylist by id
+StylistRouter.get(
+  "/:id",
+  AuthMiddleware.authStylistToken,
+  StylistController.retrieveById
+);
 // update stylist by id (only logged in stylist can update)
 StylistRouter.put(
   "/:id",
@@ -47,16 +64,22 @@ StylistRouter.delete(
   AuthMiddleware.authStylistToken,
   StylistController.delete
 );
-// get appointments of a stylist by id
-StylistRouter.get(
-  "/:id/appointments",
-  AuthMiddleware.authCustomerOrStylistToken,
-  StylistController.retrieveAppointments
-);
 
 StylistRouter.get(
   "/adminAccess",
   AuthMiddleware.authAdminOrStylistManagerToken,
   StylistController.retrieveAll
+);
+// get list of all stylists
+StylistRouter.get(
+  "/",
+  AuthMiddleware.authCustomerOrStylistToken,
+  StylistController.retrieveAllStylists
+);
+// get stylist's available times based on date and service, for Customer
+StylistRouter.get(
+  "/:id/availability",
+  AuthMiddleware.authCustomerToken,
+  StylistController.getStylistAvailabilityByDateAndService
 );
 module.exports = StylistRouter;

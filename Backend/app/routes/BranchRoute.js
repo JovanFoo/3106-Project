@@ -4,15 +4,21 @@ const BranchRouter = express.Router();
 const BranchController = require("../controllers/BranchController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 
+// CRUD operations for branches
+// All operations are protected by authentication middleware
+// Assign stylist to branch will be handled by the stylist manager in team route
 
+// Create a new branch (Auth: admin)
+BranchRouter.post("/", AuthMiddleware.authAdminToken, BranchController.create);
 
-// Get all stylists in a branch (Auth: stylist manager)
+// Retrieve all stylists in a branch of the specify manager (Auth: stylist manager)
 BranchRouter.get(
   "/stylists",
   AuthMiddleware.authStylistManagerToken,
   BranchController.retrieveStylists
 );
 
+// Retrieve all branches of a specify stylist (Auth: stylist manager)
 BranchRouter.get(
   "/shops",
   AuthMiddleware.authStylistManagerToken,
@@ -30,18 +36,19 @@ BranchRouter.put(
   BranchController.removeStylist
 );
 
-// Create a new branch (Auth: admin)
-BranchRouter.post(
+// Get all branches (Auth: admin and customer)
+BranchRouter.get(
   "/",
-  AuthMiddleware.authAdminToken,
-  BranchController.create
+  AuthMiddleware.authAdminCustomerStylistOrManagerToken,
+  BranchController.retrieveAll
 );
 
-// Get all branches (Auth: admin)
-BranchRouter.get("/", AuthMiddleware.authAdminToken,BranchController.retrieveAll);
-
 // Get a branch by ID (Auth: admin)
-BranchRouter.get("/:id",AuthMiddleware.authAdminToken , BranchController.retrieve);
+BranchRouter.get(
+  "/:id",
+  AuthMiddleware.authAdminToken,
+  BranchController.retrieve
+);
 
 // Update branch details (Auth: admin)
 BranchRouter.put(
@@ -57,5 +64,11 @@ BranchRouter.delete(
   BranchController.delete
 );
 
+// Retrieve all stylists in a branch (Auth: customer)
+BranchRouter.get(
+  "/:id/stylists",
+  AuthMiddleware.authCustomerToken,
+  BranchController.retrieveStylistsForBranch
+);
 
 module.exports = BranchRouter;
