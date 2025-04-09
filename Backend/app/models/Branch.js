@@ -47,7 +47,7 @@ const branchSchema = new Schema({
   manager: {
     type: Schema.Types.ObjectId,
     ref: "Stylist",
-    required: true,
+    // required: true,
   },
   stylists: [
     {

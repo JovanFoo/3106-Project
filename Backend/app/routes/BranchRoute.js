@@ -30,6 +30,7 @@ BranchRouter.put(
   AuthMiddleware.authAdminToken,
   BranchController.addStylist
 );
+
 BranchRouter.put(
   "/remove/:id",
   AuthMiddleware.authAdminToken,
@@ -53,14 +54,14 @@ BranchRouter.get(
 // Update branch details (Auth: admin)
 BranchRouter.put(
   "/:id",
-  AuthMiddleware.authStylistManagerToken,
+  AuthMiddleware.authAdminToken,
   BranchController.update
 );
 
 // Delete a branch (Auth: admin)
 BranchRouter.delete(
   "/:id",
-  AuthMiddleware.authStylistManagerToken,
+  AuthMiddleware.authAdminToken,
   BranchController.delete
 );
 
