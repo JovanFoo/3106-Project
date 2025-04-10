@@ -19,6 +19,7 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import { Navigate } from "react-router";
+import ReviewsList from "./pages/ReviewsList";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="appointments" element={<Calendar />} />
+            <Route path="/reviews" element={<ReviewsList />} />
             <Route path="/blank" element={<Blank />} />
 
             {/* Forms */}
