@@ -339,9 +339,7 @@ const StylistController = {
     // Generate all possible time slots for the day
     const allSlots = [];
     let currentTime = branchOpenTime;
-    while (
-      currentTime.getHours() < branchCloseTime.getHours() 
-    ) {
+    while (currentTime.getHours() < branchCloseTime.getHours()) {
       allSlots.push(new Date(currentTime));
       currentTime = new Date(currentTime.getTime() + slotInterval * 60000);
     }

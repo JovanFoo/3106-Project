@@ -11,12 +11,18 @@ import Badge from "../../ui/badge/Badge";
 import { useEffect, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL;
+
+interface Expertise {
+  _id: string;
+  name: string;
+  description?: string;
+}
 interface Stylist {
   _id: string;
   name: string;
   email?: string;
   phoneNumber: string;
-  expertise?: string[];
+  expertises?: Expertise[];
   appointments?: string[];
   profilePicture: string;
 }
@@ -156,7 +162,10 @@ export default function BasicTableOne() {
                         <img
                           width={40}
                           height={40}
-                          src={order.profilePicture}
+                          src={
+                            order.profilePicture ||
+                            "/images/logo/defaultprofile.png"
+                          }
                         />
                       </div>
                       <div>
@@ -172,25 +181,17 @@ export default function BasicTableOne() {
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {order.phoneNumber}
                   </TableCell>
-                  {/* <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    <div className="flex -space-x-2">
-                      {order.expertise.map((teamImage, index) => (
-                        <div
-                          key={index}
-                          className="w-6 h-6 overflow-hidden border-2 border-white rounded-full dark:border-gray-900"
-                        >
-                          <img
-                            width={24}
-                            height={24}
-                            src={teamImage}
-                            alt={`Team member ${index + 1}`}
-                            className="w-full size-6"
-                          />
-                        </div>
+
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {" "}
+                    <div className="flex flex-wrap gap-2">
+                      {order.expertises?.map((expertiseItem, index) => (
+                        <Badge key={index} size="sm" color="primary">
+                          {expertiseItem.name} {/* Display expertise name */}
+                        </Badge>
                       ))}
                     </div>
-                  </TableCell> */}
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400"></TableCell>
+                  </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {" "}
                     <Badge

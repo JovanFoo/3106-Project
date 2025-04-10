@@ -246,6 +246,9 @@ const BranchController = {
     try {
       const branch = await Branch.findById(id).populate("stylists");
       const stylists = branch.stylists;
+      for (let stylist of branch.stylists) {
+        await stylist.populate("expertises"); // Populate expertises for each stylist
+      }
       if (!branch) {
         return res.status(404).json({ message: "Branch not found" });
       }
