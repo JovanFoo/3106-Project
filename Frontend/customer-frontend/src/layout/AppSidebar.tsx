@@ -27,7 +27,7 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    path: "/",
+    path: "/appointments",
   },
   {
     icon: <CalenderIcon />,
@@ -42,17 +42,12 @@ const navItems: NavItem[] = [
   {
     name: "Our Team",
     icon: <ListIcon />,
-    path: "/form-elements",
+    path: "/allstylists",
   },
   {
     name: "View Customer Reviews",
     icon: <ListIcon />, // to be replaced
     path: "/reviews",
-  },
-  {
-    name: "Membership",
-    icon: <TableIcon />,
-    path: "/basic-tables",
   },
 ];
 
@@ -298,19 +293,19 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link to="/">
+        <Link to="/home">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src="/images/logo/logobuzzbookcropped.png"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={270}
+                height={50}
               />
               <img
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/logo/logobuzzbookcropped.png"
                 alt="Logo"
                 width={150}
                 height={40}
@@ -318,10 +313,10 @@ const AppSidebar: React.FC = () => {
             </>
           ) : (
             <img
-              src="/images/logo/logo-icon.svg"
+              src="/images/logo/logobuzzbookcropped.png"
               alt="Logo"
-              width={32}
-              height={32}
+              width={150}
+              height={100}
             />
           )}
         </Link>

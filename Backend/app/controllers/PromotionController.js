@@ -3,6 +3,8 @@ const Promotion = require("../models/Promotion.js");
 const Service = require("../models/Service.js"); // Make sure this model is correct
 
 const PromotionController = {
+
+  
   // Create a new promo
   async create(req, res) {
     console.log("promocontroller > create");

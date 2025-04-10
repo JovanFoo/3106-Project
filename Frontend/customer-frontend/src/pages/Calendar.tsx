@@ -205,7 +205,7 @@ const Calendar: React.FC = () => {
 
         setAppts(formattedAppointments);
       } catch (error) {
-        console.error("Error fetching appointments:", error);
+        console.error("Error  fetching appointments:", error);
       }
     }
   };
@@ -340,6 +340,7 @@ const Calendar: React.FC = () => {
       const month = Number(dateSplits[1]);
       const day = Number(dateSplits[2]);
       try {
+        console.log("fetching stylists");
         const response = await fetch(
           `${API_URL}/api/stylists/${stylist}/availability?branchId=${branch}&serviceId=${service}&year=${year}&month=${month}&day=${day}`,
           {
@@ -420,7 +421,7 @@ const Calendar: React.FC = () => {
         }
       } catch (err) {
         window.confirm("Error updating appointment!");
-        console.log("Error creating appointment: ", err);
+        console.log("Error updating appointment: ", err);
       }
       // set the new updated appointment to be displayed
       setAppts((prevEvents) =>

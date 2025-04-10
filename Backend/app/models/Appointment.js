@@ -14,6 +14,11 @@ const appointmentSchema = new Schema({
     type: Number,
     required: true,
   },
+  pointsUsed: {
+    type: Number,
+    required: true,
+  },
+
   status: {
     type: String,
     enum: ["Pending", "Confirmed", "Cancelled", "Completed"],
@@ -34,7 +39,7 @@ const appointmentSchema = new Schema({
   branch: {
     type: Schema.Types.ObjectId,
     ref: "Branch",
-  }
+  },
 });
 
 const Appointment = mongose.model("Appointment", appointmentSchema);
