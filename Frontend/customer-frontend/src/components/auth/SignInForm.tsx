@@ -43,6 +43,7 @@ export default function SignInForm() {
 
       if (!response.ok) {
         console.log(data);
+        setError(data.message);
       }
 
       if (response.ok) {
@@ -51,7 +52,7 @@ export default function SignInForm() {
         navigate("/home");
       }
     } catch (err) {
-      console.log(err);
+      console.log(err, "error");
     } finally {
       setLoading(false);
     }
