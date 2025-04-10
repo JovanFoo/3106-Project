@@ -13,6 +13,12 @@ StylistRouter.get(
   // AuthMiddleware.authAdminOrStylistManagerToken,
   StylistController.retrieveAllStylists
 );
+// get stylist by name
+StylistRouter.get(
+  "/search/:name",
+  AuthMiddleware.authCustomerOrStylistToken,
+  StylistController.retrieveStylistsByName
+);
 StylistRouter.put(
   "/teams",
   AuthMiddleware.authAdminCustomerStylistOrManagerToken,
