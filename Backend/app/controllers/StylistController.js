@@ -35,6 +35,32 @@ const StylistController = {
         .json({ message: "Error retrieving stylist by Username" });
     }
   },
+  // Retrieve stylist by name (not unique)
+  async retrieveStylistsByName(req, res) {
+    console.log("StylistController > retrieveByName");
+    const { name } = req.params;
+
+    if (!name) {
+      return res.status(400).json({ message: "Missing name query parameter" });
+    }
+
+    try {
+      const stylists = await Stylist.find({
+        name: { $regex: new RegExp(name, "i") }, // case-insensitive match
+      });
+
+      if (stylists.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No stylists found matching the name" });
+      }
+
+      res.status(200).json(stylists);
+    } catch (err) {
+      console.error("Error in retrieveByName:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
   // Retrieve a list of all stylists
   async retrieveAllStylists(req, res) {
     console.log("StylistController > retrieve all stylists");
@@ -339,9 +365,7 @@ const StylistController = {
     // Generate all possible time slots for the day
     const allSlots = [];
     let currentTime = branchOpenTime;
-    while (
-      currentTime.getHours() < branchCloseTime.getHours() 
-    ) {
+    while (currentTime.getHours() < branchCloseTime.getHours()) {
       allSlots.push(new Date(currentTime));
       currentTime = new Date(currentTime.getTime() + slotInterval * 60000);
     }
