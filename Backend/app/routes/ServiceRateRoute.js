@@ -45,7 +45,7 @@ ServiceRateRouter.delete(
 
 ServiceRateRouter.post(
   "/",
-  AuthMiddleware.authStylistManagerToken,
+  AuthMiddleware.authAdminToken,
   ServiceRateController.create
 );
 

@@ -327,7 +327,7 @@ const StylistController = {
 
     const branchFromId = await Branch.findOne({ _id: branch });
     if (!branchFromId) {
-      return res.status(400).json({ message: "Error creating stylist" });
+      return res.status(404).json({ message: "Branch not found" });
     }
     let existingStylist = await Stylist.findOne({ username: username });
     if (existingStylist) {
@@ -339,7 +339,14 @@ const StylistController = {
     }
     const manager = await Stylist.findOne({ _id: branchFromId.manager });
     if (!manager) {
-      return res.status(400).json({ message: "Error creating stylist" });
+      // return res.status( 404 ).json( { message: "Manager not found" } );
+
+      branchFromId.stylists.push(stylist._id); //addming new stylist to branch
+      branchFromId.manager = stylist._id;
+      await branchFromId.save();
+      await stylist.save();
+      stylist.password = undefined;
+      return res.status(200).json(stylist);
     }
     branchFromId.stylists.push(stylist._id); //addming new stylist to branch
     if (role === "Manager") {
@@ -357,7 +364,7 @@ const StylistController = {
       stylist.password = undefined;
       return res.status(200).json(stylist);
     } else {
-      return res.status(400).json({ message: "Error creating stylist" });
+      return res.status(400).json({ message: "Stylist not created" });
     }
   },
 };
