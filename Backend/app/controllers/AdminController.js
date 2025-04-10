@@ -4,19 +4,19 @@ const PasswordHash = require("../utils/passwordHash.js");
 const jwt = require("../utils/jwt.js");
 
 const AdminController = {
-    async initaliseAdmin () {
-        console.log( "AdminController > initaliseAdmin" );
-        const admin = new Admin({
-          name: "Admin",
-          username: "admin",
-          email: "salonflow123@gmail.com",
-        });
-        admin.password = await PasswordHash.hashPassword( "admin" );
-        if ( await Admin.findOne({ username: "admin" }) ) {
-          return;
-        }
-        await admin.save();
-    },
+  async initaliseAdmin() {
+    console.log("AdminController > initaliseAdmin");
+    const admin = new Admin({
+      name: "Admin",
+      username: "admin",
+      email: "salonflow123@gmail.com",
+    });
+    admin.password = await PasswordHash.hashPassword("admin");
+    if (await Admin.findOne({ username: "admin" })) {
+      return;
+    }
+    await admin.save();
+  },
 
   // Retrieve a admin by username
   async retrieve(req, res) {
@@ -33,8 +33,8 @@ const AdminController = {
   // Update a admin's name email by username
   async update(req, res) {
     console.log("AdminController > update");
-    const { id } = req.params;
-    const { name, email, username } = req.body;
+    const id = req.userId;
+    const { name, email, username, phoneNumber } = req.body;
     const admin = await Admin.findOne({ _id: id });
     let existingAdmin = await Admin.findOne({ username: username });
     if (
@@ -62,6 +62,7 @@ const AdminController = {
     admin.name = name ? name : admin.name;
     admin.username = username ? username : admin.username;
     admin.email = email ? email : admin.email;
+    admin.phoneNumber = phoneNumber ? phoneNumber : admin.phoneNumber;
     await admin.save();
     admin.password = undefined;
     return res.status(200).json(admin);
@@ -69,7 +70,7 @@ const AdminController = {
   // Delete a admin by username
   async delete(req, res) {
     console.log("AdminController > delete");
-    const { id } = req.userId;
+    const id = req.userId;
     const admin = await Admin.findByIdAndDelete(id);
     if (admin) {
       return res.status(200).json({ message: "Admin deleted successfully" });
@@ -80,7 +81,7 @@ const AdminController = {
 
   async updateProfilePicture(req, res) {
     console.log("AdminController > updateProfilePicture");
-    const { id } = req.userId;
+    const id = req.userId;
     const { profilePicture } = req.body;
     const admin = await Admin.findOne({ _id: id });
     if (!admin) {

@@ -8,8 +8,8 @@ import { AlertType } from "../../pages/UserProfiles";
 import { useUser } from "../../context/UserContext";
 import { useEffect, useState } from "react";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 // export default function UserMetaCard(user: User) {
 export default function UserMetaCard(alert: AlertType) {
@@ -21,7 +21,6 @@ export default function UserMetaCard(alert: AlertType) {
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber);
-  const [bio, setBio] = useState(user.bio);
 
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -31,7 +30,6 @@ export default function UserMetaCard(alert: AlertType) {
     setName(user.name);
     setEmail(user.email);
     setPhoneNumber(user.phoneNumber);
-    setBio(user.bio);
   }, [user]);
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     // Handle save logic here
@@ -55,12 +53,11 @@ export default function UserMetaCard(alert: AlertType) {
     setIsUpdating(true);
     await axios
       .put(
-        api_address + "/api/stylists/" + user._id,
+        api_address + "/api/admins/",
         {
           username: username,
           name: name,
           email: email,
-          bio: bio,
           phoneNumber: phoneNumber,
         },
         config
@@ -70,7 +67,6 @@ export default function UserMetaCard(alert: AlertType) {
       })
       .catch((err) => {
         isSuccess1 = false;
-        setBio(user.bio);
         setEmail(user.email);
         setName(user.name);
         setPhoneNumber(user.phoneNumber);
@@ -84,7 +80,7 @@ export default function UserMetaCard(alert: AlertType) {
 
     await axios
       .put(
-        api_address + "/api/stylists/profilePicture",
+        api_address + "/api/admins/profilePicture",
         { profilePicture: profilePicture },
         config
       )
@@ -107,8 +103,6 @@ export default function UserMetaCard(alert: AlertType) {
       alert.setVariant("success");
       alert.setTitle("Updating user profile");
       alert.setMessage("Successfully updated user data.");
-      /* the following setXXX() is to help with the loading */
-      user.setBio(bio);
       user.setEmail(email);
       user.setName(name);
       user.setPhoneNumber(phoneNumber);
@@ -121,12 +115,7 @@ export default function UserMetaCard(alert: AlertType) {
         name,
         email,
         profilePicture,
-        phoneNumber,
-        bio,
-        user.role,
-        user.stylists,
-        user.expertises,
-        user.galleries
+        phoneNumber
       );
     }
     setIsUpdating(false);
@@ -148,7 +137,7 @@ export default function UserMetaCard(alert: AlertType) {
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {user.role}
+                  Admin
                 </p>
               </div>
             </div>
@@ -362,16 +351,6 @@ export default function UserMetaCard(alert: AlertType) {
                         } catch (err) {}
                       }}
                       pattern="[0-9]{8}"
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input
-                      type="text"
-                      name="bio"
-                      value={bio}
-                      placeholder="Bio"
-                      onChange={(e) => setBio(e.target.value)}
                     />
                   </div>
                 </div>

@@ -13,6 +13,7 @@ import {
 } from "../../components/ui/table";
 import { useModal } from "../../hooks/useModal";
 import { PencilIcon, TrashBinIcon } from "../../icons";
+import PageMeta from "../../components/common/PageMeta";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -147,13 +148,14 @@ export default function Services() {
   return (
     <>
       <div className="flex min-h-screen">
-        <div className="flex-1 p-5">
+        <div className="flex-1">
+          <PageMeta
+            title="React.js Chart Dashboard | TailAdmin - React.js Admin Dashboard Template"
+            description="This is React.js Chart Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+          />
           <PageBreadcrumb pageTitle="Service rates" />
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-          <div className="flex justify-between items-center mb-6">
-              <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                Manage Service Rates
-              </h4>
+          <div className="space-y-6">
+            <div>
               <Button
                 variant="primary"
                 type="info"
@@ -223,7 +225,8 @@ export default function Services() {
                   {`Page ${pageNumber} of ${totalPages}`}
                 </span>
                 <span className="text-gray-700 dark:text-gray-400 mt-4 ml-2">
-                  Showing {serviceRates.length} of {totalServiceRates} transactions
+                  Showing {serviceRates.length} of {totalServiceRates} Service
+                  Rates
                 </span>
                 <span className="text-gray-700 dark:text-gray-400 mt-4 ">
                   Page Size:
@@ -232,10 +235,11 @@ export default function Services() {
                   <span
                     key={size}
                     onClick={() => handlePageSizeChange(size)}
-                    className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${pageSize === size
+                    className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${
+                      pageSize === size
                         ? "font-bold text-black dark:text-white"
                         : ""
-                      }`}
+                    }`}
                   >
                     {size}
                   </span>
@@ -302,7 +306,7 @@ const CustomerModal: React.FC<ModalProps> = ({
   isOpen,
   closeModal,
   serviceRate,
-  onSave = () => { },
+  onSave = () => {},
   showCloseButton = true, // Default to true for backwards compatibility
   isFullscreen = false,
 }) => {
@@ -438,7 +442,7 @@ const CustomerModal: React.FC<ModalProps> = ({
             Close
           </button>
           <Button size="sm" variant="primary" onClick={handleSave}>
-            {serviceRate ? "Update Transaction" : "Create"}
+            {serviceRate ? "Update Service Rate" : "Create Service Rate"}
           </Button>
         </div>
       </div>
@@ -449,7 +453,7 @@ const DeleteModal: React.FC<ModalProps> = ({
   isOpen,
   closeModal,
   serviceRate,
-  onDelete = () => { },
+  onDelete = () => {},
 }) => {
   const handleDelete = () => {
     if (serviceRate?.name === serviceRateName) {

@@ -29,7 +29,7 @@ export default function ForgetPasswordForm() {
     };
     await axios
       .post(
-        api_address + "/api/auth/stylists/forget-password",
+        api_address + "/api/auth/admins/forget-password",
         {
           email,
         },
@@ -48,7 +48,7 @@ export default function ForgetPasswordForm() {
         setError(err.message);
       });
   };
-  
+
   return (
     <div className="flex flex-col flex-1">
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
@@ -96,17 +96,6 @@ export default function ForgetPasswordForm() {
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Sign In
-                </Link>
-              </p>
-            </div>
-            <div className="mt-5">
-              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Don&apos;t have an account? {""}
-                <Link
-                  to="/signup"
-                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                >
-                  Sign Up
                 </Link>
               </p>
             </div>

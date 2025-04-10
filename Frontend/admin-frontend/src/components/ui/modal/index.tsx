@@ -8,7 +8,6 @@ interface ModalProps {
   showCloseButton?: boolean; // New prop to control close button visibility
   isFullscreen?: boolean; // Default to false for backwards compatibility
 }
-
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,

@@ -1,6 +1,6 @@
 const mongodb = require("./config/database.js");
 const Expertise = require("../models/Expertise.js");
-
+const Stylist = require("../models/Stylist.js");
 const ExpertiseController = {
   // Create new Expertise TODO: require only admin/branch manager account
   async create(req, res) {
@@ -16,7 +16,7 @@ const ExpertiseController = {
       if (!newExpertise) {
         return res.status(400).json({ message: "Error creating expertise" });
       }
-      return res.status(201).json(savedService);
+      return res.status(201).json(newExpertise);
     } catch (error) {
       console.log(error.message);
       return res.status(400).json({ message: error.message });
@@ -75,6 +75,8 @@ const ExpertiseController = {
       const expertise = await Expertise.findOne({ _id: id });
 
       if (expertise) {
+        await Expertise.findByIdAndDelete({ _id: id });
+        await Stylist.find();
         return res
           .status(204)
           .json({ message: "Expertise deleted successfully" });
@@ -84,6 +86,25 @@ const ExpertiseController = {
     } catch (error) {
       console.error(error.message);
       return res.status(500).json({ message: "Error deleting expertise" });
+    }
+  },
+
+  async getExpertisePagination(req, res) {
+    console.log("ExpertiseController > getExpertisePagination");
+    const { page = 1, limit = 10 } = req.query;
+    const expertise = await Expertise.find()
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+    const count = await Expertise.countDocuments();
+    if (expertise) {
+      return res.status(200).json({
+        expertise,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+      });
+    } else {
+      return res.status(400).json({ message: "Error retrieving appointments" });
     }
   },
 };
