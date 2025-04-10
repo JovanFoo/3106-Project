@@ -15,6 +15,7 @@ import Calendar from "./pages/Calendar";
 import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
+import BasicTables2 from "./pages/Tables/BasicTables2";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
@@ -49,6 +50,7 @@ export default function App() {
 
             {/* Tables */}
             <Route path="/past-appointments" element={<BasicTables />} />
+            <Route path="/allstylists" element={<BasicTables2 />} />
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />

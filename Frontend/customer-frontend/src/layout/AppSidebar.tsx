@@ -27,7 +27,7 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    path: "/",
+    path: "/appointments",
   },
   {
     icon: <CalenderIcon />,
@@ -42,7 +42,7 @@ const navItems: NavItem[] = [
   {
     name: "Our Team",
     icon: <ListIcon />,
-    path: "/form-elements",
+    path: "/allstylists",
   },
   {
     name: "Membership",
