@@ -420,7 +420,7 @@ const Calendar: React.FC = () => {
         }
       } catch (err) {
         window.confirm("Error updating appointment!");
-        console.log("Error creating appointment: ", err);
+        console.log("Error updating appointment: ", err);
       }
       // set the new updated appointment to be displayed
       setAppts((prevEvents) =>
@@ -468,7 +468,6 @@ const Calendar: React.FC = () => {
         const newAppointment: CalendarEvent = {
           id: createdAppointment._id.toString(),
           start: createdAppointment.date,
-          allDay: true,
           extendedProps: {
             branch: createdAppointment.branch,
             stylist: createdAppointment.stylist,
