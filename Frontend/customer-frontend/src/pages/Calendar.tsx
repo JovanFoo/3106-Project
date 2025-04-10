@@ -390,7 +390,7 @@ const Calendar: React.FC = () => {
     // get the selected date time
     const dateTime = selectedTimeSlot?.startTime;
 
-    if (selectedEvent) { 
+    if (selectedEvent) {
       // Edit appointment
       // const serviceRate = services.filter((e) => e._id === service);
       const apptId = selectedEvent.id;
@@ -468,7 +468,6 @@ const Calendar: React.FC = () => {
         const newAppointment: CalendarEvent = {
           id: createdAppointment._id.toString(),
           start: createdAppointment.date,
-          allDay: true,
           extendedProps: {
             branch: createdAppointment.branch,
             stylist: createdAppointment.stylist,
