@@ -19,7 +19,7 @@ ServiceRouter.get(
 // create new service
 ServiceRouter.post(
   "/",
-  AuthMiddleware.authStylistToken, // TODO: change accordingly to desired person
+  AuthMiddleware.authAdminToken, // TODO: change accordingly to desired person
   ServiceController.create
 );
 // get all services
@@ -42,8 +42,8 @@ ServiceRouter.put(
 );
 // delete promo by id (only a login customer can delete their account)
 ServiceRouter.delete(
-  "/",
-  AuthMiddleware.authCustomerToken,
+  "/:id",
+  AuthMiddleware.authAdminToken,
   ServiceController.delete
 );
 

@@ -108,6 +108,9 @@ const ReviewController = {
       const element = newReviews[index];
       console.log(element.customer);
       console.log(element.review);
+      if (!element.review) {
+        continue;
+      }
       const review = await Review.findById(element.review);
       temp.push({
         text: review.text,
