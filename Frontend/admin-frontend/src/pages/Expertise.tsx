@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
-import PageMeta from "../components/common/PageMeta";
 import Alert from "../components/ui/alert/Alert";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
@@ -182,18 +181,14 @@ export default function Expertise() {
   };
   return (
     <div className="flex min-h-screen">
-      <div className="flex-1">
-        <PageMeta
-          title="Expertise Management"
-          description="Manage expertise tags"
-        />
+      <div className="flex-1 p-5">
         <PageBreadcrumb pageTitle="Expertise" />
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Manage Expertise Tags
-            </h3>
+            </h4>
             <Button size="sm" variant="primary" onClick={openModalNew}>
               Add Expertise +
             </Button>

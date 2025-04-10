@@ -38,12 +38,12 @@ const branchSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  appointments: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Appointment",
-    },
-  ],
+  // appointments: [
+  //   {
+  //     type: Schema.Types.ObjectId,
+  //     ref: "Appointment",
+  //   },
+  // ],
   manager: {
     type: Schema.Types.ObjectId,
     ref: "Stylist",

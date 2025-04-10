@@ -13,7 +13,6 @@ import {
 } from "../../components/ui/table";
 import { useModal } from "../../hooks/useModal";
 import { PencilIcon, TrashBinIcon } from "../../icons";
-import PageMeta from "../../components/common/PageMeta";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -148,14 +147,13 @@ export default function Services() {
   return (
     <>
       <div className="flex min-h-screen">
-        <div className="flex-1">
-          <PageMeta
-            title="React.js Chart Dashboard | TailAdmin - React.js Admin Dashboard Template"
-            description="This is React.js Chart Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
-          />
+        <div className="flex-1 p-5">
           <PageBreadcrumb pageTitle="Service rates" />
-          <div className="space-y-6">
-            <div>
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6 space-y-6">
+          <div className="flex justify-between items-center mb-6">
+          <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            Manage Service Rates
+          </h4>
               <Button
                 variant="primary"
                 type="info"
@@ -191,7 +189,7 @@ export default function Services() {
                       <TableCell>
                         {new Date(serviceRate.endDate).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="justify-around  flex">
+                      <TableCell className="justify-around flex gap-2">
                         <Button
                           variant="primary"
                           type="warning"

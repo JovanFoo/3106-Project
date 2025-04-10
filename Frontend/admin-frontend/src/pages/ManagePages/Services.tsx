@@ -215,7 +215,7 @@ export default function Services() {
                           ? service.description.substring(0, 80) + " ..."
                           : service.description}
                       </TableCell>
-                      <TableCell className="justify-around flex">
+                      <TableCell className="justify-around flex gap-2">
                         <Button
                           variant="primary"
                           type="warning"
