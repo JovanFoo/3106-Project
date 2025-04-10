@@ -20,7 +20,7 @@ const CustomerController = {
   async update(req, res) {
     console.log("CustomerController > update");
     const { id } = req.params;
-    const { name, email, username } = req.body;
+    const { name, email, username, profilePicture } = req.body;
     const customer = await Customer.findOne({ _id: id });
     let existingCustomer = await Customer.findOne({ username: username });
     if (
@@ -48,6 +48,9 @@ const CustomerController = {
     customer.name = name ? name : customer.name;
     customer.username = username ? username : customer.username;
     customer.email = email ? email : customer.email;
+    customer.profilePicture = profilePicture
+      ? profilePicture
+      : customer.profilePicture;
     await customer.save();
     customer.password = undefined;
     return res.status(200).json(customer);
@@ -79,24 +82,6 @@ const CustomerController = {
     }
   },
 
-  async updateProfilePicture(req, res) {
-    console.log("CustomerController > updateProfilePicture");
-    const { id } = req.userId;
-    const { profilePicture } = req.body;
-    const customer = await Customer.findOne({ _id: id });
-    if (!customer) {
-      return res.status(400).json({ message: "Error updating user" });
-    }
-
-    customer.profilePicture = profilePicture
-      ? profilePicture
-      : customer.profilePicture;
-    // TO DO: use cloudinary to upload image
-
-    await customer.save();
-    return res.status(200).json(customer);
-  },
-
   async updatePassword(req, res) {
     console.log("CustomerController > updatePassword");
     const id = req.userId;
@@ -117,6 +102,34 @@ const CustomerController = {
     await customer.save();
     jwt.addToBlackList(req.params.token);
     res.redirect("/success-update");
+  },
+
+  async updateProfilePicture(req, res) {
+    console.log("custcolleter > updateProfilePicture");
+    const id = req.userId;
+    const { profilePicture } = req.body;
+    try {
+      // console.log( "id", id );
+      // console.log( "profilePicture", profilePicture );
+      const cust = await Customer.updateOne(
+        { _id: id },
+        { profilePicture: profilePicture }
+      );
+      if (!cust) {
+        return res
+          .status(400)
+          .json({ message: "Error updating stylist profile picture" });
+      }
+      const newcust = await Customer.findOne({ _id: id });
+      // stylist.profilePicture = profilePicture
+      //   ? profilePicture
+      //   : stylist.profilePicture || "";
+      // TO DO: use cloudinary to upload image
+      // await stylist.save();
+      return res.status(200).json(newcust);
+    } catch (error) {
+      return res.status(400).json({ message: error.message });
+    }
   },
 };
 

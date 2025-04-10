@@ -18,7 +18,7 @@ interface Stylist {
   phoneNumber: string;
   expertise?: string[];
   appointments?: string[];
-  profilePic: string;
+  profilePicture: string;
 }
 
 // Define the table data using the interface
@@ -78,7 +78,7 @@ export default function BasicTableOne() {
 
         const data = await response.json();
         setStylists(data);
-        console.log(stylists, "stylists");
+        console.log(data, "stylists");
       } catch (error) {
         console.error("Error fetching stylist:", error);
       }
@@ -123,7 +123,7 @@ export default function BasicTableOne() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Number
+                  Stylist
                 </TableCell>
                 <TableCell
                   isHeader
@@ -135,19 +135,13 @@ export default function BasicTableOne() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Hair Stylist
+                  Expertise
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   Status
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Location
                 </TableCell>
               </TableRow>
             </TableHeader>
@@ -159,7 +153,11 @@ export default function BasicTableOne() {
                   <TableCell className="px-5 py-4 sm:px-6 text-start">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 overflow-hidden rounded-full">
-                        <img width={40} height={40} />
+                        <img
+                          width={40}
+                          height={40}
+                          src={order.profilePicture}
+                        />
                       </div>
                       <div>
                         <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -192,21 +190,22 @@ export default function BasicTableOne() {
                       ))}
                     </div>
                   </TableCell> */}
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400"></TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {" "}
                     <Badge
                       size="sm"
                       color={
                         order.name === "Active"
                           ? "success"
                           : order.name === "Pending"
-                          ? "warning"
-                          : "error"
+                          ? "success"
+                          : "success"
                       }
                     >
-                      {order.name}
+                      {"active"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400"></TableCell>
                 </TableRow>
               ))}
             </TableBody>
