@@ -45,6 +45,11 @@ const navItems: NavItem[] = [
     path: "/form-elements",
   },
   {
+    name: "View Customer Reviews",
+    icon: <ListIcon />, // to be replaced
+    path: "/reviews",
+  },
+  {
     name: "Membership",
     icon: <TableIcon />,
     path: "/basic-tables",
