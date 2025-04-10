@@ -32,8 +32,19 @@ export default function SignUpForm() {
     e.preventDefault();
     setLoading(true);
     setSuccessMessage("");
-    if (!formData.password || formData.password.length < 6) {
+    if (formData.password.length < 6) {
       setError("Password must be at least 6 characters long.");
+      setLoading(false);
+      return;
+    }
+
+    if (
+      !formData.name ||
+      !formData.username ||
+      !formData.email ||
+      !formData.password
+    ) {
+      setError("All fields are required.");
       setLoading(false);
       return;
     }
