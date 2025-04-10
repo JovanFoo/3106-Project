@@ -92,6 +92,7 @@ const CustomerController = {
       ? profilePicture
       : customer.profilePicture;
     // TO DO: use cloudinary to upload image
+
     await customer.save();
     return res.status(200).json(customer);
   },

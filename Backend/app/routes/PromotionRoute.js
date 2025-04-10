@@ -11,6 +11,12 @@ PromotionRouter.get(
   AuthMiddleware.authCustomerToken,
   PromotionController.retrieve
 );
+
+PromotionRouter.post(
+  "/",
+  AuthMiddleware.authCustomerToken,
+  PromotionController.create
+);
 // update promo by id
 PromotionRouter.put(
   "/:id",

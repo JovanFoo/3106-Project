@@ -16,7 +16,7 @@ export default function SignUpForm() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (e) => {
@@ -32,6 +32,28 @@ export default function SignUpForm() {
     e.preventDefault();
     setLoading(true);
     setSuccessMessage("");
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      setLoading(false);
+      return;
+    }
+
+    if (
+      !formData.name ||
+      !formData.username ||
+      !formData.email ||
+      !formData.password
+    ) {
+      setError("All fields are required.");
+      setLoading(false);
+      return;
+    }
+
+    if (!isChecked) {
+      setError("You must agree to the Terms and Conditions.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -48,6 +70,7 @@ export default function SignUpForm() {
       const data = await response.json();
       if (!response.ok) {
         console.log(data);
+        setError(data.message);
       }
 
       if (response.ok) {
