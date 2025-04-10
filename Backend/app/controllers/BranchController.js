@@ -57,6 +57,26 @@ const BranchController = {
     }
   },
 
+  // Retrieve a branch by its location (branch name)
+  async retrieveByBranchLocation(req, res) {
+    console.log("BranchController > retrieveBranchByBranchName");
+    const { location } = req.params;
+
+    try {
+      const branch = await Branch.findOne({ location });
+      if (!branch) {
+        return res.status(404).json({ message: "Branch not found" });
+      }
+
+      return res.status(200).json(branch);
+    } catch (error) {
+      console.log(error.message);
+      return res
+        .status(400)
+        .json({ message: "Error retrieving branch by name" });
+    }
+  },
+
   // Retrieve all branches
   async retrieveAll(req, res) {
     console.log("BranchController > retrieveAll");

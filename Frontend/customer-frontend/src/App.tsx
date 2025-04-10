@@ -20,6 +20,7 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import { Navigate } from "react-router";
+import ReviewsList from "./pages/ReviewsList";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -43,6 +44,7 @@ export default function App() {
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="appointments" element={<Calendar />} />
+            <Route path="/reviews" element={<ReviewsList />} />
             <Route path="/blank" element={<Blank />} />
 
             {/* Forms */}

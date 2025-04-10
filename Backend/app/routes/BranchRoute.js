@@ -43,6 +43,13 @@ BranchRouter.get(
   BranchController.retrieveAll
 );
 
+// Retrieve branch by location
+BranchRouter.get(
+  "/location/:location",
+  AuthMiddleware.authCustomerOrStylistToken, // main thing is for customer (reviews function)
+  BranchController.retrieveByBranchLocation
+);
+
 // Get a branch by ID (Auth: admin)
 BranchRouter.get(
   "/:id",

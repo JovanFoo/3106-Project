@@ -14,12 +14,26 @@ const reviewSchema = new Schema({
     type: Number,
     required: true,
   },
-  stylist: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Stylist",
-    },
-  ],
+  createdAt: {
+    type: Date,
+    required: true,
+  },
+  modifiedAt: {
+    type: Date,
+    required: true,
+  },
+  stylist: {
+    type: Schema.Types.ObjectId,
+    ref: "Stylist",
+  },
+  appointment: {
+    type: Schema.Types.ObjectId,
+    ref: "Appointment",
+  },
+  customer: {
+    type: Schema.Types.ObjectId,
+    ref: "Customer",
+  },
 });
 
 const Review = mongose.model("Review", reviewSchema);

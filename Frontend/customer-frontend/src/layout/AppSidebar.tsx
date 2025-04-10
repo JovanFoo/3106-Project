@@ -44,6 +44,11 @@ const navItems: NavItem[] = [
     icon: <ListIcon />,
     path: "/allstylists",
   },
+  {
+    name: "View Customer Reviews",
+    icon: <ListIcon />, // to be replaced
+    path: "/reviews",
+  },
 ];
 
 const othersItems: NavItem[] = [
