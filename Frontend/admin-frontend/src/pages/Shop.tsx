@@ -1,9 +1,17 @@
+import type { AxiosResponse } from "axios";
+import axios from "axios";
 import { useEffect, useState } from "react";
+import "react-clock/dist/Clock.css";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import Alert from "../components/ui/alert/Alert";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
+
+
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 export default function CreateShop() {
     const { isOpen, openModal, closeModal } = useModal();
@@ -24,25 +32,38 @@ export default function CreateShop() {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [shopToDelete, setShopToDelete] = useState<string | null>(null);
 
+    const config = {
+        headers: {
+            Authorization: sessionStorage.getItem("token"),
+        },
+    };
+
+    type Shop = {
+        _id: string;
+        location: string;
+        phoneNumber: string;
+        weekdayOpeningTime: string;
+        weekdayClosingTime: string;
+        weekendOpeningTime: string;
+        weekendClosingTime: string;
+        holidayOpeningTime: string;
+        holidayClosingTime: string;
+    };
 
     useEffect(() => {
-        const dummyShops = [
-            {
-                _id: "1",
-                location: "123 Katong Ave",
-                phoneNumber: "61234567",
-                weekdayOpeningTime: "09:00",
-                weekdayClosingTime: "18:00",
-                weekendOpeningTime: "10:00",
-                weekendClosingTime: "16:00",
-                holidayOpeningTime: "10:00",
-                holidayClosingTime: "14:00",
-            },
-        ];
-        setShops(dummyShops);
+        const fetchShops = async () => {
+            try {
+                const response = await axios.get(`${api_address}/api/branches`, config);
+                setShops(response.data);
+            } catch (error) {
+                console.error("Error fetching shops:", error);
+            }
+        };
+        fetchShops();
     }, []);
 
-    const handleCreateShop = () => {
+
+    const handleCreateShop = async () => {
         const newShop = {
             _id: editingShopId || Date.now().toString(),
             location,
@@ -54,29 +75,33 @@ export default function CreateShop() {
             holidayOpeningTime,
             holidayClosingTime,
         };
+        try {
+            let response: AxiosResponse<Shop>;
+            if (editingShopId) {
+                response = await axios.put(`${api_address}/api/branches/${editingShopId}`, newShop, config);
+                setShops(prev => prev.map(shop => shop._id === editingShopId ? response.data : shop));
+                setTitle("Updated");
+                setMessage("Shop updated successfully.");
+            } else {
+                response = await axios.post(`${api_address}/api/branches`, newShop, config);
+                setShops(prev => [...prev, response.data]);
+                setTitle("Success");
+                setMessage("Shop created successfully.");
+            }
 
-        if (editingShopId) {
-            setShops((prev) =>
-                prev.map((shop) => (shop._id === editingShopId ? newShop : shop))
-            );
-            setTitle("Updated");
-            setMessage("Shop updated successfully.");
-            setTimeout(() => {
-                setShowAlert(false);
-            }, 3000);
-        } else {
-            setShops((prev) => [...prev, newShop]);
-            setTitle("Success");
-            setMessage("Shop created successfully.");
-            setTimeout(() => {
-                setShowAlert(false);
-            }, 3000);
+            setVariant("success");
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 3000);
+            resetForm();
+            closeModal();
+        } catch (error: any) {
+            console.error("Error creating/updating shop:", error);
+            setTitle("Error");
+            setMessage(error.response?.data?.message || "Something went wrong.");
+            setVariant("error");
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 3000);
         }
-
-        setShowAlert(true);
-        setVariant("success");
-        resetForm();
-        closeModal();
     };
 
 
@@ -85,18 +110,28 @@ export default function CreateShop() {
         setShowDeleteConfirm(true);
     };
 
-    const handleDeleteShop = () => {
-        if (shopToDelete) {
-            setShops((prev) => prev.filter((shop) => shop._id !== shopToDelete));
-            setShowAlert(true);
-            setVariant("success");
+    const handleDeleteShop = async () => {
+        if (!shopToDelete) return;
+
+        try {
+            await axios.delete(`${api_address}/api/branches/${shopToDelete}`, config);
+            setShops(prev => prev.filter(shop => shop._id !== shopToDelete));
             setTitle("Deleted");
             setMessage("Shop deleted successfully.");
-            setShopToDelete(null);
+            setVariant("success");
+        } catch (error: any) {
+            console.error("Error deleting shop:", error);
+            setTitle("Error");
+            setMessage(error.response?.data?.message || "Failed to delete shop.");
+            setVariant("error");
         }
+
+        setShowAlert(true);
+        setTimeout(() => setShowAlert(false), 3000);
+        closeModal();
+        setShopToDelete(null);
         setShowDeleteConfirm(false);
     };
-
 
     const resetForm = () => {
         setLocation("");
@@ -121,7 +156,26 @@ export default function CreateShop() {
         setHolidayOpeningTime(shop.holidayOpeningTime);
         setHolidayClosingTime(shop.holidayClosingTime);
         openModal();
+    }; 
+
+    // to format time to 24hr
+    const formatTime = (time: string): string => {
+        const date = new Date(`1970-01-01T${time}`);
+        return date.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+        });
     };
+
+    const timeFields: [string, string, React.Dispatch<React.SetStateAction<string>>][] = [
+        ["Weekday Opening", weekdayOpeningTime, setWeekdayOpeningTime],
+        ["Weekday Closing", weekdayClosingTime, setWeekdayClosingTime],
+        ["Weekend Opening", weekendOpeningTime, setWeekendOpeningTime],
+        ["Weekend Closing", weekendClosingTime, setWeekendClosingTime],
+        ["Holiday Opening", holidayOpeningTime, setHolidayOpeningTime],
+        ["Holiday Closing", holidayClosingTime, setHolidayClosingTime],
+    ];
 
     return (
         <div className="flex min-h-screen">
@@ -158,9 +212,15 @@ export default function CreateShop() {
                             >
                                 <h5 className="font-semibold text-md mb-1 dark:text-white">{shop.location}</h5>
                                 <p className="text-sm text-gray-500 mb-1 dark:text-white">📞 {shop.phoneNumber}</p>
-                                <p className="text-sm text-gray-500 mb-1 dark:text-white">Weekday: {shop.weekdayOpeningTime} - {shop.weekdayClosingTime}</p>
-                                <p className="text-sm text-gray-500 mb-1 dark:text-white">Weekend: {shop.weekendOpeningTime} - {shop.weekendClosingTime}</p>
-                                <p className="text-sm text-gray-500 dark:text-white">Holiday: {shop.holidayOpeningTime} - {shop.holidayClosingTime}</p>
+                                <p className="text-sm text-gray-500 mb-1 dark:text-white">
+                                    Weekday: {formatTime(shop.weekdayOpeningTime)} - {formatTime(shop.weekdayClosingTime)}
+                                </p>
+                                <p className="text-sm text-gray-500 mb-1 dark:text-white">
+                                    Weekend: {formatTime(shop.weekendOpeningTime)} - {formatTime(shop.weekendClosingTime)}
+                                </p>
+                                <p className="text-sm text-gray-500 dark:text-white">
+                                    Holiday: {formatTime(shop.holidayOpeningTime)} - {formatTime(shop.holidayClosingTime)}
+                                </p>
                             </div>
                         ))}
                     </div>
@@ -193,25 +253,20 @@ export default function CreateShop() {
                                     placeholder="e.g. 61234567"
                                 />
                             </div>
-                            {[
-                                ["Weekday Opening", weekdayOpeningTime, setWeekdayOpeningTime],
-                                ["Weekday Closing", weekdayClosingTime, setWeekdayClosingTime],
-                                ["Weekend Opening", weekendOpeningTime, setWeekendOpeningTime],
-                                ["Weekend Closing", weekendClosingTime, setWeekendClosingTime],
-                                ["Holiday Opening", holidayOpeningTime, setHolidayOpeningTime],
-                                ["Holiday Closing", holidayClosingTime, setHolidayClosingTime],
-                            ].map(([label, value, setter]) => (
-                                <div key={label as string}>
+                            {timeFields.map(([label, value, setter]) => (
+                                <div key={label}>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-                                    <input
-                                        type="time"
-                                        value={value as string}
-                                        onChange={(e) => setter(e.target.value)}
-                                        className="w-full p-2 border rounded-md"
-                                        step="60"
+                                    <TimePicker
+                                        onChange={(val: string | null) => setter(val || "")}
+                                        value={value}
+                                        format="HH:mm"
+                                        disableClock
+                                        clearIcon={null}
+                                        className="custom-time-input w-full"
                                     />
                                 </div>
                             ))}
+
                         </div>
                         
                         <div className="flex justify-between gap-3">
