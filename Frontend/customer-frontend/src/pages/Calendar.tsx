@@ -13,6 +13,8 @@ import ComponentCard from "../components/common/ComponentCard";
 import Button from "../components/ui/button/Button";
 import ApptTable from "./Tables/ApptTable";
 const API_URL = import.meta.env.VITE_API_URL;
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -283,6 +285,7 @@ const Calendar: React.FC = () => {
       );
       closeDeleteModal();
       closeModal();
+      toast.error("Your appoinment has been deleted!");
     } catch (error) {
       console.error("Error cancelling appointment:", error);
     }
@@ -480,6 +483,7 @@ const Calendar: React.FC = () => {
             : event
         )
       );
+      toast.success("Your Appointment was successfully updated!");
     } else {
       // Add new appointment
       const newAppointmentData = {
@@ -518,6 +522,7 @@ const Calendar: React.FC = () => {
         };
         // update calendar's state to reflect new appointment
         setAppts((prevEvents) => [...prevEvents, newAppointment]);
+        toast.success("Appointment created successfully!");
       } catch (error) {
         window.confirm("Error creating appointment!");
         console.error("Error creating appointment:", error);

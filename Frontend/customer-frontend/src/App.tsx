@@ -21,6 +21,8 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import { Navigate } from "react-router";
 import ReviewsList from "./pages/ReviewsList";
+import { ToastContainer, toast } from "react-toastify"; // Import ToastContainer and toast
+import "react-toastify/dist/ReactToastify.css";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -30,11 +32,13 @@ const config = {
     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
   },
 };
+
 export default function App() {
   return (
     <>
       <Router>
         <ScrollToTop />
+
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
