@@ -25,11 +25,6 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    icon: <GridIcon />,
-    name: "Dashboard",
-    path: "/appointments",
-  },
-  {
     icon: <CalenderIcon />,
     name: "Appointments",
     path: "/appointments",

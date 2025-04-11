@@ -11,6 +11,7 @@ import BasicTableOne from "../components/tables/BasicTables/BasicTableOne";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import ComponentCard from "../components/common/ComponentCard";
 import Button from "../components/ui/button/Button";
+import ApptTable from "./Tables/ApptTable";
 const API_URL = import.meta.env.VITE_API_URL;
 
 interface CalendarEvent extends EventInput {
@@ -51,6 +52,7 @@ const Calendar: React.FC = () => {
     null
   );
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
+  const [apptsalldetails, setapptsalldetails] = useState<[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const {
@@ -81,6 +83,42 @@ const Calendar: React.FC = () => {
       setSelectedTimeSlot(null);
     }
   }, [apptStartDate, branch, service, stylist]);
+
+  //fetch appt all details
+  useEffect(() => {
+    async function fetchapptdetails() {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const customer = JSON.parse(userData);
+        const customerId = customer.customer._id;
+        const token = customer.tokens.token;
+        try {
+          const response = await fetch(
+            `${API_URL}/api/customers/${customerId}/appointmentsalldetails`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: token,
+              },
+            }
+          );
+          if (!response.ok) throw new Error("Failed to fetch appointments");
+
+          const data = await response.json();
+          // const test = data.map((appointment: any) => {
+          //   console.log(appointment)
+          // });
+          console.log(data, "appt all detils");
+
+          setapptsalldetails(data);
+        } catch (error) {
+          console.error("Error  fetching appointments:", error);
+        }
+      }
+    }
+    fetchapptdetails();
+  }, []);
 
   // get list of all available branches
   const fetchBranches = async () => {
@@ -202,6 +240,8 @@ const Calendar: React.FC = () => {
               branch: appointment.branch,
             },
           }));
+
+        console.log(formattedAppointments, "appts");
 
         setAppts(formattedAppointments);
       } catch (error) {
@@ -524,6 +564,9 @@ const Calendar: React.FC = () => {
     );
   };
 
+  console.log(Array.isArray(apptsalldetails)); // should be true
+  console.log(apptsalldetails);
+
   return (
     <>
       <PageMeta
@@ -776,8 +819,8 @@ const Calendar: React.FC = () => {
         </Modal>
       </div>
       <div className="mt-8">
-        <ComponentCard title="Past appointments">
-          <BasicTableOne />
+        <ComponentCard title="Appointments">
+          <ApptTable appointment={apptsalldetails} />
         </ComponentCard>
       </div>
     </>

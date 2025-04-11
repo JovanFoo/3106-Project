@@ -22,7 +22,7 @@ const AppointmentController = {
         date: date,
         request,
         totalAmount,
-        pointsUsed,
+        // pointsUsed,
         service: serviceId,
         stylist: stylistId,
         branch: branchId,

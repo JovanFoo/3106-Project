@@ -82,6 +82,28 @@ const CustomerController = {
     }
   },
 
+  async retrieveAppointmentsalldetails(req, res) {
+    console.log("CustomerController > retrieveAppointments");
+    const id = req.userId;
+    const customer = await Customer.findOne({ _id: id }).populate({
+      path: "appointments",
+      populate: [
+        { path: "service" },
+        { path: "review" },
+        { path: "stylist" },
+        { path: "branch" },
+      ],
+    });
+
+    const temp = await Customer.findOne({ _id: id });
+    console.log(temp, id);
+    if (customer) {
+      return res.status(200).json(customer.appointments);
+    } else {
+      return res.status(400).json({ message: "Error retrieving appointments" });
+    }
+  },
+
   async updatePassword(req, res) {
     console.log("CustomerController > updatePassword");
     const id = req.userId;
