@@ -13,6 +13,7 @@ export default function UserMetaCard() {
   const [username, setUsername] = useState("");
   const [newProfilePic, setNewProfilePic] = useState(null);
   const [profilepic, setProfilepic] = useState("");
+  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
 
   useEffect(() => {
     console.log("activated");
@@ -44,6 +45,7 @@ export default function UserMetaCard() {
           setfirstName(data.name);
           setEmail(data.email);
           setProfilepic(data.profilePicture);
+          setLoyaltyPoints(data.loyaltyPoints);
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -103,13 +105,25 @@ export default function UserMetaCard() {
                 alt="user"
               />
             </div>
+
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
                 {firstName}
               </h4>
             </div>
-            <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end"></div>
+            <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
+              {" "}
+              <div className="mt-4 border border-blue-300 rounded-lg p-3 bg-blue-50">
+                <h5 className="text-sm font-medium text-gray-600 dark:text-white">
+                  Loyalty Points:
+                </h5>
+                <div className="text-sm font-semibold text-blue-600 mt-1">
+                  {loyaltyPoints} Points
+                </div>
+              </div>
+            </div>
           </div>
+
           <button
             onClick={openModal}
             className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
