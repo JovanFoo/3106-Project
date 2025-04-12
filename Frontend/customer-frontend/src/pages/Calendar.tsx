@@ -676,8 +676,8 @@ const Calendar: React.FC = () => {
     );
   };
 
-  console.log(Array.isArray(apptsalldetails)); // should be true
-  console.log(apptsalldetails);
+  // console.log(Array.isArray(apptsalldetails)); // should be true
+  // console.log(apptsalldetails);
 
   return (
     <>
