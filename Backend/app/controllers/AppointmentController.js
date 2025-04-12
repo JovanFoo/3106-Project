@@ -32,13 +32,13 @@ const AppointmentController = {
       if (!customer) {
         return res.status(400).json({ message: "Error creating appointment" });
       }
-      const points = customer.loyaltyPoints;
-      const deduction = points / 10 > 0 ? points / 10 : 0;
-      if (deduction > 0) {
-        totalAmount = totalAmount - deduction;
-        customer.loyaltyPoints = points - deduction * 10;
-        await customer.save();
-      }
+      // const points = customer.loyaltyPoints;
+      // const deduction = points / 10 > 0 ? points / 10 : 0;
+      // if (deduction > 0) {
+      //   totalAmount = totalAmount - deduction;
+      //   customer.loyaltyPoints = points - deduction * 10;
+      //   await customer.save();
+      // }
       const appointment = new Appointment({
         date: date,
         request,
