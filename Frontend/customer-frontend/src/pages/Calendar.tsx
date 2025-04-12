@@ -65,7 +65,6 @@ const Calendar: React.FC = () => {
 
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(0);
   const [userLoyaltyPoints, setUserLoyaltyPoints] = useState(0); // fetch this from API on mount
-  const [discountedPrice, setDiscountedPrice] = useState(null);
 
   // Assuming these are declared above or coming from props/state
   const selectedService = services.find((s) => s._id === service);
@@ -275,6 +274,7 @@ const Calendar: React.FC = () => {
               request: appointment.request,
               service: appointment.service,
               branch: appointment.branch,
+              pointsUsed: appointment.pointsUsed,
             },
           }));
 
@@ -336,6 +336,7 @@ const Calendar: React.FC = () => {
   const handleEventClick = async (clickInfo: EventClickArg) => {
     // get the appointment details and set the fields
     const appt = clickInfo.event;
+
     // convert to SGT
     const date = appt.start ? new Date(appt.start) : new Date();
     if (date) {
@@ -384,6 +385,7 @@ const Calendar: React.FC = () => {
     setRequest(appt.extendedProps.request);
     setService(serviceObj?._id || "");
     setApptStartDate(date.toISOString().split("T")[0]);
+    setUseLoyaltyPoints(appt.extendedProps.pointsUsed);
     openModal();
   };
   // handle branch selection change
@@ -531,6 +533,7 @@ const Calendar: React.FC = () => {
         serviceId: service,
         stylistId: stylist,
         branchId: branch,
+        pointsUsed: useLoyaltyPoints,
       };
 
       console.log(newAppointmentData, "newappt");
@@ -546,7 +549,6 @@ const Calendar: React.FC = () => {
         });
 
         const newpointsnum = userLoyaltyPoints - useLoyaltyPoints; //update user with updated points.
-        console.log(newpointsnum, "new pts num");
 
         const response2 = await fetch(`${API_URL}/api/customers/${id}`, {
           method: "PUT",
@@ -576,8 +578,8 @@ const Calendar: React.FC = () => {
         };
         // update calendar's state to reflect new appointment
         setAppts((prevEvents) => [...prevEvents, newAppointment]);
-        setUserLoyaltyPoints((val) => val - useLoyaltyPoints); //set in case page no refresh.
-        setUseLoyaltyPoints(0);
+        setUserLoyaltyPoints(newpointsnum); //set in case page no refresh.
+        setUseLoyaltyPoints(0); //reset the slider to 0
         toast.success("Appointment created successfully!");
       } catch (error) {
         window.confirm("Error creating appointment!");

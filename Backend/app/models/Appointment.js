@@ -14,10 +14,9 @@ const appointmentSchema = new Schema({
     type: Number,
     required: true,
   },
-  // pointsUsed: {
-  //   type: Number,
-  //   required: true,
-  // },
+  pointsUsed: {
+    type: Number,
+  },
 
   status: {
     type: String,

@@ -170,6 +170,8 @@ export default function AppointmentTableOne({ appointment }: Props) {
                           ? "success"
                           : order.status === "Pending"
                           ? "warning"
+                          : order.status === "Confirmed"
+                          ? "primary"
                           : order.status === "Cancelled"
                           ? "error"
                           : "light"

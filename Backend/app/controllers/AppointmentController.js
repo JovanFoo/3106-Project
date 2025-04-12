@@ -12,8 +12,15 @@ const AppointmentController = {
   async create(req, res) {
     console.log("AppointmentController > create");
     const id = req.userId;
-    let { date, request, totalAmount, serviceId, stylistId, branchId } =
-      req.body;
+    let {
+      date,
+      request,
+      totalAmount,
+      serviceId,
+      stylistId,
+      branchId,
+      pointsUsed,
+    } = req.body;
     // const modDate = new Date(date);
     // modDate.setUTCHours(modDate.getUTCHours() + 8); // set to SGT
     totalAmount = parseFloat(totalAmount);
@@ -22,7 +29,7 @@ const AppointmentController = {
         date: date,
         request,
         totalAmount,
-        // pointsUsed,
+        pointsUsed,
         service: serviceId,
         stylist: stylistId,
         branch: branchId,
