@@ -20,7 +20,7 @@ const CustomerController = {
   async update(req, res) {
     console.log("CustomerController > update");
     const { id } = req.params;
-    const { name, email, username, profilePicture } = req.body;
+    const { name, email, username, profilePicture, loyaltyPoints } = req.body;
     const customer = await Customer.findOne({ _id: id });
     let existingCustomer = await Customer.findOne({ username: username });
     if (
@@ -48,6 +48,10 @@ const CustomerController = {
     customer.name = name ? name : customer.name;
     customer.username = username ? username : customer.username;
     customer.email = email ? email : customer.email;
+    console.log(loyaltyPoints);
+    customer.loyaltyPoints = loyaltyPoints
+      ? loyaltyPoints
+      : customer.loyaltyPoints;
     customer.profilePicture = profilePicture
       ? profilePicture
       : customer.profilePicture;

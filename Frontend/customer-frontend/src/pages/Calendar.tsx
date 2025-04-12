@@ -63,6 +63,16 @@ const Calendar: React.FC = () => {
     closeModal: closeDeleteModal,
   } = useModal();
 
+  const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(0);
+  const [userLoyaltyPoints, setUserLoyaltyPoints] = useState(0); // fetch this from API on mount
+  const [discountedPrice, setDiscountedPrice] = useState(null);
+
+  // Assuming these are declared above or coming from props/state
+  const selectedService = services.find((s) => s._id === service);
+  const servicePrice = selectedService?.serviceRate ?? 0;
+  const pointValue = 0.1; // 10 cents per point
+  const finalPrice = Math.max(servicePrice - useLoyaltyPoints * pointValue, 0);
+
   // const calendarsEvents = {
   //   Danger: "danger",
   //   Success: "success",
@@ -75,6 +85,30 @@ const Calendar: React.FC = () => {
     fetchBranches();
     fetchServices(new Date()); //to allow initial rendering of appointment service types on calendar
     // MIGHT BREAK THE SERVICE RATE CALCULATION //
+
+    async function getuserdetails() {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/customers/${storedUser.customer._id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `${storedUser.tokens.token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        console.log(data);
+        setUserLoyaltyPoints(data.loyaltyPoints);
+        if (!response.ok) {
+          console.log(data);
+        }
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    }
+    getuserdetails();
   }, []);
   // to re-get the list of available times if any of the values change
   useEffect(() => {
@@ -197,6 +231,7 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch stylists");
 
         const data = await response.json();
+        console.log(data, " all stylists");
         setStylists(data);
       } catch (error) {
         console.error("Error fetching stylist:", error);
@@ -426,6 +461,8 @@ const Calendar: React.FC = () => {
     }
     const customer = JSON.parse(userData);
     const token = customer.tokens.token;
+    const id = customer.customer._id;
+    console.log(id);
 
     // find the selected service to get its rate
     const selectedService = services.find((s) => s._id === service);
@@ -485,15 +522,18 @@ const Calendar: React.FC = () => {
       );
       toast.success("Your Appointment was successfully updated!");
     } else {
+      console.log("add new appt");
       // Add new appointment
       const newAppointmentData = {
         date: dateTime,
         request: request,
-        totalAmount: serviceRate,
+        totalAmount: finalPrice,
         serviceId: service,
         stylistId: stylist,
         branchId: branch,
       };
+
+      console.log(newAppointmentData, "newappt");
 
       try {
         const response = await fetch(`${API_URL}/api/appointments`, {
@@ -505,7 +545,21 @@ const Calendar: React.FC = () => {
           body: JSON.stringify(newAppointmentData),
         });
 
-        if (!response.ok) {
+        const newpointsnum = userLoyaltyPoints - useLoyaltyPoints; //update user with updated points.
+        console.log(newpointsnum, "new pts num");
+
+        const response2 = await fetch(`${API_URL}/api/customers/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({
+            loyaltyPoints: newpointsnum,
+          }),
+        });
+
+        if (!response.ok || !response2.ok) {
           throw new Error("Failed to create appointment");
         }
         const createdAppointment = await response.json();
@@ -522,6 +576,8 @@ const Calendar: React.FC = () => {
         };
         // update calendar's state to reflect new appointment
         setAppts((prevEvents) => [...prevEvents, newAppointment]);
+        setUserLoyaltyPoints((val) => val - useLoyaltyPoints); //set in case page no refresh.
+        setUseLoyaltyPoints(0);
         toast.success("Appointment created successfully!");
       } catch (error) {
         window.confirm("Error creating appointment!");
@@ -759,7 +815,53 @@ const Calendar: React.FC = () => {
                   }`}
                   disabled={!branch}
                 />
+              </div>{" "}
+              <div className="mt-6">
+                {userLoyaltyPoints > 0 && (
+                  <div className="mt-2">
+                    <label
+                      htmlFor="points-slider"
+                      className="block text-sm text-gray-700 dark:text-gray-400"
+                    >
+                      Points to use: <strong>{useLoyaltyPoints}</strong> /{" "}
+                      {userLoyaltyPoints}
+                    </label>
+                    <input
+                      id="points-slider"
+                      type="range"
+                      min={0}
+                      max={userLoyaltyPoints}
+                      step={1}
+                      value={useLoyaltyPoints}
+                      onChange={(e) =>
+                        setUseLoyaltyPoints(parseInt(e.target.value, 10))
+                      }
+                      className="mt-1 w-full"
+                    />
+                  </div>
+                )}
               </div>
+              {service && (
+                <div className="mt-6">
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Total Price
+                  </label>
+                  <div className="text-md text-gray-800 dark:text-white/90">
+                    ${servicePrice}
+                  </div>
+
+                  {useLoyaltyPoints > 0 && (
+                    <>
+                      <div className="mt-2 text-sm text-gray-700 dark:text-gray-400">
+                        - {useLoyaltyPoints} points applied
+                      </div>
+                      <div className="text-md font-semibold text-green-600 dark:text-green-400">
+                        Final Price: ${finalPrice.toFixed(2)}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
               {/* show cancel appointment button only if editing */}
