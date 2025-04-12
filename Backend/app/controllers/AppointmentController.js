@@ -68,13 +68,14 @@ const AppointmentController = {
   async update(req, res) {
     console.log("AppointmentController > update");
     const { id } = req.params;
-    const { date, request, totalAmount } = req.body;
+    const { date, request, totalAmount, pointsUsed } = req.body;
     const appointment = await Appointment.findOne({ _id: id });
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found" });
     }
     appointment.date = date ? new Date(date) : appointment.date;
     appointment.request = request ? request : appointment.request;
+    appointment.pointsUsed = pointsUsed ? pointsUsed : appointment.pointsUsed;
     appointment.totalAmount = totalAmount
       ? parseFloat(totalAmount)
       : appointment.totalAmount;

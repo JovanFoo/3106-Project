@@ -23,6 +23,7 @@ interface CalendarEvent extends EventInput {
     request: string;
     service: string;
     branch: string;
+    pointsUsed: number;
   };
 }
 interface TimeSlot {
@@ -64,7 +65,8 @@ const Calendar: React.FC = () => {
   } = useModal();
 
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(0);
-  const [userLoyaltyPoints, setUserLoyaltyPoints] = useState(0); // fetch this from API on mount
+  const [userLoyaltyPoints, setUserLoyaltyPoints] = useState(0);
+  const [loyaltypointsORGINAL, setloyaltypointsORIGINAL] = useState(0); //for editing appts
 
   // Assuming these are declared above or coming from props/state
   const selectedService = services.find((s) => s._id === service);
@@ -386,6 +388,7 @@ const Calendar: React.FC = () => {
     setService(serviceObj?._id || "");
     setApptStartDate(date.toISOString().split("T")[0]);
     setUseLoyaltyPoints(appt.extendedProps.pointsUsed);
+    setloyaltypointsORIGINAL(appt.extendedProps.pointsUsed);
     openModal();
   };
   // handle branch selection change
@@ -484,7 +487,29 @@ const Calendar: React.FC = () => {
         serviceId: service,
         stylistId: stylist,
         branchId: branch,
+        pointsUsed: useLoyaltyPoints,
       };
+
+      //update teh user loyalty points
+      const response2 = await fetch(`${API_URL}/api/customers/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({
+          loyaltyPoints:
+            loyaltypointsORGINAL - (useLoyaltyPoints - loyaltypointsORGINAL),
+        }),
+      });
+
+      setUserLoyaltyPoints(
+        (pts) => pts - (useLoyaltyPoints - loyaltypointsORGINAL)
+      ); //in case no refresh
+
+      if (!response2.ok) {
+        throw new Error("Failed to update appointment");
+      }
       // console.log(serviceRate);
       // console.log(updatedAppointment);
       // API call to update appt
@@ -517,6 +542,7 @@ const Calendar: React.FC = () => {
                   service: service,
                   request: request,
                   branch: branch,
+                  pointsUsed: useLoyaltyPoints,
                 },
               }
             : event
@@ -565,6 +591,7 @@ const Calendar: React.FC = () => {
           throw new Error("Failed to create appointment");
         }
         const createdAppointment = await response.json();
+        console.log(createdAppointment, "created appt");
         // Convert response data into FullCalendar format
         const newAppointment: CalendarEvent = {
           id: createdAppointment._id.toString(),
@@ -574,6 +601,7 @@ const Calendar: React.FC = () => {
             stylist: createdAppointment.stylist,
             service: createdAppointment.service,
             request: createdAppointment.request,
+            pointsUsed: createdAppointment.pointsUsed,
           },
         };
         // update calendar's state to reflect new appointment
@@ -603,6 +631,7 @@ const Calendar: React.FC = () => {
     setSelectedEvent(null);
     setBranch("");
     setSelectedTimeSlot(null);
+    setUseLoyaltyPoints(0);
   };
 
   // renders appointment bars on calendar
