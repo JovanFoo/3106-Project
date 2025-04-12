@@ -65,10 +65,16 @@ export default function ClientTestimonials() {
           </h4> */}
 
           {/* Summary Section */}
-          <div className="p-4 bg-gray-100 rounded-lg mb-6">
-            <h5 className="text-md font-semibold mb-2">Summary</h5>
-            <div className="text-lg font-bold">{avegeRating} ⭐</div>
-            <p className="text-sm text-gray-500">{totalReviews} Reviews</p>
+          <div className="p-4 bg-gray-100 dark:bg-black rounded-lg mb-6">
+            <h5 className="text-md font-semibold mb-2 dark:text-white">
+              Summary
+            </h5>
+            <div className="text-lg font-bold  dark:text-white">
+              {avegeRating} ⭐
+            </div>
+            <p className="text-sm text-gray-500  dark:text-white">
+              {totalReviews} Reviews
+            </p>
             {/* <p className="text-sm text-gray-500">
               {recommendations.toFixed(2)}% Recommended
             </p> */}

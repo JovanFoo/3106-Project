@@ -15,16 +15,30 @@ import Calendar from "./pages/Calendar";
 import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
+import BasicTables2 from "./pages/Tables/BasicTables2";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import { Navigate } from "react-router";
+import ReviewsList from "./pages/ReviewsList";
+import { ToastContainer, toast } from "react-toastify"; // Import ToastContainer and toast
+import "react-toastify/dist/ReactToastify.css";
+
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+const config = {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+  },
+};
 
 export default function App() {
   return (
     <>
       <Router>
         <ScrollToTop />
+
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
@@ -33,14 +47,16 @@ export default function App() {
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
+            <Route path="appointments" element={<Calendar />} />
+            <Route path="/reviews" element={<ReviewsList />} />
             <Route path="/blank" element={<Blank />} />
 
             {/* Forms */}
             <Route path="/form-elements" element={<FormElements />} />
 
             {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
+            <Route path="/past-appointments" element={<BasicTables />} />
+            <Route path="/allstylists" element={<BasicTables2 />} />
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />

@@ -23,6 +23,9 @@ const adminSchema = new Schema({
   profilePicture: {
     type: String,
   },
+  phoneNumber: {
+    type: Number,
+  },
 });
 
 const Admin = mongose.model("Admin", adminSchema);

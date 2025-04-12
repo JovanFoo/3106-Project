@@ -30,6 +30,12 @@ CustomerRouter.get(
   CustomerController.retrieveAppointments
 );
 
+CustomerRouter.get(
+  "/:id/appointmentsalldetails",
+  AuthMiddleware.authCustomerOrStylistToken,
+  CustomerController.retrieveAppointmentsalldetails
+);
+
 CustomerRouter.put(
   "/profilePicture",
   AuthMiddleware.authCustomerToken,

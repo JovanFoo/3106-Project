@@ -22,10 +22,14 @@ const customerSchema = new Schema({
   },
   profilePicture: {
     type: String,
+    default: "",
   },
   loyaltyPoints: {
     type: Number,
     default: 0,
+  },
+  profilePicture: {
+    type: String,
   },
   appointments: [
     {

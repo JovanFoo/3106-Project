@@ -17,7 +17,8 @@ const DiscountRouter = require("./DiscountRoute.js");
 const LeaveRequestRouter = require("./LeaveRequestRoute.js");
 const TeamRouter = require("./TeamsRoute.js");
 const GalleryRouter = require("./GalleryRoute.js");
-
+const CalendarEventRouter = require("./CalendarEventRoute.js");
+const AdminRouter = require("./AdminRoute.js");
 ApiRouter.use("/galleries", GalleryRouter);
 ApiRouter.use("/customers", CustomerRouter);
 ApiRouter.use("/auth", AuthRouter);
@@ -32,11 +33,14 @@ ApiRouter.use("/services", ServiceRouter);
 ApiRouter.use("/stylists", StylistRouter);
 ApiRouter.use("/expertises", ExpertiseRouter);
 ApiRouter.use("/services", ServiceRouter);
-ApiRouter.use("/servicerates", ServiceRateRouter);
+ApiRouter.use("/service-rates", ServiceRateRouter);
 ApiRouter.use("/promotions", PromotionRouter);
 ApiRouter.use("/discounts", DiscountRouter);
 ApiRouter.use("/leave-requests", LeaveRequestRouter);
 ApiRouter.use("/teams", TeamRouter);
+
+ApiRouter.use("/calendar", CalendarEventRouter);
+ApiRouter.use("/admins", AdminRouter);
 
 ApiRouter.get("/", (req, res) => {
   res.send("API is working");

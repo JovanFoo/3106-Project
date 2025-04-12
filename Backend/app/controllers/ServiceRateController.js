@@ -26,7 +26,63 @@ const ServiceRateController = {
       return res.status(400).json({ message: error.message });
     }
   },
+  async retrieveAll(req, res) {
+    console.log("ServiceRateController > retrieve all Service Rates");
+    const { paginated } = req.params;
+    const { page, limit } = req.query;
+    if (typeof paginated !== "undefined" && paginated === "true") {
+      console.log("ServiceRateController > retrieve paginated Service Rates");
+      const pageNumber = parseInt(page);
+      const limitNumber = parseInt(limit);
+      if (isNaN(pageNumber) || isNaN(limitNumber)) {
+        return res.status(400).json({ message: "Invalid page or limit" });
+      }
 
+      try {
+        const serviceRates = await ServiceRate.find().where({
+          isDisabled: false,
+        });
+
+        const totalServiceRates = serviceRates.length;
+        const startIndex = (pageNumber - 1) * limitNumber;
+        const endIndex = pageNumber * limitNumber;
+        const paginatedServiceRates = serviceRates.slice(startIndex, endIndex);
+
+        const paginated = {
+          total: totalServiceRates,
+          page: pageNumber,
+          limit: limitNumber,
+          totalPages: Math.ceil(totalServiceRates / limitNumber),
+          hasNextPage: endIndex < totalServiceRates,
+          serviceRates: paginatedServiceRates,
+        };
+        return res.status(200).json(paginated);
+      } catch (error) {
+        console.error(error.message);
+        return res
+          .status(500)
+          .json({ message: "Error retrieving Service Rates" });
+      }
+    }
+    // If not paginated, return all Service Rates
+    else {
+      try {
+        const serviceRates = await ServiceRate.find().where({
+          isDisabled: false,
+        });
+        if (serviceRates) {
+          return res.status(200).json(serviceRates);
+        } else {
+          return res.status(404).json({ message: "No Service Rates found" });
+        }
+      } catch (error) {
+        console.error(error.message);
+        return res
+          .status(500)
+          .json({ message: "Error retrieving all Service Rates" });
+      }
+    }
+  },
   // Retrieve a ServiceRate by ID
   async retrieve(req, res) {
     console.log("ServiceRateController > retrieve");
@@ -52,18 +108,18 @@ const ServiceRateController = {
     const { name, rate, startDate, endDate } = req.body;
 
     try {
-      const ServiceRate = await ServiceRate.findOne({ _id: id });
-      if (!ServiceRate) {
+      const serviceRate = await ServiceRate.findOne({ _id: id });
+      if (!serviceRate) {
         return res.status(404).json({ message: "Service Rate not found" });
       }
 
-      ServiceRate.name = name || ServiceRate.name;
-      ServiceRate.rate = rate || ServiceRate.rate;
-      ServiceRate.startDate = startDate || ServiceRate.startDate;
-      ServiceRate.endDate = endDate || ServiceRate.endDate;
+      serviceRate.name = name || serviceRate.name;
+      serviceRate.rate = rate || serviceRate.rate;
+      serviceRate.startDate = startDate || serviceRate.startDate;
+      serviceRate.endDate = endDate || serviceRate.endDate;
 
-      await ServiceRate.save();
-      return res.status(200).json(ServiceRate);
+      await serviceRate.save();
+      return res.status(200).json(serviceRate);
     } catch (error) {
       console.error(error.message);
       return res.status(500).json({ message: "Error updating Service Rate" });
@@ -76,9 +132,10 @@ const ServiceRateController = {
     const { id } = req.params;
 
     try {
-      const ServiceRate = await ServiceRate.findByIdAndDelete(id);
-
-      if (ServiceRate) {
+      const serviceRate = await ServiceRate.findOne({ _id: id });
+      serviceRate.isDisabled = true;
+      await serviceRate.save();
+      if (serviceRate) {
         return res
           .status(204)
           .json({ message: "Service Rate deleted successfully" });

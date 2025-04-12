@@ -28,3 +28,7 @@
 4. Start the server with env:
    ```sh
    npm run server
+
+## Local Storage Variables
+- variable name "user": contains data in JSON format. Need to JSON.parse(data) first to read it
+- This variable has 3 important data: .user, .tokens.token and .tokens.refresh_token(not sure about the name)

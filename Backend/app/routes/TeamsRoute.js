@@ -7,23 +7,35 @@ const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 
 // Get all team members
 TeamRouter.get(
-    "/",
-    AuthMiddleware.authCustomerStylistOrManagerToken,
-    TeamController.list
+  "/",
+  AuthMiddleware.authAdminOrStylistManagerToken,
+  TeamController.getAllTeamMembers
 );
 
-// Add stylist to team (only admin or branch manager)
+// Add a new team member (stylist) (only branch manager)
+/*
+ * Request body:
+ * {
+ *   "stylistId": "stylistId"
+ * }
+ */
 TeamRouter.post(
-    "/",
-    AuthMiddleware.authCustomerStylistOrManagerToken,
-    TeamController.create
+  "/",
+  AuthMiddleware.authStylistManagerToken,
+  TeamController.addANewTeamMember
 );
 
-// Remove stylist from team by stylist ID (only admin or branch manager)
+// Remove stylist from team by stylist ID (only branch manager)
+/*
+ * Request body:
+ * {
+ *   "stylistId": "stylistId"
+ * }
+ */
 TeamRouter.delete(
-    "/:id",
-    AuthMiddleware.authCustomerStylistOrManagerToken,
-    TeamController.delete
+  "/",
+  AuthMiddleware.authStylistManagerToken,
+  TeamController.removeATeamMember
 );
 
 module.exports = TeamRouter;

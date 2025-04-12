@@ -11,7 +11,10 @@ import BasicTableOne from "../components/tables/BasicTables/BasicTableOne";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import ComponentCard from "../components/common/ComponentCard";
 import Button from "../components/ui/button/Button";
+import ApptTable from "./Tables/ApptTable";
 const API_URL = import.meta.env.VITE_API_URL;
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -19,7 +22,14 @@ interface CalendarEvent extends EventInput {
     stylist: string;
     request: string;
     service: string;
+    branch: string;
+    pointsUsed: number;
   };
+}
+interface TimeSlot {
+  startTime: string;
+  endTime: string;
+  displayTime: string;
 }
 
 const Calendar: React.FC = () => {
@@ -32,9 +42,20 @@ const Calendar: React.FC = () => {
   const [apptStartDate, setApptStartDate] = useState("");
   const [request, setRequest] = useState("");
   const [service, setService] = useState("");
-  // only take the _id and name of the service object
-  const [services, setServices] = useState<{ _id: string; name: string }[]>([]);
+  const [services, setServices] = useState<
+    { _id: string; name: string; serviceRate: Number; duration: Number }[]
+  >([]);
+  const [branch, setBranch] = useState("");
+  const [branches, setBranches] = useState<{ _id: string; location: string }[]>(
+    []
+  );
   const [appt, setAppts] = useState<CalendarEvent[]>([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(
+    null
+  );
+  const [isLoadingTimes, setIsLoadingTimes] = useState(false);
+  const [apptsalldetails, setapptsalldetails] = useState<[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const {
@@ -42,6 +63,17 @@ const Calendar: React.FC = () => {
     openModal: openDeleteModal,
     closeModal: closeDeleteModal,
   } = useModal();
+
+  const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(0);
+  const [userLoyaltyPoints, setUserLoyaltyPoints] = useState(0);
+  const [loyaltypointsORGINAL, setloyaltypointsORIGINAL] = useState(0);
+  const [editpointsused, seteditpointsused] = useState(0); //for editing appts
+
+  // Assuming these are declared above or coming from props/state
+  const selectedService = services.find((s) => s._id === service);
+  const servicePrice = selectedService?.serviceRate ?? 0;
+  const pointValue = 0.1; // 10 cents per point
+  const finalPrice = Math.max(servicePrice - useLoyaltyPoints * pointValue, 0);
 
   // const calendarsEvents = {
   //   Danger: "danger",
@@ -51,25 +83,127 @@ const Calendar: React.FC = () => {
   // };
   useEffect(() => {
     fetchAppointments();
-    fetchServices();
-    fetchStylists();
+    // fetchStylists();
+    fetchBranches();
+    fetchServices(new Date()); //to allow initial rendering of appointment service types on calendar
+    // MIGHT BREAK THE SERVICE RATE CALCULATION //
+
+    async function getuserdetails() {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/customers/${storedUser.customer._id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `${storedUser.tokens.token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        console.log(data);
+        setUserLoyaltyPoints(data.loyaltyPoints);
+        if (!response.ok) {
+          console.log(data);
+        }
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    }
+    getuserdetails();
+  }, []);
+  // to re-get the list of available times if any of the values change
+  useEffect(() => {
+    if (apptStartDate && branch && service && stylist) {
+      fetchAvailableTimes();
+    } else {
+      setAvailableTimeSlots([]);
+      setSelectedTimeSlot(null);
+    }
+  }, [apptStartDate, branch, service, stylist]);
+
+  //fetch appt all details
+  useEffect(() => {
+    async function fetchapptdetails() {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const customer = JSON.parse(userData);
+        const customerId = customer.customer._id;
+        const token = customer.tokens.token;
+        try {
+          const response = await fetch(
+            `${API_URL}/api/customers/${customerId}/appointmentsalldetails`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: token,
+              },
+            }
+          );
+          if (!response.ok) throw new Error("Failed to fetch appointments");
+
+          const data = await response.json();
+          // const test = data.map((appointment: any) => {
+          //   console.log(appointment)
+          // });
+          console.log(data, "appt all detils");
+
+          setapptsalldetails(data);
+        } catch (error) {
+          console.error("Error  fetching appointments:", error);
+        }
+      }
+    }
+    fetchapptdetails();
   }, []);
 
-  // get a list of all services for dropdown
-  const fetchServices = async () => {
-    console.log("fetch svc");
+  // get list of all available branches
+  const fetchBranches = async () => {
     const userData = localStorage.getItem("user");
     if (userData) {
       const customer = JSON.parse(userData);
       const token = customer.tokens.token;
       try {
-        const response = await fetch(`${API_URL}/api/services`, {
+        const response = await fetch(`${API_URL}/api/branches`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: token,
           },
         });
+        if (!response.ok) throw new Error("Failed to fetch branches");
+
+        const data = await response.json();
+        console.log(data);
+        setBranches(data);
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    }
+  };
+  // get a list of all services and their prices for dropdown
+  const fetchServices = async (date: Date) => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.tokens.token;
+      try {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const day = date.getDay();
+        // Edit Back to endpoint URL
+        const response = await fetch(
+          `http://localhost:3000/api/services?year=${year}&month=${month}&day=${day}`,
+          // `${API_URL}/api/services?year=${year}&month=${month}&day=${day}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
         if (!response.ok) throw new Error("Failed to fetch services");
 
         const data = await response.json();
@@ -79,9 +213,8 @@ const Calendar: React.FC = () => {
       }
     }
   };
-
-  // get list of all stylists for dropdown
-  const fetchStylists = async () => {
+  // get list of all stylists for SPECIFIC BRANCH for dropdown
+  const fetchStylists = async (branchId: string) => {
     const userData = localStorage.getItem("user");
 
     console.log(userData);
@@ -89,24 +222,27 @@ const Calendar: React.FC = () => {
       const customer = JSON.parse(userData);
       const token = customer.tokens.token;
       try {
-        const response = await fetch(`${API_URL}/api/stylists`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        });
+        const response = await fetch(
+          `${API_URL}/api/branches/${branchId}/stylists`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
         if (!response.ok) throw new Error("Failed to fetch stylists");
 
         const data = await response.json();
         console.log(data, "data");
+        console.log(data, " all stylists");
         setStylists(data);
       } catch (error) {
         console.error("Error fetching stylist:", error);
       }
     }
   };
-
   const fetchAppointments = async () => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -127,29 +263,41 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch appointments");
 
         const data = await response.json();
+        // const test = data.map((appointment: any) => {
+        //   console.log(appointment)
+        // });
 
         const formattedAppointments = data
-          .filter((appointment: any) => !appointment.isCompleted) // only show active appointments
+          .filter(
+            (appointment: any) => appointment.status.toString() === "Pending"
+          ) // only show active appointments
           .map((appointment: any) => ({
             id: appointment._id.toString(),
-            start: new Date(appointment.date).toISOString().split("T")[0] || "",
+            start: new Date(appointment.date).toISOString() || "",
             extendedProps: {
               // stores the stylistId and serviceId
               stylist: appointment.stylist,
               request: appointment.request,
               service: appointment.service,
+              branch: appointment.branch,
+              pointsUsed: appointment.pointsUsed,
             },
           }));
 
+        console.log(formattedAppointments, "appts");
+
         setAppts(formattedAppointments);
       } catch (error) {
-        console.error("Error fetching appointments:", error);
+        console.error("Error  fetching appointments:", error);
       }
     }
   };
-
   const handleDeleteAppointment = async () => {
     if (!selectedEvent) return;
+    const pointsRecovered = selectedEvent.extendedProps.pointsUsed;
+
+    console.log(pointsRecovered);
+    setUserLoyaltyPoints((pts) => pts + pointsRecovered);
 
     const userData = localStorage.getItem("user");
     if (!userData) {
@@ -159,20 +307,34 @@ const Calendar: React.FC = () => {
 
     const customer = JSON.parse(userData);
     const token = customer.tokens.token;
+    const id = customer.customer._id;
+
+    //update teh user loyalty points
+    const response2 = await fetch(`${API_URL}/api/customers/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify({
+        loyaltyPoints: userLoyaltyPoints + pointsRecovered,
+      }),
+    });
 
     try {
       const response = await fetch(
-        `${API_URL}/api/appointments/${selectedEvent.id}`,
+        `${API_URL}/api/appointments/${selectedEvent.id}/cancelled`,
         {
-          method: "DELETE",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: token,
           },
+          body: JSON.stringify({ status: "Cancelled" }),
         }
       );
 
-      if (!response.ok) {
+      if (!response.ok || !response2.ok) {
         throw new Error("Failed to delete appointment");
       }
 
@@ -181,32 +343,141 @@ const Calendar: React.FC = () => {
       );
       closeDeleteModal();
       closeModal();
+      toast.error("Your appoinment has been deleted!");
     } catch (error) {
-      console.error("Error deleting appointment:", error);
+      console.error("Error cancelling appointment:", error);
     }
   };
-
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
+    // get the service (thus rate) for the current date
+    fetchServices(new Date(selectInfo.startStr));
     setApptStartDate(selectInfo.startStr);
     openModal();
   };
-
   // clicking the appointment tab on calendar
-  const handleEventClick = (clickInfo: EventClickArg) => {
+  const handleEventClick = async (clickInfo: EventClickArg) => {
     // get the appointment details and set the fields
     const appt = clickInfo.event;
-    setSelectedEvent(appt as unknown as CalendarEvent);
-    setStylist(appt.extendedProps.stylist);
-    setRequest(appt.extendedProps.request);
-    setService(appt.extendedProps.service);
+
     // convert to SGT
     const date = appt.start ? new Date(appt.start) : new Date();
     if (date) {
       date.setHours(date.getHours() + 8);
     }
+    // Set the branch first
+    setBranch(appt.extendedProps.branch);
+
+    await fetchServices(date);
+    await fetchStylists(appt.extendedProps.branch);
+
+    const serviceObj = services.find(
+      (s) => s._id === appt.extendedProps.service
+    );
+
+    // Create a time slot object for the existing appointment
+    // Helper function to format time range
+    const formatTimeRange = (start: Date | null, end: Date | null) => {
+      if (!start || !end) return "";
+
+      const startTime = start.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const endTime = end.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      return `${startTime.toUpperCase()} - ${endTime.toUpperCase()}`;
+    };
+    const serviceTime = Number(serviceObj?.duration);
+    console.log(appt.start);
+    if (appt.start && serviceTime) {
+      const endTime = new Date(appt.start.getTime() + serviceTime * 60000); // Convert minutes to milliseconds
+      const existingTimeSlot: TimeSlot = {
+        startTime: appt.start.toISOString(),
+        endTime: endTime.toISOString(),
+        displayTime: formatTimeRange(appt.start, endTime),
+      };
+      setSelectedTimeSlot(existingTimeSlot);
+    }
+    setSelectedEvent(appt as unknown as CalendarEvent);
+    setStylist(appt.extendedProps.stylist);
+    setRequest(appt.extendedProps.request);
+    setService(serviceObj?._id || "");
     setApptStartDate(date.toISOString().split("T")[0]);
+    setUseLoyaltyPoints(appt.extendedProps.pointsUsed);
+    seteditpointsused(appt.extendedProps.pointsUsed);
+    setloyaltypointsORIGINAL(appt.extendedProps.pointsUsed);
     openModal();
+  };
+  // handle branch selection change
+  const handleBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const branchId = e.target.value;
+    setBranch(branchId);
+
+    // Reset dependent fields
+    setStylist("");
+    setService("");
+
+    // Fetch services and stylists for the selected branch
+    if (branchId && apptStartDate) {
+      fetchStylists(branchId);
+    }
+  };
+  // get available times of stylist based on service
+  const fetchAvailableTimes = async () => {
+    if (!apptStartDate || !branch || !service || !stylist) return;
+
+    setIsLoadingTimes(true);
+    setAvailableTimeSlots([]);
+    // setSelectedTimeSlot(null); to allow setting of existing timeslot when editing
+
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.tokens.token;
+
+      const dateSplits = apptStartDate.split("-");
+      const year = Number(dateSplits[0]);
+      const month = Number(dateSplits[1]);
+      const day = Number(dateSplits[2]);
+      try {
+        console.log("fetching stylists");
+        const response = await fetch(
+          `${API_URL}/api/stylists/${stylist}/availability?branchId=${branch}&serviceId=${service}&year=${year}&month=${month}&day=${day}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch available times");
+
+        const data = await response.json();
+        setAvailableTimeSlots(() => {
+          // get all stylist available slots NOW
+          const slots = data.timeSlots || [];
+          // add the selected appt's selectedTimeSlot into the list
+          return selectedTimeSlot &&
+            !slots.some(
+              (s: { startTime: string }) =>
+                s.startTime === selectedTimeSlot.startTime
+            )
+            ? [selectedTimeSlot, ...slots]
+            : slots;
+        });
+      } catch (error) {
+        console.error("Error fetching available times:", error);
+      } finally {
+        setIsLoadingTimes(false);
+      }
+    }
   };
 
   const handleAddOrUpdateEvent = async () => {
@@ -217,33 +488,103 @@ const Calendar: React.FC = () => {
     }
     const customer = JSON.parse(userData);
     const token = customer.tokens.token;
+    const id = customer.customer._id;
+    console.log(id);
+
+    // find the selected service to get its rate
+    const selectedService = services.find((s) => s._id === service);
+    const serviceRate = selectedService?.serviceRate || 0;
+
+    // get the selected date time
+    const dateTime = selectedTimeSlot?.startTime;
 
     if (selectedEvent) {
-      // TODO: Update existing event
+      // Edit appointment
+      // const serviceRate = services.filter((e) => e._id === service);
+      const apptId = selectedEvent.id;
+      const updatedAppointment = {
+        date: dateTime,
+        request: request,
+        totalAmount: serviceRate,
+        serviceId: service,
+        stylistId: stylist,
+        branchId: branch,
+        pointsUsed: useLoyaltyPoints,
+      };
+
+      //update teh user loyalty points
+      const response2 = await fetch(`${API_URL}/api/customers/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({
+          loyaltyPoints:
+            userLoyaltyPoints - (useLoyaltyPoints - loyaltypointsORGINAL),
+        }),
+      });
+
+      setUserLoyaltyPoints(
+        (pts) => pts - (useLoyaltyPoints - loyaltypointsORGINAL)
+      ); //in case no refresh
+
+      if (!response2.ok) {
+        throw new Error("Failed to update appointment");
+      }
+      // console.log(serviceRate);
+      // console.log(updatedAppointment);
+      // API call to update appt
+      try {
+        const response = await fetch(`${API_URL}/api/appointments/${apptId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify(updatedAppointment),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create appointment");
+        }
+      } catch (err) {
+        window.confirm("Error updating appointment!");
+        console.log("Error updating appointment: ", err);
+      }
+      // set the new updated appointment to be displayed
       setAppts((prevEvents) =>
         prevEvents.map((event) =>
           event.id === selectedEvent.id
             ? {
                 ...event,
-                start: apptStartDate,
+                start: dateTime,
                 extendedProps: {
                   stylist: stylist,
                   service: service,
                   request: request,
+                  branch: branch,
+                  pointsUsed: useLoyaltyPoints,
                 },
               }
             : event
         )
       );
+      toast.success("Your Appointment was successfully updated!");
     } else {
+      console.log("add new appt", finalPrice);
       // Add new appointment
       const newAppointmentData = {
-        date: apptStartDate,
+        date: dateTime,
         request: request,
-        totalAmount: 0, // Adjust as necessary
+        totalAmount: finalPrice,
         serviceId: service,
         stylistId: stylist,
+        branchId: branch,
+        pointsUsed: useLoyaltyPoints,
       };
+
+      console.log(newAppointmentData, "newappt");
 
       try {
         const response = await fetch(`${API_URL}/api/appointments`, {
@@ -255,24 +596,43 @@ const Calendar: React.FC = () => {
           body: JSON.stringify(newAppointmentData),
         });
 
-        if (!response.ok) {
+        const newpointsnum = userLoyaltyPoints - useLoyaltyPoints; //update user with updated points.
+
+        const response2 = await fetch(`${API_URL}/api/customers/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({
+            loyaltyPoints: newpointsnum,
+          }),
+        });
+
+        if (!response.ok || !response2.ok) {
           throw new Error("Failed to create appointment");
         }
         const createdAppointment = await response.json();
+        console.log(createdAppointment, "created appt");
         // Convert response data into FullCalendar format
         const newAppointment: CalendarEvent = {
           id: createdAppointment._id.toString(),
           start: createdAppointment.date,
-          allDay: true,
           extendedProps: {
+            branch: createdAppointment.branch,
             stylist: createdAppointment.stylist,
             service: createdAppointment.service,
             request: createdAppointment.request,
+            pointsUsed: createdAppointment.pointsUsed,
           },
         };
         // update calendar's state to reflect new appointment
         setAppts((prevEvents) => [...prevEvents, newAppointment]);
+        setUserLoyaltyPoints(newpointsnum); //set in case page no refresh.
+        setUseLoyaltyPoints(0); //reset the slider to 0
+        toast.success("Appointment created successfully!");
       } catch (error) {
+        window.confirm("Error creating appointment!");
         console.error("Error creating appointment:", error);
       }
     }
@@ -290,23 +650,28 @@ const Calendar: React.FC = () => {
     setRequest("");
     setService("");
     setApptStartDate("");
-    // setEventLevel("");
     setSelectedEvent(null);
+    setBranch("");
+    setSelectedTimeSlot(null);
+    setUseLoyaltyPoints(0);
+    seteditpointsused(0);
   };
 
   // renders appointment bars on calendar
   const renderEventContent = (eventInfo: any) => {
-    // map serviceId(in extendedProps) to service name in services list (got from backend)
+    // // map serviceId(in extendedProps) to service name in services list (got from backend)
     const getServiceName = (serviceId: string) => {
       const serviceObj = services.find((s) => s._id === serviceId);
       return serviceObj ? serviceObj.name : "Unknown Service";
     };
     return (
       <div
-        className={`event-fc-color flex fc-event-main fc-bg-primary p-1 rounded`}
+        className={`event-fc-color flex fc-event-main fc-bg-primary p-1 rounded items-center truncate`}
       >
         <div className="fc-daygrid-event-dot"></div>
-        <div className="fc-event-time">{eventInfo.timeText}</div>
+        <div className="fc-event-time">
+          {eventInfo.timeText.toUpperCase() + "M"}
+        </div>
         <div className="fc-event-title">
           {getServiceName(eventInfo.event.extendedProps.service)}
         </div>
@@ -314,11 +679,14 @@ const Calendar: React.FC = () => {
     );
   };
 
+  // console.log(Array.isArray(apptsalldetails)); // should be true
+  // console.log(apptsalldetails);
+
   return (
     <>
       <PageMeta
         title="Customer | Appointments"
-        description="This is React.js Calendar Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+        description="View Customer Appointments"
       />
       <PageBreadcrumb pageTitle="Appointments" />
       <div className="rounded-2xl border  border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
@@ -331,7 +699,7 @@ const Calendar: React.FC = () => {
             headerToolbar={{
               left: "prev,next addEventButton",
               center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay",
+              right: "", //"dayGridMonth,timeGridWeek,timeGridDay",
             }}
             events={appt}
             selectable={true}
@@ -370,67 +738,55 @@ const Calendar: React.FC = () => {
                     id="event-start-date"
                     type="date"
                     value={apptStartDate}
-                    onChange={(e) => setApptStartDate(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                    onChange={(e) => {
+                      setApptStartDate(e.target.value);
+                      fetchServices(new Date(e.target.value));
+                    }}
+                    className={`dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800`}
+                    required
                   />
                 </div>
               </div>
-              {/* <div className="mt-6">
-                <label className="block mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Event Color
-                </label>
-                <div className="flex flex-wrap items-center gap-4 sm:gap-5">
-                  {Object.entries(calendarsEvents).map(([key, value]) => (
-                    <div key={key} className="n-chk">
-                      <div
-                        className={`form-check form-check-${value} form-check-inline`}
-                      >
-                        <label
-                          className="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
-                          htmlFor={`modal${key}`}
-                        >
-                          <span className="relative">
-                            <input
-                              className="sr-only form-check-input"
-                              type="radio"
-                              name="event-level"
-                              value={key}
-                              id={`modal${key}`}
-                              checked={eventLevel === key}
-                              onChange={() => setEventLevel(key)}
-                            />
-                            <span className="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                              <span className="w-2 h-2 bg-white rounded-full dark:bg-transparent"></span>
-                            </span>
-                          </span>
-                          {key}
-                        </label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div> */}
-
               <div className="mt-6">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Stylist
-                  </label>
-                  <select
-                    id="stylist"
-                    value={stylist}
-                    onChange={(e) => setStylist(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-                  >
-                    <option value="">Select a stylist</option>
-                    {stylists.map((s) => (
-                      <option key={s._id} value={s._id}>
-                        {s.name}{" "}
-                        {/* display stylist name, save stylist value as the id */}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Select Branch
+                </label>
+                <select
+                  id="branch"
+                  value={branch}
+                  onChange={handleBranchChange}
+                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  required
+                >
+                  <option value="">Select a branch</option>
+                  {branches.map((b) => (
+                    <option key={b._id} value={b._id}>
+                      {b.location}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mt-6">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Stylist
+                </label>
+                <select
+                  id="stylist"
+                  value={stylist}
+                  onChange={(e) => setStylist(e.target.value)}
+                  className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${
+                    !branch ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!branch}
+                  required
+                >
+                  <option value="">Select a stylist</option>
+                  {stylists.map((s) => (
+                    <option key={s._id} value={s._id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="mt-6">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -440,15 +796,63 @@ const Calendar: React.FC = () => {
                   id="service"
                   value={service}
                   onChange={(e) => setService(e.target.value)}
-                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${
+                    !branch ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!branch}
+                  required
                 >
                   <option value="">Select a service</option>
                   {services.map((s) => (
                     <option key={s._id} value={s._id}>
-                      {s.name}{" "}
-                      {/* display service name, save service value as the id */}
+                      {s.name} (${s.serviceRate.toString()})
+                      {/* display service name, save service value as name also */}
                     </option>
                   ))}
+                </select>
+              </div>
+              <div className="mt-6">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Time Slot
+                </label>
+                <select
+                  id="timeSlot"
+                  value={selectedTimeSlot ? selectedTimeSlot.startTime : ""}
+                  onChange={(e) => {
+                    const selected = availableTimeSlots.find(
+                      (slot) => slot.startTime === e.target.value
+                    );
+                    setSelectedTimeSlot(selected || null);
+                  }}
+                  className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${
+                    !(apptStartDate && branch && service && stylist)
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                  disabled={
+                    !(apptStartDate && branch && service && stylist) ||
+                    isLoadingTimes
+                  }
+                  required
+                >
+                  <option value="">Select a time slot</option>
+                  {isLoadingTimes ? (
+                    <option value="" disabled>
+                      Loading available time slots...
+                    </option>
+                  ) : availableTimeSlots.length > 0 ? (
+                    availableTimeSlots.map((slot) => (
+                      <option key={slot.startTime} value={slot.startTime}>
+                        {slot.displayTime}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>
+                      {apptStartDate && branch && service && stylist
+                        ? "No available time slots for this selection"
+                        : "Select date, branch, service, and stylist first"}
+                    </option>
+                  )}
                 </select>
               </div>
               <div className="mt-6">
@@ -460,9 +864,58 @@ const Calendar: React.FC = () => {
                   type="text"
                   value={request}
                   onChange={(e) => setRequest(e.target.value)}
-                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                  className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${
+                    !branch ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!branch}
                 />
+              </div>{" "}
+              <div className="mt-6">
+                {userLoyaltyPoints > 0 && (
+                  <div className="mt-2">
+                    <label
+                      htmlFor="points-slider"
+                      className="block text-sm text-gray-700 dark:text-gray-400"
+                    >
+                      Points to use: <strong>{useLoyaltyPoints}</strong> /{" "}
+                      {userLoyaltyPoints + editpointsused}
+                    </label>
+                    <input
+                      id="points-slider"
+                      type="range"
+                      min={0}
+                      max={userLoyaltyPoints + editpointsused}
+                      step={1}
+                      value={useLoyaltyPoints}
+                      onChange={(e) =>
+                        setUseLoyaltyPoints(parseInt(e.target.value, 10))
+                      }
+                      className="mt-1 w-full"
+                    />
+                  </div>
+                )}
               </div>
+              {service && (
+                <div className="mt-6">
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Total Price
+                  </label>
+                  <div className="text-md text-gray-800 dark:text-white/90">
+                    ${servicePrice}
+                  </div>
+
+                  {useLoyaltyPoints > 0 && (
+                    <>
+                      <div className="mt-2 text-sm text-gray-700 dark:text-gray-400">
+                        - {useLoyaltyPoints} points applied
+                      </div>
+                      <div className="text-md font-semibold text-green-600 dark:text-green-400">
+                        Final Price: ${finalPrice.toFixed(2)}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
               {/* show cancel appointment button only if editing */}
@@ -481,7 +934,9 @@ const Calendar: React.FC = () => {
               <button
                 onClick={handleAddOrUpdateEvent}
                 type="button"
-                disabled={!apptStartDate || !stylist || !service}
+                disabled={
+                  !apptStartDate || !stylist || !service || !selectedTimeSlot
+                }
                 className={`btn btn-success btn-update-event flex w-full justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-white sm:w-auto ${
                   !apptStartDate || !stylist || !service
                     ? "bg-gray-400 cursor-not-allowed"
@@ -499,7 +954,7 @@ const Calendar: React.FC = () => {
           className="max-w-md p-6 lg:p-8"
         >
           <h5 className="mb-4 font-semibold text-gray-800 text-xl">
-            Confirm Deletion
+            Confirm Cancellation
           </h5>
           <p className="text-gray-600">
             Are you sure you want to cancel this appointment? This action cannot
@@ -524,10 +979,9 @@ const Calendar: React.FC = () => {
           </div>
         </Modal>
       </div>
-      <div className="p-4">
-        <ComponentCard title="Current appointments">
-          <Button children="Completed Appointments" />
-          <BasicTableOne />
+      <div className="mt-8">
+        <ComponentCard title="Appointments">
+          <ApptTable appointment={apptsalldetails} />
         </ComponentCard>
       </div>
     </>

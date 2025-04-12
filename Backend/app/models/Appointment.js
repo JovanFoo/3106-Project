@@ -14,9 +14,14 @@ const appointmentSchema = new Schema({
     type: Number,
     required: true,
   },
-  isCompleted: {
-    type: Boolean,
-    default: false,
+  pointsUsed: {
+    type: Number,
+  },
+
+  status: {
+    type: String,
+    enum: ["Pending", "Confirmed", "Cancelled", "Completed"],
+    default: "Pending",
   },
   service: {
     type: Schema.Types.ObjectId,
@@ -29,6 +34,10 @@ const appointmentSchema = new Schema({
   stylist: {
     type: Schema.Types.ObjectId,
     ref: "Stylist",
+  },
+  branch: {
+    type: Schema.Types.ObjectId,
+    ref: "Branch",
   },
 });
 

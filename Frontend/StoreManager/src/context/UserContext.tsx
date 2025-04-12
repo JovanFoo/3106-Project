@@ -20,6 +20,7 @@ type UserContextType = {
   stylists: string[];
   expertises: string[];
   galleries: string[];
+  appointments: string[];
   setId: Dispatch<string>;
   setUsername: Dispatch<string>;
   setName: Dispatch<string>;
@@ -31,9 +32,11 @@ type UserContextType = {
   setStylists: Dispatch<string[]>;
   setExpertises: Dispatch<string[]>;
   setGalleries: Dispatch<string[]>;
+  setAppointments: Dispatch<string[]>;
   addStylists: (stylist: string) => void;
   addExpertises: (expertise: string) => void;
   addGalleries: (gallery: string) => void;
+  addAppointments: (appointment: string) => void;
   saveUserContext: (
     id: string,
     username: string,
@@ -45,7 +48,8 @@ type UserContextType = {
     role: string,
     stylists: string[],
     expertises: string[],
-    galleries: string[]
+    galleries: string[],
+    appointments: string[]
   ) => void;
   loadUserContext: () => void;
   fetchUserContext: () => void;
@@ -73,6 +77,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const [role, setRole] = useState("Manager");
   const [stylists, setStylists] = useState<string[]>([]);
   const [expertises, setExpertises] = useState<string[]>([]);
+  const [appointments, setAppointments] = useState<string[]>([]);
   const [_id, setId] = useState("");
   const [galleries, setGalleries] = useState<string[]>([]);
 
@@ -84,6 +89,9 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   };
   const addGalleries = (gallery: string) => {
     setGalleries([...galleries, gallery]);
+  };
+  const addAppointments = (appointment: string) => {
+    setAppointments([...appointments, appointment]);
   };
   useEffect(() => {
     loadUserContext();
@@ -100,7 +108,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     role: string,
     stylists: string[],
     expertises: string[],
-    galleries: string[]
+    galleries: string[],
+    appointments: string[]
   ) => {
     sessionStorage.setItem(
       "stylist",
@@ -116,6 +125,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         stylists,
         expertises,
         galleries,
+        appointments,
       })
     );
 
@@ -195,6 +205,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         stylists,
         expertises,
         galleries,
+        appointments,
+        setAppointments,
         setId,
         setUsername,
         setName,
@@ -209,6 +221,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         addStylists,
         addExpertises,
         addGalleries,
+        addAppointments,
         saveUserContext,
         loadUserContext,
         fetchUserContext,

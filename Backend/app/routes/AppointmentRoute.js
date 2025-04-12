@@ -5,6 +5,7 @@ const AppointmentRouter = express.Router();
 const AppointmentController = require("../controllers/AppointmentController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const CustomerController = require("../controllers/CustomerController.js");
+const StylistController = require("../controllers/StylistController.js");
 // create a new appointment (only a login customer can create an appointment)
 AppointmentRouter.post(
   "/",
@@ -20,13 +21,21 @@ AppointmentRouter.get(
 // get a appointment by appointment id
 AppointmentRouter.get(
   "/:id",
-  AuthMiddleware.authCustomerOrStylistToken,
+  AuthMiddleware.authAdminCustomerStylistOrManagerToken,
   AppointmentController.retrieve
 );
+
+// update appointment status by id (only a login admin/stylist can update their appointment)
+AppointmentRouter.put(
+  "/:id/update",
+  AuthMiddleware.authAdminStylistOrManagerToken,
+  AppointmentController.updateAppointment
+)
+
 // update appointment detail by id (only a login customer / stylist can update their appointment)
 AppointmentRouter.put(
   "/:id",
-  AuthMiddleware.authCustomerOrStylistToken,
+  AuthMiddleware.authAdminCustomerStylistOrManagerToken,
   AppointmentController.update
 );
 // update appointment completion by appointment id (only a login stylist can update appointment completion)
@@ -35,11 +44,24 @@ AppointmentRouter.put(
   AuthMiddleware.authStylistToken,
   AppointmentController.updateCompleted
 );
+// update appointment cancellation by appointment id (only a login customer can update appointment cancellation)
+AppointmentRouter.put(
+  "/:id/cancelled",
+  AuthMiddleware.authCustomerToken,
+  AppointmentController.updateCancelled
+);
 // delete customer by id (only a login customer can delete their account)
 AppointmentRouter.delete(
   "/:id",
   AuthMiddleware.authCustomerToken,
   AppointmentController.delete
+);
+
+// get all appointments of a stylist (only login stylist can access this)
+AppointmentRouter.get(
+  "/stylists/:id",
+  AuthMiddleware.authStylistToken,
+  StylistController.retrieveAppointments
 );
 
 module.exports = AppointmentRouter;
