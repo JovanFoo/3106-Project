@@ -3,7 +3,14 @@ const Service = require("../models/Service.js");
 const path = require("path");
 
 const ServiceController = {
-  // Create a new service
+  /*
+  @desc: Create a new service
+  @route: POST /api/services
+  @access: Admin only
+  @param: req.body: { name, duration, description, serviceRates }
+  @return: 201 Created with the new service object
+  @error: 400 Bad Request if any required field is missing or invalid
+   */
   async create(req, res) {
     console.log("serviceController > create");
 
@@ -52,8 +59,12 @@ const ServiceController = {
     try {
       let services = await Service.find().populate("serviceRates");
       const { month, year, day } = req.query;
-      const date = new Date(year, month, day);
-      const temp = [];
+
+      const date = new Date();
+      if (month && year && day) {
+        date = new Date(year, month, day);
+      }
+      let temp = [];
       for (let i = 0; i < services.length; i++) {
         const service = services[i];
         const MAXRATE = 1000000000000000;
@@ -78,7 +89,6 @@ const ServiceController = {
           });
         }
       }
-
       if (temp.length > 0) {
         return res.status(200).json(temp);
       } else {

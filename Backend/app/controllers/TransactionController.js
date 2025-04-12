@@ -1,4 +1,5 @@
 const Appointment = require("../models/Appointment.js");
+const Customer = require("../models/Customer.js");
 const Transaction = require("../models/Transaction.js");
 
 const TransactionController = {
@@ -159,14 +160,25 @@ const TransactionController = {
       if (appointment.status !== "Completed") {
         return res.status(400).json({ message: "Appointment not completed" });
       }
-
+      const customer = await Customer.findOne({}).where({
+        appointments: { $in: appointment },
+      });
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+      customer.loyaltyPoints += parseFloat(
+        (appointment.totalAmount / 10).toFixed(2)
+      ); // add loyalty points
+      // 1pt for every 10$ spent
+      //
+      await customer.save(); // save customer with updated points
       const transaction = new Transaction({
         bookingId: appointment._id,
-        service: appointment.service.name || "Service",
+        service: appointment.service._id,
         stylist: appointment.stylist._id,
         paymentMethod: "Cash", // or from frontend later
         amount: appointment.totalAmount,
-        point: appointment.totalAmount / 10,
+        point: parseFloat((appointment.totalAmount / 10).toFixed(2)),
         date: new Date(),
         status: "Completed",
       });

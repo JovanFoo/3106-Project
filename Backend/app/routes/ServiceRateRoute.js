@@ -27,13 +27,13 @@ ServiceRateRouter.get(
 // update ServiceRate by id --> TODO: (only stylist manager can create?)
 ServiceRateRouter.put(
   "/:id",
-  AuthMiddleware.authStylistManagerToken,
+  AuthMiddleware.authAdminToken,
   ServiceRateController.update
 );
 // create ServiceRate by id --> TODO: (only stylist manager can create?)
 ServiceRateRouter.put(
   "/",
-  AuthMiddleware.authStylistManagerToken,
+  AuthMiddleware.authAdminToken,
   ServiceRateController.create
 );
 // delete ServiceRate by id --> TODO: (only stylist manager can create?)

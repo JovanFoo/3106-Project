@@ -67,7 +67,7 @@ const AppointmentController = {
     console.log("AppointmentController > retrieve");
     const { id } = req.params;
     const appointment = await Appointment.findOne({ _id: id });
-    console.log(appointment);
+    // console.log(appointment);
     if (appointment) {
       return res.status(200).json(appointment);
     } else {
