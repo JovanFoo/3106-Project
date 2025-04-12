@@ -78,8 +78,8 @@ export default function SignInForm() {
           res.data.stylist.appointments || []
         );
         sessionStorage.setItem("stylistId", res.data.stylist._id);
-        sessionStorage.setItem("token", res.data.token.token);
-        sessionStorage.setItem("refreshToken", res.data.token.refreshToken);
+        sessionStorage.setItem("token", res.data.tokens.token);
+        sessionStorage.setItem("refreshToken", res.data.tokens.refreshToken);
         navigate("/");
         setIsLoading(false);
       })
