@@ -12,6 +12,11 @@ ReviewRouter.get(
   "/stylist/:stylistId",
   ReviewController.retrieveStylistReviews
 );
+ReviewRouter.get(
+  "/:stylistId/stylistReviews",
+  AuthMiddleware.authAdminOrStylistToken,
+  ReviewController.retrieveStylistReviews1
+);
 
 // Get reviews for a specific branch
 ReviewRouter.get("/branch/:branchId", ReviewController.retrieveBranchReviews);

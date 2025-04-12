@@ -233,6 +233,62 @@ const ReviewController = {
         customer: element.customer,
       });
     }
+    if (temp.length === 0) {
+      return res.status(404).json({ message: "No reviews found" });
+    }
+    return res.status(200).json(temp);
+  },
+  // Retrieve reviews for a specific stylist
+  async retrieveStylistReviews1(req, res) {
+    console.log("ReviewController > retrieveStylistReviews");
+    const { stylistId } = req.params;
+
+    const appointments = await Appointment.find({ stylist: stylistId })
+      .where("review")
+      .ne(null);
+    const customersWithReviews = await Customer.find({
+      appointments: { $in: appointments },
+    }).populate("appointments");
+    const newReviews = customersWithReviews
+      .flatMap((customer) => {
+        return customer.appointments.map((appointment) => {
+          appointment.customer = customer;
+          return appointment;
+        });
+      })
+      .filter((appointment) => {
+        return appointment.stylist == stylistId;
+      })
+      .map((appointment) => {
+        const customer = appointment.customer;
+        customer.password = undefined;
+        return {
+          review: appointment.review,
+          customer: customer.name,
+        };
+      });
+    const temp = [];
+    for (let index = 0; index < newReviews.length; index++) {
+      const element = newReviews[index];
+      console.log(element.customer);
+      console.log(element.review);
+      if (!element.review) {
+        continue;
+      }
+      const review = await Review.findById(element.review);
+      temp.push({
+        text: review.text,
+        stars: review.stars,
+        title: review.title,
+        customer: element.customer,
+      });
+    }
+
+    if (temp) {
+      return res.status(200).json(temp);
+    } else {
+      return res.status(400).json({ message: "Error retrieving reviews" });
+    }
   },
 };
 
