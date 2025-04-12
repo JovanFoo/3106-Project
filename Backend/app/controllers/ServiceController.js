@@ -60,7 +60,7 @@ const ServiceController = {
       let services = await Service.find().populate("serviceRates");
       const { month, year, day } = req.query;
 
-      const date = new Date();
+      let date = new Date();
       if (month && year && day) {
         date = new Date(year, month, day);
       }
