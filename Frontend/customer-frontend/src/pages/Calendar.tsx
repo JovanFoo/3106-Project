@@ -569,7 +569,7 @@ const Calendar: React.FC = () => {
       );
       toast.success("Your Appointment was successfully updated!");
     } else {
-      console.log("add new appt");
+      console.log("add new appt", finalPrice);
       // Add new appointment
       const newAppointmentData = {
         date: dateTime,
