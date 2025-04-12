@@ -160,7 +160,7 @@ const StylistController = {
         path: "appointments",
         populate: { path: "service" },
       });
-      console.log("Stylist appointments:", stylist.appointments);
+      // console.log("Stylist appointments:", stylist.appointments);
 
       if (!stylist) {
         return res.status(404).json({ message: "Stylist not found" });
@@ -174,8 +174,8 @@ const StylistController = {
           appointments: appt._id,
         }).lean(); // lean() for better performance
 
-        console.log("Processing appt:", appt._id.toString());
-        console.log("Matched customer:", customer?.name);
+        // console.log("Processing appt:", appt._id.toString());
+        // console.log("Matched customer:", customer?.name);
         customer.password = undefined;
 
         results.push({
@@ -333,7 +333,7 @@ const StylistController = {
     const { branchId, serviceId, month, year, day } = req.query;
     const date = new Date(year, month - 1, day);
     date.setHours(date.getHours() + 8); //set to SGT
-    console.log(date);
+    // console.log(date);
 
     function parseTime(timeStr, date) {
       let [time, modifier] = timeStr.split(" ");
@@ -385,7 +385,7 @@ const StylistController = {
       status: { $in: ["Pending", "Confirmed"] }, // Only consider "active" appointments
     }).sort({ date: 1 });
     // console.log(`branch OT: ${branchOpenTime}`)
-    console.log(appointments);
+    // console.log(appointments);
 
     // Generate all possible time slots for the day
     const allSlots = [];

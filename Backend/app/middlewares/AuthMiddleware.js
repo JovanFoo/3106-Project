@@ -113,15 +113,20 @@ const AuthMiddleware = {
   async authAdminOrStylistManagerToken(req, res, next) {
     console.log("AuthMiddleware > only Admin or Stylist Manager can access");
     token = req.headers["authorization"];
-    if (token == null) return res.status(401).json({ message: "Unauthorized" });
-    decoded = jwt.decodeToken(token);
-    if (!decoded.status)
+    if (token == null) {
       return res.status(401).json({ message: "Unauthorized" });
+    }
+    decoded = jwt.decodeToken(token);
+    if (!decoded.status) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     if (
       decoded.values.type != "Admin" &&
       decoded.values.type != "StylistManager"
-    )
+    ) {
+      console.log(decoded);
       return res.status(401).json({ message: "Unauthorized" });
+    }
     req.userId = decoded.values.userId;
     next();
   },
