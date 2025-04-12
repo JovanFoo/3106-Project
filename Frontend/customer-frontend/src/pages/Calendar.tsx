@@ -66,7 +66,8 @@ const Calendar: React.FC = () => {
 
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(0);
   const [userLoyaltyPoints, setUserLoyaltyPoints] = useState(0);
-  const [loyaltypointsORGINAL, setloyaltypointsORIGINAL] = useState(0); //for editing appts
+  const [loyaltypointsORGINAL, setloyaltypointsORIGINAL] = useState(0);
+  const [editpointsused, seteditpointsused] = useState(0); //for editing appts
 
   // Assuming these are declared above or coming from props/state
   const selectedService = services.find((s) => s._id === service);
@@ -290,6 +291,10 @@ const Calendar: React.FC = () => {
   };
   const handleDeleteAppointment = async () => {
     if (!selectedEvent) return;
+    const pointsRecovered = selectedEvent.extendedProps.pointsUsed;
+
+    console.log(pointsRecovered);
+    setUserLoyaltyPoints((pts) => pts + pointsRecovered);
 
     const userData = localStorage.getItem("user");
     if (!userData) {
@@ -299,6 +304,19 @@ const Calendar: React.FC = () => {
 
     const customer = JSON.parse(userData);
     const token = customer.tokens.token;
+    const id = customer.customer._id;
+
+    //update teh user loyalty points
+    const response2 = await fetch(`${API_URL}/api/customers/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify({
+        loyaltyPoints: userLoyaltyPoints + pointsRecovered,
+      }),
+    });
 
     try {
       const response = await fetch(
@@ -313,8 +331,8 @@ const Calendar: React.FC = () => {
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to cancel appointment");
+      if (!response.ok || !response2.ok) {
+        throw new Error("Failed to delete appointment");
       }
 
       setAppts((prevEvents) =>
@@ -388,6 +406,7 @@ const Calendar: React.FC = () => {
     setService(serviceObj?._id || "");
     setApptStartDate(date.toISOString().split("T")[0]);
     setUseLoyaltyPoints(appt.extendedProps.pointsUsed);
+    seteditpointsused(appt.extendedProps.pointsUsed);
     setloyaltypointsORIGINAL(appt.extendedProps.pointsUsed);
     openModal();
   };
@@ -499,7 +518,7 @@ const Calendar: React.FC = () => {
         },
         body: JSON.stringify({
           loyaltyPoints:
-            loyaltypointsORGINAL - (useLoyaltyPoints - loyaltypointsORGINAL),
+            userLoyaltyPoints - (useLoyaltyPoints - loyaltypointsORGINAL),
         }),
       });
 
@@ -632,6 +651,7 @@ const Calendar: React.FC = () => {
     setBranch("");
     setSelectedTimeSlot(null);
     setUseLoyaltyPoints(0);
+    seteditpointsused(0);
   };
 
   // renders appointment bars on calendar
@@ -855,13 +875,13 @@ const Calendar: React.FC = () => {
                       className="block text-sm text-gray-700 dark:text-gray-400"
                     >
                       Points to use: <strong>{useLoyaltyPoints}</strong> /{" "}
-                      {userLoyaltyPoints}
+                      {userLoyaltyPoints + editpointsused}
                     </label>
                     <input
                       id="points-slider"
                       type="range"
                       min={0}
-                      max={userLoyaltyPoints}
+                      max={userLoyaltyPoints + editpointsused}
                       step={1}
                       value={useLoyaltyPoints}
                       onChange={(e) =>
