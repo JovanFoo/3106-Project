@@ -23,8 +23,22 @@ const AppointmentController = {
     } = req.body;
     // const modDate = new Date(date);
     // modDate.setUTCHours(modDate.getUTCHours() + 8); // set to SGT
+    const modDate = new Date(date);
+    modDate.setHours(modDate.getHours() + 8);
     totalAmount = parseFloat(totalAmount);
+
     try {
+      const customer = await Customer.findById(id);
+      if (!customer) {
+        return res.status(400).json({ message: "Error creating appointment" });
+      }
+      const points = customer.loyaltyPoints;
+      const deduction = points / 10 > 0 ? points / 10 : 0;
+      if (deduction > 0) {
+        totalAmount = totalAmount - deduction;
+        customer.loyaltyPoints = points - deduction * 10;
+        await customer.save();
+      }
       const appointment = new Appointment({
         date: date,
         request,
@@ -35,7 +49,6 @@ const AppointmentController = {
         branch: branchId,
       });
       const newAppointment = await appointment.save();
-      const customer = await Customer.findById(id);
       customer.appointments.push(newAppointment);
       await customer.save();
       // TODO: add relationship to stylist also. stylist has a list of appts
@@ -43,9 +56,6 @@ const AppointmentController = {
       stylist.appointments.push(newAppointment);
       await stylist.save();
 
-      if (!customer) {
-        return res.status(400).json({ message: "Error creating appointment" });
-      }
       return res.status(201).json(appointment);
     } catch (error) {
       console.log(error.message);
@@ -150,17 +160,45 @@ const AppointmentController = {
     return res.status(200).json(appointment);
   },
 
-  async updateStatus(req, res) {
+  // async updateStatus(req, res) {
+  //   try {
+  //     const { id } = req.params;
+  //     const { status } = req.body;
+
+  //     const updated = await Appointment.findByIdAndUpdate(
+  //       id,
+  //       { status },
+  //       { new: true }
+  //     );
+
+  //     if (!updated) return res.status(404).json({ message: "Appointment not found" });
+
+  //     res.json(updated);
+  //   } catch (err) {
+  //     console.error("Error updating appointment:", err);
+  //     res.status(500).json({ message: "Internal server error" });
+  //   }
+  // },
+
+  async updateAppointment(req, res) {
+    console.log("AppointmentController > updateAppointment");
+    const { id } = req.params;
+    const { date, request, serviceId, status } = req.body;
+
     try {
-      const { id } = req.params;
-      const { status } = req.body;
+      const appointment = await Appointment.findById(id);
+      if (!appointment) {
+        return res.status(404).json({ message: "Appointment not found" });
+      }
 
-      const updated = await Appointment.findByIdAndUpdate(
-        id,
-        { status },
-        { new: true }
-      );
+      appointment.date = date ? new Date(date) : appointment.date;
+      appointment.request = request ?? appointment.request;
+      if (serviceId && serviceId.trim() !== "") {
+        appointment.service = serviceId;
+      }
+      appointment.status = status ?? appointment.status;
 
+<<<<<<< HEAD
       if (!updated)
         return res.status(404).json({ message: "Appointment not found" });
 
@@ -168,6 +206,13 @@ const AppointmentController = {
     } catch (err) {
       console.error("Error updating appointment:", err);
       res.status(500).json({ message: "Internal server error" });
+=======
+      await appointment.save();
+      return res.status(200).json(appointment);
+    } catch (error) {
+      console.error("Error updating appointment:", error);
+      return res.status(500).json({ message: "Internal server error" });
+>>>>>>> f8fbd7c2a56bc27b6802240b003f5dbe385f2fc8
     }
   },
 };

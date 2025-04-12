@@ -6,17 +6,17 @@ const ExpertiseController = require("../controllers/ExpertiseController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Expertise = require("../models/Expertise.js");
 
+ExpertiseRouter.get(
+  "/pagination",
+  AuthMiddleware.authAdminToken,
+  ExpertiseController.getExpertisePagination
+);
+
 // get expertise by id
 ExpertiseRouter.get(
   "/:id",
   AuthMiddleware.authCustomerToken,
   ExpertiseController.retrieve
-);
-// add expertise to stylist
-ExpertiseRouter.post(
-  "/",
-  AuthMiddleware.authAdminOrStylistManagerToken,
-  ExpertiseController.create
 );
 // get all expertise
 ExpertiseRouter.get(
@@ -24,6 +24,13 @@ ExpertiseRouter.get(
   // AuthMiddleware.authCustomerOrStylistToken,
   ExpertiseController.list
 );
+// add expertise to stylist
+ExpertiseRouter.post(
+  "/",
+  AuthMiddleware.authAdminOrStylistManagerToken,
+  ExpertiseController.create
+);
+
 // update expertise by id (only admin can update)
 ExpertiseRouter.put(
   "/:id",
@@ -31,11 +38,11 @@ ExpertiseRouter.put(
   ExpertiseController.update
 );
 // create expertise by id (only admin can create)
-ExpertiseRouter.put(
-  "/",
-  AuthMiddleware.authAdminToken,
-  ExpertiseController.create
-);
+// ExpertiseRouter.put(
+//   "/",
+//   AuthMiddleware.authAdminToken,
+//   ExpertiseController.create
+// );
 // delete expertise by id (only admin can delete)
 ExpertiseRouter.delete(
   "/:id",

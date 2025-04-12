@@ -193,45 +193,45 @@ const ReviewController = {
     console.log("ReviewController > retrieveStylistReviews");
     const { stylistId } = req.params;
 
-    try {
-      // Step 1: Find the stylist by ID
-      const stylist = await Stylist.findById(stylistId);
-      if (!stylist) {
-        return res.status(404).json({ message: "Stylist not found" });
-      }
-
-      // Step 2: Fetch all appointments for the given stylist that have reviews
-      const appointments = await Appointment.find({
-        stylist: stylistId,
-        review: { $ne: null }, // Only fetch appointments that have reviews
-      });
-
-      if (appointments.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No reviews found for this stylist" });
-      }
-
-      // Step 3: Fetch reviews for the appointments
-      const reviews = await Review.find({
-        appointment: {
-          $in: appointments.map((appointment) => appointment._id),
-        },
+    const appointments = await Appointment.find({ stylist: stylistId })
+      .where("review")
+      .ne(null);
+    const customersWithReviews = await Customer.find({
+      appointments: { $in: appointments },
+    }).populate("appointments");
+    const newReviews = customersWithReviews
+      .flatMap((customer) => {
+        return customer.appointments.map((appointment) => {
+          appointment.customer = customer;
+          return appointment;
+        });
       })
-        .populate("stylist", "name")
-        .populate("customer", "username");
-
-      if (!reviews || reviews.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No reviews found for this stylist" });
+      .filter((appointment) => {
+        return appointment.stylist == stylistId;
+      })
+      .map((appointment) => {
+        const customer = appointment.customer;
+        customer.password = undefined;
+        return {
+          review: appointment.review,
+          customer: customer.name,
+        };
+      });
+    const temp = [];
+    for (let index = 0; index < newReviews.length; index++) {
+      const element = newReviews[index];
+      console.log(element.customer);
+      console.log(element.review);
+      if (!element.review) {
+        continue;
       }
-
-      // Return the reviews with the associated customer data
-      return res.status(200).json(reviews);
-    } catch (error) {
-      console.error("Error retrieving stylist reviews:", error);
-      return res.status(500).json({ message: "Internal Server Error" });
+      const review = await Review.findById(element.review);
+      temp.push({
+        text: review.text,
+        stars: review.stars,
+        title: review.title,
+        customer: element.customer,
+      });
     }
   },
 };

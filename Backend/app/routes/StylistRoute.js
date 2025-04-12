@@ -6,12 +6,11 @@ const StylistController = require("../controllers/StylistController.js");
 const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 const Stylist = require("../models/Stylist.js");
 const LeaveRequestController = require("../controllers/LeaveRequestController.js");
-
-// get list of all stylists
-StylistRouter.get(
+const AuthController = require("../controllers/AuthController.js");
+StylistRouter.post(
   "/",
-  // AuthMiddleware.authAdminOrStylistManagerToken,
-  StylistController.retrieveAllStylists
+  AuthMiddleware.authAdminToken,
+  StylistController.createStylistWithBranch
 );
 // get stylist by name
 StylistRouter.get(
@@ -24,11 +23,10 @@ StylistRouter.put(
   AuthMiddleware.authAdminCustomerStylistOrManagerToken,
   StylistController.retrieveAllStylists
 );
-// get stylist by id
-StylistRouter.get(
-  "/:id",
-  AuthMiddleware.authStylistToken,
-  StylistController.retrieveById
+StylistRouter.put(
+  "/toggleActive/:id",
+  AuthMiddleware.authAdminToken,
+  StylistController.toggleActive
 );
 // update stylist profile picture
 StylistRouter.put(
@@ -52,10 +50,27 @@ StylistRouter.get(
   AuthMiddleware.authCustomerOrStylistToken,
   StylistController.retrieveAppointments
 );
+
+StylistRouter.get(
+  "/adminAccess",
+  AuthMiddleware.authAdminOrStylistManagerToken,
+  StylistController.retrieveAll
+);
+StylistRouter.get(
+  "/pagination",
+  AuthMiddleware.authAdminOrStylistManagerToken,
+  StylistController.retrieveAllWithPagination
+);
+// get list of all stylists
+StylistRouter.get(
+  "/",
+  AuthMiddleware.authCustomerOrStylistToken,
+  StylistController.retrieveAllStylists
+);
 // get stylist by id
 StylistRouter.get(
   "/:id",
-  AuthMiddleware.authStylistToken,
+  AuthMiddleware.authAdminStylistOrManagerToken,
   StylistController.retrieveById
 );
 // update stylist by id (only logged in stylist can update)

@@ -12,7 +12,7 @@ import Button from "../../components/ui/button/Button";
 import { PencilIcon, TrashBinIcon } from "../../icons";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import { NativeSelect } from "@mui/material";
+import { NativeSelect, TableBody } from "@mui/material";
 import Alert from "../../components/ui/alert/Alert";
 import { set } from "date-fns";
 // import MultiSelect from "../../components/form/MultiSelect";
@@ -49,17 +49,36 @@ export default function Services() {
     openModal: openModalEdit,
     closeModal: closeModalEdit,
   } = useModal();
+  const {
+    isOpen: isOpenDelete,
+    openModal: openModalDelete,
+    closeModal: closeModalDelete,
+  } = useModal();
   const config = {
     headers: {
       Authorization: sessionStorage.getItem("token"),
     },
   };
+  // For pagination
+  const [pageSizeOptions] = useState([5, 10, 20, 50]);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(pageSizeOptions[1]); // Default to 10
+  const [totalPages, setTotalPages] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [totalService, setTotalService] = useState(0);
+
   const fetchServices = async () => {
     await axios
-      .get(`${api_address}/api/services/all`, config)
+      .get(
+        `${api_address}/api/services/paginated/true?page=${pageNumber}&limit=${pageSize}`,
+        config
+      )
       .then((response) => {
-        setServices(response.data);
         console.log("Services:", response.data);
+        setTotalPages(response.data.totalPages);
+        setTotalService(response.data.total);
+        setHasNextPage(response.data.hasNextPage);
+        setServices(response.data.services);
       })
       .catch((error) => {
         console.error("Error fetching services:", error);
@@ -121,10 +140,40 @@ export default function Services() {
       });
     closeModalNew();
   };
+  const handleDelete = async (service: Service) => {
+    // Perform delete operation here
+    axios
+      .delete(`${api_address}/api/services/${service._id}`, config)
+      .then((response) => {
+        console.log("Service deleted successfully:", response.data);
+        fetchServices(); // Refresh the services list after deleting
+      })
+      .catch((error) => {
+        console.error("Error deleting service:", error);
+      });
+    closeModalDelete();
+  };
   useEffect(() => {
     fetchServices();
     fetchServiceRates();
   }, []);
+  useEffect(() => {
+    fetchServices();
+  }, [pageNumber, pageSize]);
+  const handleNext = () => {
+    if (pageNumber < totalPages) {
+      setPageNumber(pageNumber + 1);
+    }
+  };
+  const handlePrev = () => {
+    if (pageNumber > 1) {
+      setPageNumber(pageNumber - 1);
+    }
+  };
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setPageNumber(1); // Reset to first page on page size change
+  };
   return (
     <>
       <PageMeta
@@ -132,11 +181,13 @@ export default function Services() {
         description="This is React.js Chart Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <PageBreadcrumb pageTitle="Services" />
+
       <div className="space-y-6">
         <div>
           <Button
+            variant="primary"
+            type="info"
             onClick={() => {
-              console.log("add");
               openModalNew();
             }}
           >
@@ -145,61 +196,31 @@ export default function Services() {
         </div>
         <Table className="min-w-full">
           <TableHeader className="bg-gray-50 border-b-2 border-gray-200">
-            <TableRow className="bg-gray-50">
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border p-2"
-              >
-                Service ID
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border p-2"
-              >
-                Service Name
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border p-2"
-              >
-                Duration
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border p-2"
-              >
-                Description
-              </TableCell>
-              <TableCell
-                isHeader={true}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border p-2"
-              >
-                Actions
-              </TableCell>
+            <TableRow isHeader={true}>
+              <TableCell isHeader={true}>#</TableCell>
+              <TableCell isHeader={true}>Service Name</TableCell>
+              <TableCell isHeader={true}>Duration</TableCell>
+              <TableCell isHeader={true}>Description</TableCell>
+              <TableCell isHeader={true}>Actions</TableCell>
             </TableRow>
+          </TableHeader>
+          <TableBody>
             {services &&
               services.map((service, index) => (
-                <TableRow key={service._id} className="bg-white border-b">
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
-                    {index + 1}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
-                    {service.name}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
-                    {service.duration}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2">
+                <TableRow key={service._id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{service.name}</TableCell>
+                  <TableCell>{service.duration}</TableCell>
+                  <TableCell>
                     {service.description.length > 50
                       ? service.description.substring(0, 80) + " ..."
                       : service.description}
                   </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border p-2 justify-between  flex">
+                  <TableCell className="justify-around flex">
                     <Button
-                      variant="outline"
-                      className="bg-yellow-500"
+                      variant="primary"
+                      type="warning"
                       onClick={() => {
-                        console.log("edit Service");
                         setSelectedService(service);
                         openModalEdit();
                       }}
@@ -207,10 +228,11 @@ export default function Services() {
                       <PencilIcon />
                     </Button>
                     <Button
-                      variant="outline"
-                      className="bg-red-500"
+                      variant="primary"
+                      type="danger"
                       onClick={() => {
-                        console.log("disable Service");
+                        setSelectedService(service);
+                        openModalDelete();
                       }}
                     >
                       <TrashBinIcon />
@@ -218,8 +240,52 @@ export default function Services() {
                   </TableCell>
                 </TableRow>
               ))}
-          </TableHeader>
+          </TableBody>
         </Table>
+        <div className="flex justify-between items-center mt-4">
+          <div className="flex gap-2 items-center">
+            <span className="text-gray-700 dark:text-gray-400 mt-4">
+              Page {pageNumber} of {totalPages}
+            </span>
+            <span className="text-gray-700 dark:text-gray-400 mt-4 ml-2">
+              Showing {services.length} of {totalService} transactions
+            </span>
+            <span className="text-gray-700 dark:text-gray-400 mt-4 ">
+              Page Size:
+            </span>
+            {pageSizeOptions.map((size) => (
+              <span
+                key={size}
+                onClick={() => handlePageSizeChange(size)}
+                className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${
+                  pageSize === size
+                    ? "font-bold text-black dark:text-white"
+                    : ""
+                }`}
+              >
+                {size}
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-2 items-center">
+            <Button
+              onClick={handlePrev}
+              variant="primary"
+              type="info"
+              disabled={pageNumber === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              onClick={handleNext}
+              variant="primary"
+              type="info"
+              disabled={pageNumber === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       </div>
       <CustomerModal
         isOpen={isOpenNew}
@@ -238,6 +304,15 @@ export default function Services() {
         onSave={handleSave}
         service={selectedService}
       />
+
+      <DeleteModal
+        isOpen={isOpenDelete}
+        closeModal={() => {
+          closeModalDelete();
+        }}
+        onDelete={handleDelete}
+        service={selectedService}
+      />
     </>
   );
 }
@@ -245,8 +320,9 @@ interface ModalProps {
   isOpen: boolean;
   closeModal: () => void;
   service?: Service; // Optional prop to pass a service object for editing
-  totalListOfServiceRates: ServiceRate[]; // List of all service rates
-  onSave: (service: Service) => void; // Function to call when saving the service
+  totalListOfServiceRates?: ServiceRate[]; // List of all service rates
+  onSave?: (service: Service) => void; // Function to call when saving the service
+  onDelete?: (serviceRate: Service) => void; // Function to call when deleting a service rate
   showCloseButton?: boolean; // New prop to control close button visibility
   isFullscreen?: boolean; // Default to false for backwards compatibility
 }
@@ -254,8 +330,8 @@ const CustomerModal: React.FC<ModalProps> = ({
   isOpen,
   closeModal,
   service,
-  totalListOfServiceRates,
-  onSave,
+  totalListOfServiceRates = [],
+  onSave = () => {},
   showCloseButton = true, // Default to true for backwards compatibility
   isFullscreen = false,
 }) => {
@@ -315,7 +391,7 @@ const CustomerModal: React.FC<ModalProps> = ({
         </div>
         <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 ">
               Service Name*
             </label>
             <input
@@ -327,7 +403,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   name: e.target.value,
                 });
               }}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
             />
           </div>
           <div>
@@ -352,7 +428,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   });
                 }
               }}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
             />
           </div>
         </div>
@@ -369,7 +445,7 @@ const CustomerModal: React.FC<ModalProps> = ({
                   description: e.target.value,
                 });
               }}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
               rows={5}
             />
           </div>
@@ -381,7 +457,7 @@ const CustomerModal: React.FC<ModalProps> = ({
             </label>
             <input
               type="text"
-              className="w-full mb-3 border rounded-md h-8 dark:bg-gray-700 dark:border-gray-600 font-extralight"
+              className="w-full mb-3 border rounded-md h-8 dark:bg-gray-700 dark:border-gray-600 font-extralight dark:text-gray-200"
               onKeyUp={(e) => {
                 setFilteredText((e.target as HTMLInputElement).value);
               }}
@@ -400,11 +476,12 @@ const CustomerModal: React.FC<ModalProps> = ({
                     return (
                       <div
                         key={x._id}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 dark:text-gray-200"
                         id={`#serviceRate-${x._id}`}
                       >
                         <input
                           type="checkbox"
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 "
                           checked={serviceData.serviceRates.some(
                             (sr) => sr._id === x._id
                           )}
@@ -438,6 +515,81 @@ const CustomerModal: React.FC<ModalProps> = ({
           </button>
           <Button size="sm" variant="primary" onClick={handleSave}>
             {service ? "Update Transaction" : "Create"}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+};
+
+const DeleteModal: React.FC<ModalProps> = ({
+  isOpen,
+  closeModal,
+  service,
+  onDelete = () => {},
+}) => {
+  const handleDelete = () => {
+    if (service?.name === serviceName) {
+      onDelete(service);
+    } else {
+      setShowAlert(true);
+      setAlertTitle("Error");
+      setAlertMessage("Service name does not match.");
+      setAlertType("error");
+      return;
+    }
+  };
+  const [serviceName, setServiceName] = useState<string>("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState<"success" | "error">("success");
+
+  return (
+    <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] p-6">
+      <div className="flex flex-col px-2 overflow-y-auto">
+        <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
+          Delete Service{" "}
+        </h4>
+        <p className="dark:text-white">
+          Are you sure you want to delete this service?
+        </p>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
+          Type the service name (
+          <b className="text-black dark:text-white">{service?.name}</b>) to
+          confirm:
+        </p>
+
+        <input
+          type="text"
+          value={serviceName}
+          onChange={(e) => {
+            setServiceName(e.target.value);
+          }}
+          className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+        />
+        <div className={showAlert ? "mt-4" : "hidden"}>
+          <Alert
+            variant={alertType}
+            title={alertTitle}
+            message={alertMessage}
+          />
+        </div>
+        <div className="flex items-center gap-3 mt-6 sm:justify-end">
+          <button
+            onClick={closeModal}
+            type="button"
+            className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+          >
+            Cancel
+          </button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="bg-red-500"
+            onClick={handleDelete}
+          >
+            Delete
           </Button>
         </div>
       </div>

@@ -9,7 +9,7 @@ const Service = require("../models/Service.js");
 
 // get all ServiceRates
 ServiceRateRouter.get(
-  "/",
+  "/paginated/:paginated",
   AuthMiddleware.authAny,
   ServiceRateController.retrieveAll
 );
@@ -18,6 +18,11 @@ ServiceRateRouter.get(
   "/:id",
   AuthMiddleware.authAny,
   ServiceRateController.retrieve
+);
+ServiceRateRouter.get(
+  "/",
+  AuthMiddleware.authAny,
+  ServiceRateController.retrieveAll
 );
 // update ServiceRate by id --> TODO: (only stylist manager can create?)
 ServiceRateRouter.put(
@@ -40,7 +45,7 @@ ServiceRateRouter.delete(
 
 ServiceRateRouter.post(
   "/",
-  AuthMiddleware.authStylistManagerToken,
+  AuthMiddleware.authAdminToken,
   ServiceRateController.create
 );
 

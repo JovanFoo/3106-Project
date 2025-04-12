@@ -27,9 +27,9 @@ AppointmentRouter.get(
 
 // update appointment status by id (only a login admin/stylist can update their appointment)
 AppointmentRouter.put(
-  "/:id/status",
+  "/:id/update",
   AuthMiddleware.authAdminStylistOrManagerToken,
-  AppointmentController.updateStatus
+  AppointmentController.updateAppointment
 )
 
 // update appointment detail by id (only a login customer / stylist can update their appointment)

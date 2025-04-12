@@ -2,27 +2,18 @@ const express = require("express");
 
 const AuthRouter = express.Router();
 
-const AuthMiddleware = require( "../middlewares/AuthMiddleware.js" );
+const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 
 const AuthController = require("../controllers/AuthController.js");
 const CustomerController = require("../controllers/CustomerController.js");
-const StylistController = require( "../controllers/StylistController.js" );
-const AdminController = require( "../controllers/AdminController.js" );
+const StylistController = require("../controllers/StylistController.js");
+const AdminController = require("../controllers/AdminController.js");
 
 // Refresh Token
-AuthRouter.post(
-  "/refresh-token",
-  AuthController.refreshToken
-);
-// customer 
-AuthRouter.post(
-  "/customers/register", 
-  AuthController.registerCustomer
-);
-AuthRouter.post(
-  "/customers/login", 
-  AuthController.loginCustomer
-);
+AuthRouter.post("/refresh-token", AuthController.refreshToken);
+// customer
+AuthRouter.post("/customers/register", AuthController.registerCustomer);
+AuthRouter.post("/customers/login", AuthController.loginCustomer);
 AuthRouter.post(
   "/customers/forget-password",
   AuthController.resetCustomerPassword
@@ -33,15 +24,9 @@ AuthRouter.post(
   CustomerController.updatePassword
 );
 
-// Stylist 
-AuthRouter.post(
-  "/stylists/register", 
-  AuthController.registerStylist
-);
-AuthRouter.post(
-  "/stylists/login", 
-  AuthController.loginStylist
-);
+// Stylist
+AuthRouter.post("/stylists/register", AuthController.registerStylist);
+AuthRouter.post("/stylists/login", AuthController.loginStylist);
 AuthRouter.post(
   "/stylists/forget-password",
   AuthController.resetStylistPassword
@@ -55,24 +40,24 @@ AuthRouter.put(
   "/stylists/update-password",
   AuthMiddleware.authStylistToken,
   AuthController.updatePasswordStylist
-)
-// Admin 
+);
+// Admin
 AuthRouter.post(
-  "/admins/register", 
+  "/admins/register",
   AuthMiddleware.authAdminToken,
   AuthController.registerAdmin
 );
-AuthRouter.post(
-  "/admins/login", 
-  AuthController.loginAdmin
-);
-AuthRouter.post(
-  "/admins/forget-password",
-  AuthController.resetAdminPassword
-);
+AuthRouter.post("/admins/login", AuthController.loginAdmin);
+AuthRouter.post("/admins/forget-password", AuthController.resetAdminPassword);
 AuthRouter.post(
   "/admins/reset-password/:token",
   AuthMiddleware.authAdminResetToken,
   AdminController.updatePassword
+);
+
+AuthRouter.put(
+  "/admins/update-password",
+  AuthMiddleware.authAdminToken,
+  AuthController.updatePasswordAdmin
 );
 module.exports = AuthRouter;
