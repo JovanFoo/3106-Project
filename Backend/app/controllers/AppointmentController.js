@@ -198,21 +198,11 @@ const AppointmentController = {
       }
       appointment.status = status ?? appointment.status;
 
-<<<<<<< HEAD
-      if (!updated)
-        return res.status(404).json({ message: "Appointment not found" });
-
-      res.json(updated);
-    } catch (err) {
-      console.error("Error updating appointment:", err);
-      res.status(500).json({ message: "Internal server error" });
-=======
       await appointment.save();
       return res.status(200).json(appointment);
     } catch (error) {
       console.error("Error updating appointment:", error);
       return res.status(500).json({ message: "Internal server error" });
->>>>>>> f8fbd7c2a56bc27b6802240b003f5dbe385f2fc8
     }
   },
 };
