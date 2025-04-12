@@ -50,7 +50,7 @@ const ServiceController = {
   async retrieveAll(req, res) {
     console.log("svccontroller > retrieve all svcs");
     try {
-      const services = await Service.find().populate("serviceRates");
+      let services = await Service.find().populate("serviceRates");
       const { month, year, day } = req.query;
       const date = new Date(year, month, day);
       const temp = [];
