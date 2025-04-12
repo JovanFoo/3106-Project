@@ -238,7 +238,7 @@ const ReviewController = {
     }
     return res.status(200).json(temp);
   },
-  // Retrieve reviews for a specific stylist
+  // stylist page
   async retrieveStylistReviews1(req, res) {
     console.log("ReviewController > retrieveStylistReviews");
     const { stylistId } = req.params;
