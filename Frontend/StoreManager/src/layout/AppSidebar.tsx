@@ -102,6 +102,9 @@ const AppSidebar: React.FC = () => {
           .filter((item) => {
             return item.name != "Shop Settings";
           })
+          .filter((item) => {
+            return item.name != "Transactions";
+          })
       );
     }
   };
@@ -176,11 +179,18 @@ const AppSidebar: React.FC = () => {
               />
             </>
           ) : (
+            <>
             <img
-              className="w-8 h-8 object-contain"
+              className="dark:hidden w-8 h-8 object-contain"
               src="/images/logo/logobuzzbook_cropped.png"
               alt="Logo"
             />
+            <img
+              className="hidden dark:block w-8 h-8 object-contain brightness-0 invert"
+              src="/images/logo/logobuzzbook_cropped.png"
+              alt="Logo"
+            />
+            </>
           )}
         </Link>
       </div>

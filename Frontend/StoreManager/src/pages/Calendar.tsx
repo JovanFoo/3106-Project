@@ -409,8 +409,8 @@ const renderEventContent = (eventInfo: any) => {
       className={`event-fc-color flex fc-event-main ${colorClass} p-1 rounded`}
     >
       <div className="fc-daygrid-event-dot"></div>
-      <div className="fc-event-time">{eventInfo.timeText}</div>
-      <div className="fc-event-title">{eventInfo.event.title}</div>
+      <div className="fc-event-time text-black">{eventInfo.timeText}</div>
+      <div className="fc-event-title text-black">{eventInfo.event.title}</div>
     </div>
   );
 };
