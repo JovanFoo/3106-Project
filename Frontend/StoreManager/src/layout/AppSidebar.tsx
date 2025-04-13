@@ -1,4 +1,3 @@
-import AnalyticsIcon from "@mui/icons-material/Analytics";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -8,11 +7,11 @@ import LayersIcon from "@mui/icons-material/Layers";
 import PaidIcon from "@mui/icons-material/Paid";
 import SettingsIcon from "@mui/icons-material/Settings";
 import StoreIcon from "@mui/icons-material/Store";
-import { use, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
-import { HorizontaLDots } from "../icons";
 import { useUser } from "../context/UserContext";
+import { HorizontaLDots } from "../icons";
 
 type NavItem = {
   name: string;
@@ -25,7 +24,7 @@ const AppSidebar: React.FC = () => {
     {
       icon: <DashboardIcon />,
       name: "Dashboard",
-      path: "/",
+      path: "/home",
     },
     {
       icon: <InfoOutlinedIcon />,
@@ -57,11 +56,6 @@ const AppSidebar: React.FC = () => {
         { name: "Service rates", path: "/manage/service-rates", pro: false },
         // { name: "Ratings & Reviews", path: "/ratings", pro: false },
       ],
-    },
-    {
-      icon: <AnalyticsIcon />,
-      name: "Analytics",
-      path: "/analytics",
     },
     {
       icon: <GroupsIcon />,
@@ -184,7 +178,7 @@ const AppSidebar: React.FC = () => {
           ) : (
             <img
               className="w-8 h-8 object-contain"
-              src="/images/logo/LogoSide.png"
+              src="/images/logo/logobuzzbook_cropped.png"
               alt="Logo"
             />
           )}

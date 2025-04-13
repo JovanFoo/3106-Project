@@ -8,6 +8,7 @@ import {
 
 import Badge from "../../ui/badge/Badge";
 import { useEffect, useState } from "react";
+import Button from "../../ui/button/Button";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -29,6 +30,15 @@ interface Stylist {
   experience: number;
 }
 
+interface Review {
+  id: string;
+  title: string;
+  text: string;
+  stars: number;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
 interface Appointment {
   _id: string;
   name: string;
@@ -39,6 +49,7 @@ interface Appointment {
   branch?: Branch;
   service?: Service;
   stylist?: Stylist;
+  review?: Review;
 }
 
 interface Props {
@@ -46,7 +57,8 @@ interface Props {
 }
 
 export default function AppointmentTableOne({ appointment }: Props) {
-  const [statusFilter, setStatusFilter] = useState("");
+  // set initial dropdown value to Pending
+  const [statusFilter, setStatusFilter] = useState("Pending");
 
   // useEffect(() => {
   //   console.log(
@@ -154,10 +166,10 @@ export default function AppointmentTableOne({ appointment }: Props) {
 
                   <TableCell className="px-4 py-3 text-theme-sm">
                     {" "}
-                    <TableCell className="px-4 py-3 text-theme-sm">
-                      {order.totalAmount.toLocaleString("en-US", {
+                    <TableCell className="px-4 py-3 text-theme-sm dark:text-gray-400">
+                      {order.totalAmount.toLocaleString("en-SG", {
                         style: "currency",
-                        currency: "USD",
+                        currency: "SGD",
                       })}
                     </TableCell>
                   </TableCell>
@@ -180,6 +192,15 @@ export default function AppointmentTableOne({ appointment }: Props) {
                       {order.status}
                     </Badge>
                   </TableCell>
+                  {order.status === "Completed" ? (
+                    <TableCell>
+                      <Button size="sm" onClick={() => {}}>
+                        {order.review ? "Edit Review" : "Add Review"}
+                      </Button>
+                    </TableCell>
+                  ) : (
+                    <></>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
