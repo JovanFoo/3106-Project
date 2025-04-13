@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
+import PageMeta from "../components/common/PageMeta";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
-import { set } from "date-fns";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -244,10 +244,15 @@ export default function Transactions() {
     setPageNumber(1); // Reset to first page on page size change
   };
   return (
-    <div>
+    <div className="flex min-h-screen">
+            <div className="flex-1 p-5">
+        <PageMeta
+          title="Transactions"
+          description="Manage your Transactions"
+        />
       <PageBreadcrumb pageTitle="Transaction" />
-      <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 w-full">
-        <div className="flex justify-between items-center mb-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+      <div className="flex justify-between items-center mb-6">
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             Transaction
           </h4>
@@ -357,6 +362,7 @@ export default function Transactions() {
           onSave={handleUpdateTransaction}
         />
       </div>
+    </div>
     </div>
   );
 }

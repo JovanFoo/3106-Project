@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
+import PageMeta from "../components/common/PageMeta";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
@@ -121,10 +122,15 @@ export default function Appointments() {
     };
 
     return (
-        <div>
-            <PageBreadcrumb pageTitle="Appointments" />
-            <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 w-full">
-                <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">Upcoming Appointments</h4>
+        <div className="flex min-h-screen">
+            <div className="flex-1 p-5">
+                <PageMeta
+                    title="Appointments"
+                    description="Manage your Appointments"
+                />
+                <PageBreadcrumb pageTitle="Upcoming Appointments" />
+                <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+                    <div className="flex justify-between items-center mb-6">
 
                 {appointments.length === 0 && (
                     <p className="text-gray-500 dark:text-gray-400 mb-4">
@@ -179,7 +185,6 @@ export default function Appointments() {
                         </div>
                     ))}
                 </div>
-            </div>
 
             <Modal isOpen={isOpen} onClose={closeModal} className="max-w-md p-6">
                 {updatedAppt && (
@@ -240,6 +245,9 @@ export default function Appointments() {
                     </div>
                 )}
             </Modal>
+        </div>
+        </div>
+        </div>
         </div>
     );
 }
