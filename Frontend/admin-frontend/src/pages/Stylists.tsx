@@ -1,14 +1,15 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
+import PageMeta from "../components/common/PageMeta";
+import Alert from "../components/ui/alert/Alert";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
+import { useModal } from "../hooks/useModal";
 import StylistExpertise from "./Teams/stylistExpertise";
 import PortfolioView from "./Teams/stylistPortfolio";
 import StylistProfilePage from "./Teams/stylistProfilePage";
 import StylistTestimonials from "./Teams/stylistTestimonials";
-import { useModal } from "../hooks/useModal";
-import axios from "axios";
-import Alert from "../components/ui/alert/Alert";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 type Stylist = {
@@ -137,6 +138,7 @@ export default function StylistPage() {
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 p-5">
+      <PageMeta title="Stylist Management" description="Manage Stylists" />
         <PageBreadcrumb pageTitle="Stylist Management" />
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">

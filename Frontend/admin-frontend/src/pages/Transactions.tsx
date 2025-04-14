@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
+import PageMeta from "../components/common/PageMeta";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
@@ -245,6 +246,8 @@ export default function Transactions() {
   return (
     <div className="flex min-h-screen">
             <div className="flex-1 p-5">
+            <PageMeta title="Transactions" description="Manage Transactions" />
+
       <PageBreadcrumb pageTitle="Transaction" />
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
       <div className="flex justify-between items-center mb-6">

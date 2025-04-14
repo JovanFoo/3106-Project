@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
+import PageMeta from "../components/common/PageMeta";
 import Alert from "../components/ui/alert/Alert";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
@@ -182,6 +183,7 @@ export default function Expertise() {
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 p-5">
+        <PageMeta title="Expertise" description="Manage Expertises" />
         <PageBreadcrumb pageTitle="Expertise" />
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
+import PageMeta from "../components/common/PageMeta";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
@@ -122,6 +123,7 @@ export default function Appointments() {
 
     return (
         <div>
+            <PageMeta title="Appointments" description="Manage Appointments" />
             <PageBreadcrumb pageTitle="Appointments" />
             <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 w-full">
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">Upcoming Appointments</h4>
