@@ -49,7 +49,7 @@ export default function StylistProfilePage({ stylist }: Props) {
     <div className="flex min-h-screen mr-4">
       <div className="flex-1 p-5 mr-4">
         <PageBreadcrumb pageTitle="Profile Page" />
-        <div className="space-y-4 mr-4">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           <div className="flex flex-col items-center">
             <img
               src={fullStylist.profilePicture || "/images/default-avatar.jpg"}

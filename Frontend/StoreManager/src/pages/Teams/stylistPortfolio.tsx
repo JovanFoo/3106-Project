@@ -48,8 +48,8 @@ export default function PortfolioGallery({ stylist }: Props) {
         <div className="flex min-h-screen mr-4">
             <div className="flex-1 p-5 mr-4">
                 <PageBreadcrumb pageTitle="Portfolio/Gallery" />
-                <div className="space-y-4">
-                    {gallery.length === 0 ? (
+                <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+                {gallery.length === 0 ? (
                         <p className="text-gray-500 italic">No portfolio items found.</p>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">

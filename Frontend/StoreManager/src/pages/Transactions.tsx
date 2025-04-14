@@ -279,38 +279,41 @@ export default function Transactions() {
               <th className="border p-2">Status</th>
             </tr>
           </thead>
-          <tbody>
-            {transactions.map((txn, index) => (
-              <tr
-                key={txn._id}
-                className="text-center border cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-slate-300"
-                onClick={() => handleTransactionClick(txn)}
-              >
-                <td className="border p-2">{index + 1}</td>
-                <td className="border p-2">{txn.service.name}</td>
-                <td className="border p-2">{txn.stylist.name}</td>
-                <td className="border p-2">{txn.paymentMethod}</td>
-                <td className="border p-2">
-                  ${parseFloat(txn.amount.toString()).toFixed(2)}
-                </td>
-                <td
-                  className={
-                    txn.status == "Cancelled"
-                      ? "text-red-500 border p-2 font-semibold dark:text-red-300"
-                      : txn.status == "Completed"
-                      ? "text-green-500 border p-2 font-semibold dark:text-green-300"
-                      : txn.status == "Pending"
-                      ? "text-yellow-500 border p-2 font-semibold dark:text-yellow-300"
-                      : txn.status == "Confirmed"
-                      ? "text-blue-500 border p-2 font-semibold dark:text-blue-300"
-                      : "text-teal-500 border p-2 font-semibold dark:text-teal-300"
-                  }
-                >
-                  {txn.status}
-                </td>
-              </tr>
-            ))}
-          </tbody>
+            <tbody>
+              {[...transactions]
+                .slice()
+                .reverse()
+                .map((txn, index) => (
+                  <tr
+                    key={txn._id}
+                    className="text-center border cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-slate-300"
+                    onClick={() => handleTransactionClick(txn)}
+                  >
+                    <td className="border p-2">{transactions.length - index}</td> {/* Reverse index */}
+                    <td className="border p-2">{txn.service.name}</td>
+                    <td className="border p-2">{txn.stylist.name}</td>
+                    <td className="border p-2">{txn.paymentMethod}</td>
+                    <td className="border p-2">
+                      ${parseFloat(txn.amount.toString()).toFixed(2)}
+                    </td>
+                    <td
+                      className={
+                        txn.status == "Cancelled"
+                          ? "text-red-500 border p-2 font-semibold dark:text-red-300"
+                          : txn.status == "Completed"
+                            ? "text-green-500 border p-2 font-semibold dark:text-green-300"
+                            : txn.status == "Pending"
+                              ? "text-yellow-500 border p-2 font-semibold dark:text-yellow-300"
+                              : txn.status == "Confirmed"
+                                ? "text-blue-500 border p-2 font-semibold dark:text-blue-300"
+                                : "text-teal-500 border p-2 font-semibold dark:text-teal-300"
+                      }
+                    >
+                      {txn.status}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
         </table>
         <div className="flex justify-between items-center mt-4">
           <div className="flex gap-2 items-center">
@@ -337,7 +340,7 @@ export default function Transactions() {
               </span>
             ))}
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center mt-4 ml-2">
             <Button onClick={handlePrev} disabled={pageNumber === 1}>
               Previous
             </Button>

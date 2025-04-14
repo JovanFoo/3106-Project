@@ -165,11 +165,18 @@ const AppSidebar: React.FC = () => {
               />
             </>
           ) : (
+            <>
             <img
-              className="w-8 h-8 object-contain"
-              src="/images/logo/LogoSide.png"
+              className="dark:hidden w-full h-auto object-contain"
+              src="/images/logo/logobuzzbook_cropped.png"
               alt="Logo"
             />
+            <img
+              className="hidden dark:block w-full h-auto object-contain brightness-0 invert"
+              src="/images/logo/logobuzzbook_cropped.png"
+              alt="Logo"
+            />
+            </>
           )}
         </Link>
       </div>

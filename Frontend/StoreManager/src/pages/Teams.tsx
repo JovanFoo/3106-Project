@@ -232,7 +232,7 @@ export default function Teams() {
           >
             <div className="flex h-[600px]">
               {/* Sidebar */}
-              <div className="w-64 bg-gray-100 dark:bg-gray-800 p-4">
+              <div className="w-64 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl pt-10">
                 {["Profile", "Expertise", "Portfolio", "Testimonials"].map(
                   (tab) => (
                     <button
