@@ -60,7 +60,12 @@ const AuthController = {
       }
       await newCustomer.save();
       newCustomer.password = undefined;
-      return res.status(201).json(newCustomer);
+      console.log("Registered customer:");
+      console.log(newCustomer);
+
+      const tokens = jwt.generateCustomerToken(newCustomer._id);
+
+      return res.status(201).json({ customer: newCustomer, tokens: tokens });
     } catch (error) {
       console.log(error.message);
       return res.status(400).json({ message: "Error creating user" });
