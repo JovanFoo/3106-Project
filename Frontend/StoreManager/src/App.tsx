@@ -80,10 +80,10 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
+            {/* <Route index path="/" element={<Home />} /> */}
 
             {/* Main Page */}
-            <Route path="/appointments" element={<Appointments />} />
+            <Route path="/" element={<Appointments />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/teams" element={<Teams />} />
