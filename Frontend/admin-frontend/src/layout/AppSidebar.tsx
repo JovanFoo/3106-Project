@@ -21,15 +21,15 @@ type NavItem = {
 };
 const AppSidebar: React.FC = () => {
   const [navItems, setNavItems] = useState<NavItem[]>([
-    {
-      icon: <DashboardIcon />,
-      name: "Dashboard",
-      path: "/home",
-    },
+    // {
+    //   icon: <DashboardIcon />,
+    //   name: "Dashboard",
+    //   path: "/home",
+    // },
     {
       icon: <ContentCutIcon />,
       name: "Stylists",
-      path: "/stylists",
+      path: "/",
     },
     {
       icon: <PaidIcon />,
@@ -77,25 +77,25 @@ const AppSidebar: React.FC = () => {
   );
   const user = useUser();
   useEffect(() => {
-    filterBasedOnRole();
-  }, [user.role]);
+    // filterBasedOnRole();
+  }, [user]);
 
-  const filterBasedOnRole = () => {
-    if (user.role !== "Manager") {
-      console.log("User role is not Manager, filtering nav items.");
-      setNavItems(
-        navItems
-          .filter((item) => {
-            return item.name != "Teams";
-          })
-          .filter((item) => {
-            return item.name != "Shop Settings";
-          })
-      );
-    }
-  };
+  // const filterBasedOnRole = () => {
+  //   if (user.role !== "Manager") {
+  //     console.log("User role is not Manager, filtering nav items.");
+  //     setNavItems(
+  //       navItems
+  //         .filter((item) => {
+  //           return item.name != "Teams";
+  //         })
+  //         .filter((item) => {
+  //           return item.name != "Shop Settings";
+  //         })
+  //     );
+  //   }
+  // };
   useEffect(() => {
-    filterBasedOnRole();
+    // filterBasedOnRole();
     let submenuMatched = false;
     navItems.forEach((nav, index) => {
       if (nav.subItems) {
@@ -114,7 +114,7 @@ const AppSidebar: React.FC = () => {
   }, [location, isActive]);
 
   useEffect(() => {
-    filterBasedOnRole;
+    // filterBasedOnRole;
     if (openSubmenu !== null) {
       const key = `${openSubmenu}`;
       if (subMenuRefs.current[key]) {
@@ -166,16 +166,16 @@ const AppSidebar: React.FC = () => {
             </>
           ) : (
             <>
-            <img
-              className="dark:hidden w-full h-auto object-contain"
-              src="/images/logo/logobuzzbook_cropped.png"
-              alt="Logo"
-            />
-            <img
-              className="hidden dark:block w-full h-auto object-contain brightness-0 invert"
-              src="/images/logo/logobuzzbook_cropped.png"
-              alt="Logo"
-            />
+              <img
+                className="dark:hidden w-full h-auto object-contain"
+                src="/images/logo/logobuzzbook_cropped.png"
+                alt="Logo"
+              />
+              <img
+                className="hidden dark:block w-full h-auto object-contain brightness-0 invert"
+                src="/images/logo/logobuzzbook_cropped.png"
+                alt="Logo"
+              />
             </>
           )}
         </Link>

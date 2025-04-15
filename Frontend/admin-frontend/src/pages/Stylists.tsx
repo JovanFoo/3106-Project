@@ -82,7 +82,7 @@ export default function StylistPage() {
         config
       )
       .then((response) => {
-        console.log(response.data.stylists);
+        // console.log(response.data.stylists);
         setHasNextpage(response.data.hasNextPage);
         const stylistData: Stylist[] = response.data.stylists;
         const data = stylistData.map((stylist) => {
@@ -138,7 +138,7 @@ export default function StylistPage() {
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 p-5">
-      <PageMeta title="Stylist Management" description="Manage Stylists" />
+        <PageMeta title="Stylist Management" description="Manage Stylists" />
         <PageBreadcrumb pageTitle="Stylist Management" />
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">

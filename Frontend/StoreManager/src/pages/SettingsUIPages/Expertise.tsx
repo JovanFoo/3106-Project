@@ -6,7 +6,7 @@ import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useUser } from "../../context/UserContext";
 import { useModal } from "../../hooks/useModal";
-import SettingsSidebar from "../SettingsSidebar";
+import SettingsSidebar from "../SettingsPage/SettingsSidebar";
 type Expertise = {
   _id: string;
   name: string;
@@ -111,11 +111,11 @@ export default function Expertise() {
   }, [user]);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex">
       <SettingsSidebar />
       <div className="flex-1 p-5">
         <PageBreadcrumb pageTitle="Expertise" />
-        <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+        <div className="rounded-2xl  min-h-[80vh] border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           <div className={showAlert ? "mb-5" : "hidden"}>
             <Alert title={title} message={message} variant={variant} />
           </div>

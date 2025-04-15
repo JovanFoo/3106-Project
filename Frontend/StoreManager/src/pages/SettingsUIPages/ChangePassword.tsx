@@ -4,7 +4,7 @@ import Label from "../../components/form/Label";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import SettingsSidebar from "../SettingsSidebar";
+import SettingsSidebar from "../SettingsPage/SettingsSidebar";
 import Alert from "../../components/ui/alert/Alert";
 import { useState } from "react";
 import axios, { AxiosResponse } from "axios";
@@ -101,16 +101,16 @@ export default function ChangePassword() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex ">
       {/* Settings-specific Sidebar */}
       <SettingsSidebar />
       {/* Main Content */}
-      <div className="flex-1 p-5">
+      <div className="flex-1 p-5  min-h-[80vh]">
         <PageBreadcrumb pageTitle="Change Password" />
-        <div className={showAlert ? "mb-5" : "hidden"}>
-          <Alert title={title} message={message} variant={variant} />
-        </div>
-        <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+        <div className="rounded-2xl  min-h-[80vh] border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+          <div className={showAlert ? "mb-5" : "hidden"}>
+            <Alert title={title} message={message} variant={variant} />
+          </div>
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
@@ -122,13 +122,9 @@ export default function ChangePassword() {
                 regularly.
               </p>
             </div>
-            <button
-              onClick={openModal}
-              disabled={isUpdating}
-              className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
-            >
+            <Button onClick={openModal} disabled={isUpdating}>
               Change Password
-            </button>
+            </Button>
           </div>
 
           <Modal

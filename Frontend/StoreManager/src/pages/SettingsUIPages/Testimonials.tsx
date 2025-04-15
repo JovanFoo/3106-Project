@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import SettingsSidebar from "../SettingsSidebar";
+import SettingsSidebar from "../SettingsPage/SettingsSidebar";
 import axios from "axios";
 import { useUser } from "../../context/UserContext";
 
@@ -55,11 +55,11 @@ export default function ClientTestimonials() {
     fetchReviews();
   }, []);
   return (
-    <div className="flex min-h-screen">
+    <div className="flex">
       <SettingsSidebar />
       <div className="flex-1 p-5">
         <PageBreadcrumb pageTitle="Client Testimonials" />
-        <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+        <div className="rounded-2xl  min-h-[80vh] border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           {/* <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
             Client Testimonials
           </h4> */}
@@ -81,7 +81,11 @@ export default function ClientTestimonials() {
           </div>
 
           {/* Reviews Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${
+              reviews && reviews.length > 0 && "min-h-[70vh] overflow-auto"
+            }`}
+          >
             {reviews &&
               reviews.map((review) => (
                 <div

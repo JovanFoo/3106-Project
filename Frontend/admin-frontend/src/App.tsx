@@ -72,10 +72,10 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
+            <Route index path="/" element={<Stylists />} />
 
             {/* Main Page */}
-            <Route path="/stylists" element={<Stylists />} />
+            {/* <Route path="/stylists" element={<Stylists />} /> */}
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/expertise" element={<Expertise />} />

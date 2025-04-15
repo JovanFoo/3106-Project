@@ -4,7 +4,7 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import axios, { AxiosResponse } from "axios";
-import { AlertType } from "../../pages/UserProfiles";
+import { AlertType } from "../../pages/SettingsUIPages/UserProfiles";
 import { useUser } from "../../context/UserContext";
 import { useEffect, useState } from "react";
 

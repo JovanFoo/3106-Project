@@ -8,7 +8,7 @@ import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useUser } from "../../context/UserContext";
 import { useModal } from "../../hooks/useModal";
-import SettingsSidebar from "../SettingsSidebar";
+import SettingsSidebar from "../SettingsPage/SettingsSidebar";
 
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -150,11 +150,11 @@ export default function PortfolioGallery() {
     closeModal();
   };
   return (
-    <div className="flex min-h-screen">
+    <div className="flex ">
       <SettingsSidebar />
       <div className="flex-1 p-5">
         <PageBreadcrumb pageTitle="Portfolio/Gallery" />
-        <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+        <div className="rounded-2xl  min-h-[80vh] border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           <div className={showAlert ? "mb-5" : "hidden"}>
             <Alert title={title} message={message} variant={variant} />
           </div>
@@ -171,7 +171,7 @@ export default function PortfolioGallery() {
               Add Photos +
             </Button>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-4 overflow-auto max-h-[65vh]">
             {gallery.map((item) => (
               <div
                 key={item._id}

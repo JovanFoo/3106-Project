@@ -34,7 +34,10 @@ export default function StylistProfilePage({ stylist }: Props) {
             },
           }
         );
-        setFullStylist(res.data);
+        const data: Stylist = res.data;
+        data.role = "Stylist"; // Ensure the role is set to "Stylist"
+        data.profilePicture = data.profilePicture || "/images/user/owner.jpg"; // Default image if none provided
+        setFullStylist(data);
       } catch (err) {
         console.error("Failed to fetch stylist profile", err);
       }
@@ -46,7 +49,7 @@ export default function StylistProfilePage({ stylist }: Props) {
   if (!fullStylist) return <p className="text-gray-500">Loading profile...</p>;
 
   return (
-    <div className="flex min-h-screen mr-4">
+    <div className="flex  mr-4">
       <div className="flex-1 p-5 mr-4">
         <PageBreadcrumb pageTitle="Profile Page" />
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
