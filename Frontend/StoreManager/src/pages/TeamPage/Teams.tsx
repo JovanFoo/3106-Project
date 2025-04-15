@@ -262,9 +262,7 @@ export default function Teams() {
                 {activeTab === "Expertise" && (
                   <StylistExpertise stylist={selectedStylist} />
                 )}
-                {activeTab === "Testimonials" && (
-                  <StylistTestimonials stylist={selectedStylist} />
-                )}
+                {activeTab === "Testimonials" && <StylistTestimonials />}
                 {activeTab === "Portfolio" && (
                   <PortfolioView stylist={selectedStylist} />
                 )}

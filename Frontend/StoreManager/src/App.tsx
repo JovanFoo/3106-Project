@@ -19,7 +19,7 @@ import LeaveManagement from "./pages/LeaveManagement";
 import NotFound from "./pages/OtherPage/NotFound";
 import ChangePassword from "./pages/SettingsUIPages/ChangePassword";
 import Expertise from "./pages/SettingsUIPages/Expertise";
-import Notifications from "./pages/SettingsUIPages/Notifications";
+import Notifications from "./pages/ExtraPages/Notifications";
 import Portfolio from "./pages/SettingsUIPages/Portfolio";
 import Testimonials from "./pages/SettingsUIPages/Testimonials";
 import ShopSettings from "./pages/ShopSettingPage/ShopSettings";
