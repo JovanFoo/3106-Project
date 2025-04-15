@@ -15,7 +15,7 @@ export default function Notifications() {
   });
   const { isOpen, openModal, closeModal } = useModal();
 
-  const togglePreference = (key: any) => {
+  const togglePreference = (key: keyof typeof preferences) => {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
