@@ -48,14 +48,14 @@ export default function PortfolioGallery({ stylist }: Props) {
   if (errorMsg) return <p className="text-red-500">{errorMsg}</p>;
 
   return (
-    <div className="flex min-h-screen mr-4">
-      <div className="flex-1 p-5 mr-4">
+    <div className="flex h-full mr-16 overflow-auto">
+      <div className="flex-1 p-2">
         {/* <PageBreadcrumb pageTitle="Portfolio/Gallery" /> */}
         <div className="space-y-4">
           {gallery.length === 0 ? (
             <p className="text-gray-500 italic">No portfolio items found.</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4 ">
               {gallery.map((item) => (
                 <div key={item._id} className="p-2 rounded-lg border">
                   <img

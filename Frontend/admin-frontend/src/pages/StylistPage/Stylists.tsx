@@ -336,7 +336,7 @@ const CustomModal: React.FC<ModalProps> = ({
               onChange={(e) =>
                 setStylistData({ ...stylistData, name: e.target.value })
               }
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
               placeholder="Full Name"
             />
           </div>
@@ -352,7 +352,7 @@ const CustomModal: React.FC<ModalProps> = ({
               onChange={(e) =>
                 setStylistData({ ...stylistData, username: e.target.value })
               }
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
               placeholder="Unique Username"
             />
           </div>
@@ -368,7 +368,7 @@ const CustomModal: React.FC<ModalProps> = ({
               onChange={(e) =>
                 setStylistData({ ...stylistData, email: e.target.value })
               }
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
               placeholder="Email"
             />
           </div>
@@ -383,7 +383,7 @@ const CustomModal: React.FC<ModalProps> = ({
               onChange={(e) =>
                 setStylistData({ ...stylistData, password: e.target.value })
               }
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
               placeholder="Password"
             />
           </div>
@@ -406,7 +406,7 @@ const CustomModal: React.FC<ModalProps> = ({
                   });
                 }
               }}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
               placeholder="Optional phone"
             />
           </div>
@@ -422,7 +422,7 @@ const CustomModal: React.FC<ModalProps> = ({
                 onChange={(e) =>
                   setStylistData({ ...stylistData, branch: e.target.value })
                 }
-                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
               >
                 {branches.map((branch) => (
                   <option key={branch._id} value={branch._id}>
@@ -444,7 +444,7 @@ const CustomModal: React.FC<ModalProps> = ({
                     role: e.target.value == "Manager" ? "Manager" : "Stylist",
                   })
                 }
-                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
               >
                 <option value="Stylist">Stylist</option>
                 <option value="Manager">Manager</option>
@@ -481,7 +481,7 @@ const ViewModal: React.FC<ModalProps> = ({
   const [activeTab, setActiveTab] = useState("Profile");
   return (
     <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[900px] p-0">
-      <div className="flex h-[600px] ">
+      <div className="flex h-[650px] ">
         {/* Sidebar */}
         <div className="w-64 bg-gray-100 dark:bg-gray-800 p-4 rounded-2xl">
           {["Profile", "Expertise", "Portfolio", "Testimonials"].map((tab) => (

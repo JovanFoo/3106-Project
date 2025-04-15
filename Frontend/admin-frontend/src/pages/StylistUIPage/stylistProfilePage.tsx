@@ -1,7 +1,9 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ToggleSwitch from "../../components/ui/button/ToggleSwitch";
+import Alert from "../../components/ui/alert/Alert";
+import Button from "../../components/ui/button/Button";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -24,6 +26,12 @@ type Props = {
 
 export default function StylistProfilePage({ stylist }: Props) {
   const [fullStylist, setFullStylist] = useState<Stylist | null>(null);
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [title, setTitle] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [variant, setVariant] = useState<"info" | "error" | "success">("info");
+
   useEffect(() => {
     const fetchStylist = async () => {
       try {
@@ -61,12 +69,67 @@ export default function StylistProfilePage({ stylist }: Props) {
           ...prev!,
           isActive: !prev!.isActive,
         }));
+        setShowAlert(true);
+        setTitle("Success!");
+        setMessage(
+          `Stylist ${res.data.isActive ? "enabled" : "disabled"} successfully.`
+        );
+        setVariant("success");
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 3000); // Hide alert after 3 seconds
       })
       .catch((err) => {
         console.error("Failed to update stylist status", err);
+        setShowAlert(true);
+        setTitle("Error!");
+        setMessage("Failed to update stylist status.");
+        setVariant("error");
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 3000); // Hide alert after 3 seconds
       });
   };
   if (!fullStylist) return <p className="text-gray-500">Loading profile...</p>;
+  const handleResetPassword = async () => {
+    const config = {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+      },
+    };
+    await axios
+      .post(
+        api_address + "/api/auth/stylists/forget-password",
+        {
+          email: fullStylist?.email,
+        },
+        config
+      )
+      .then((res: AxiosResponse) => {
+        // console.log(res.data);
+        if (res.status !== 200) {
+          setShowAlert(true);
+          setTitle("Error!");
+          setMessage(res.data.message);
+          setVariant("error");
+          setTimeout(() => {
+            setShowAlert(false);
+          }, 3000); // Hide alert after 3 seconds
+          return;
+        }
+        setShowAlert(true);
+        setTitle("Success!");
+        setMessage("Password reset email sent successfully.");
+        setVariant("success");
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 3000); // Hide alert after 3 seconds
+      })
+      .catch((err) => {
+        // console.log(err);
+      });
+  };
 
   return (
     <div className="flex min-h-screen mr-4">
@@ -93,45 +156,56 @@ export default function StylistProfilePage({ stylist }: Props) {
               />
             </div>
             <div>
-              <label>Username</label>
+              <label className="dark:text-white">Username</label>
               <input
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded dark:text-white/90 dark:bg-slate-800"
                 value={fullStylist.username || "-"}
                 disabled
               />
             </div>
             <div>
-              <label>Email</label>
+              <label className="dark:text-white">Email</label>
               <input
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded dark:text-white/90 dark:bg-slate-800"
                 value={fullStylist.email}
                 disabled
               />
             </div>
             <div>
-              <label>Phone</label>
+              <label className="dark:text-white">Phone</label>
               <input
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded dark:text-white/90 dark:bg-slate-800"
                 value={fullStylist.phoneNumber || "-"}
                 disabled
               />
             </div>
             <div>
-              <label>Role</label>
+              <label className="dark:text-white">Role</label>
               <input
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded dark:text-white/90 dark:bg-slate-800"
                 value={fullStylist.stylists.length > 0 ? "Manager" : "Stylist"}
                 disabled
               />
             </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-between border p-2 rounded-md">
-            <span className="text-sm font-medium">Enabled</span>
-            <ToggleSwitch
-              checked={fullStylist.isActive}
-              onChange={handleToggle}
-            />
+          <div className="mt-6 flex items-center justify-between ">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium dark:text-white">
+                Enabled
+              </span>
+              <ToggleSwitch
+                checked={fullStylist.isActive}
+                onChange={handleToggle}
+                className="h-6 w-12"
+              />
+            </div>
+            <div>
+              <Button onClick={handleResetPassword}>Reset Password</Button>
+            </div>
+          </div>
+          <div className={showAlert ? " mt-2" : "hidden"}>
+            <Alert variant={variant} title={title} message={message} />
           </div>
         </div>
       </div>
