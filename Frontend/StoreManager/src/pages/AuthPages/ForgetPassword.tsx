@@ -6,7 +6,7 @@ export default function SignIn() {
   return (
     <>
       <PageMeta
-        title="QB House Store Manager - Forget Password"
+        title="Forget Password"
         description="This is a Dashboard page for QB House Store Manager Sign in Page"
       />
       <AuthLayout>

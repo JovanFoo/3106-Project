@@ -6,7 +6,7 @@ export default function SignIn() {
   return (
     <>
       <PageMeta
-        title="QB House - Sign In"
+        title="Sign In"
         description="This is a Dashboard page for QB House Sign in Page"
       />
       <AuthLayout>
