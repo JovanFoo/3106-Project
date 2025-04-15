@@ -15,7 +15,7 @@ export default function Notifications() {
   });
   const { isOpen, openModal, closeModal } = useModal();
 
-  const togglePreference = (key) => {
+  const togglePreference = (key: any) => {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
@@ -40,25 +40,25 @@ export default function Notifications() {
               <span className="text-sm font-medium text-gray-800 dark:text-white/90">
                 Email Notifications
               </span>
-              <ToggleSwitch defaultChecked={preferences.email} disabled />
+              <ToggleSwitch disabled />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-800 dark:text-white/90">
                 SMS Notifications
               </span>
-              <ToggleSwitch defaultChecked={preferences.sms} disabled />
+              <ToggleSwitch disabled />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-800 dark:text-white/90">
                 Push Notifications
               </span>
-              <ToggleSwitch defaultChecked={preferences.push} disabled />
+              <ToggleSwitch disabled />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-800 dark:text-white/90">
                 Marketing Emails
               </span>
-              <ToggleSwitch defaultChecked={preferences.marketing} disabled />
+              <ToggleSwitch disabled />
             </div>
           </div>
 
