@@ -98,18 +98,23 @@ const jwt = {
 
   // helper function to decode token
   decodeToken(token) {
-    return jsonwebtoken.verify(token, secretKey, (err, decoded) => {
-      if (err) {
-        return { status: false, values: null };
-      }
-      return {
+    try {
+      console.log("Decoding token:", token);
+      const decoded = jsonwebtoken.verify(token, secretKey);
+      console.log("Decoded token:", decoded);
+      const result = {
         status: true,
         values: {
           userId: decoded.userId.split(" ")[0],
           type: decoded.userId.split(" ")[1],
         },
       };
-    });
+      console.log("Decoded result:", result);
+      return result;
+    } catch (err) {
+      console.error("Error decoding token:", err);
+      return { status: false, values: null };
+    }
   },
 
   addToBlackList(token) {

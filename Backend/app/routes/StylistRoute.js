@@ -28,22 +28,28 @@ StylistRouter.put(
   AuthMiddleware.authAdminToken,
   StylistController.toggleActive
 );
+
 // update stylist profile picture
 StylistRouter.put(
   "/profilePicture",
   AuthMiddleware.authStylistToken,
   StylistController.updateProfilePicture
 );
+
+// update stylist expertises
 StylistRouter.put(
   "/expertises",
   AuthMiddleware.authStylistToken,
   StylistController.updateExpertises
 );
+
+// get my appointments
 StylistRouter.get(
   "/my-appointments",
   AuthMiddleware.authStylistToken,
   StylistController.retrieveMyAppointments
 );
+
 // get appointments of a stylist by id
 StylistRouter.get(
   "/appointments/:id",
@@ -79,6 +85,7 @@ StylistRouter.put(
   AuthMiddleware.authStylistToken,
   StylistController.update
 );
+
 // delete expertise by id (only admin can delete)
 StylistRouter.delete(
   "/:id",
@@ -86,6 +93,7 @@ StylistRouter.delete(
   StylistController.delete
 );
 
+// admin access to all stylists
 StylistRouter.get(
   "/adminAccess",
   AuthMiddleware.authAdminOrStylistManagerToken,
