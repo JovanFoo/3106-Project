@@ -1,12 +1,17 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
 import AppHeader from "./AppHeader";
 import AppSidebar from "./AppSidebar";
 import Backdrop from "./Backdrop";
+import { useUser } from "../context/UserContext";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+  const user = useUser();
 
+  if (!sessionStorage.getItem("token") || !user) {
+    return <Navigate to="/signin" />;
+  }
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
       {/* Main Sidebar */}

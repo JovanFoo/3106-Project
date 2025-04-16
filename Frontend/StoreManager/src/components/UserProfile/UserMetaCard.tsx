@@ -4,7 +4,7 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import axios, { AxiosResponse } from "axios";
-import { AlertType } from "../../pages/UserProfiles";
+import { AlertType } from "../../pages/SettingsUIPages/UserProfiles";
 import { useUser } from "../../context/UserContext";
 import { useEffect, useState } from "react";
 
@@ -126,7 +126,8 @@ export default function UserMetaCard(alert: AlertType) {
         user.role,
         user.stylists,
         user.expertises,
-        user.galleries
+        user.galleries,
+        user.appointments
       );
     }
     setIsUpdating(false);
@@ -238,11 +239,7 @@ export default function UserMetaCard(alert: AlertType) {
               </a> */}
             </div>
           </div>
-          <button
-            disabled={isUpdating}
-            onClick={openModal}
-            className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
-          >
+          <Button disabled={isUpdating} onClick={openModal}>
             <svg
               className="fill-current"
               width="18"
@@ -259,7 +256,7 @@ export default function UserMetaCard(alert: AlertType) {
               />
             </svg>
             Edit
-          </button>
+          </Button>
         </div>
       </div>
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">

@@ -65,8 +65,8 @@ export default function SignInForm() {
           res.data.admin.phoneNumber || "Phone number has not been set yet."
         );
         sessionStorage.setItem("adminId", res.data.admin._id);
-        sessionStorage.setItem("token", res.data.token.token);
-        sessionStorage.setItem("refreshToken", res.data.token.refreshToken);
+        sessionStorage.setItem("token", res.data.tokens.token);
+        sessionStorage.setItem("refreshToken", res.data.tokens.refreshToken);
         navigate("/");
         setIsLoading(false);
       })

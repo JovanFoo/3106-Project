@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
 import AppHeader from "./AppHeader";
 import AppSidebar from "./AppSidebar";
@@ -6,7 +6,9 @@ import Backdrop from "./Backdrop";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-
+  if (!sessionStorage.getItem("token")) {
+    return <Navigate to="/signin" />;
+  }
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
       {/* Main Sidebar */}
@@ -22,7 +24,7 @@ const LayoutContent: React.FC = () => {
         } ${isMobileOpen ? "ml-0" : ""}`}
       >
         <AppHeader />
-        <main className="p-4 mx-auto max-w-screen-2xl md:p-6">
+        <main className="p-4 mx-auto max-w-screen-2xl  md:p-6">
           <Outlet />
         </main>
       </div>

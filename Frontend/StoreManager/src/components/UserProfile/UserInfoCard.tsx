@@ -1,5 +1,5 @@
 import { useUser } from "../../context/UserContext";
-import { AlertType } from "../../pages/UserProfiles";
+import { AlertType } from "../../pages/SettingsUIPages/UserProfiles";
 export default function UserInfoCard(alert: AlertType) {
   const user = useUser();
   return (

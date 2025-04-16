@@ -21,15 +21,15 @@ type NavItem = {
 };
 const AppSidebar: React.FC = () => {
   const [navItems, setNavItems] = useState<NavItem[]>([
-    {
-      icon: <DashboardIcon />,
-      name: "Dashboard",
-      path: "/home",
-    },
+    // {
+    //   icon: <DashboardIcon />,
+    //   name: "Dashboard",
+    //   path: "/",
+    // },
     {
       icon: <InfoOutlinedIcon />,
       name: "Appointments",
-      path: "/appointments",
+      path: "/",
     },
     {
       icon: <CalendarMonthIcon />,
@@ -52,8 +52,8 @@ const AppSidebar: React.FC = () => {
           path: "/leave-document-approval",
           pro: false,
         },
-        { name: "Services", path: "/manage/services", pro: false },
-        { name: "Service rates", path: "/manage/service-rates", pro: false },
+        // { name: "Services", path: "/manage/services", pro: false },
+        // { name: "Service rates", path: "/manage/service-rates", pro: false },
         // { name: "Ratings & Reviews", path: "/ratings", pro: false },
       ],
     },
@@ -101,6 +101,9 @@ const AppSidebar: React.FC = () => {
           })
           .filter((item) => {
             return item.name != "Shop Settings";
+          })
+          .filter((item) => {
+            return item.name != "Transactions";
           })
       );
     }
@@ -176,11 +179,18 @@ const AppSidebar: React.FC = () => {
               />
             </>
           ) : (
-            <img
-              className="w-8 h-8 object-contain"
-              src="/images/logo/logobuzzbook_cropped.png"
-              alt="Logo"
-            />
+            <>
+              <img
+                className="dark:hidden w-8 h-8 object-contain"
+                src="/images/logo/logobuzzbook_cropped.png"
+                alt="Logo"
+              />
+              <img
+                className="hidden dark:block w-8 h-8 object-contain brightness-0 invert"
+                src="/images/logo/logobuzzbook_cropped.png"
+                alt="Logo"
+              />
+            </>
           )}
         </Link>
       </div>

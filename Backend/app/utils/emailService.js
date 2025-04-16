@@ -17,9 +17,9 @@ var transporter = nodemailer.createTransport({
 const resetPassword = async (to, name, token) => {
   var mailOptions = {
     from: process.env.NODE_MAILER_EMAIL,
-    to: to, 
+    to: to,
     subject: `Reset your password`,
-    text: `Hey ${name}, We have received a request to reset your SalonFlow® account password. If you did not make this request, please ignore this email. Otherwise, you can reset your password using the link below. Reset Password: ${process.env.CLIENT_URL}/reset-password/${token}`,
+    text: `Hey ${name}, We have received a request to reset your Buzz Book® account password. If you did not make this request, please ignore this email. Otherwise, you can reset your password using the link below. Reset Password: ${process.env.CLIENT_URL}/reset-password/${token}`,
   };
   try {
     const result = await transporter.sendMail(mailOptions);
@@ -28,9 +28,8 @@ const resetPassword = async (to, name, token) => {
     } else {
       return false;
     }
-  } catch ( error )
-  {
-    console.log( error.message );
+  } catch (error) {
+    console.log(error.message);
     return false;
   }
 };

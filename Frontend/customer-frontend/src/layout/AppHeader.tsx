@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
 import { Link } from "react-router";
-import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import UserDropdown from "../components/header/UserDropdown";
+import { useSidebar } from "../context/SidebarContext";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -85,12 +85,12 @@ const AppHeader: React.FC = () => {
           <Link to="/" className="lg:hidden">
             <img
               className="dark:hidden"
-              src="/images/logo/logobuzzbookcropped.png"
+              src="../logobuzzbook_long.png"
               alt="Logo"
             />
             <img
-              className="hidden dark:block"
-              src="/images/logo/logobuzzbookcropped.png" // to be changed
+              className="hidden dark:block object-contain brightness-0 invert"
+              src="../logobuzzbook_long.png"
               alt="Logo"
             />
           </Link>

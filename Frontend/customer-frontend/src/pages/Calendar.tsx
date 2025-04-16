@@ -223,6 +223,8 @@ const Calendar: React.FC = () => {
   // get list of all stylists for SPECIFIC BRANCH for dropdown
   const fetchStylists = async (branchId: string) => {
     const userData = localStorage.getItem("user");
+
+    console.log(userData);
     if (userData) {
       const customer = JSON.parse(userData);
       const token = customer.tokens.token;
@@ -240,6 +242,7 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch stylists");
 
         const data = await response.json();
+        console.log(data, "data");
         console.log(data, " all stylists");
         setStylists(data);
       } catch (error) {
