@@ -434,6 +434,7 @@ const CustomerModal: React.FC<ModalProps> = ({
       service: transaction
         ? transaction.service
         : listOfServices[0] || dummyService,
+      date: transaction ? new Date(transaction.date) : new Date(),
       stylist: transaction
         ? transaction.stylist
         : listOfStylists[0] || dummyStylist,
