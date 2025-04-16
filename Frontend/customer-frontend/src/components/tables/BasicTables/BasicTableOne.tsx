@@ -25,6 +25,7 @@ interface Stylist {
   expertises?: Expertise[];
   appointments?: string[];
   profilePicture: string;
+  isActive: boolean;
 }
 
 // Define the table data using the interface
@@ -196,15 +197,9 @@ export default function BasicTableOne() {
                     {" "}
                     <Badge
                       size="sm"
-                      color={
-                        order.name === "Active"
-                          ? "success"
-                          : order.name === "Pending"
-                          ? "success"
-                          : "success"
-                      }
+                      color={order.isActive === true ? "success" : "error"}
                     >
-                      {"active"}
+                      {order.isActive ? "active" : "inactive"}
                     </Badge>
                   </TableCell>
                 </TableRow>

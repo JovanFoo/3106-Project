@@ -76,6 +76,7 @@ const AuthController = {
     console.log("AuthController > reset customer password");
     const { email } = req.body;
     const customer = await Customer.findOne({ email: email });
+    console.log(customer);
     if (customer) {
       const result = await resetPassword(
         email,
