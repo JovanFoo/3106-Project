@@ -1,17 +1,17 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import Alert from "../components/ui/alert/Alert";
 import Button from "../components/ui/button/Button";
 import { Modal } from "../components/ui/modal";
+import { useUser } from "../context/UserContext";
 import { useModal } from "../hooks/useModal";
 import StylistExpertise from "./Teams/stylistExpertise";
 import PortfolioView from "./Teams/stylistPortfolio";
 import StylistProfilePage from "./Teams/stylistProfilePage";
 import StylistTestimonials from "./Teams/stylistTestimonials";
-import { useUser } from "../context/UserContext";
-import { Navigate } from "react-router-dom";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -132,7 +132,6 @@ export default function Teams() {
       <div className="flex-1 p-5">
         <PageMeta title="Team" description="Manage your team members" />
         <PageBreadcrumb pageTitle="Team" />
-
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">

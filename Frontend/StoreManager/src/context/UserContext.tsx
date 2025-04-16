@@ -184,6 +184,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
             : "Stylist",
           res.data.stylists || [],
           res.data.expertises || [],
+          res.data.appointments || [],
           res.data.galleries || []
         );
       })

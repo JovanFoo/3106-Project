@@ -3,6 +3,7 @@ const Review = require("../models/Review.js");
 const Customer = require("../models/Customer.js");
 const Branch = require("../models/Branch.js");
 const Stylist = require("../models/Stylist.js");
+const { ObjectId } = require("mongodb");
 
 const ReviewController = {
   // Create a new review
@@ -146,7 +147,6 @@ const ReviewController = {
       if (!updatedReview) {
         return res.status(404).json({ message: "Review not found" });
       }
-
       res.status(200).json(updatedReview);
     } catch (error) {
       console.error("Error updating review:", error);
@@ -163,7 +163,9 @@ const ReviewController = {
     );
 
     const has = customer.appointments.some((appointment) => {
-      return appointment.review._id.toString() === id;
+      if (appointment.review) {
+        return appointment.review.equals(ObjectId.createFromHexString(id));
+      }
     });
 
     if (!has) {
@@ -173,9 +175,21 @@ const ReviewController = {
     try {
       // Remove the review from the appointment
       const review = await Review.findByIdAndDelete(id);
-      customer.appointments = customer.appointments.filter(
-        (appointment) => appointment.review._id.toString() !== id
+
+      const matchingAppointments = customer.appointments.filter(
+        (appointment) => {
+          if (appointment.review) {
+            return appointment.review.equals(ObjectId.createFromHexString(id));
+          }
+        }
       );
+
+      for (const appt of matchingAppointments) {
+        await Appointment.findByIdAndUpdate(appt._id, {
+          $unset: { review: 1 },
+        });
+      }
+
       await customer.save();
 
       if (review) {
@@ -232,6 +246,62 @@ const ReviewController = {
         title: review.title,
         customer: element.customer,
       });
+    }
+    if (temp.length === 0) {
+      return res.status(404).json({ message: "No reviews found" });
+    }
+    return res.status(200).json(temp);
+  },
+  // stylist page
+  async retrieveStylistReviews1(req, res) {
+    console.log("ReviewController > retrieveStylistReviews");
+    const { stylistId } = req.params;
+
+    const appointments = await Appointment.find({ stylist: stylistId })
+      .where("review")
+      .ne(null);
+    const customersWithReviews = await Customer.find({
+      appointments: { $in: appointments },
+    }).populate("appointments");
+    const newReviews = customersWithReviews
+      .flatMap((customer) => {
+        return customer.appointments.map((appointment) => {
+          appointment.customer = customer;
+          return appointment;
+        });
+      })
+      .filter((appointment) => {
+        return appointment.stylist == stylistId;
+      })
+      .map((appointment) => {
+        const customer = appointment.customer;
+        customer.password = undefined;
+        return {
+          review: appointment.review,
+          customer: customer.name,
+        };
+      });
+    const temp = [];
+    for (let index = 0; index < newReviews.length; index++) {
+      const element = newReviews[index];
+      console.log(element.customer);
+      console.log(element.review);
+      if (!element.review) {
+        continue;
+      }
+      const review = await Review.findById(element.review);
+      temp.push({
+        text: review.text,
+        stars: review.stars,
+        title: review.title,
+        customer: element.customer,
+      });
+    }
+
+    if (temp) {
+      return res.status(200).json(temp);
+    } else {
+      return res.status(400).json({ message: "Error retrieving reviews" });
     }
   },
 };

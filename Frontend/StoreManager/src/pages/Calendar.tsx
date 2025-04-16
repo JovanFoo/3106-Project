@@ -1,15 +1,16 @@
-import { useState, useRef, useEffect } from "react";
-import FullCalendar from "@fullcalendar/react";
+import { DateSelectArg, EventClickArg, EventInput } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { EventInput, DateSelectArg, EventClickArg } from "@fullcalendar/core";
-import { Modal } from "../components/ui/modal";
-import { useModal } from "../hooks/useModal";
-import PageMeta from "../components/common/PageMeta";
-import { useUser } from "../context/UserContext";
+import FullCalendar from "@fullcalendar/react";
+import timeGridPlugin from "@fullcalendar/timegrid";
 import axios from "axios";
 import moment from "moment";
+import { useEffect, useRef, useState } from "react";
+import PageBreadcrumb from "../components/common/PageBreadCrumb";
+import PageMeta from "../components/common/PageMeta";
+import { Modal } from "../components/ui/modal";
+import { useUser } from "../context/UserContext";
+import { useModal } from "../hooks/useModal";
 
 interface CalendarEvent extends EventInput {
   id: string;
@@ -179,10 +180,13 @@ const Calendar: React.FC = () => {
 
   return (
     <>
+    <div className="flex min-h-screen">
+    <div className="flex-1 p-5">
       <PageMeta
-        title="React.js Calendar Dashboard | TailAdmin - Next.js Admin Dashboard Template"
-        description="This is React.js Calendar Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+        title="Calendar Dashboard"
+        description="Calendar Dashboard page"
       />
+      <PageBreadcrumb pageTitle="Calendar" />
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="custom-calendar">
           <FullCalendar
@@ -356,6 +360,7 @@ const Calendar: React.FC = () => {
           </div>
         </Modal> */}
         </div>
+
         <Modal
           isOpen={isOpen && selectedEvent !== null}
           onClose={closeModal}
@@ -391,6 +396,8 @@ const Calendar: React.FC = () => {
           </div>
         </Modal>
       </div>
+    </div>
+    </div>
     </>
   );
 };

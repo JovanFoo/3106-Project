@@ -5,6 +5,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,16 +29,13 @@ export default function SignInForm() {
     setError("");
 
     try {
-      const response = await fetch(
-        "http://localhost:3000/api/auth/customers/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, password }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/auth/customers/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
       const data = await response.json();
 

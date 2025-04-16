@@ -5,7 +5,7 @@ const AuthMiddleware = {
   async authCustomerToken(req, res, next) {
     console.log("AuthMiddleware > only Customer can access");
     token = req.headers["authorization"];
-    console.log(token);
+    // console.log(token);
     if (token == null) return res.status(401).json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
     if (!decoded.status)
