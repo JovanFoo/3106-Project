@@ -42,12 +42,12 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-            <Route index path="/" element={<Navigate to="/signin" />} />
+            <Route index path="/" element={<Navigate to="/appointments" />} />
             <Route path="/home" element={<Home />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
-            <Route path="appointments" element={<Calendar />} />
+            <Route path="/appointments" element={<Calendar />} />
             <Route path="/reviews" element={<ReviewsList />} />
             <Route path="/blank" element={<Blank />} />
 

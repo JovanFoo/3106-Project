@@ -81,7 +81,7 @@ export default function SignUpForm() {
 
         // Redirect user to the login page
         // setSuccessMessage("Account created successfully! Please log in.");
-        navigate("/home");
+        navigate("/appointments");
       }
     } catch (error) {
       console.log(error);
@@ -114,7 +114,7 @@ export default function SignUpForm() {
                     type="text"
                     id="name"
                     name="name"
-                    placeholder="Enter your first name"
+                    placeholder="Enter your name"
                     value={formData.name}
                     onChange={handleChange}
                     required
@@ -128,7 +128,7 @@ export default function SignUpForm() {
                     type="text"
                     id="username"
                     name="username"
-                    placeholder="Enter your last name"
+                    placeholder="Enter your username"
                     value={formData.username}
                     onChange={handleChange}
                     required

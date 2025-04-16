@@ -47,7 +47,7 @@ export default function SignInForm() {
       if (response.ok) {
         console.log(JSON.stringify(data));
         localStorage.setItem("user", JSON.stringify(data));
-        navigate("/home");
+        navigate("/appointments");
       }
     } catch (err) {
       console.log(err, "error");
@@ -78,7 +78,7 @@ export default function SignInForm() {
                 <Input
                   type="text"
                   name="username"
-                  placeholder="info@gmail.com"
+                  placeholder="Enter your username"
                   value={username}
                   onChange={handleChange}
                   required
