@@ -5,6 +5,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import { useNavigate } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -56,16 +57,13 @@ export default function SignUpForm() {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:3000/api/auth/customers/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/auth/customers/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
       if (!response.ok) {
@@ -74,13 +72,15 @@ export default function SignUpForm() {
       }
 
       if (response.ok) {
-        console.log("response ok");
-        // Store token (not entire user data) in localStorage
-        localStorage.setItem("token", data.token);
-        console.log(data);
+        console.log("Successfully registered customer.");
+        // // Store token (not entire user data) in localStorage
+        // localStorage.setItem("token", data.token);
+        // console.log(data);
+        // console.log("token:" + localStorage.getItem("token"))
+        localStorage.setItem("user", JSON.stringify(data));
 
         // Redirect user to the login page
-        setSuccessMessage("Account created successfully! Please log in.");
+        // setSuccessMessage("Account created successfully! Please log in.");
         navigate("/home");
       }
     } catch (error) {

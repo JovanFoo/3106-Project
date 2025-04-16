@@ -43,7 +43,7 @@ const Calendar: React.FC = () => {
   const [request, setRequest] = useState("");
   const [service, setService] = useState("");
   const [services, setServices] = useState<
-    { _id: string; name: string; serviceRate: Number; duration: Number }[]
+    { _id: string; name: string; serviceRate: number; duration: number }[]
   >([]);
   const [branch, setBranch] = useState("");
   const [branches, setBranches] = useState<{ _id: string; location: string }[]>(
@@ -88,30 +88,37 @@ const Calendar: React.FC = () => {
     fetchServices(new Date()); //to allow initial rendering of appointment service types on calendar
     // MIGHT BREAK THE SERVICE RATE CALCULATION //
 
-    async function getuserdetails() {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      try {
-        const response = await fetch(
-          `http://localhost:3000/api/customers/${storedUser.customer._id}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `${storedUser.tokens.token}`,
-            },
-          }
-        );
-        const data = await response.json();
-        console.log(data);
-        setUserLoyaltyPoints(data.loyaltyPoints);
-        if (!response.ok) {
+    async function getUserDetails() {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const customer = JSON.parse(userData);
+        const customerId = customer.customer._id;
+        const token = customer.tokens.token;
+        try {
+          const response = await fetch(
+            `${API_URL}/api/customers/${customerId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json", // added this
+                Authorization: token,
+              },
+            }
+          );
+          const data = await response.json();
           console.log(data);
+          setUserLoyaltyPoints(data.loyaltyPoints);
+          if (!response.ok) {
+            console.log(data);
+          }
+        } catch (error) {
+          console.error("Error fetching branches:", error);
         }
-      } catch (error) {
-        console.error("Error fetching branches:", error);
       }
     }
-    getuserdetails();
+    getUserDetails();
   }, []);
+
   // to re-get the list of available times if any of the values change
   useEffect(() => {
     if (apptStartDate && branch && service && stylist) {
@@ -124,7 +131,7 @@ const Calendar: React.FC = () => {
 
   //fetch appt all details
   useEffect(() => {
-    async function fetchapptdetails() {
+    async function fetchApptDetails() {
       const userData = localStorage.getItem("user");
       if (userData) {
         const customer = JSON.parse(userData);
@@ -155,7 +162,7 @@ const Calendar: React.FC = () => {
         }
       }
     }
-    fetchapptdetails();
+    fetchApptDetails();
   }, []);
 
   // get list of all available branches
@@ -194,7 +201,7 @@ const Calendar: React.FC = () => {
         const day = date.getDay();
         // Edit Back to endpoint URL
         const response = await fetch(
-          `http://localhost:3000/api/services?year=${year}&month=${month}&day=${day}`,
+          `${API_URL}/api/services?year=${year}&month=${month}&day=${day}`,
           // `${API_URL}/api/services?year=${year}&month=${month}&day=${day}`,
           {
             method: "GET",
@@ -261,7 +268,8 @@ const Calendar: React.FC = () => {
 
         const data = await response.json();
         // const test = data.map((appointment: any) => {
-        //   console.log(appointment)
+        //   console.log("Appointment:");
+        //   console.log(appointment);
         // });
 
         const formattedAppointments = data
@@ -285,7 +293,7 @@ const Calendar: React.FC = () => {
 
         setAppts(formattedAppointments);
       } catch (error) {
-        console.error("Error  fetching appointments:", error);
+        console.error("Error fetching appointments:", error);
       }
     }
   };
