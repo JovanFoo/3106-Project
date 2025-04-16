@@ -23,6 +23,9 @@ import {
   CircularProgress,
   Tooltip,
   useTheme,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import {
   format,
@@ -44,6 +47,7 @@ import EventIcon from "@mui/icons-material/Event";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ArticleIcon from "@mui/icons-material/Article";
+import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import PageMeta from "../components/common/PageMeta";
 import { alpha } from "@mui/material/styles";
@@ -134,6 +138,7 @@ interface LeaveRequest {
     _id: string;
     name: string;
   };
+  image?: string;  // Add image field
 }
 
 interface ApiResponse {
@@ -168,6 +173,8 @@ const LeaveManagement = (): ReactElement => {
     "Sick",
     "Unpaid",
   ]);
+  const [imageZoomOpen, setImageZoomOpen] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   // Group leave types into categories
   const leaveCategories = {
@@ -831,6 +838,32 @@ const LeaveManagement = (): ReactElement => {
                     >
                       {request.description || 'No additional details provided'}
                     </Typography>
+                    {request.image && (
+                      <Box sx={{ mt: 1.5 }}>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          Supporting Document
+                        </Typography>
+                        <Box 
+                          component="img" 
+                          src={request.image} 
+                          alt="Supporting document" 
+                          sx={{ 
+                            maxWidth: '100%', 
+                            maxHeight: '200px', 
+                            borderRadius: '8px',
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            p: 1,
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s',
+                            '&:hover': {
+                              transform: 'scale(1.02)',
+                            }
+                          }} 
+                          onClick={() => handleImageZoom(request.image!)}
+                        />
+                      </Box>
+                    )}
                   </Stack>
                 </CardContent>
                 <Divider />
@@ -865,6 +898,12 @@ const LeaveManagement = (): ReactElement => {
       return getStatusColor(request.status as "Pending" | "Approved");
     }
     return getLeaveTypeColor(request.reason);
+  };
+
+  // Add this function to handle image zoom
+  const handleImageZoom = (image: string) => {
+    setZoomedImage(image);
+    setImageZoomOpen(true);
   };
 
   if (loading) {
@@ -912,6 +951,44 @@ const LeaveManagement = (): ReactElement => {
             {renderCalendar()}
           </Grid>
         </Grid>
+
+        {/* Add this dialog component at the end of the return statement, before the closing Container tag */}
+        <Dialog
+          open={imageZoomOpen}
+          onClose={() => setImageZoomOpen(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            Supporting Document
+            <IconButton
+              aria-label="close"
+              onClick={() => setImageZoomOpen(false)}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            {zoomedImage && (
+              <Box 
+                component="img" 
+                src={zoomedImage} 
+                alt="Supporting document" 
+                sx={{ 
+                  width: '100%',
+                  height: 'auto',
+                  maxHeight: '80vh',
+                  objectFit: 'contain'
+                }} 
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </Container>
     </Box>
   );

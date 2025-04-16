@@ -60,6 +60,7 @@ interface LeaveApplication {
   status: string;
   type: string;
   reason: string;
+  image?: string;
 }
 
 interface DocumentSubmission {
@@ -126,6 +127,8 @@ const BarberLeaveManagement: React.FC = () => {
     null
   );
   const [highlights, setHighlights] = useState<ServerHighlight[]>([]);
+  const [imageZoomOpen, setImageZoomOpen] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   const fetchLeaveBalance = async () => {
     try {
@@ -189,6 +192,7 @@ const BarberLeaveManagement: React.FC = () => {
         status: request.status || "Pending",
         type: request.type || "paid",
         reason: request.reason || "",
+        image: request.image || "",
       }));
 
       // Update calendar highlights
@@ -562,6 +566,32 @@ const BarberLeaveManagement: React.FC = () => {
                     Reason
                   </Typography>
                   <Typography>{application.reason}</Typography>
+                  {application.image && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Supporting Document
+                      </Typography>
+                      <Box 
+                        component="img" 
+                        src={application.image} 
+                        alt="Supporting document" 
+                        sx={{ 
+                          maxWidth: '100%', 
+                          maxHeight: '200px', 
+                          borderRadius: '4px',
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          p: 1,
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s',
+                          '&:hover': {
+                            transform: 'scale(1.02)',
+                          }
+                        }} 
+                        onClick={() => handleImageZoom(application.image!)}
+                      />
+                    </Box>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -653,6 +683,11 @@ const BarberLeaveManagement: React.FC = () => {
       </CardContent>
     </Card>
   );
+
+  const handleImageZoom = (image: string) => {
+    setZoomedImage(image);
+    setImageZoomOpen(true);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -806,6 +841,43 @@ const BarberLeaveManagement: React.FC = () => {
             Submit Application
           </Button>
         </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={imageZoomOpen}
+        onClose={() => setImageZoomOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Supporting Document
+          <IconButton
+            aria-label="close"
+            onClick={() => setImageZoomOpen(false)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {zoomedImage && (
+            <Box 
+              component="img" 
+              src={zoomedImage} 
+              alt="Supporting document" 
+              sx={{ 
+                width: '100%',
+                height: 'auto',
+                maxHeight: '80vh',
+                objectFit: 'contain'
+              }} 
+            />
+          )}
+        </DialogContent>
       </Dialog>
     </Container>
   );
