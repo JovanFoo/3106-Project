@@ -88,9 +88,9 @@ const TeamController = {
         .status(400)
         .json({ message: "You are not the manager of this branch" });
     }
-    if (stylistManagerId == stylistId) {
-      return res.status(400).json({ message: "You cannot add yourself" });
-    }
+    // if (stylistManagerId == stylistId) {
+    //   return res.status(400).json({ message: "You cannot add yourself" });
+    // }
     // add stylist to the branch and stylist manager
     let included = false;
     if (branch.stylists.includes(stylistId)) {
