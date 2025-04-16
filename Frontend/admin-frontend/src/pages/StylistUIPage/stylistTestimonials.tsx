@@ -60,9 +60,9 @@ export default function ClientTestimonials({ stylist }: Props) {
   if (errorMsg) return <p className="text-red-500">{errorMsg}</p>;
 
   return (
-    <div className="flex min-h-screen mr-4">
+    <div className="flex  mr-4">
       <div className="flex-1 p-5 mr-4">
-        {/* <PageBreadcrumb pageTitle="Client Testimonials" /> */}
+        <PageBreadcrumb pageTitle="Client Testimonials" />
 
         <div className="space-y-4">
           {/* Summary */}
