@@ -289,7 +289,7 @@ export default function Transactions() {
                   >
                     <td className="border p-2">
                       {transactions.length - index}
-                    </td>{" "}
+                    </td>
                     {/* Reverse index */}
                     <td className="border p-2">{txn.service.name}</td>
                     <td className="border p-2">{txn.stylist.name}</td>

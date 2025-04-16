@@ -8,7 +8,7 @@ const Service = require("../models/Service.js");
 
 ServiceRouter.get(
   "/all",
-  AuthMiddleware.authStylistToken,
+  AuthMiddleware.authAdminStylistOrManagerToken,
   ServiceController.retrieveAllWithAllServiceRates
 );
 ServiceRouter.get(
