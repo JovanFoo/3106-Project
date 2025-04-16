@@ -34,9 +34,10 @@ const leaveSchema = new Schema({
         },
         type: {
             type: String,
-            enum: ["paid", "unpaid"],
+            enum: ["Paid", "Unpaid"],
             required: true
         },
+
         days: {
             type: Number,
             required: true

@@ -5,7 +5,7 @@ const mongodb = require("./config/database.js");
 const LeaveRequestController = {
     async createLeaveRequest ( req, res ) {
         console.log( "LeaveRequestController > create leave request" );
-        const { startDate, endDate, reason } = req.body;
+        const { startDate, endDate, reason, image } = req.body;
         const { userId: stylistId } = req;
         const stylist = await Stylist.findById( stylistId );
         if ( !stylist ) return res.status( 404 ).json( { message: "Stylist not found" } );
@@ -14,6 +14,7 @@ const LeaveRequestController = {
             startDate,
             endDate,
             reason,
+            image,
         } );
         try
         {

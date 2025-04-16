@@ -42,17 +42,8 @@ export default function SignInForm() {
       return;
     }
     setIsLoading(true);
-    console.log('Attempting login with:', { 
-      username, 
-      api_address,
-      env: {
-        prod: import.meta.env.VITE_APP_API_ADDRESS_PROD,
-        dev: import.meta.env.VITE_APP_API_ADDRESS_DEV
-      }
-    });
-    
-    try {
-      const response = await axios.post(`${api_address}/api/auth/stylists/login`, {
+    await axios
+      .post(`${api_address}/api/auth/stylists/login`, {
         username,
         password,
       })
@@ -98,7 +89,7 @@ export default function SignInForm() {
         setShowAlert(true);
         setIsLoading(false);
       });
-  };
+  };  
 
   return (
     <div className="flex flex-col flex-1">

@@ -75,6 +75,7 @@ interface NewApplication {
   endDate: string;
   type: string;
   reason: string;
+  image?: string;
 }
 
 interface ServerHighlight {
@@ -97,6 +98,7 @@ const BarberLeaveManagement: React.FC = () => {
     endDate: "",
     type: "paid",
     reason: "",
+    image: "",
   });
   const [leaveApplications, setLeaveApplications] = useState<
     LeaveApplication[]
@@ -230,6 +232,18 @@ const BarberLeaveManagement: React.FC = () => {
     }
   };
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setNewApplication({ ...newApplication, image: base64String });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleApplyLeave = async () => {
     // Validate required fields
     if (
@@ -259,6 +273,7 @@ const BarberLeaveManagement: React.FC = () => {
           endDate: newApplication.endDate,
           type: newApplication.type,
           reason: newApplication.reason,
+          image: newApplication.image,
         },
         {
           headers: {
@@ -279,6 +294,7 @@ const BarberLeaveManagement: React.FC = () => {
           endDate: "",
           type: "paid",
           reason: "",
+          image: "",
         });
         // Refresh data
         fetchLeaveBalance();
@@ -745,6 +761,34 @@ const BarberLeaveManagement: React.FC = () => {
                 setNewApplication({ ...newApplication, reason: e.target.value })
               }
             />
+            <Box>
+              <input
+                accept="image/*"
+                style={{ display: 'none' }}
+                id="image-upload"
+                type="file"
+                onChange={handleImageUpload}
+              />
+              <label htmlFor="image-upload">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  fullWidth
+                  sx={{ mb: 1 }}
+                >
+                  Upload Supporting Document
+                </Button>
+              </label>
+              {newApplication.image && (
+                <Box sx={{ mt: 1, textAlign: 'center' }}>
+                  <img 
+                    src={newApplication.image} 
+                    alt="Uploaded document" 
+                    style={{ maxWidth: '100%', maxHeight: '200px' }} 
+                  />
+                </Box>
+              )}
+            </Box>
           </Stack>
         </DialogContent>
         <DialogActions>
