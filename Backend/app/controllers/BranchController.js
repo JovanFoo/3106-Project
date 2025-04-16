@@ -203,6 +203,27 @@ const BranchController = {
         .status(400)
         .json({ message: "Stylist already assigned to branch" });
     }
+    const otherBranch = await Branch.findOne({ staffs: stylist._id });
+    if (otherBranch) {
+      if (otherBranch.manager.equals(stylist._id)) {
+        return res
+          .status(400)
+          .json({ message: "Stylist is a manager of another branch" });
+      }
+      otherBranch.staffs = otherBranch.staffs.filter(
+        (x) => !stylist._id.equals(x._id)
+      );
+      await otherBranch.save();
+      const otherManager = await Stylist.findOne({
+        _id: otherBranch.manager,
+      });
+      if (otherManager)
+        otherManager.stylists = otherManager.stylists.filter(
+          (x) => !stylist._id.equals(x._id)
+        );
+      await otherManager.save();
+    }
+
     stylistManager.stylists.push(stylist);
     if (!branch.staffs.includes(stylistManager._id)) {
       branch.staffs.push(stylistManager);
