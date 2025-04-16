@@ -57,6 +57,7 @@ export default function Appointments() {
 
       const mapped = res.data
         .filter((appt: any) => appt.status !== "Completed")
+        .filter((appt: any) => appt.status !== "Cancelled")
         .map((appt: any) => {
           const dateObj = new Date(appt.date);
           const formattedDate = dateObj.toLocaleDateString("en-GB", {
@@ -82,6 +83,11 @@ export default function Appointments() {
               appt.customer?.profilePicture || "/images/user/owner.jpg",
             status: appt.status || "Pending",
           };
+        })
+        .sort((a: any, b: any) => {
+          const dateA = new Date(`${a.date} ${a.time}`).getTime();
+          const dateB = new Date(`${b.date} ${b.time}`).getTime();
+          return dateA - dateB;
         });
       console.log("Mapped appointment:", mapped);
 
@@ -93,7 +99,7 @@ export default function Appointments() {
 
   const fetchServiceOptions = async () => {
     try {
-      const res = await axios.get(`${api_address}/api/services`, config);
+      const res = await axios.get(`${api_address}/api/services/all`, config);
       setServiceOptions(res.data);
     } catch (err) {
       console.error("Error fetching service options:", err);
@@ -214,23 +220,27 @@ export default function Appointments() {
                   Manage Appointment
                 </h4>
                 <div className="mb-3 space-y-2">
-                  <label className="block text-sm font-medium">Name</label>
+                  <label className="block text-sm font-medium dark:text-white">
+                    Name
+                  </label>
                   <input
                     type="text"
                     value={updatedAppt.name}
                     readOnly
-                    className="w-full p-2 border rounded-md bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full p-2 border rounded-md bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
-                  <label className="block text-sm font-medium">
+                  <label className="block text-sm font-medium dark:text-white">
                     Date & Time
                   </label>
                   <input
                     type="datetime-local"
                     value={datetime}
                     onChange={(e) => setDatetime(e.target.value)}
-                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
-                  <label className="block text-sm font-medium">Service</label>
+                  <label className="block text-sm font-medium dark:text-white">
+                    Service
+                  </label>
                   <select
                     value={updatedAppt.service}
                     onChange={(e) =>
@@ -238,7 +248,7 @@ export default function Appointments() {
                         prev ? { ...prev, service: e.target.value } : null
                       )
                     }
-                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   >
                     <option value="">Select a service</option>
                     {serviceOptions.map((svc) => (
@@ -248,7 +258,9 @@ export default function Appointments() {
                     ))}
                   </select>
 
-                  <label className="block text-sm font-medium">Remarks</label>
+                  <label className="block text-sm font-medium dark:text-white">
+                    Remarks
+                  </label>
                   <input
                     type="text"
                     value={updatedAppt.request}
@@ -257,14 +269,20 @@ export default function Appointments() {
                         prev ? { ...prev, request: e.target.value } : null
                       )
                     }
-                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
 
-                  <label className="block text-sm font-medium">Status</label>
+                  <label className="block text-sm font-medium dark:text-white">
+                    Status
+                  </label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    disabled={
+                      updatedAppt.status === "Completed" ||
+                      updatedAppt.status === "Cancelled"
+                    }
                   >
                     <option value="Pending">Pending</option>
                     <option value="Confirmed">Confirmed</option>
@@ -274,12 +292,9 @@ export default function Appointments() {
                 </div>
 
                 <div className="flex justify-end gap-3 mt-4">
-                  <button
-                    onClick={closeModal}
-                    className="px-4 py-2 rounded-md border dark:bg-gray-800 dark:text-white"
-                  >
+                  <Button onClick={closeModal} variant="primary" type="danger">
                     Close
-                  </button>
+                  </Button>
                   <Button
                     size="sm"
                     variant="primary"
