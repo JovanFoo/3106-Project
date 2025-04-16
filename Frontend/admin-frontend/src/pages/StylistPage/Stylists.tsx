@@ -60,9 +60,9 @@ export default function StylistPage() {
       .then((response) => {
         console.log(response.data);
         setStylists((prev) => [...prev, response.data]);
-        if (stylist.role === "Manager") {
-          fetchStylistsData();
-        }
+        fetchStylistsData();
+        // if (stylist.role === "Manager") {
+        // }
       });
     closeModalNew();
   };
