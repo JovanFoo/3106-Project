@@ -9,10 +9,12 @@ type Review = {
   customer: string;
   title: string;
 };
-
+type Props = {
+  stylist: { _id: string };
+};
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
-export default function ClientTestimonials() {
+export default function ClientTestimonials({ stylist }: Props) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [averageRating, setAverageRating] = useState<number>(0);
   const [totalReviews, setTotalReviews] = useState<number>(0);
@@ -26,11 +28,10 @@ export default function ClientTestimonials() {
   };
 
   useEffect(() => {
-    const selfId = sessionStorage.getItem("stylistId");
     const fetchReviews = async () => {
       try {
         const res = await axios.get(
-          `${api_address}/api/reviews/${selfId}/stylistReviews`,
+          `${api_address}/api/reviews/${stylist._id}/stylistReviews`,
           config
         );
         const data: Review[] = res.data || [];

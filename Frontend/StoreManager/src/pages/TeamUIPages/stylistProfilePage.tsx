@@ -74,33 +74,33 @@ export default function StylistProfilePage({ stylist }: Props) {
               />
             </div>
             <div>
-              <label>Username</label>
+              <label className="dark:text-white">Username</label>
               <input
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded dark:text-white/90 dark:bg-slate-800"
                 value={fullStylist.username || "-"}
                 disabled
               />
             </div>
             <div>
-              <label>Email</label>
+              <label className="dark:text-white">Email</label>
               <input
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded dark:text-white/90 dark:bg-slate-800"
                 value={fullStylist.email}
                 disabled
               />
             </div>
             <div>
-              <label>Phone</label>
+              <label className="dark:text-white">Phone</label>
               <input
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded dark:text-white/90 dark:bg-slate-800"
                 value={fullStylist.phoneNumber || "-"}
                 disabled
               />
             </div>
             <div>
-              <label>Role</label>
+              <label className="dark:text-white">Role</label>
               <input
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded dark:text-white/90 dark:bg-slate-800"
                 value={fullStylist.role}
                 disabled
               />
@@ -108,7 +108,7 @@ export default function StylistProfilePage({ stylist }: Props) {
           </div>
 
           <div className="mt-6 flex items-center justify-between border p-2 rounded-md">
-            <span className="text-sm font-medium">Enabled</span>
+            <span className="text-sm font-medium dark:text-white">Enabled</span>
             <div className="bg-blue-600 text-white px-4 py-1 rounded-md">
               Yes
             </div>

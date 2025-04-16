@@ -88,6 +88,9 @@ const TeamController = {
         .status(400)
         .json({ message: "You are not the manager of this branch" });
     }
+    if (stylistManagerId == stylistId) {
+      return res.status(400).json({ message: "You cannot add yourself" });
+    }
     // add stylist to the branch and stylist manager
     let included = false;
     if (branch.stylists.includes(stylistId)) {
@@ -100,9 +103,9 @@ const TeamController = {
     } else {
       stylistManager.stylists.push(stylistId);
     }
-    if (included) {
-      return res.status(400).json({ message: "Stylist already in the team" });
-    }
+    // if (included) {
+    //   return res.status(400).json({ message: "Stylist already in the team" });
+    // }
     if (!branch.stylists.includes(stylistManagerId)) {
       branch.stylists.push(stylistManagerId);
     }
