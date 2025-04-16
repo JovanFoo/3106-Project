@@ -23,6 +23,7 @@ import { Navigate } from "react-router";
 import ReviewsList from "./pages/ReviewsList";
 import { ToastContainer, toast } from "react-toastify"; // Import ToastContainer and toast
 import "react-toastify/dist/ReactToastify.css";
+import ResetPassword from "./components/auth/resetpassword";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -77,6 +78,7 @@ export default function App() {
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
         </Routes>
       </Router>
     </>
