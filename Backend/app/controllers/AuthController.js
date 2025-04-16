@@ -82,6 +82,7 @@ const AuthController = {
         customer.name,
         jwt.generateCustomerResetToken(customer._id)
       );
+      console.log(result);
       if (!result) {
         return res.status(400).json({ message: "Error sending email" });
       }
