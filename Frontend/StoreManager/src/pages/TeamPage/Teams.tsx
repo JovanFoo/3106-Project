@@ -58,7 +58,6 @@ export default function Teams() {
   };
 
   useEffect(() => {
-    console.log("📦 useEffect running");
     const fetchData = async () => {
       try {
         setIsLoading(true);
@@ -70,7 +69,6 @@ export default function Teams() {
         const teamList = teamRes.data || [];
         const stylistList = stylistRes.data || [];
 
-        console.log("📦 Raw stylist list from backend:", stylistRes.data);
         teamList.map((member: TeamMember) => {
           member.role = "Stylist";
         });
@@ -85,14 +83,8 @@ export default function Teams() {
                   member._id.toString() === stylist._id.toString()
               )
           )
-          .filter(
-            (stylist: TeamMember) =>
-              stylist._id.toString() !== user._id.toString()
-          );
-
+          .filter((stylist: TeamMember) => stylist._id !== user._id);
         setAvailableStylists(filteredStylists);
-
-        console.log("availableStylists:", filteredStylists);
       } catch (error) {
         console.error("Error fetching data", error);
         setShowAlert(true);
@@ -105,7 +97,7 @@ export default function Teams() {
     };
 
     fetchData();
-  }, []);
+  }, [user._id, teamMembers.length]);
 
   const handleAddStylist = async () => {
     try {
@@ -119,6 +111,7 @@ export default function Teams() {
         { stylistId: selectedStylistId },
         config
       );
+      console.log("📦 Response from adding stylist:", res.data);
       setTeamMembers((prev) => [...prev, res.data]);
       setShowAlert(true);
       setVariant("success");
@@ -157,9 +150,9 @@ export default function Teams() {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {teamMembers.map((member) => (
+            {teamMembers.map((member, index) => (
               <div
-                key={member._id}
+                key={index}
                 className="p-4 border rounded-lg shadow-sm flex flex-col items-center"
               >
                 <img
