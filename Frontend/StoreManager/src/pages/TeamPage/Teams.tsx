@@ -85,7 +85,10 @@ export default function Teams() {
                   member._id.toString() === stylist._id.toString()
               )
           )
-          .filter((stylist: TeamMember) => stylist._id !== user._id);
+          .filter(
+            (stylist: TeamMember) =>
+              stylist._id.toString() !== user._id.toString()
+          );
 
         setAvailableStylists(filteredStylists);
 
@@ -123,6 +126,7 @@ export default function Teams() {
       setMessage("Stylist added to team.");
       closeModal();
     } catch (error) {
+      closeModal();
       console.error("Error adding stylist:", error);
       setShowAlert(true);
       setVariant("error");
@@ -203,7 +207,7 @@ export default function Teams() {
             <select
               value={selectedStylistId}
               onChange={(e) => setSelectedStylistId(e.target.value)}
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             >
               <option value="">Select a stylist</option>
               {availableStylists.map((s) => (
@@ -262,7 +266,9 @@ export default function Teams() {
                 {activeTab === "Expertise" && (
                   <StylistExpertise stylist={selectedStylist} />
                 )}
-                {activeTab === "Testimonials" && <StylistTestimonials />}
+                {activeTab === "Testimonials" && (
+                  <StylistTestimonials stylist={selectedStylist} />
+                )}
                 {activeTab === "Portfolio" && (
                   <PortfolioView stylist={selectedStylist} />
                 )}

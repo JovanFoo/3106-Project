@@ -82,8 +82,8 @@ export default function ClientTestimonials() {
 
           {/* Reviews Grid */}
           <div
-            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${
-              reviews && reviews.length > 0 && "min-h-[70vh] overflow-auto"
+            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 ${
+              reviews && reviews.length > 0 && "overflow-auto"
             }`}
           >
             {reviews &&
@@ -93,21 +93,23 @@ export default function ClientTestimonials() {
                   className="p-4 border rounded-lg shadow-sm"
                 >
                   <div className="flex items-center mb-2">
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-medium dark:text-white">
                       {review.customer}
                     </span>
-                    <span className="text-xs text-gray-500 ml-2">
+                    <span className="text-xs text-gray-500 ml-2 dark:text-white">
                       {review.stars.toString()} ⭐
                     </span>
                   </div>
-                  <div className="text-xs text-gray-500 mb-1">
+                  <div className="text-xs text-gray-500 mb-1 dark:text-white">
                     {review.title}
                   </div>
-                  <div className="text-yellow-500">
+                  <div className="text-yellow-500 dark:text-white">
                     {"⭐".repeat(review.stars)}
                   </div>
                   {/* <h5 className="font-semibold text-sm mt-2">{review.text}</h5> */}
-                  <p className="text-xs text-gray-600 mt-1">{review.text}</p>
+                  <p className="text-xs text-gray-600 mt-1 dark:text-white">
+                    {review.text}
+                  </p>
                 </div>
               ))}
             {(reviews.length === 0 || reviews === undefined) && (

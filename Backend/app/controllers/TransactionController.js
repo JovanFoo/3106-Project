@@ -91,16 +91,23 @@ const TransactionController = {
         .populate("stylist", "name") // only get stylist name
         .populate("appointment") // full appointment if exists
         .populate("service", "name"); // only get service name
+      transactions.sort((a, b) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime(); // sort by date descending
+      });
+      transactions.forEach((transaction) => {
+        console.log(transaction.date);
+      });
 
       const totalTransactions = transactions.length; // total number of transactions
       const totalPages = Math.ceil(totalTransactions / parseInt(limit));
       const startIndex = (page - 1) * parseInt(limit);
       const endIndex = startIndex + parseInt(limit);
-      console.log("startIndex", startIndex);
-      console.log("endIndex", endIndex);
 
       const paginatedTransactions = transactions.slice(startIndex, endIndex);
-      console.log("paginatedTransactions", paginatedTransactions);
+
+      paginatedTransactions.forEach((transaction) => {
+        console.log("updated", transaction.date);
+      });
       const pagination = {
         total: totalTransactions,
         page: page,

@@ -5,6 +5,7 @@ import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
+import Alert from "../../components/ui/alert/Alert";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -13,6 +14,7 @@ type Transaction = {
   bookingId: string;
   service: Service;
   stylist: Stylist;
+  date: Date;
   paymentMethod: "Cash" | "Card";
   amount: number;
   status: "Pending" | "Completed" | "Cancelled" | "Confirmed";
@@ -87,6 +89,13 @@ export default function Transactions() {
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction>();
 
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [variant, setVariant] = useState<
+    "success" | "error" | "warning" | "info"
+  >("info");
+  const [title, setTitle] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+
   const [isLoading, setIsLoading] = useState(false);
   const {
     isOpen: isOpenEdit,
@@ -136,6 +145,7 @@ export default function Transactions() {
             bookingId: txn.bookingId || "-",
             service: txn.service,
             stylist: txn.stylist,
+            date: new Date(txn.date),
             paymentMethod: txn.paymentMethod,
             amount: txn.amount,
             status: txn.status,
@@ -156,42 +166,14 @@ export default function Transactions() {
       console.error("Error fetching stylists:", err);
     }
   };
-
-  // const handleAddOrUpdate = async () => {
-  //   const payload = {
-  //     service: transactionData.service,
-  //     stylist: transactionData.stylist,
-  //     paymentMethod: transactionData.paymentMethod,
-  //     amount: parseFloat(transactionData.amount),
-  //     status: transactionData.status,
-  //   };
-
-  //   try {
-  //     if (selectedTransaction) {
-  //       await axios.put(
-  //         `${api_address}/api/transactions/${selectedTransaction.id}`,
-  //         payload,
-  //         config
-  //       );
-  //     } else {
-  //       const res = await axios.post(
-  //         `${api_address}/api/transactions`,
-  //         payload,
-  //         config
-  //       );
-  //       payload["id"] = res.data._id;
-  //     }
-
-  //     await fetchTransactions();
-  //     closeModal();
-  //     resetFields();
-  //   } catch (err: any) {
-  //     console.error("Save error:", err);
-  //     if (err.response) console.error("Backend error:", err.response.data);
-  //   }
-  // };
   const handleAddNewTransaction = async (transaction: Transaction) => {
     setIsLoading(true);
+
+    closeModalNew();
+    setShowAlert(true);
+    setVariant("info");
+    setTitle("Adding!");
+    setMessage("Adding transaction!");
     try {
       const res = await axios.post(
         `${api_address}/api/transactions`,
@@ -199,16 +181,34 @@ export default function Transactions() {
         config
       );
       setTransactions((prev) => [
-        ...prev,
         { ...transaction, id: res.data._id },
+        ...prev,
       ]);
-      closeModalNew();
+      setShowAlert(true);
+      setVariant("success");
+      setTitle("Success!");
+      setMessage("Transaction added successfully!");
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 3000);
     } catch (err) {
       console.error("Error adding transaction:", err);
+      setShowAlert(true);
+      setVariant("error");
+      setTitle("Error!");
+      setMessage("Error adding transaction!");
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 3000);
     }
     setIsLoading(false);
   };
   const handleUpdateTransaction = async (transaction: Transaction) => {
+    closeModalEdit();
+    setShowAlert(true);
+    setVariant("info");
+    setTitle("Updating!");
+    setMessage("Updating transaction!");
     try {
       await axios.put(
         `${api_address}/api/transactions/${transaction._id}`,
@@ -218,9 +218,22 @@ export default function Transactions() {
       setTransactions((prev) =>
         prev.map((txn) => (txn._id === transaction._id ? transaction : txn))
       );
-      closeModalEdit();
+      setShowAlert(true);
+      setVariant("success");
+      setTitle("Success!");
+      setMessage("Transaction updated successfully!");
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 3000);
     } catch (err) {
       console.error("Error updating transaction:", err);
+      setShowAlert(true);
+      setVariant("error");
+      setTitle("Error!");
+      setMessage("Error updating transaction!");
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 3000);
     }
   };
 
@@ -249,6 +262,11 @@ export default function Transactions() {
         <PageMeta title="Transactions" description="Manage your Transactions" />
         <PageBreadcrumb pageTitle="Transaction" />
         <div className="rounded-2xl  h-full border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+          {showAlert && (
+            <div className="mb-5">
+              <Alert variant={variant} title={title} message={message} />
+            </div>
+          )}
           <div className="flex justify-between items-center mb-6">
             <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Transaction
@@ -269,6 +287,7 @@ export default function Transactions() {
             <thead className="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300">
               <tr className="text-center">
                 <th className="border p-2">#</th>
+                <th className="border p-2">Date</th>
                 <th className="border p-2">Service</th>
                 <th className="border p-2">Stylist</th>
                 <th className="border p-2">Payment Method</th>
@@ -277,40 +296,47 @@ export default function Transactions() {
               </tr>
             </thead>
             <tbody>
-              {[...transactions]
-                .slice()
-                .reverse()
-                .map((txn, index) => (
-                  <tr
-                    key={txn._id}
-                    className="text-center border cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-slate-300"
-                    onClick={() => handleTransactionClick(txn)}
+              {[...transactions].slice().map((txn, index) => (
+                <tr
+                  key={txn._id}
+                  className="text-center border cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-slate-300"
+                  onClick={() => handleTransactionClick(txn)}
+                >
+                  <td className="border p-2">
+                    {totalTransactions - index - (pageNumber - 1) * pageSize}
+                  </td>{" "}
+                  {/* Reverse index */}
+                  <td className="border p-2">
+                    {txn.date.toLocaleDateString("SG")}{" "}
+                    {txn.date.toLocaleTimeString("SG", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}
+                  </td>
+                  <td className="border p-2">{txn.service.name}</td>
+                  <td className="border p-2">{txn.stylist.name}</td>
+                  <td className="border p-2">{txn.paymentMethod}</td>
+                  <td className="border p-2">
+                    ${parseFloat(txn.amount.toString()).toFixed(2)}
+                  </td>
+                  <td
+                    className={
+                      txn.status == "Cancelled"
+                        ? "text-red-500 border p-2 font-semibold dark:text-red-300"
+                        : txn.status == "Completed"
+                        ? "text-green-500 border p-2 font-semibold dark:text-green-300"
+                        : txn.status == "Pending"
+                        ? "text-yellow-500 border p-2 font-semibold dark:text-yellow-300"
+                        : txn.status == "Confirmed"
+                        ? "text-blue-500 border p-2 font-semibold dark:text-blue-300"
+                        : "text-teal-500 border p-2 font-semibold dark:text-teal-300"
+                    }
                   >
-                    <td className="border p-2">{index + 1}</td>{" "}
-                    {/* Reverse index */}
-                    <td className="border p-2">{txn.service.name}</td>
-                    <td className="border p-2">{txn.stylist.name}</td>
-                    <td className="border p-2">{txn.paymentMethod}</td>
-                    <td className="border p-2">
-                      ${parseFloat(txn.amount.toString()).toFixed(2)}
-                    </td>
-                    <td
-                      className={
-                        txn.status == "Cancelled"
-                          ? "text-red-500 border p-2 font-semibold dark:text-red-300"
-                          : txn.status == "Completed"
-                          ? "text-green-500 border p-2 font-semibold dark:text-green-300"
-                          : txn.status == "Pending"
-                          ? "text-yellow-500 border p-2 font-semibold dark:text-yellow-300"
-                          : txn.status == "Confirmed"
-                          ? "text-blue-500 border p-2 font-semibold dark:text-blue-300"
-                          : "text-teal-500 border p-2 font-semibold dark:text-teal-300"
-                      }
-                    >
-                      {txn.status}
-                    </td>
-                  </tr>
-                ))}
+                    {txn.status}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
           <div className="flex justify-between items-center mt-4">
@@ -394,6 +420,7 @@ const CustomerModal: React.FC<ModalProps> = ({
     service: listOfServices[0] || dummyService,
     stylist: listOfStylists[0] || dummyStylist,
     paymentMethod: "Cash",
+    date: new Date(),
     amount: 0,
     status: "Pending",
   });
@@ -407,6 +434,7 @@ const CustomerModal: React.FC<ModalProps> = ({
       service: transaction
         ? transaction.service
         : listOfServices[0] || dummyService,
+      date: transaction ? new Date(transaction.date) : new Date(),
       stylist: transaction
         ? transaction.stylist
         : listOfStylists[0] || dummyStylist,
@@ -526,6 +554,10 @@ const CustomerModal: React.FC<ModalProps> = ({
                   });
                 }
               }}
+              disabled={
+                transactionData.status === "Completed" ||
+                transactionData.status === "Cancelled"
+              }
               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-slate-300"
             >
               {["Completed", "Pending", "Cancelled", "Confirmed"].map(

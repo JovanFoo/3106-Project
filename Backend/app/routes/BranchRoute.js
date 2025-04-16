@@ -61,7 +61,7 @@ BranchRouter.get(
 // Update branch details (Auth: admin)
 BranchRouter.put(
   "/:id",
-  AuthMiddleware.authAdminToken,
+  AuthMiddleware.authAdminOrStylistManagerToken,
   BranchController.update
 );
 
