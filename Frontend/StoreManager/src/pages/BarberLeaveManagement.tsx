@@ -24,6 +24,7 @@ import {
   ToggleButton,
   Avatar,
   Badge,
+  CardActions,
 } from "@mui/material";
 import {
   format,
@@ -41,6 +42,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import axios from "axios";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -144,22 +147,16 @@ const BarberLeaveManagement: React.FC = () => {
 
       console.log("Leave balance response:", response.data);
       if (response.data.success) {
+        // Use the values directly from the API response
         setLeaveStats({
-          availableUnpaidLeave: response.data.data.availableUnpaidLeave || 20,
-          availablePaidLeave: response.data.data.availablePaidLeave || 30,
-          usedLeave:
-            response.data.data.usedPaidLeave +
-              response.data.data.usedUnpaidLeave || 0,
+          availableUnpaidLeave: response.data.data.availableUnpaidLeave,
+          availablePaidLeave: response.data.data.availablePaidLeave,
+          usedLeave: response.data.data.usedPaidLeave + response.data.data.usedUnpaidLeave,
         });
       }
     } catch (error) {
       console.error("Error fetching leave balance:", error);
-      // Set default values if fetch fails
-      setLeaveStats({
-        availableUnpaidLeave: 20,
-        availablePaidLeave: 30,
-        usedLeave: 0,
-      });
+      // Don't set default values if fetch fails, keep the current values
     }
   };
 
@@ -358,6 +355,70 @@ const BarberLeaveManagement: React.FC = () => {
       alert(errorMessage);
       setWithdrawDialogOpen(false);
       setSelectedRequestId(null);
+    }
+  };
+
+  const handleApproveLeave = async (requestId: string) => {
+    try {
+      console.log("Approving leave request:", requestId);
+      const response = await axios.post(
+        `${api_address}/api/leave-requests/approve/${requestId}`,
+        {},
+        {
+          headers: {
+            Authorization: sessionStorage.getItem("token"),
+          },
+        }
+      );
+
+      console.log("Approve response:", response);
+      
+      if (response.status === 200) {
+        alert("Leave request approved successfully");
+        fetchLeaveRequests();
+        fetchLeaveBalance();
+      } else {
+        throw new Error("Failed to approve leave request");
+      }
+    } catch (error: any) {
+      console.error("Error approving leave request:", error);
+      console.error("Error details:", error.response?.data);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to approve leave request. Please try again later.";
+      alert(errorMessage);
+    }
+  };
+
+  const handleRejectLeave = async (requestId: string) => {
+    try {
+      console.log("Rejecting leave request:", requestId);
+      const response = await axios.post(
+        `${api_address}/api/leave-requests/reject/${requestId}`,
+        {},
+        {
+          headers: {
+            Authorization: sessionStorage.getItem("token"),
+          },
+        }
+      );
+
+      console.log("Reject response:", response);
+      
+      if (response.status === 200) {
+        alert("Leave request rejected successfully");
+        fetchLeaveRequests();
+        fetchLeaveBalance();
+      } else {
+        throw new Error("Failed to reject leave request");
+      }
+    } catch (error: any) {
+      console.error("Error rejecting leave request:", error);
+      console.error("Error details:", error.response?.data);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to reject leave request. Please try again later.";
+      alert(errorMessage);
     }
   };
 
@@ -593,6 +654,26 @@ const BarberLeaveManagement: React.FC = () => {
                     </Box>
                   )}
                 </CardContent>
+                {application.status === "Pending" && (
+                  <CardActions sx={{ justifyContent: "flex-end", gap: 1, p: 2 }}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleRejectLeave(application.id)}
+                      startIcon={<CancelIcon />}
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleApproveLeave(application.id)}
+                      startIcon={<CheckCircleIcon />}
+                    >
+                      Approve
+                    </Button>
+                  </CardActions>
+                )}
               </Card>
             ))}
           </Stack>
@@ -701,8 +782,7 @@ const BarberLeaveManagement: React.FC = () => {
           {renderLeaveApplications()}
         </Grid>
         <Grid item xs={12} md={4}>
-          {renderPendingDocuments()}
-          <Box sx={{ mt: 4 }}>
+          <Box sx={{ mb: 4 }}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DateCalendar
                 value={selectedDate}

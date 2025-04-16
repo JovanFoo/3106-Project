@@ -150,7 +150,7 @@ interface ApiResponse {
 }
 
 type ViewMode = "status" | "type";
-type LeaveType = "Paid" | "Childcare" | "Maternity" | "Paternity" | "Sick" | "Unpaid";
+type LeaveType = "Paid" | "Unpaid";
 
 const LeaveManagement = (): ReactElement => {
   const theme = useTheme();
@@ -296,14 +296,6 @@ const LeaveManagement = (): ReactElement => {
     const typeMapping: { [key: string]: LeaveType } = {
       'Paid': 'Paid',
       'paid': 'Paid',
-      'Childcare': 'Childcare',
-      'childcare': 'Childcare',
-      'Maternity': 'Maternity',
-      'maternity': 'Maternity',
-      'Paternity': 'Paternity',
-      'paternity': 'Paternity',
-      'Sick': 'Sick',
-      'sick': 'Sick',
       'Unpaid': 'Unpaid',
       'unpaid': 'Unpaid'
     };
@@ -313,10 +305,10 @@ const LeaveManagement = (): ReactElement => {
     
     const colors: { [key in LeaveType]: string } = {
       Paid: "#059669",        // Green for paid
-      Childcare: "#2563EB",   // Blue for childcare
-      Maternity: "#7C3AED",   // Purple for maternity
-      Paternity: "#6366F1",   // Indigo for paternity
-      Sick: "#DC2626",        // Red for sick
+      // Childcare: "#2563EB",   // Blue for childcare
+      // Maternity: "#7C3AED",   // Purple for maternity
+      // Paternity: "#6366F1",   // Indigo for paternity
+      // Sick: "#DC2626",        // Red for sick
       Unpaid: "#F97316"       // Orange for unpaid
     };
     return colors[normalizedType as LeaveType] || theme.palette.grey[500];
@@ -346,10 +338,10 @@ const LeaveManagement = (): ReactElement => {
   // Update the leave type mapping in the stats section
   const leaveTypeLabels: { [key in LeaveType]: string } = {
     Paid: "Paid",
-    Childcare: "Childcare",
-    Maternity: "Maternity",
-    Paternity: "Paternity",
-    Sick: "Sick",
+    // Childcare: "Childcare",
+    // Maternity: "Maternity",
+    // Paternity: "Paternity",
+    // Sick: "Sick",
     Unpaid: "Unpaid"
   };
 
