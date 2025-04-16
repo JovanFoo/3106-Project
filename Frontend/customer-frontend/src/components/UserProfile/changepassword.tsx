@@ -58,14 +58,6 @@ const ChangePassword: React.FC = () => {
 
   return (
     <div>
-      {/* Button to trigger modal */}
-      <button
-        onClick={toggleModal}
-        className="btn btn-primary py-2 px-4 rounded-md shadow-md font-semibold transform hover:scale-105 transition-all duration-300"
-      >
-        Change Password
-      </button>
-
       {/* Modal */}
       {isOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">

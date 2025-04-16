@@ -111,15 +111,12 @@ export default function UserMetaCard() {
                 {firstName}
               </h4>
             </div>
-            <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
-              {" "}
-              <div className="mt-4 border border-blue-300 rounded-lg p-3 bg-blue-50">
-                <h5 className="text-sm font-medium text-gray-600 dark:text-white">
-                  Loyalty Points:
-                </h5>
-                <div className="text-sm font-semibold text-blue-600 mt-1">
-                  {loyaltyPoints} Points
-                </div>
+            <div className="mt-4 border border-blue-300 dark:border-blue-700 rounded-lg p-3 bg-blue-50 dark:bg-blue-900/30">
+              <h5 className="text-sm font-medium text-gray-700 dark:text-blue-100">
+                Loyalty Points:
+              </h5>
+              <div className="text-sm font-semibold text-blue-600 dark:text-blue-300 mt-1">
+                {loyaltyPoints} Points
               </div>
             </div>
           </div>

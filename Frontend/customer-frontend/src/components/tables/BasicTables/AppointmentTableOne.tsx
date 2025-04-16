@@ -220,6 +220,7 @@ export default function AppointmentTableOne({ appointment }: Props) {
               <option value="">-- All Appointments --</option>
               <option value="Pending">Pending</option>
               <option value="Cancelled">Cancelled</option>
+              <option value="Confirmed">Confirmed</option>
               <option value="Completed">Completed</option>
             </select>
           </div>
