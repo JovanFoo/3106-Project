@@ -4,6 +4,7 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import { useState, useEffect } from "react";
+import ChangePassword from "./changepassword";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
@@ -144,7 +145,6 @@ export default function UserInfoCard() {
           Edit
         </button>
       </div>
-
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
@@ -210,6 +210,7 @@ export default function UserInfoCard() {
           </form>
         </div>
       </Modal>
+      <ChangePassword />
     </div>
   );
 }

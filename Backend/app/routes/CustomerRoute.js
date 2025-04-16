@@ -42,4 +42,10 @@ CustomerRouter.put(
   CustomerController.updateProfilePicture
 );
 
+CustomerRouter.put(
+  "/:id/updatepassword",
+  AuthMiddleware.authCustomerToken,
+  CustomerController.updatePassword
+);
+
 module.exports = CustomerRouter;
