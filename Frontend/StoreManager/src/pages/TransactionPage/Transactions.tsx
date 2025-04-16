@@ -300,7 +300,7 @@ export default function Transactions() {
                   onClick={() => handleTransactionClick(txn)}
                 >
                   <td className="border p-2">
-                    {index + 1 + (pageNumber - 1) * pageSize}
+                    {totalTransactions - index - (pageNumber - 1) * pageSize}
                   </td>{" "}
                   {/* Reverse index */}
                   <td className="border p-2">{txn.service.name}</td>
