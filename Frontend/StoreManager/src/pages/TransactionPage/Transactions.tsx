@@ -14,6 +14,7 @@ type Transaction = {
   bookingId: string;
   service: Service;
   stylist: Stylist;
+  date: Date;
   paymentMethod: "Cash" | "Card";
   amount: number;
   status: "Pending" | "Completed" | "Cancelled" | "Confirmed";
@@ -144,6 +145,7 @@ export default function Transactions() {
             bookingId: txn.bookingId || "-",
             service: txn.service,
             stylist: txn.stylist,
+            date: new Date(txn.date),
             paymentMethod: txn.paymentMethod,
             amount: txn.amount,
             status: txn.status,
@@ -285,6 +287,7 @@ export default function Transactions() {
             <thead className="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300">
               <tr className="text-center">
                 <th className="border p-2">#</th>
+                <th className="border p-2">Date</th>
                 <th className="border p-2">Service</th>
                 <th className="border p-2">Stylist</th>
                 <th className="border p-2">Payment Method</th>
@@ -303,6 +306,14 @@ export default function Transactions() {
                     {totalTransactions - index - (pageNumber - 1) * pageSize}
                   </td>{" "}
                   {/* Reverse index */}
+                  <td className="border p-2">
+                    {txn.date.toLocaleDateString("SG")}{" "}
+                    {txn.date.toLocaleTimeString("SG", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}
+                  </td>
                   <td className="border p-2">{txn.service.name}</td>
                   <td className="border p-2">{txn.stylist.name}</td>
                   <td className="border p-2">{txn.paymentMethod}</td>
@@ -409,6 +420,7 @@ const CustomerModal: React.FC<ModalProps> = ({
     service: listOfServices[0] || dummyService,
     stylist: listOfStylists[0] || dummyStylist,
     paymentMethod: "Cash",
+    date: new Date(),
     amount: 0,
     status: "Pending",
   });
