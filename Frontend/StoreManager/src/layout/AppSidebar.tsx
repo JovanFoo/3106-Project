@@ -83,7 +83,7 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const isActive = useCallback(
-    (path: string) => location.pathname.startsWith(path),
+    (path: string) => location.pathname == path,
     [location.pathname]
   );
   const user = useUser();

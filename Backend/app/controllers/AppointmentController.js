@@ -4,7 +4,7 @@ const Appointment = require("../models/Appointment.js");
 const PasswordHash = require("../utils/passwordHash.js");
 const CustomerController = require("./CustomerController.js");
 const StylistController = require("./StylistController.js");
-const cancelledAppointment = require("../utils/emailService.js");
+const { cancelledAppointment } = require("../utils/emailService.js");
 const Stylist = require("../models/Stylist.js");
 const Service = require("../models/Service.js");
 
@@ -218,12 +218,26 @@ const AppointmentController = {
       await appointment.save();
       res.status(200).json(appointment);
       if (status === "Cancelled") {
-        cancelledAppointment(
-          appointment.customer.email,
-          appointment.customer.name,
-          appointment.date,
-          appointment.time
-        );
+        const customer = await Customer.findOne({
+          appointments: { $in: appointment._id },
+        });
+        if (customer) {
+          cancelledAppointment(
+            customer.email,
+            customer.name,
+            appointment.date.toLocaleDateString()
+          )
+            .then((result) => {
+              if (result) {
+                console.log("Email sent successfully");
+              } else {
+                console.log("Failed to send email");
+              }
+            })
+            .catch((error) => {
+              console.error("Error sending email:", error);
+            });
+        }
       }
     } catch (error) {
       console.error("Error updating appointment:", error);
