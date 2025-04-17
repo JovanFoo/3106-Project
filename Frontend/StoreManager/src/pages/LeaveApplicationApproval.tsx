@@ -177,6 +177,9 @@ const LeaveRequestCell: React.FC<LeaveRequestCellProps> = ({
   const isMiddleDay =
     !isOneDay && currentDay > startDate && currentDay < endDate;
 
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === 'dark';
+
   return (
     <Tooltip
       title={`${request.type} (${request.status}): ${format(
@@ -193,8 +196,8 @@ const LeaveRequestCell: React.FC<LeaveRequestCellProps> = ({
           top: "50%",
           transform: "translateY(-50%)",
           height: "24px",
-          bgcolor: getCellColor(request),
-          opacity: 0.8,
+          bgcolor: isDarkMode ? alpha(getCellColor(request), 0.3) : getCellColor(request),
+          opacity: isDarkMode ? 1 : 0.8,
           left: isFirstDay ? "8px" : 0,
           right: isLastDay ? "8px" : 0,
           borderRadius: isOneDay
@@ -635,15 +638,15 @@ const LeaveManagement = (): ReactElement => {
                 </Box>
                 <Stack spacing={1.5}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <EventIcon fontSize="small" color="action" />
-                    <Typography variant="body2">
+                    <EventIcon fontSize="small" color="action" className="text-gray-800 dark:text-white"/>
+                    <Typography variant="body2" className="text-gray-800 dark:text-white">
                       {format(new Date(request.startDate), "MMM dd")} -{" "}
                       {format(new Date(request.endDate), "MMM dd, yyyy")}
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <AccessTimeIcon fontSize="small" color="action" />
-                    <Typography variant="body2">
+                    <AccessTimeIcon fontSize="small" color="action" className="text-gray-800 dark:text-white"/>
+                    <Typography variant="body2" className="text-gray-800 dark:text-white">
                       {differenceInDays(
                         new Date(request.endDate),
                         new Date(request.startDate)
@@ -705,7 +708,7 @@ const LeaveManagement = (): ReactElement => {
                   color="error"
                   onClick={() => handleReject(request._id)}
                   startIcon={<CancelIcon />}
-                  className="text-gray-800 dark:text-white/90"
+                  className="text-gray-800 dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
                 >
                   Reject
                 </Button>
