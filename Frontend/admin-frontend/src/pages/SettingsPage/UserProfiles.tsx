@@ -5,6 +5,7 @@ import Alert from "../../components/ui/alert/Alert";
 import UserInfoCard from "../../components/UserProfile/UserInfoCard";
 import UserMetaCard from "../../components/UserProfile/UserMetaCard";
 import SettingsSidebar from "./SettingsSidebar";
+import { ToastContainer } from "react-toastify";
 
 export type AlertType = {
   showAlert: boolean;
@@ -19,13 +20,6 @@ export type AlertType = {
   setMessage: React.Dispatch<React.SetStateAction<string>>;
 };
 export default function UserProfiles() {
-  const [showAlert, setShowAlert] = useState(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("error");
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
-
   return (
     <div className="flex ">
       {/* Settings-specific Sidebar */}
@@ -39,30 +33,11 @@ export default function UserProfiles() {
           <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
             Profile
           </h3>
-          <div className={showAlert ? " mb-5" : "mb-5 hidden"}>
-            <Alert variant={variant} title={title} message={message} />
-          </div>
+
           <div className="space-y-6">
-            <UserMetaCard
-              showAlert={showAlert}
-              setShowAlert={setShowAlert}
-              variant={variant}
-              setVariant={setVariant}
-              title={title}
-              setTitle={setTitle}
-              message={message}
-              setMessage={setMessage}
-            />
-            <UserInfoCard
-              showAlert={showAlert}
-              setShowAlert={setShowAlert}
-              variant={variant}
-              setVariant={setVariant}
-              title={title}
-              setTitle={setTitle}
-              message={message}
-              setMessage={setMessage}
-            />
+            <UserMetaCard />
+            <UserInfoCard />
+            <ToastContainer autoClose={3000} position="bottom-right" />
             {/* <UserAddressCard /> */}
           </div>
         </div>

@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import ToggleSwitch from "../../components/ui/button/ToggleSwitch";
+import { toast, ToastContainer } from "react-toastify";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -26,63 +26,54 @@ type Props = {
 
 export default function StylistProfilePage({ stylist }: Props) {
   const [fullStylist, setFullStylist] = useState<Stylist | null>(null);
-
-  const [showAlert, setShowAlert] = useState(false);
-  const [title, setTitle] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
-  const [variant, setVariant] = useState<"info" | "error" | "success">("info");
   const [assignedBranch, setAssignedBranch] = useState<string | null>(null);
 
-
-    const fetchStylist = async () => {
-      try {
-        const token = sessionStorage.getItem("token");
-        const res = await axios.get(
-          `${api_address}/api/stylists/${stylist._id}`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-        setFullStylist(res.data);
-      } catch (err) {
-        console.error("Failed to fetch stylist profile", err);
-      }
-    };
-
-    const fetchAssignedBranch = async () => {
-      try {
-        const token = sessionStorage.getItem("token");
-        const res = await axios.get(`${api_address}/api/branches`, {
+  const fetchStylist = async () => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const res = await axios.get(
+        `${api_address}/api/stylists/${stylist._id}`,
+        {
           headers: {
             Authorization: token,
           },
-        });
-    
-        const allBranches = res.data;
-    
-        const assigned = allBranches.find((branch: any) =>
-          branch.stylists?.some((s: any) => s._id === stylist._id)
-        );
-    
-        setAssignedBranch(assigned?.location || "Not assigned");
-      } catch (error) {
-        console.error("Failed to fetch assigned branch", error);
-        setAssignedBranch("Unknown");
-      }
-    };
-    
-  
+        }
+      );
+      setFullStylist(res.data);
+    } catch (err) {
+      console.error("Failed to fetch stylist profile", err);
+    }
+  };
+
+  const fetchAssignedBranch = async () => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const res = await axios.get(`${api_address}/api/branches`, {
+        headers: {
+          Authorization: token,
+        },
+      });
+
+      const allBranches = res.data;
+
+      const assigned = allBranches.find((branch: any) =>
+        branch.stylists?.some((s: any) => s._id === stylist._id)
+      );
+
+      setAssignedBranch(assigned?.location || "Not assigned");
+    } catch (error) {
+      console.error("Failed to fetch assigned branch", error);
+      setAssignedBranch("Unknown");
+    }
+  };
+
   useEffect(() => {
     if (stylist._id) {
       fetchStylist();
       fetchAssignedBranch();
     }
   }, [stylist._id]);
-  
 
-  
   const handleToggle = () => {
     const token = sessionStorage.getItem("token");
     axios
@@ -100,25 +91,13 @@ export default function StylistProfilePage({ stylist }: Props) {
           ...prev!,
           isActive: !prev!.isActive,
         }));
-        setShowAlert(true);
-        setTitle("Success!");
-        setMessage(
+        toast.success(
           `Stylist ${res.data.isActive ? "enabled" : "disabled"} successfully.`
         );
-        setVariant("success");
-        setTimeout(() => {
-          setShowAlert(false);
-        }, 3000); // Hide alert after 3 seconds
       })
       .catch((err) => {
         console.error("Failed to update stylist status", err);
-        setShowAlert(true);
-        setTitle("Error!");
-        setMessage("Failed to update stylist status.");
-        setVariant("error");
-        setTimeout(() => {
-          setShowAlert(false);
-        }, 3000); // Hide alert after 3 seconds
+        toast.error("Failed to update stylist status.");
       });
   };
   if (!fullStylist) return <p className="text-gray-500">Loading profile...</p>;
@@ -140,22 +119,10 @@ export default function StylistProfilePage({ stylist }: Props) {
       .then((res: AxiosResponse) => {
         // console.log(res.data);
         if (res.status !== 200) {
-          setShowAlert(true);
-          setTitle("Error!");
-          setMessage(res.data.message);
-          setVariant("error");
-          setTimeout(() => {
-            setShowAlert(false);
-          }, 3000); // Hide alert after 3 seconds
+          toast.error(res.data.message);
           return;
         }
-        setShowAlert(true);
-        setTitle("Success!");
-        setMessage("Password reset email sent successfully.");
-        setVariant("success");
-        setTimeout(() => {
-          setShowAlert(false);
-        }, 3000); // Hide alert after 3 seconds
+        toast.success("Password reset email sent successfully.");
       })
       .catch((err) => {
         // console.log(err);
@@ -165,9 +132,9 @@ export default function StylistProfilePage({ stylist }: Props) {
   return (
     <div className="flex  mr-4">
       <div className="flex-1 p-5 mr-4">
-      <PageBreadcrumb pageTitle="Profile Page" />
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-      <div className="flex flex-col items-center">
+        <PageBreadcrumb pageTitle="Profile Page" />
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+          <div className="flex flex-col items-center">
             <img
               src={fullStylist.profilePicture || "/images/user/owner.jpg"}
               alt={fullStylist.name}
@@ -244,9 +211,7 @@ export default function StylistProfilePage({ stylist }: Props) {
               <Button onClick={handleResetPassword}>Reset Password</Button>
             </div>
           </div>
-          <div className={showAlert ? " mt-2" : "hidden"}>
-            <Alert variant={variant} title={title} message={message} />
-          </div>
+          <ToastContainer autoClose={3000} position="bottom-right" />
         </div>
       </div>
     </div>

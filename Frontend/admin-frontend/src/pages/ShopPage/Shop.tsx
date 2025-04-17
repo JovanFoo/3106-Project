@@ -6,10 +6,10 @@ import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
+import { toast, ToastContainer } from "react-toastify";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -24,19 +24,11 @@ export default function CreateShop() {
   const [holidayOpeningTime, setHolidayOpeningTime] = useState("");
   const [holidayClosingTime, setHolidayClosingTime] = useState("");
   const [shops, setShops] = useState<any[]>([]);
-  const [showAlert, setShowAlert] = useState(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("info");
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
   const [editingShopId, setEditingShopId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [shopToDelete, setShopToDelete] = useState<string | null>(null);
   const [selectedStylists, setSelectedStylists] = useState<Stylist[]>([]);
   const [manager, setManager] = useState<Stylist | null>(null);
-  
-
 
   const config = {
     headers: {
@@ -99,8 +91,7 @@ export default function CreateShop() {
             shop._id === editingShopId ? response.data : shop
           )
         );
-        setTitle("Updated");
-        setMessage("Shop updated successfully.");
+        toast.success("Shop updated successfully.");
       } else {
         response = await axios.post(
           `${api_address}/api/branches`,
@@ -108,22 +99,14 @@ export default function CreateShop() {
           config
         );
         setShops((prev) => [...prev, response.data]);
-        setTitle("Success");
-        setMessage("Shop created successfully.");
+        toast.success("Shop created successfully.");
       }
 
-      setVariant("success");
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
       resetForm();
       closeModal();
     } catch (error: any) {
       console.error("Error creating/updating shop:", error);
-      setTitle("Error");
-      setMessage(error.response?.data?.message || "Something went wrong.");
-      setVariant("error");
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
+      toast.error(error.response?.data?.message || "Something went wrong.");
     }
   };
 
@@ -138,18 +121,12 @@ export default function CreateShop() {
     try {
       await axios.delete(`${api_address}/api/branches/${shopToDelete}`, config);
       setShops((prev) => prev.filter((shop) => shop._id !== shopToDelete));
-      setTitle("Deleted");
-      setMessage("Shop deleted successfully.");
-      setVariant("success");
+      toast.success("Shop deleted successfully.");
     } catch (error: any) {
       console.error("Error deleting shop:", error);
-      setTitle("Error");
-      setMessage(error.response?.data?.message || "Failed to delete shop.");
-      setVariant("error");
+      toast.error(error.response?.data?.message || "Failed to delete shop.");
     }
 
-    setShowAlert(true);
-    setTimeout(() => setShowAlert(false), 3000);
     closeModal();
     setShopToDelete(null);
     setShowDeleteConfirm(false);
@@ -169,9 +146,12 @@ export default function CreateShop() {
 
   const handleEdit = async (shop: any) => {
     try {
-      const response = await axios.get(`${api_address}/api/branches/${shop._id}`, config);
+      const response = await axios.get(
+        `${api_address}/api/branches/${shop._id}`,
+        config
+      );
       const updatedShop = response.data;
-  
+
       setEditingShopId(updatedShop._id);
       setLocation(updatedShop.location);
       setPhoneNumber(updatedShop.phoneNumber);
@@ -181,22 +161,17 @@ export default function CreateShop() {
       setWeekendClosingTime(updatedShop.weekendClosingTime);
       setHolidayOpeningTime(updatedShop.holidayOpeningTime);
       setHolidayClosingTime(updatedShop.holidayClosingTime);
-  
+
       // Make sure to set stylists and manager from latest data
       setSelectedStylists(updatedShop.stylists || []);
       setManager(updatedShop.manager || null);
-  
+
       openModal();
     } catch (err) {
       console.error("Error loading shop data:", err);
-      setTitle("Error");
-      setMessage("Failed to load branch details.");
-      setVariant("error");
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
+      toast.error("Failed to load shop data.");
     }
   };
-  
 
   // to format time to 24hr
   const formatTime = (time: string): string => {
@@ -223,7 +198,7 @@ export default function CreateShop() {
 
   const handleRemoveStylist = async (stylistId: string) => {
     if (!editingShopId || !manager?._id) return;
-  
+
     try {
       await axios.put(
         `${api_address}/api/branches/remove/${editingShopId}`,
@@ -233,37 +208,24 @@ export default function CreateShop() {
         },
         config
       );
-  
+
       setSelectedStylists((prev) =>
         prev.filter((stylist) => stylist._id !== stylistId)
       );
-  
-      setTitle("Removed");
-      setMessage("Stylist removed from branch.");
-      setVariant("success");
+
+      toast.success("Stylist removed successfully.");
     } catch (error: any) {
       console.error("Error removing stylist:", error);
-      setTitle("Error");
-      setMessage(error.response?.data?.message || "Failed to remove stylist.");
-      setVariant("error");
+      toast.error(error.response?.data?.message || "Failed to remove stylist.");
     }
-  
-    setShowAlert(true);
-    setTimeout(() => setShowAlert(false), 3000);
   };
-  
 
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 p-5">
         <PageMeta title="Shops" description="Manage Shops" />
         <PageBreadcrumb pageTitle="Shops" />
-
-        {showAlert && (
-          <div className="mb-5">
-            <Alert variant={variant} title={title} message={message} />
-          </div>
-        )}
+        <ToastContainer position="bottom-right" autoClose={3000} />
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           <div className="flex justify-between items-center mb-6">
@@ -317,7 +279,6 @@ export default function CreateShop() {
                     ? shop.stylists.map((s: Stylist) => s.name).join(", ")
                     : "None"}
                 </p>
-
               </div>
             ))}
           </div>
@@ -372,7 +333,6 @@ export default function CreateShop() {
                   className="w-full p-2 border rounded-md dark:bg-gray-800 dark:text-white"
                   placeholder="e.g. 61234567"
                 />
-
               </div>
               {timeFields.map(([label, value, setter]) => (
                 <div key={label}>
@@ -392,15 +352,21 @@ export default function CreateShop() {
             </div>
 
             <div className="mt-6 space-y-6">
-              <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">Team</h4>
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                Team
+              </h4>
               {manager && (
                 <div className="rounded-xl border border-gray-500 p-4 dark:border-gray-700">
                   {/* Manager Info */}
                   <div className="mb-4">
-                    <h4 className="font-medium text-gray-800 dark:text-white mb-2">👑 Manager</h4>
+                    <h4 className="font-medium text-gray-800 dark:text-white mb-2">
+                      👑 Manager
+                    </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="flex items-center border border-gray-400 rounded-md p-2 dark:border-gray-600 dark:bg-gray-800">
-                        <span className="text-gray-700 dark:text-white">{manager.name}</span>
+                        <span className="text-gray-700 dark:text-white">
+                          {manager.name}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -408,9 +374,12 @@ export default function CreateShop() {
                   {/* Stylists */}
                   <div>
                     <h5 className="font-medium text-gray-800 dark:text-white mb-2">
-                      ✂️ Stylists ({
-                        selectedStylists.filter((s) => s._id !== manager._id).length
-                      })
+                      ✂️ Stylists (
+                      {
+                        selectedStylists.filter((s) => s._id !== manager._id)
+                          .length
+                      }
+                      )
                     </h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {selectedStylists
@@ -418,23 +387,24 @@ export default function CreateShop() {
                         .map((stylist) => (
                           <div
                             key={stylist._id}
-                          className="flex justify-between items-center border border-gray-400  rounded-md p-2 dark:border-gray-600 dark:bg-gray-800"
-                        >
-                          <span className="text-gray-700 dark:text-white">{stylist.name}</span>
-                          <Button
-                            size="sm"
-                            type="danger"
-                            onClick={() => handleRemoveStylist(stylist._id)}
+                            className="flex justify-between items-center border border-gray-400  rounded-md p-2 dark:border-gray-600 dark:bg-gray-800"
                           >
-                            Remove
-                          </Button>
-                        </div>
-                      ))}
+                            <span className="text-gray-700 dark:text-white">
+                              {stylist.name}
+                            </span>
+                            <Button
+                              size="sm"
+                              type="danger"
+                              onClick={() => handleRemoveStylist(stylist._id)}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ))}
                     </div>
                   </div>
                 </div>
               )}
-
             </div>
 
             <div className="flex justify-between gap-3">
@@ -456,7 +426,7 @@ export default function CreateShop() {
                     resetForm();
                   }}
                   size="sm"
-                  type='neutral'
+                  type="neutral"
                 >
                   Cancel
                 </Button>
@@ -484,15 +454,11 @@ export default function CreateShop() {
               <Button
                 onClick={() => setShowDeleteConfirm(false)}
                 size="sm"
-                type='neutral'
+                type="neutral"
               >
                 Cancel
               </Button>
-              <Button
-                size="sm"
-                type="danger"
-                onClick={handleDeleteShop}
-              >
+              <Button size="sm" type="danger" onClick={handleDeleteShop}>
                 Delete
               </Button>
             </div>

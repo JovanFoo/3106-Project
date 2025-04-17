@@ -2,7 +2,6 @@ import { TableBody } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import {
@@ -13,6 +12,7 @@ import {
 } from "../../components/ui/table";
 import { useModal } from "../../hooks/useModal";
 import { PencilIcon, TrashBinIcon } from "../../icons";
+import { toast, ToastContainer } from "react-toastify";
 // import MultiSelect from "../../components/form/MultiSelect";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -35,10 +35,6 @@ export default function Services() {
   // UseStates for Services
   const [services, setServices] = useState<Service[]>([]);
   const [allServiceRates, setAllServiceRates] = useState<ServiceRate[]>([]);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertTitle, setAlertTitle] = useState("");
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState<"success" | "error" | "info" | "warning">("info");
 
   const [selectedService, setSelectedService] = useState<Service | undefined>();
   const {
@@ -76,7 +72,6 @@ export default function Services() {
         config
       )
       .then((response) => {
-        console.log("Services:", response.data);
         setTotalPages(response.data.totalPages);
         setTotalService(response.data.total);
         setHasNextPage(response.data.hasNextPage);
@@ -84,6 +79,9 @@ export default function Services() {
       })
       .catch((error) => {
         console.error("Error fetching services:", error);
+        toast.error("Failed to fetch services.", {
+          autoClose: false,
+        });
       });
   };
   const fetchServiceRates = async () => {
@@ -91,7 +89,6 @@ export default function Services() {
       .get(`${api_address}/api/service-rates`, config)
       .then((response) => {
         setAllServiceRates(response.data);
-        console.log("Service Rates:", response.data);
       })
       .catch((error) => {
         console.error("Error fetching service rates:", error);
@@ -111,21 +108,14 @@ export default function Services() {
         config
       )
       .then((response) => {
-        console.log("Service updated successfully:", response.data);
         fetchServices(); // Refresh the services list after saving
-        setAlertTitle("Success");
-        setAlertMessage("Service updated successfully.");
-        setAlertType("success");
+        toast.success("Service updated successfully.");
       })
       .catch((error) => {
         console.error("Error updating service:", error);
-        setAlertTitle("Error");
-        setAlertMessage("Failed to update service.");
-        setAlertType("error");
+        toast.error("Failed to update service.");
       });
     closeModalEdit();
-    setShowAlert(true);
-    setTimeout(() => setShowAlert(false), 4000);
   };
   const handleAdd = async (service: Service) => {
     // Perform edit operation hereawait axios
@@ -144,19 +134,13 @@ export default function Services() {
       .then((response) => {
         console.log("Service saved successfully:", response.data);
         fetchServices(); // Refresh the services list after saving
-        setAlertTitle("Success");
-        setAlertMessage("Service created successfully.");
-        setAlertType("success");
+        toast.success("Service created successfully.");
       })
       .catch((error) => {
         console.error("Error saving service:", error);
-        setAlertTitle("Error");
-        setAlertMessage("Failed to create service.");
-        setAlertType("error");
+        toast.error("Failed to create service.");
       });
     closeModalNew();
-    setShowAlert(true);
-    setTimeout(() => setShowAlert(false), 4000);
   };
   const handleDelete = async (service: Service) => {
     // Perform delete operation here
@@ -165,19 +149,13 @@ export default function Services() {
       .then((response) => {
         console.log("Service deleted successfully:", response.data);
         fetchServices(); // Refresh the services list after deleting
-        setAlertTitle("Success");
-        setAlertMessage("Service deleted successfully.");
-        setAlertType("success");
+        toast.success("Service deleted successfully.");
       })
       .catch((error) => {
         console.error("Error deleting service:", error);
-        setAlertTitle("Error");
-        setAlertMessage("Failed to delete service.");
-        setAlertType("error");
+        toast.error("Failed to delete service.");
       });
     closeModalDelete();
-    setShowAlert(true);
-    setTimeout(() => setShowAlert(false), 4000);
   };
   useEffect(() => {
     fetchServices();
@@ -207,10 +185,10 @@ export default function Services() {
           <PageBreadcrumb pageTitle="Services" />
 
           <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6 space-y-6">
-          <div className="flex justify-between items-center mb-6">
-          <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Manage Services
-          </h4>
+            <div className="flex justify-between items-center mb-6">
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                Manage Services
+              </h4>
               <Button
                 variant="primary"
                 type="info"
@@ -221,17 +199,6 @@ export default function Services() {
                 + Add new service
               </Button>
             </div>
-
-            {showAlert && (
-              <div className="mb-4">
-                <Alert
-                  variant={alertType}
-                  title={alertTitle}
-                  message={alertMessage}
-                />
-              </div>
-            )}
-
             <Table className="min-w-full">
               <TableHeader className="bg-gray-50 border-b-2 border-gray-200">
                 <TableRow isHeader={true}>
@@ -297,10 +264,11 @@ export default function Services() {
                   <span
                     key={size}
                     onClick={() => handlePageSizeChange(size)}
-                    className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${pageSize === size
+                    className={`text-gray-700 dark:text-gray-400 mt-4 cursor-pointer hover:text-blue-500 ${
+                      pageSize === size
                         ? "font-bold text-black dark:text-white"
                         : ""
-                      }`}
+                    }`}
                   >
                     {size}
                   </span>
@@ -353,6 +321,7 @@ export default function Services() {
             service={selectedService}
           />
         </div>
+        <ToastContainer position="bottom-right" autoClose={3000} />
       </div>
     </>
   );
@@ -372,7 +341,7 @@ const CustomerModal: React.FC<ModalProps> = ({
   closeModal,
   service,
   totalListOfServiceRates = [],
-  onSave = () => { },
+  onSave = () => {},
   showCloseButton = true, // Default to true for backwards compatibility
   isFullscreen = false,
 }) => {
@@ -390,25 +359,12 @@ const CustomerModal: React.FC<ModalProps> = ({
       !serviceData.duration ||
       !serviceData.description
     ) {
-      setShowAlert(true);
-      setTitle("Error");
-      setMessage("Please fill in all the required fields.");
-      setVariant("error");
-      setTimeout(() => {
-        setShowAlert(false);
-        setTitle("");
-        setMessage("");
-        setVariant("info");
-      }, 4000);
+      toast.error("Please fill in all the required fields.");
       return;
     }
     // Perform save operation here
     onSave(serviceData);
   };
-  const [showAlert, setShowAlert] = useState(false);
-  const [title, setTitle] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
-  const [variant, setVariant] = useState<"info" | "error" | "success">("info");
   const [filteredText, setFilteredText] = useState<string>("");
   useEffect(() => {
     setServiceData({
@@ -427,9 +383,6 @@ const CustomerModal: React.FC<ModalProps> = ({
         <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
           {service ? "Edit Service" : "Add Service"}
         </h4>
-        <div className={showAlert ? " mt-2" : "hidden"}>
-          <Alert variant={variant} title={title} message={message} />
-        </div>
         <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 ">
@@ -530,8 +483,8 @@ const CustomerModal: React.FC<ModalProps> = ({
                             const updatedServiceRates = e.target.checked
                               ? [...serviceData.serviceRates, x]
                               : serviceData.serviceRates.filter(
-                                (sr) => sr._id !== x._id
-                              );
+                                  (sr) => sr._id !== x._id
+                                );
                             setServiceData({
                               ...serviceData,
                               serviceRates: updatedServiceRates,
@@ -547,11 +500,7 @@ const CustomerModal: React.FC<ModalProps> = ({
         </div>
 
         <div className="flex items-center gap-3 mt-6 mb-2 sm:justify-end">
-          <Button
-            onClick={closeModal}
-            type="neutral"
-            size="sm"
-          >
+          <Button onClick={closeModal} type="neutral" size="sm">
             Cancel
           </Button>
           <Button size="sm" type="info" onClick={handleSave}>
@@ -567,24 +516,17 @@ const DeleteModal: React.FC<ModalProps> = ({
   isOpen,
   closeModal,
   service,
-  onDelete = () => { },
+  onDelete = () => {},
 }) => {
   const handleDelete = () => {
     if (service?.name === serviceName) {
       onDelete(service);
     } else {
-      setShowAlert(true);
-      setAlertTitle("Error");
-      setAlertMessage("Service name does not match.");
-      setAlertType("error");
+      toast.error("Service name does not match.");
       return;
     }
   };
   const [serviceName, setServiceName] = useState<string>("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertTitle, setAlertTitle] = useState("");
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState<"success" | "error">("success");
 
   return (
     <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] p-6">
@@ -609,18 +551,11 @@ const DeleteModal: React.FC<ModalProps> = ({
           }}
           className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
         />
-        <div className={showAlert ? "mt-4" : "hidden"}>
-          <Alert
-            variant={alertType}
-            title={alertTitle}
-            message={alertMessage}
-          />
-        </div>
         <div className="flex items-center gap-3 mt-6 mb-2 sm:justify-end">
           <Button
             size="sm"
             variant="outline"
-            type='neutral'
+            type="neutral"
             onClick={closeModal}
             className="bg-gray-500"
           >
@@ -629,7 +564,7 @@ const DeleteModal: React.FC<ModalProps> = ({
           <Button
             size="sm"
             variant="outline"
-            type='danger'
+            type="danger"
             className="bg-red-500"
             onClick={handleDelete}
           >
