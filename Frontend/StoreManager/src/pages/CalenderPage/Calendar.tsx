@@ -19,6 +19,7 @@ interface CalendarEvent extends EventInput {
   title: string;
   description: string;
   type: string;
+  status: "Pending" | "Completed" | "Confirmed" | "Cancelled";
   extendedProps: {
     calendar: string;
   };
@@ -37,7 +38,12 @@ const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const user = useUser();
-
+  const [currentYear, setCurrentYear] = useState<number>(
+    new Date().getFullYear()
+  );
+  const [currentMonth, setCurrentMonth] = useState<number>(
+    new Date().getMonth()
+  );
   const config = {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -45,12 +51,9 @@ const Calendar: React.FC = () => {
       Authorization: sessionStorage.getItem("token"),
     },
   };
-  useEffect(() => {
-    console.log();
-    // Initialize with some events
-    if (user._id === "") return;
+  const load = async () => {
     const date = calendarRef.current?.getApi().getDate();
-    axios
+    await axios
       .get(
         `${
           import.meta.env.VITE_APP_API_ADDRESS_DEV
@@ -59,8 +62,11 @@ const Calendar: React.FC = () => {
       )
       .then((res) => {
         const resEvents: CalendarEvent[] = res.data;
-        const events: CalendarEvent[] = resEvents.map(
-          (event: CalendarEvent) => {
+        const events: CalendarEvent[] = resEvents
+          .filter((x: CalendarEvent) => {
+            return x.status === "Pending";
+          })
+          .map((event: CalendarEvent) => {
             return {
               id: event._id,
               title: event.title,
@@ -72,6 +78,7 @@ const Calendar: React.FC = () => {
               end: new Date(
                 new Date(event.end).setHours(new Date(event.end).getHours() - 8)
               ),
+              status: event.status,
               description: event.description,
               allDay: event.type === "Leave",
               type: event.type,
@@ -79,16 +86,35 @@ const Calendar: React.FC = () => {
                 calendar: event.type === "Leave" ? "Danger" : "Success",
               },
             };
-          }
-        );
+          });
         setEvents(events);
         console.log(events);
       })
       .catch((err) => {
         console.log(err);
       });
-    // Set the events to the state
-  }, [user._id]);
+  };
+  const handlePageChangeLoad = async () => {
+    const date = calendarRef.current?.getApi().getDate();
+    if (
+      date?.getFullYear() != currentYear ||
+      date?.getMonth() != currentMonth
+    ) {
+      setCurrentYear(date?.getFullYear() ?? 0);
+      setCurrentMonth(date?.getMonth() ?? 0);
+      load();
+    }
+  };
+
+  useEffect(() => {
+    // Initialize with some events
+    if (user._id === "") return;
+    handlePageChangeLoad();
+  }, [user._id, calendarRef.current?.getApi().getDate()]);
+
+  useEffect(() => {
+    load();
+  }, []);
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
     openModal();
