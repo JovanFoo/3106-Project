@@ -5,6 +5,7 @@ import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
+import { toast, ToastContainer } from "react-toastify";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -88,13 +89,6 @@ export default function Transactions() {
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction>();
 
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("info");
-  const [title, setTitle] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
-
   const [isLoading, setIsLoading] = useState(false);
   const {
     isOpen: isOpenEdit,
@@ -169,10 +163,6 @@ export default function Transactions() {
     setIsLoading(true);
 
     closeModalNew();
-    setShowAlert(true);
-    setVariant("info");
-    setTitle("Adding!");
-    setMessage("Adding transaction!");
     try {
       const res = await axios.post(
         `${api_address}/api/transactions`,
@@ -183,31 +173,15 @@ export default function Transactions() {
         { ...transaction, id: res.data._id },
         ...prev,
       ]);
-      setShowAlert(true);
-      setVariant("success");
-      setTitle("Success!");
-      setMessage("Transaction added successfully!");
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
+      toast.success("Transaction added successfully!");
     } catch (err) {
       console.error("Error adding transaction:", err);
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error!");
-      setMessage("Error adding transaction!");
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
+      toast.error("Error adding transaction!");
     }
     setIsLoading(false);
   };
   const handleUpdateTransaction = async (transaction: Transaction) => {
     closeModalEdit();
-    setShowAlert(true);
-    setVariant("info");
-    setTitle("Updating!");
-    setMessage("Updating transaction!");
     try {
       await axios.put(
         `${api_address}/api/transactions/${transaction._id}`,
@@ -217,22 +191,10 @@ export default function Transactions() {
       setTransactions((prev) =>
         prev.map((txn) => (txn._id === transaction._id ? transaction : txn))
       );
-      setShowAlert(true);
-      setVariant("success");
-      setTitle("Success!");
-      setMessage("Transaction updated successfully!");
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
+      toast.success("Transaction updated successfully!");
     } catch (err) {
       console.error("Error updating transaction:", err);
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error!");
-      setMessage("Error updating transaction!");
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
+      toast.error("Error updating transaction!");
     }
   };
 
@@ -261,11 +223,6 @@ export default function Transactions() {
         <PageMeta title="Transactions" description="Manage your Transactions" />
         <PageBreadcrumb pageTitle="Transaction" />
         <div className="rounded-2xl  h-full border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-          {showAlert && (
-            <div className="mb-5">
-              <Alert variant={variant} title={title} message={message} />
-            </div>
-          )}
           <div className="flex justify-between items-center mb-6">
             <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Transaction
@@ -390,6 +347,7 @@ export default function Transactions() {
           />
         </div>
       </div>
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 }
