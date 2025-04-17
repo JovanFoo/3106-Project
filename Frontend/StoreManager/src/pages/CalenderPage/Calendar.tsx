@@ -88,7 +88,7 @@ const Calendar: React.FC = () => {
             };
           });
         setEvents(events);
-        console.log(events);
+        console.log("events: ", events);
       })
       .catch((err) => {
         console.log(err);
@@ -96,6 +96,7 @@ const Calendar: React.FC = () => {
   };
   const handlePageChangeLoad = async () => {
     const date = calendarRef.current?.getApi().getDate();
+    console.log("handlePageChangeLoad: ");
     if (
       date?.getFullYear() != currentYear ||
       date?.getMonth() != currentMonth
@@ -108,13 +109,19 @@ const Calendar: React.FC = () => {
 
   useEffect(() => {
     // Initialize with some events
-    if (user._id === "") return;
+    console.log("useEffect: ");
+    const date = calendarRef.current?.getApi().getDate();
+    console.log("date: ", date);
+    console.log(user._id);
     handlePageChangeLoad();
-  }, [user._id, calendarRef.current?.getApi().getDate()]);
+  }, [
+    calendarRef.current?.getApi().getDate(),
+    calendarRef.current?.getApi().getDate().getMonth() == currentMonth,
+  ]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [user._id]);
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
     openModal();

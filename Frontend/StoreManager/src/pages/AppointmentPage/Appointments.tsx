@@ -58,7 +58,7 @@ export default function Appointments() {
         `${api_address}/api/appointments/stylists/${stylistId}`,
         config
       );
-      console.log("Fetched appointments raw:", res.data);
+      // console.log("Fetched appointments raw:", res.data);
 
       const mapped = res.data
         .filter((appt: any) => appt.status !== "Completed")
@@ -94,7 +94,7 @@ export default function Appointments() {
           const dateB = new Date(`${b.date} ${b.time}`).getTime();
           return dateA - dateB;
         });
-      console.log("Mapped appointment:", mapped);
+      // console.log("Mapped appointment:", mapped);
 
       setAppointments(mapped);
     } catch (err) {
