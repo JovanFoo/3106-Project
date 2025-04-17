@@ -603,15 +603,15 @@ const CustomerModal: React.FC<ModalProps> = ({
             />
           </div>
         </div>
-        <div className="flex items-center gap-3 mt-6 sm:justify-end">
-          <button
+        <div className="flex items-center gap-3 mt-6 mb-2 sm:justify-end">
+          <Button
             onClick={closeModal}
-            type="button"
-            className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+            type="neutral"
+            size="sm"
           >
             Close
-          </button>
-          <Button size="sm" variant="primary" onClick={handleSave}>
+          </Button>
+          <Button size="sm" onClick={handleSave}>
             {transaction ? "Update Transaction" : "Create"}
           </Button>
         </div>

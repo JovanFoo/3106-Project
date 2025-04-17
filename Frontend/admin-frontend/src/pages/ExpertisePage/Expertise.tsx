@@ -247,55 +247,6 @@ export default function Expertise() {
           </div>
         </div>
 
-        {/* <Modal
-          isOpen={isOpenNew}
-          onClose={closeModalNew}
-          className="max-w-[600px] p-6"
-        >
-          <div className="flex flex-col px-2">
-            <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
-              Add New Expertise
-            </h4>
-
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
-              Expertise Name
-            </label>
-            <input
-              type="text"
-              className="p-2 border rounded-md dark:bg-gray-700 dark:text-white"
-              placeholder="e.g. Haircut, Digital Perms"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-            />
-            <br />
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
-              Expertise Description
-            </label>
-            <input
-              type="text"
-              className="p-2 border rounded-md dark:bg-gray-700 dark:text-white"
-              placeholder="e.g. Haircut nice and amazing hairhut"
-              value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
-            />
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={closeModalNew}
-                className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
-              >
-                Cancel
-              </button>
-              <Button
-                size="sm"
-                variant="primary"
-                onClick={() => openModalNew()}
-              >
-                Add
-              </Button>
-            </div>
-          </div>
-        </Modal> */}
         <CustomerModal
           isOpen={isOpenNew}
           closeModal={closeModalNew}
@@ -394,13 +345,12 @@ const CustomerModal: React.FC<ModalProps> = ({
         />
 
         <div className="flex justify-end gap-3 mt-6">
-          <Button onClick={closeModal} variant="outline" type="info">
+          <Button onClick={closeModal} size="sm" type="neutral">
             Cancel
           </Button>
           <Button
             size="sm"
-            variant="outline"
-            type={expertise ? "warning" : "success"}
+            type={expertise ? "warning" : "info"}
             onClick={() => handleSave()}
           >
             {expertise ? "Update Expertise" : "Create Expertise"}
@@ -462,10 +412,10 @@ const DeleteModal: React.FC<ModalProps> = ({
           />
         </div>
         <div className="flex items-center gap-3 mt-6 mb-1 sm:justify-end">
-          <Button onClick={closeModal} variant="outline" type="info">
+          <Button onClick={closeModal} type="info">
             Cancel
           </Button>
-          <Button variant="outline" type="danger" onClick={handleDelete}>
+          <Button  type="danger" onClick={handleDelete}>
             Delete
           </Button>
         </div>

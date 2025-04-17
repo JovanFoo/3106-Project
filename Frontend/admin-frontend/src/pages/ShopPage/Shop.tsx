@@ -321,11 +321,10 @@ export default function CreateShop() {
             </div>
 
             <div className="flex justify-between gap-3">
-              <div className="flex justify-end gap-3 mt-6">
+              <div className="flex justify-end gap-3 mt-6 mb-2">
                 {editingShopId && (
                   <Button
                     size="sm"
-                    variant="outline"
                     type="danger"
                     onClick={() => confirmDeleteShop(editingShopId)}
                   >
@@ -333,16 +332,17 @@ export default function CreateShop() {
                   </Button>
                 )}
               </div>
-              <div className="flex justify-end gap-3 mt-6">
-                <button
+              <div className="flex justify-end gap-3 mt-6 mb-2">
+                <Button
                   onClick={() => {
                     closeModal();
                     resetForm();
                   }}
-                  className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                  size="sm"
+                  type='neutral'
                 >
                   Cancel
-                </button>
+                </Button>
                 <Button size="sm" variant="primary" onClick={handleCreateShop}>
                   {editingShopId ? "Update Shop" : "Create Shop"}
                 </Button>
@@ -364,15 +364,15 @@ export default function CreateShop() {
               undone.
             </p>
             <div className="flex justify-end gap-3">
-              <button
+              <Button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                size="sm"
+                type='neutral'
               >
                 Cancel
-              </button>
+              </Button>
               <Button
                 size="sm"
-                variant="outline"
                 type="danger"
                 onClick={handleDeleteShop}
               >
