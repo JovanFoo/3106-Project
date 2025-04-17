@@ -1,33 +1,38 @@
-const express = require( 'express' );
+const express = require("express");
 
 const LeaveRequestRouter = express.Router();
 
-const LeaveRequestController = require( '../controllers/LeaveRequestController.js' );
-const AuthMiddleware = require( '../middlewares/AuthMiddleware.js' );
+const LeaveRequestController = require("../controllers/LeaveRequestController.js");
+const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 
 // CRUD a new leave request (Auth: stylist)
 LeaveRequestRouter.post(
-    "/",
-    AuthMiddleware.authStylistToken,
-    LeaveRequestController.createLeaveRequest
+  "/",
+  AuthMiddleware.authStylistToken,
+  LeaveRequestController.createLeaveRequest
 );
 LeaveRequestRouter.get(
-    "/my-leave-requests",
-    AuthMiddleware.authStylistToken,
-    LeaveRequestController.getMyLeaveRequests
+  "/my-leave-requests",
+  AuthMiddleware.authStylistToken,
+  LeaveRequestController.getMyLeaveRequests
 );
 LeaveRequestRouter.put(
-    "/:id",
-    AuthMiddleware.authStylistToken,
-    LeaveRequestController.update
-)
+  "/:id",
+  AuthMiddleware.authStylistToken,
+  LeaveRequestController.update
+);
 LeaveRequestRouter.delete(
-    "/:id",
-    AuthMiddleware.authStylistToken,
-    LeaveRequestController.delete
-)
+  "/:id",
+  AuthMiddleware.authStylistToken,
+  LeaveRequestController.delete
+);
 
 // Get all leave requests (Auth: stylist manager)
+LeaveRequestRouter.get(
+  "/all-branch-manager",
+  AuthMiddleware.authAdminToken,
+  LeaveRequestController.getAllLeaveRequestsFromBranchManager
+);
 
 LeaveRequestRouter.get(
   "/",
@@ -40,6 +45,16 @@ LeaveRequestRouter.get(
   LeaveRequestController.getAllPendingLeaveRequests
 );
 // Approve or reject leave request (Auth: stylist manager)
+LeaveRequestRouter.post(
+  "/approve/:id/admin",
+  AuthMiddleware.authAdminToken,
+  LeaveRequestController.approveLeaveRequestAdmin
+);
+LeaveRequestRouter.post(
+  "/reject/:id/admin",
+  AuthMiddleware.authAdminToken,
+  LeaveRequestController.rejectLeaveRequestAdmin
+);
 LeaveRequestRouter.post(
   "/approve/:id",
   AuthMiddleware.authStylistManagerToken,

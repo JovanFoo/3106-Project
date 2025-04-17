@@ -46,8 +46,8 @@ const BranchController = {
 
     try {
       const branch = await Branch.findById(id)
-        .populate("manager", "name")       // populate manager name
-        .populate("stylists", "name");     // populate stylist names
+        .populate("manager", "name") // populate manager name
+        .populate("stylists", "name"); // populate stylist names
       if (!branch) {
         return res.status(404).json({ message: "Branch not found" });
       }
@@ -85,8 +85,8 @@ const BranchController = {
 
     try {
       const branches = await Branch.find()
-      .populate("manager", "name")      // populate manager's name
-      .populate("stylists", "name");    // populate each stylist's name
+        .populate("manager") // populate manager's name
+        .populate("stylists", "name"); // populate each stylist's name
       return res.status(200).json(branches);
     } catch (error) {
       console.log(error.message);

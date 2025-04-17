@@ -24,7 +24,7 @@ import {
   Tooltip,
   Typography,
   alpha,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import axios from "axios";
 import {
@@ -32,7 +32,7 @@ import {
   differenceInDays,
   eachDayOfInterval,
   format,
-  startOfWeek
+  startOfWeek,
 } from "date-fns";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
@@ -100,6 +100,7 @@ interface Staff {
   _id: string;
   name: string;
   email: string;
+  role: "Manager" | "Stylist";
   profilePicture?: string;
 }
 
@@ -109,6 +110,7 @@ interface LeaveRequest {
     _id: string;
     name: string;
     email: string;
+    role: "Manager" | "Stylist";
     profilePicture?: string;
   };
   startDate: string;
@@ -161,13 +163,11 @@ const LeaveRequestCell: React.FC<LeaveRequestCellProps> = ({
 
   return (
     <Tooltip
-      title={`${request.type} (${request.status}): ${format(
-        startDate,
-        "MMM dd"
-      )}${isOneDay ? "" : ` - ${format(endDate, "MMM dd")}`}, ${format(
-        startDate,
-        "yyyy"
-      )}${request.reason ? `\n${request.reason}` : ""}`}
+      title={`(${request.status}): ${format(startDate, "MMM dd")}${
+        isOneDay ? "" : ` - ${format(endDate, "MMM dd")}`
+      }, ${format(startDate, "yyyy")}${
+        request.reason ? `\n${request.reason}` : ""
+      }`}
     >
       <Box
         sx={{
@@ -230,66 +230,64 @@ const LeaveManagement = (): ReactElement => {
     Medical: ["Sick"],
   };
 
-  useEffect(() => {
-    const fetchLeaveRequests = async () => {
-      try {
-        setLoading(true);
-        const token = sessionStorage.getItem("token");
-        if (!token) {
-          window.location.href = "/signin";
-          return;
-        }
-
-        const leaveRequestsResponse = await api.get("/api/leave-requests");
-        let leaveRequestsData = leaveRequestsResponse.data;
-
-        const stylistIds = [
-          ...new Set(leaveRequestsData.map((req: any) => req.stylist)),
-        ];
-        const stylistsResponse = await api.get("/api/stylists");
-        const stylistsData = stylistsResponse.data.filter((x: any) =>
-          user.stylists.includes(x._id)
-        );
-
-        const stylistMap = stylistsData
-          .filter((x: any) => user.stylists.includes(x._id))
-          .reduce((acc: any, stylist: any) => {
-            acc[stylist._id] = stylist;
-            return acc;
-          }, {});
-        console.log("Stylists Data:", stylistsData);
-        console.log("Leave Requests Data:", leaveRequestsData);
-        console.log("User Stylists:", user.stylists);
-        console.log("Stylist Map:", stylistMap);
-        leaveRequestsData = leaveRequestsData
-          .filter((x: any) => user.stylists.includes(x.stylist))
-          .map((request: any) => ({
-            ...request,
-            type: request.type || "Paid", // Use the type field directly
-            reason: request.reason || "", // Use reason as is
-            stylist: stylistMap[request.stylist] || {
-              _id: request.stylist,
-              name: "Unknown",
-              email: "No email",
-            },
-          }));
-        console.log("Filtered Leave Requests Data:", leaveRequestsData);
-        setLeaveRequests(leaveRequestsData);
-        setStaff(stylistsData);
-        setLoading(false);
-      } catch (error: any) {
-        console.error("Error fetching data:", error);
-        if (error.response?.status === 401) {
-          setError("Your session has expired. Please sign in again.");
-          window.location.href = "/signin";
-        } else {
-          setError(error.response?.data?.message || "Failed to fetch data");
-        }
-      } finally {
-        setLoading(false);
+  const fetchLeaveRequests = async () => {
+    try {
+      setLoading(true);
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/signin";
+        return;
       }
-    };
 
+      const leaveRequestsResponse = await api.get(
+        "/api/leave-requests/all-branch-manager"
+      );
+      let leaveRequestsData = leaveRequestsResponse.data;
+
+      const stylistIds = [
+        ...new Set(leaveRequestsData.map((req: any) => req.stylist)),
+      ];
+      const stylistsResponse = await api.get("/api/stylists");
+      const stylistsData = stylistsResponse.data.map((stylist: any) => ({
+        ...stylist,
+        role: stylist.stylists.length > 0 ? "Manager" : "Stylist",
+      }));
+      console.log("Stylists Response:", stylistsResponse.data);
+      console.log("Leave Requests Response:", leaveRequestsResponse.data);
+      const stylistMap = stylistsData.reduce((acc: any, stylist: any) => {
+        acc[stylist._id] = stylist;
+        return acc;
+      }, {});
+      console.log("Stylists Data:", stylistsData);
+      console.log("Leave Requests Data:", leaveRequestsData);
+      console.log("Stylist Map:", stylistMap);
+      leaveRequestsData = leaveRequestsData.map((request: any) => ({
+        ...request,
+        type: request.type || "Paid", // Use the type field directly
+        reason: request.reason || "", // Use reason as is
+        stylist: stylistMap[request.stylist] || {
+          _id: request.stylist,
+          name: "Unknown",
+          email: "No email",
+        },
+      }));
+      console.log("Filtered Leave Requests Data:", leaveRequestsData);
+      setLeaveRequests(leaveRequestsData);
+      setStaff(stylistsData);
+      setLoading(false);
+    } catch (error: any) {
+      console.error("Error fetching data:", error);
+      if (error.response?.status === 401) {
+        setError("Your session has expired. Please sign in again.");
+        window.location.href = "/signin";
+      } else {
+        setError(error.response?.data?.message || "Failed to fetch data");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchLeaveRequests();
   }, [user._id]);
 
@@ -297,13 +295,11 @@ const LeaveManagement = (): ReactElement => {
     try {
       console.log("Approving request:", requestId);
       const response = await api.post(
-        `/api/leave-requests/approve/${requestId}`
+        `/api/leave-requests/approve/${requestId}/admin`
       );
       console.log("Approve response:", response);
 
-      // Refresh the leave requests list
-      const updatedResponse = await api.get("/api/leave-requests");
-      setLeaveRequests(updatedResponse.data);
+      fetchLeaveRequests(); // Refresh the leave requests list
       setError(null);
     } catch (error: any) {
       console.error("Error approving leave request:", error);
@@ -319,13 +315,11 @@ const LeaveManagement = (): ReactElement => {
     try {
       console.log("Rejecting request:", requestId);
       const response = await api.post(
-        `/api/leave-requests/reject/${requestId}`
+        `/api/leave-requests/reject/${requestId}/admin`
       );
       console.log("Reject response:", response);
 
-      // Refresh the leave requests list
-      const updatedResponse = await api.get("/api/leave-requests");
-      setLeaveRequests(updatedResponse.data);
+      fetchLeaveRequests(); // Refresh the leave requests list
       setError(null);
     } catch (error: any) {
       console.error("Error rejecting leave request:", error);
@@ -514,6 +508,9 @@ const LeaveManagement = (): ReactElement => {
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           {request.stylist?.email || "No email"}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {request.stylist.role || "Stylist"}
                         </Typography>
                       </Box>
                     </Box>
