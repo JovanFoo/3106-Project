@@ -260,7 +260,7 @@ export default function Appointments() {
                   <input
                     type="datetime-local"
                     value={datetime}
-                    onChange={(e) => setDatetime(e.target.value)}
+                    disabled
                     className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                   <label className="block text-sm font-medium dark:text-white">
@@ -268,11 +268,12 @@ export default function Appointments() {
                   </label>
                   <select
                     value={updatedAppt.service}
-                    onChange={(e) =>
-                      setUpdatedAppt((prev) =>
-                        prev ? { ...prev, service: e.target.value } : null
-                      )
-                    }
+                    disabled
+                    // onChange={(e) =>
+                    //   setUpdatedAppt((prev) =>
+                    //     prev ? { ...prev, service: e.target.value } : null
+                    //   )
+                    // }
                     className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   >
                     <option value="">Select a service</option>
