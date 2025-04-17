@@ -35,6 +35,12 @@ ReviewRouter.put(
   ReviewController.update
 );
 
+ReviewRouter.delete(
+  "/:id/admin",
+  AuthMiddleware.authAdminToken,
+  ReviewController.deleteForAdmin
+);
+
 // Delete a review
 ReviewRouter.delete(
   "/:id",

@@ -1,29 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ArticleIcon from '@mui/icons-material/Article';
+import EmailIcon from '@mui/icons-material/Email';
+import EventIcon from '@mui/icons-material/Event';
+import PhoneIcon from '@mui/icons-material/Phone';
+import SearchIcon from '@mui/icons-material/Search';
 import {
+  Avatar,
   Box,
-  Container,
-  Typography,
-  TextField,
   Button,
   Card,
   CardContent,
-  Grid,
   Chip,
-  InputLabel,
+  Container,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
-  useTheme,
-  Avatar,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  TextField,
+  Typography,
+  useTheme
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import PhoneIcon from '@mui/icons-material/Phone';
-import EmailIcon from '@mui/icons-material/Email';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import EventIcon from '@mui/icons-material/Event';
-import ArticleIcon from '@mui/icons-material/Article';
 import { format } from 'date-fns';
+import React, { useEffect, useState } from 'react';
 
 interface CustomerBooking {
   id: string;

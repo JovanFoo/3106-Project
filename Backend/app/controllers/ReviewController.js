@@ -202,6 +202,29 @@ const ReviewController = {
       return res.status(500).json({ message: "Internal Server Error" });
     }
   },
+  async deleteForAdmin(req, res) {
+    console.log("ReviewController > delete");
+    const { id } = req.params;
+    console.log(id);
+    try {
+    let review = await Review.findById(id);
+    const appointment = await Appointment.findById(review.appointment);
+
+    appointment.review = null;
+    await appointment.save();
+
+    review = await Review.findByIdAndDelete(id);
+
+      if (review) {
+        return res.status(200).json({ message: "Review deleted successfully" });
+      } else {
+        return res.status(400).json({ message: "Error deleting review" });
+      }
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  },
   // Retrieve reviews for a specific stylist
   async retrieveStylistReviews(req, res) {
     console.log("ReviewController > retrieveStylistReviews");
@@ -290,12 +313,16 @@ const ReviewController = {
         continue;
       }
       const review = await Review.findById(element.review);
-      temp.push({
+      if (review) {
+        temp.push({
+        _id: review._id,
         text: review.text,
         stars: review.stars,
         title: review.title,
         customer: element.customer,
       });
+      }
+      
     }
 
     if (temp) {
