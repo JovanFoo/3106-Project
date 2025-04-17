@@ -20,6 +20,7 @@ type TeamMember = {
   name: string;
   email: string;
   profilePicture?: string;
+  stylists?: string[];
   role: string;
   rating?: number;
 };
@@ -83,7 +84,10 @@ export default function Teams() {
                   member._id.toString() === stylist._id.toString()
               )
           )
-          .filter((stylist: TeamMember) => stylist._id !== user._id);
+          .filter((stylist: TeamMember) => stylist._id !== user._id)
+          .filter((x: TeamMember) =>
+            x.stylists ? !(x.stylists.length > 0) : true
+          ); // filter out stylists with no stylists
         setAvailableStylists(filteredStylists);
       } catch (error) {
         console.error("Error fetching data", error);

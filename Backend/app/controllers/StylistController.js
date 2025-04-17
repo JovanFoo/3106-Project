@@ -511,6 +511,8 @@ const StylistController = {
       branchFromId.manager = stylist._id;
       await branchFromId.save();
       await stylist.save();
+      stylist.stylists.push(stylist._id);
+      await stylist.save();
       stylist.password = undefined;
       return res.status(200).json(stylist);
     }
