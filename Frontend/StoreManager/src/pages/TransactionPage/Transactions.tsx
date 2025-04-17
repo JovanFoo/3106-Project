@@ -17,7 +17,7 @@ type Transaction = {
   date: Date;
   paymentMethod: "Cash" | "Card";
   amount: number;
-  status: "Pending" | "Completed" | "Cancelled" | "Confirmed";
+  status: "Pending" | "Completed";
 };
 
 type Stylist = {
@@ -322,14 +322,10 @@ export default function Transactions() {
                   </td>
                   <td
                     className={
-                      txn.status == "Cancelled"
-                        ? "text-red-500 border p-2 font-semibold dark:text-red-300"
-                        : txn.status == "Completed"
+                      txn.status == "Completed"
                         ? "text-green-500 border p-2 font-semibold dark:text-green-300"
                         : txn.status == "Pending"
                         ? "text-yellow-500 border p-2 font-semibold dark:text-yellow-300"
-                        : txn.status == "Confirmed"
-                        ? "text-blue-500 border p-2 font-semibold dark:text-blue-300"
                         : "text-teal-500 border p-2 font-semibold dark:text-teal-300"
                     }
                   >
@@ -546,27 +542,18 @@ const CustomerModal: React.FC<ModalProps> = ({
                 ) {
                   setTransactionData({
                     ...transactionData,
-                    status: e.target.value as
-                      | "Pending"
-                      | "Completed"
-                      | "Cancelled"
-                      | "Confirmed",
+                    status: e.target.value as "Pending" | "Completed",
                   });
                 }
               }}
-              disabled={
-                transactionData.status === "Completed" ||
-                transactionData.status === "Cancelled"
-              }
+              disabled={transaction?.status === "Completed"}
               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-slate-300"
             >
-              {["Completed", "Pending", "Cancelled", "Confirmed"].map(
-                (option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                )
-              )}
+              {["Completed", "Pending"].map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
             </select>
           </div>
           <div className="col-span-2">
@@ -603,14 +590,10 @@ const CustomerModal: React.FC<ModalProps> = ({
             />
           </div>
         </div>
-        <div className="flex items-center gap-3 mt-6 sm:justify-end">
-          <button
-            onClick={closeModal}
-            type="button"
-            className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
-          >
+        <div className="flex items-center gap-3 mt-6 sm:justify-end mb-2">
+          <Button onClick={closeModal} variant="outline" size="sm">
             Close
-          </button>
+          </Button>
           <Button size="sm" variant="primary" onClick={handleSave}>
             {transaction ? "Update Transaction" : "Create"}
           </Button>
