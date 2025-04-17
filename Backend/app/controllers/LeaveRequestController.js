@@ -2,6 +2,7 @@ const LeaveRequest = require("../models/LeaveRequest");
 const Stylist = require("../models/Stylist");
 const Branch = require("../models/Branch");
 const mongodb = require("./config/database.js");
+const Admin = require("../models/Admin.js");
 
 const LeaveRequestController = {
   async createLeaveRequest(req, res) {
@@ -373,6 +374,96 @@ const LeaveRequestController = {
 
     leaveRequest.status = "Rejected";
     leaveRequest.approvedBy = manager;
+    await leaveRequest.save();
+
+    // Get the stylist information
+    const stylist = await Stylist.findById(leaveRequest.stylist).select(
+      "_id name email profilePicture"
+    );
+
+    // Create response with stylist information
+    const response = {
+      ...leaveRequest.toObject(),
+      stylist: {
+        _id: stylist._id,
+        name: stylist.name,
+        email: stylist.email,
+        profilePicture: stylist.profilePicture,
+      },
+    };
+
+    return res.status(200).json(response);
+  },
+  async approveLeaveRequestAdmin(req, res) {
+    console.log("LeaveRequestController > approve leave request");
+    const { id: leaveRequestId } = req.params;
+    const { userId: adminId } = req;
+
+    // First get the leave request to find the stylist
+    const leaveRequest = await LeaveRequest.findById(leaveRequestId);
+    if (!leaveRequest) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+
+    // Get the manager and populate their stylists
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    if (leaveRequest.status.toLowerCase() !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "Leave request is already " + leaveRequest.status });
+    }
+
+    leaveRequest.status = "Approved";
+    leaveRequest.approvedBy = admin;
+    await leaveRequest.save();
+
+    // Get the stylist information
+    const stylist = await Stylist.findById(leaveRequest.stylist).select(
+      "_id name email profilePicture"
+    );
+
+    // Create response with stylist information
+    const response = {
+      ...leaveRequest.toObject(),
+      stylist: {
+        _id: stylist._id,
+        name: stylist.name,
+        email: stylist.email,
+        profilePicture: stylist.profilePicture,
+      },
+    };
+
+    return res.status(200).json(response);
+  },
+  async rejectLeaveRequestAdmin(req, res) {
+    console.log("LeaveRequestController > reject leave request");
+    const { id: leaveRequestId } = req.params;
+    const { userId: adminId } = req;
+
+    // First get the leave request to find the stylist
+    const leaveRequest = await LeaveRequest.findById(leaveRequestId);
+    if (!leaveRequest) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+
+    // Get the manager and populate their stylists
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    if (leaveRequest.status.toLowerCase() !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "Leave request is already " + leaveRequest.status });
+    }
+
+    leaveRequest.status = "Rejected";
+    leaveRequest.approvedBy = admin;
     await leaveRequest.save();
 
     // Get the stylist information

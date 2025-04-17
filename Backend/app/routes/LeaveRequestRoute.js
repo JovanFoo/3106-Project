@@ -46,6 +46,16 @@ LeaveRequestRouter.get(
 );
 // Approve or reject leave request (Auth: stylist manager)
 LeaveRequestRouter.post(
+  "/approve/:id/admin",
+  AuthMiddleware.authAdminToken,
+  LeaveRequestController.approveLeaveRequestAdmin
+);
+LeaveRequestRouter.post(
+  "/reject/:id/admin",
+  AuthMiddleware.authAdminToken,
+  LeaveRequestController.rejectLeaveRequestAdmin
+);
+LeaveRequestRouter.post(
   "/approve/:id",
   AuthMiddleware.authStylistManagerToken,
   LeaveRequestController.approveLeaveRequest

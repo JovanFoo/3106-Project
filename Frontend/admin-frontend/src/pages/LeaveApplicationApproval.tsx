@@ -239,62 +239,61 @@ const LeaveManagement = (): ReactElement => {
     Medical: ["Sick"],
   };
 
-  useEffect(() => {
-    const fetchLeaveRequests = async () => {
-      try {
-        setLoading(true);
-        const token = sessionStorage.getItem("token");
-        if (!token) {
-          window.location.href = "/signin";
-          return;
-        }
-
-        const leaveRequestsResponse = await api.get(
-          "/api/leave-requests/all-branch-manager"
-        );
-        let leaveRequestsData = leaveRequestsResponse.data;
-
-        const stylistIds = [
-          ...new Set(leaveRequestsData.map((req: any) => req.stylist)),
-        ];
-        const stylistsResponse = await api.get("/api/branches");
-        const stylistsData = stylistsResponse.data.map((x: any) => x.manager);
-        console.log("Stylists Response:", stylistsResponse.data);
-        console.log("Leave Requests Response:", leaveRequestsResponse.data);
-        const stylistMap = stylistsData.reduce((acc: any, stylist: any) => {
-          acc[stylist._id] = stylist;
-          return acc;
-        }, {});
-        console.log("Stylists Data:", stylistsData);
-        console.log("Leave Requests Data:", leaveRequestsData);
-        console.log("Stylist Map:", stylistMap);
-        leaveRequestsData = leaveRequestsData.map((request: any) => ({
-          ...request,
-          type: request.type || "Paid", // Use the type field directly
-          reason: request.reason || "", // Use reason as is
-          stylist: stylistMap[request.stylist] || {
-            _id: request.stylist,
-            name: "Unknown",
-            email: "No email",
-          },
-        }));
-        console.log("Filtered Leave Requests Data:", leaveRequestsData);
-        setLeaveRequests(leaveRequestsData);
-        setStaff(stylistsData);
-        setLoading(false);
-      } catch (error: any) {
-        console.error("Error fetching data:", error);
-        if (error.response?.status === 401) {
-          setError("Your session has expired. Please sign in again.");
-          window.location.href = "/signin";
-        } else {
-          setError(error.response?.data?.message || "Failed to fetch data");
-        }
-      } finally {
-        setLoading(false);
+  const fetchLeaveRequests = async () => {
+    try {
+      setLoading(true);
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/signin";
+        return;
       }
-    };
 
+      const leaveRequestsResponse = await api.get(
+        "/api/leave-requests/all-branch-manager"
+      );
+      let leaveRequestsData = leaveRequestsResponse.data;
+
+      const stylistIds = [
+        ...new Set(leaveRequestsData.map((req: any) => req.stylist)),
+      ];
+      const stylistsResponse = await api.get("/api/stylists");
+      const stylistsData = stylistsResponse.data;
+      console.log("Stylists Response:", stylistsResponse.data);
+      console.log("Leave Requests Response:", leaveRequestsResponse.data);
+      const stylistMap = stylistsData.reduce((acc: any, stylist: any) => {
+        acc[stylist._id] = stylist;
+        return acc;
+      }, {});
+      console.log("Stylists Data:", stylistsData);
+      console.log("Leave Requests Data:", leaveRequestsData);
+      console.log("Stylist Map:", stylistMap);
+      leaveRequestsData = leaveRequestsData.map((request: any) => ({
+        ...request,
+        type: request.type || "Paid", // Use the type field directly
+        reason: request.reason || "", // Use reason as is
+        stylist: stylistMap[request.stylist] || {
+          _id: request.stylist,
+          name: "Unknown",
+          email: "No email",
+        },
+      }));
+      console.log("Filtered Leave Requests Data:", leaveRequestsData);
+      setLeaveRequests(leaveRequestsData);
+      setStaff(stylistsData);
+      setLoading(false);
+    } catch (error: any) {
+      console.error("Error fetching data:", error);
+      if (error.response?.status === 401) {
+        setError("Your session has expired. Please sign in again.");
+        window.location.href = "/signin";
+      } else {
+        setError(error.response?.data?.message || "Failed to fetch data");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchLeaveRequests();
   }, [user._id]);
 
@@ -302,13 +301,11 @@ const LeaveManagement = (): ReactElement => {
     try {
       console.log("Approving request:", requestId);
       const response = await api.post(
-        `/api/leave-requests/approve/${requestId}`
+        `/api/leave-requests/approve/${requestId}/admin`
       );
       console.log("Approve response:", response);
 
-      // Refresh the leave requests list
-      const updatedResponse = await api.get("/api/leave-requests");
-      setLeaveRequests(updatedResponse.data);
+      fetchLeaveRequests(); // Refresh the leave requests list
       setError(null);
     } catch (error: any) {
       console.error("Error approving leave request:", error);
@@ -324,13 +321,11 @@ const LeaveManagement = (): ReactElement => {
     try {
       console.log("Rejecting request:", requestId);
       const response = await api.post(
-        `/api/leave-requests/reject/${requestId}`
+        `/api/leave-requests/reject/${requestId}/admin`
       );
       console.log("Reject response:", response);
 
-      // Refresh the leave requests list
-      const updatedResponse = await api.get("/api/leave-requests");
-      setLeaveRequests(updatedResponse.data);
+      fetchLeaveRequests(); // Refresh the leave requests list
       setError(null);
     } catch (error: any) {
       console.error("Error rejecting leave request:", error);
