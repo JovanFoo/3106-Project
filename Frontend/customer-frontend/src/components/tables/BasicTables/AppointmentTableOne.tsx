@@ -6,8 +6,9 @@ import {
   TableRow,
 } from "../../ui/table";
 
-import Badge from "../../ui/badge/Badge";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import Badge from "../../ui/badge/Badge";
 import Button from "../../ui/button/Button";
 import ReviewFormModal from "../../ui/modal/ReviewFormModal";
 
@@ -65,7 +66,7 @@ interface Props {
 
 export default function AppointmentTableOne({ appointment }: Props) {
   // set initial dropdown value to Pending
-  const [statusFilter, setStatusFilter] = useState("Completed");
+  const [statusFilter, setStatusFilter] = useState("");
   const [appointments, setAppointments] = useState<Appointment[]>(appointment);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
@@ -128,6 +129,7 @@ export default function AppointmentTableOne({ appointment }: Props) {
 
         // update the appointment with the new review
         updateAppointmentReview(selectedAppointment._id, createdReview);
+        toast.success("Review successfully created!");
       } catch (err) {
         console.error("Create Review Error:", err);
       }
@@ -161,6 +163,7 @@ export default function AppointmentTableOne({ appointment }: Props) {
 
         // update the review inside the selected appointment
         updateAppointmentReview(selectedAppointment._id, updatedReview);
+        toast.success("Review successfully edited!");
       } catch (err) {
         console.error("Edit Review Error:", err);
       }
@@ -186,6 +189,7 @@ export default function AppointmentTableOne({ appointment }: Props) {
 
         // Remove the review from the appointment
         updateAppointmentReview(selectedAppointment._id, null);
+        toast.success("Review successfully deleted!");
       } catch (err) {
         console.error("Delete Review Error:", err);
       }
@@ -200,9 +204,15 @@ export default function AppointmentTableOne({ appointment }: Props) {
     );
   };
 
-  const filteredData = statusFilter
-    ? appointments.filter((appt) => appt.status === statusFilter)
-    : appointments;
+  const filteredData = (
+    statusFilter
+      ? appointments.filter((appt) => appt.status === statusFilter)
+      : appointments
+  ).sort((a, b) => {
+    const dateA = new Date(a.date ?? 0).getTime();
+    const dateB = new Date(b.date ?? 0).getTime();
+    return dateB - dateA; // descending: latest first
+  });
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -213,15 +223,45 @@ export default function AppointmentTableOne({ appointment }: Props) {
               Select Status:
             </label>
             <select
-              className="border border-gray-300 rounded px-2 py-1 text-sm dark:bg-gray-800 dark:text-white"
+              className="border border-gray-300 rounded px-2 py-1 text-sm dark:bg-gray-800 dark:text-white min-w-[200px] w-auto"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="">-- All Appointments --</option>
-              <option value="Pending">Pending</option>
-              <option value="Cancelled">Cancelled</option>
-              <option value="Confirmed">Confirmed</option>
-              <option value="Completed">Completed</option>
+              <option value="">
+                -- All Appointments ({appointments.length}) --
+              </option>
+              <option value="Pending">
+                Pending (
+                {
+                  appointments.filter((appt) => appt.status === "Pending")
+                    .length
+                }
+                )
+              </option>
+              <option value="Cancelled">
+                Cancelled (
+                {
+                  appointments.filter((appt) => appt.status === "Cancelled")
+                    .length
+                }
+                )
+              </option>
+              <option value="Confirmed">
+                Confirmed (
+                {
+                  appointments.filter((appt) => appt.status === "Confirmed")
+                    .length
+                }
+                )
+              </option>
+              <option value="Completed">
+                Completed (
+                {
+                  appointments.filter((appt) => appt.status === "Completed")
+                    .length
+                }
+                )
+              </option>
             </select>
           </div>
 
