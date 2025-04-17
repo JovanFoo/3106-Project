@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
@@ -139,12 +138,6 @@ export default function Teams() {
               Add Team Member +
             </Button>
           </div>
-
-          {showAlert && (
-            <div className="mb-5">
-              <Alert variant={variant} title={title} message={message} />
-            </div>
-          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {teamMembers.map((member) => (

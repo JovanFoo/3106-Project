@@ -6,7 +6,6 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 import EventIcon from "@mui/icons-material/Event";
 import {
-  Alert,
   Avatar,
   Box,
   Button,
@@ -36,6 +35,7 @@ import {
 } from "date-fns";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
+import { toast, ToastContainer } from "react-toastify";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -201,7 +201,6 @@ const LeaveManagement = (): ReactElement => {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("status");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -252,15 +251,10 @@ const LeaveManagement = (): ReactElement => {
         ...stylist,
         role: stylist.stylists.length > 0 ? "Manager" : "Stylist",
       }));
-      console.log("Stylists Response:", stylistsResponse.data);
-      console.log("Leave Requests Response:", leaveRequestsResponse.data);
       const stylistMap = stylistsData.reduce((acc: any, stylist: any) => {
         acc[stylist._id] = stylist;
         return acc;
       }, {});
-      console.log("Stylists Data:", stylistsData);
-      console.log("Leave Requests Data:", leaveRequestsData);
-      console.log("Stylist Map:", stylistMap);
       leaveRequestsData = leaveRequestsData.map((request: any) => ({
         ...request,
         type: request.type || "Paid", // Use the type field directly
@@ -278,10 +272,11 @@ const LeaveManagement = (): ReactElement => {
     } catch (error: any) {
       console.error("Error fetching data:", error);
       if (error.response?.status === 401) {
-        setError("Your session has expired. Please sign in again.");
+        toast.error("Your session has expired. Please sign in again.");
+
         window.location.href = "/signin";
       } else {
-        setError(error.response?.data?.message || "Failed to fetch data");
+        toast.error("Failed to fetch leave requests.");
       }
     } finally {
       setLoading(false);
@@ -300,12 +295,12 @@ const LeaveManagement = (): ReactElement => {
       console.log("Approve response:", response);
 
       fetchLeaveRequests(); // Refresh the leave requests list
-      setError(null);
+      toast.success("Leave request approved successfully!");
     } catch (error: any) {
       console.error("Error approving leave request:", error);
       console.error("Response data:", error.response?.data);
       console.error("Status code:", error.response?.status);
-      setError(
+      toast.error(
         error.response?.data?.message || "Failed to approve leave request"
       );
     }
@@ -320,12 +315,12 @@ const LeaveManagement = (): ReactElement => {
       console.log("Reject response:", response);
 
       fetchLeaveRequests(); // Refresh the leave requests list
-      setError(null);
+      toast.success("Leave request rejected successfully!");
     } catch (error: any) {
       console.error("Error rejecting leave request:", error);
       console.error("Response data:", error.response?.data);
       console.error("Status code:", error.response?.status);
-      setError(
+      toast.error(
         error.response?.data?.message || "Failed to reject leave request"
       );
     }
@@ -434,23 +429,8 @@ const LeaveManagement = (): ReactElement => {
         (a, b) =>
           new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
       );
-
     if (pendingRequests.length === 0) {
-      return (
-        <Alert
-          severity="info"
-          sx={{
-            mt: 3,
-            borderRadius: "12px",
-            bgcolor:
-              theme.palette.mode === "dark"
-                ? alpha(theme.palette.info.main, 0.1)
-                : undefined,
-          }}
-        >
-          No pending leave requests to approve
-        </Alert>
-      );
+      return <></>;
     }
 
     return (
@@ -653,22 +633,6 @@ const LeaveManagement = (): ReactElement => {
             Leave Management
           </Typography>
         </Box>
-
-        {error && (
-          <Alert
-            severity="error"
-            sx={{
-              mb: 3,
-              borderRadius: "12px",
-              bgcolor:
-                theme.palette.mode === "dark"
-                  ? alpha(theme.palette.error.main, 0.1)
-                  : undefined,
-            }}
-          >
-            {error}
-          </Alert>
-        )}
 
         <Grid container spacing={3}>
           {/* Left column with stats and quick approval */}
@@ -1000,6 +964,11 @@ const LeaveManagement = (): ReactElement => {
             )}
           </Box>
         </Dialog>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          className={"z-999999"}
+        />
       </Container>
     </Box>
   );
