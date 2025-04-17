@@ -23,7 +23,6 @@ const leaveRequestSchema = new Schema({
         type: String,
         enum: ["Paid", "Unpaid"],
         required: true,
-        default: "Paid"
     },
     reason: {
         type: String,
