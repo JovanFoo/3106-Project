@@ -125,44 +125,45 @@ const LeaveRequestController = {
 
 
     // Get all leave requests
-    // Get all leave requests
-  async getAllLeaveRequests(req, res) {
-    console.log("LeaveRequestController > get leave requests");
-    try {
-      const { userId: managerId } = req;
-      const manager = await Stylist.findById(managerId)
-        .populate("stylists")
-        .populate("leaveRequests")
-        .exec();
-      if (!manager) {
-        return res.status(404).json({ message: "Manager not found" });
-      }
-      if (manager.stylists.length === 0) {
-        return res
-          .status(403)
-          .json({ message: "Not authorized - No stylists under management" });
-      }
-
-      // Populate leave requests for all stylists
-      await Promise.all(
-        manager.stylists.map(async (stylist) => {
-          await stylist.populate("leaveRequests");
-        })
-      );
-
-      const leaveRequests = manager.stylists
-        .map((stylist) => stylist.leaveRequests)
-        .flat();
-      return res.status(200).json([...leaveRequests, ...manager.leaveRequests]);
-    } catch (error) {
-      console.log(error.message);
-      return res.status(400).json({ message: "Error getting leave requests" });
-    }
-  },
-    async getAllPendingLeaveRequests ( req, res ) {
-        console.log( "LeaveRequestController > get pending leave requests" );
+    async getAllLeaveRequests(req, res) {
+        console.log("LeaveRequestController > get leave requests");
         try {
-            const managerId = req.user?.id ||  req.userId || req.body.userId;
+            const { userId: managerId } = req;
+            const manager = await Stylist.findById(managerId)
+                .populate("stylists")
+                .populate("leaveRequests")
+                .exec();
+            if (!manager) {
+                return res.status(404).json({ message: "Manager not found" });
+            }
+            if (manager.stylists.length === 0) {
+                return res
+                    .status(403)
+                    .json({ message: "Not authorized - No stylists under management" });
+            }
+
+            // Populate leave requests for all stylists
+            await Promise.all(
+                manager.stylists.map(async (stylist) => {
+                    await stylist.populate("leaveRequests");
+                })
+            );
+
+            // Only include leave requests from stylists under management
+            const leaveRequests = manager.stylists
+                .map((stylist) => stylist.leaveRequests)
+                .flat();
+            
+            return res.status(200).json(leaveRequests); // Remove manager's own leave requests
+        } catch (error) {
+            console.log(error.message);
+            return res.status(400).json({ message: "Error getting leave requests" });
+        }
+    },
+    async getAllPendingLeaveRequests(req, res) {
+        console.log("LeaveRequestController > get pending leave requests");
+        try {
+            const managerId = req.user?.id || req.userId || req.body.userId;
             console.log("Fetching manager with ID:", managerId);
             
             const manager = await Stylist.findById(managerId)
@@ -178,7 +179,7 @@ const LeaveRequestController = {
 
             console.log("Manager has stylists:", manager.stylists?.length || 0);
 
-            // Get all pending leave requests from all stylists
+            // Get all pending leave requests from stylists under management
             const leaveRequests = [];
             if (manager.stylists && manager.stylists.length > 0) {
                 for (const stylist of manager.stylists) {

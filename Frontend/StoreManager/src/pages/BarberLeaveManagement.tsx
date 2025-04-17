@@ -45,9 +45,9 @@ import axios from "axios";
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
 interface LeaveStats {
-  availableUnpaidLeave: number;
-  availablePaidLeave: number;
+  totalLeave: number;
   usedLeave: number;
+  availableLeave: number;
 }
 
 interface LeaveApplication {
@@ -58,7 +58,6 @@ interface LeaveApplication {
   endDate: string;
   totalDays: number;
   status: string;
-  type: string;
   reason: string;
   image?: string;
 }
@@ -74,7 +73,6 @@ interface DocumentSubmission {
 interface NewApplication {
   startDate: string;
   endDate: string;
-  type: string;
   reason: string;
   image?: string;
 }
@@ -82,14 +80,13 @@ interface NewApplication {
 interface ServerHighlight {
   date: Date;
   status: string;
-  type: string;
 }
 
 const BarberLeaveManagement: React.FC = () => {
   const [leaveStats, setLeaveStats] = useState<LeaveStats>({
-    availableUnpaidLeave: 20,
-    availablePaidLeave: 30,
-    usedLeave: 2,
+    totalLeave: 30,
+    usedLeave: 0,
+    availableLeave: 30
   });
   const [filter, setFilter] = useState("all");
   const [openApplyDialog, setOpenApplyDialog] = useState(false);
@@ -97,16 +94,11 @@ const BarberLeaveManagement: React.FC = () => {
   const [newApplication, setNewApplication] = useState<NewApplication>({
     startDate: "",
     endDate: "",
-    type: "paid",
     reason: "",
     image: "",
   });
-  const [leaveApplications, setLeaveApplications] = useState<
-    LeaveApplication[]
-  >([]);
-  const [documentSubmissions, setDocumentSubmissions] = useState<
-    DocumentSubmission[]
-  >([
+  const [leaveApplications, setLeaveApplications] = useState<LeaveApplication[]>([]);
+  const [documentSubmissions, setDocumentSubmissions] = useState<DocumentSubmission[]>([
     {
       type: "Medical Certificate",
       leaveDate: "2024-12-20",
@@ -123,9 +115,7 @@ const BarberLeaveManagement: React.FC = () => {
     },
   ]);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
-    null
-  );
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<ServerHighlight[]>([]);
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
@@ -157,7 +147,6 @@ const BarberLeaveManagement: React.FC = () => {
             new Date(request.startDate)
           ) + 1,
         status: request.status || "Pending",
-        type: request.type?.toLowerCase() || "paid",
         reason: request.reason || "",
         image: request.image || "",
       }));
@@ -174,8 +163,7 @@ const BarberLeaveManagement: React.FC = () => {
           date.setDate(date.getDate() + i);
           newHighlights.push({
             date,
-            status: request.status,
-            type: request.type,
+            status: request.status
           });
         }
       });
@@ -184,37 +172,20 @@ const BarberLeaveManagement: React.FC = () => {
       console.log("Formatted requests:", formattedRequests);
       setLeaveApplications(formattedRequests);
       
-      // Add console logs to debug leave stats calculation
-      console.log("All requests statuses:", formattedRequests.map((req: LeaveApplication) => req.status));
-      console.log("All requests types:", formattedRequests.map((req: LeaveApplication) => req.type));
-
-      // Adjust leave stats based on approved applications
+      // Calculate total used leave days
       const approvedApplications = formattedRequests.filter(
         (app: LeaveApplication) => app.status?.toLowerCase?.() === "approved"
       );
 
-      console.log("Approved applications:", approvedApplications);
-
-      let usedPaid = 0;
-      let usedUnpaid = 0;
-
-      approvedApplications.forEach((app: LeaveApplication) => {
-        console.log("Processing app:", app);
-        const leaveType = app.type?.toLowerCase();
-        if (leaveType === "paid") {
-          usedPaid += app.totalDays;
-        } else if (leaveType === "unpaid") {
-          usedUnpaid += app.totalDays;
-        }
-      });
-
-      console.log("Used paid days:", usedPaid);
-      console.log("Used unpaid days:", usedUnpaid);
+      const totalUsedDays = approvedApplications.reduce(
+        (total: number, app: LeaveApplication) => total + app.totalDays,
+        0
+      );
 
       setLeaveStats({
-        availablePaidLeave: 30 - usedPaid,
-        availableUnpaidLeave: 20 - usedUnpaid,
-        usedLeave: usedPaid + usedUnpaid,
+        totalLeave: 30,
+        usedLeave: totalUsedDays,
+        availableLeave: 30 - totalUsedDays
       });
     } catch (error) {
       console.error("Error fetching leave requests:", error);
@@ -248,18 +219,11 @@ const BarberLeaveManagement: React.FC = () => {
   };
 
   const handleApplyLeave = async () => {
-    // Validate required fields
-    if (
-      !newApplication.startDate ||
-      !newApplication.endDate ||
-      !newApplication.type ||
-      !newApplication.reason
-    ) {
+    if (!newApplication.startDate || !newApplication.endDate || !newApplication.reason) {
       alert("Please fill in all required fields");
       return;
     }
 
-    // Validate date range
     const startDate = new Date(newApplication.startDate);
     const endDate = new Date(newApplication.endDate);
     if (startDate > endDate) {
@@ -274,7 +238,6 @@ const BarberLeaveManagement: React.FC = () => {
         {
           startDate: newApplication.startDate,
           endDate: newApplication.endDate,
-          type: newApplication.type.toLowerCase(),
           reason: newApplication.reason,
           image: newApplication.image,
         },
@@ -287,19 +250,15 @@ const BarberLeaveManagement: React.FC = () => {
 
       console.log("Leave application response:", response.data);
 
-      // Check if the response contains the created leave request
       if (response.data && response.data._id) {
         alert("Leave application submitted successfully");
         setOpenApplyDialog(false);
-        // Reset form
         setNewApplication({
           startDate: "",
           endDate: "",
-          type: "paid",
           reason: "",
           image: "",
         });
-        // Refresh data
         fetchLeaveRequests();
       } else {
         alert("Failed to submit leave application. Please try again.");
@@ -406,7 +365,7 @@ const BarberLeaveManagement: React.FC = () => {
     <Card sx={{ mb: 4 }}>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          Total Leave
+          Leave Balance
         </Typography>
         <Typography variant="caption" color="text.secondary">
           1 Jan 2025 - 31 Dec 2025
@@ -414,19 +373,19 @@ const BarberLeaveManagement: React.FC = () => {
 
         <Grid container spacing={4} sx={{ mt: 2 }}>
           <Grid item>
-            <Typography variant="body2" color="success.main">
-              Available Unpaid Leave
+            <Typography variant="body2" color="primary.main">
+              Total Leave Days
             </Typography>
             <Typography variant="h4">
-              {leaveStats.availableUnpaidLeave}
+              {leaveStats.totalLeave}
             </Typography>
           </Grid>
           <Grid item>
-            <Typography variant="body2" color="primary.main">
-              Available Paid Leave
+            <Typography variant="body2" color="success.main">
+              Available Leave
             </Typography>
             <Typography variant="h4">
-              {leaveStats.availablePaidLeave}
+              {leaveStats.availableLeave}
             </Typography>
           </Grid>
           <Grid item>
@@ -441,7 +400,6 @@ const BarberLeaveManagement: React.FC = () => {
   );
 
   const renderLeaveApplications = () => {
-    console.log("Current leave applications:", leaveApplications);
     const filteredApplications = leaveApplications.filter((application) => {
       if (filter === "all") return true;
       if (filter === "pending")
@@ -452,9 +410,6 @@ const BarberLeaveManagement: React.FC = () => {
         return application.status.toLowerCase() === "rejected";
       return true;
     });
-
-    console.log("Current filter:", filter);
-    console.log("Filtered applications:", filteredApplications);
 
     return (
       <Box sx={{ mb: 4 }}>
@@ -495,7 +450,7 @@ const BarberLeaveManagement: React.FC = () => {
               <Card key={application.id}>
                 <CardContent>
                   <Grid container alignItems="center" spacing={2}>
-                    <Grid item xs={12} md={3}>
+                    <Grid item xs={12} md={4}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Leave Date
                       </Typography>
@@ -504,19 +459,11 @@ const BarberLeaveManagement: React.FC = () => {
                         {format(new Date(application.endDate), "dd MMM")}
                       </Typography>
                     </Grid>
-                    <Grid item xs={12} md={2}>
+                    <Grid item xs={12} md={4}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Total Days
                       </Typography>
                       <Typography>{application.totalDays} Days</Typography>
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        Type
-                      </Typography>
-                      <Typography sx={{ textTransform: "capitalize" }}>
-                        {application.type} Leave
-                      </Typography>
                     </Grid>
                     <Grid item xs={12} md={4}>
                       <Box
@@ -531,9 +478,7 @@ const BarberLeaveManagement: React.FC = () => {
                           <>
                             <Chip label="Pending" color="warning" />
                             <IconButton
-                              onClick={() =>
-                                handleWithdrawClick(application.id)
-                              }
+                              onClick={() => handleWithdrawClick(application.id)}
                               color="error"
                               size="small"
                               sx={{
@@ -731,20 +676,6 @@ const BarberLeaveManagement: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 2 }}>
-            <FormControl fullWidth required>
-              <InputLabel>Leave Type</InputLabel>
-              <Select
-                label="Leave Type"
-                value={newApplication.type}
-                onChange={(e) =>
-                  setNewApplication({ ...newApplication, type: e.target.value })
-                }
-                required
-              >
-                <MenuItem value="paid">Paid Leave</MenuItem>
-                <MenuItem value="unpaid">Unpaid Leave</MenuItem>
-              </Select>
-            </FormControl>
             <TextField
               label="Start Date"
               type="date"
@@ -828,7 +759,6 @@ const BarberLeaveManagement: React.FC = () => {
             disabled={
               !newApplication.startDate ||
               !newApplication.endDate ||
-              !newApplication.type ||
               !newApplication.reason
             }
           >

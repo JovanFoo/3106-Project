@@ -579,22 +579,7 @@ const LeaveManagement = (): ReactElement => {
                         {request.stylist?.email || 'No email'}
                       </Typography>
                     </Box>
-                    <Chip
-                        label={request.type}
-                      size="small"
-                      sx={{
-                          height: '20px',
-                          '& .MuiChip-label': {
-                            fontSize: '0.75rem',
-                            px: 1,
-                          },
-                          bgcolor: getLeaveTypeColor(request.type),
-                        color: "white",
-                        fontWeight: "medium",
-                          borderRadius: "4px",
-                          ml: 1,
-                      }}
-                    />
+                    
                     </Box>
                   </Box>
                   <Stack spacing={1.5}>
@@ -801,51 +786,6 @@ const LeaveManagement = (): ReactElement => {
                   </Box>
                 </Box>
 
-                {/* Toggle Buttons */}
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <ToggleButtonGroup
-                    exclusive
-                    value={viewMode}
-                    onChange={(e, newValue) => {
-                      if (newValue !== null) {
-                        setViewMode(newValue);
-                      }
-                    }}
-                    size="small"
-                    sx={{
-                      bgcolor: theme.palette.mode === 'dark'
-                        ? alpha(theme.palette.grey[800], 0.5)
-                        : '#F3F4F6',
-                      '& .MuiToggleButton-root': {
-                        px: 3,
-                        py: 0.5,
-                        typography: 'body2',
-                        border: 'none',
-                        color: theme.palette.text.primary,
-                        '&.Mui-selected': {
-                          bgcolor: theme.palette.mode === 'dark'
-                            ? theme.palette.grey[900]
-                            : 'white',
-                          color: theme.palette.mode === 'dark'
-                            ? theme.palette.primary.main
-                            : theme.palette.text.primary,
-                          '&:hover': {
-                            bgcolor: theme.palette.mode === 'dark'
-                              ? theme.palette.grey[900]
-                              : 'white',
-                          },
-                        },
-                      },
-                    }}
-                  >
-                    <ToggleButton value="status">
-                      LEAVE STATUS
-                    </ToggleButton>
-                    <ToggleButton value="type">
-                      LEAVE TYPES
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                </Box>
               </Box>
 
               {/* Calendar Grid */}
