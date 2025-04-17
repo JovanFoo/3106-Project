@@ -247,11 +247,6 @@ const LeaveManagement = (): ReactElement => {
           return;
         }
 
-        // Get manager's ID from token
-        const tokenData = JSON.parse(atob(token.split('.')[1]));
-        const managerId = tokenData.id;
-        console.log("Manager ID:", managerId);
-
         const leaveRequestsResponse = await api.get("/api/leave-requests");
         let leaveRequestsData = leaveRequestsResponse.data;
 
@@ -266,8 +261,8 @@ const LeaveManagement = (): ReactElement => {
 
         leaveRequestsData = leaveRequestsData.map((request: any) => ({
           ...request,
-          type: request.type || 'Paid',
-          reason: request.reason || '',
+          type: request.type || 'Paid', // Use the type field directly
+          reason: request.reason || '', // Use reason as is
           stylist: stylistMap[request.stylist] || {
             _id: request.stylist,
             name: 'Unknown',
@@ -275,11 +270,8 @@ const LeaveManagement = (): ReactElement => {
           }
         }));
 
-        // Filter out manager from staff list
-        const filteredStaff = stylistsData.filter((staff: Staff) => staff._id !== managerId);
-
         setLeaveRequests(leaveRequestsData);
-        setStaff(filteredStaff);
+        setStaff(stylistsData);
         setLoading(false);
       } catch (error: any) {
         console.error("Error fetching data:", error);
@@ -542,7 +534,7 @@ const LeaveManagement = (): ReactElement => {
     return (
       <Box sx={{ mt: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Quick Approval
+          Approval List
         </Typography>
         <Grid container spacing={2}>
           {pendingRequests.map((request) => (
