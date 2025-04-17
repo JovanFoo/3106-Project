@@ -276,13 +276,13 @@ const LeaveManagement = (): ReactElement => {
         const stylistsData = stylistsResponse.data.filter((x: any) =>
           user.stylists.includes(x._id)
         );
-
+        
         const stylistMap = stylistsData
           .filter((x: any) => user.stylists.includes(x._id))
           .reduce((acc: any, stylist: any) => {
-            acc[stylist._id] = stylist;
-            return acc;
-          }, {});
+          acc[stylist._id] = stylist;
+          return acc;
+        }, {});
         console.log("Stylists Data:", stylistsData);
         console.log("Leave Requests Data:", leaveRequestsData);
         console.log("User Stylists:", user.stylists);
@@ -290,11 +290,11 @@ const LeaveManagement = (): ReactElement => {
         leaveRequestsData = leaveRequestsData
           .filter((x: any) => user.stylists.includes(x.stylist))
           .map((request: any) => ({
-            ...request,
+          ...request,
             type: request.type || "Paid", // Use the type field directly
             reason: request.reason || "", // Use reason as is
-            stylist: stylistMap[request.stylist] || {
-              _id: request.stylist,
+          stylist: stylistMap[request.stylist] || {
+            _id: request.stylist,
               name: "Unknown",
               email: "No email",
             },
@@ -326,7 +326,7 @@ const LeaveManagement = (): ReactElement => {
         `/api/leave-requests/approve/${requestId}`
       );
       console.log("Approve response:", response);
-
+      
       // Refresh the leave requests list
       const updatedResponse = await api.get("/api/leave-requests");
       setLeaveRequests(updatedResponse.data);
@@ -348,7 +348,7 @@ const LeaveManagement = (): ReactElement => {
         `/api/leave-requests/reject/${requestId}`
       );
       console.log("Reject response:", response);
-
+      
       // Refresh the leave requests list
       const updatedResponse = await api.get("/api/leave-requests");
       setLeaveRequests(updatedResponse.data);
@@ -373,7 +373,7 @@ const LeaveManagement = (): ReactElement => {
 
   const getLeaveTypeColor = (leaveType: string | undefined) => {
     if (!leaveType) return theme.palette.grey[500];
-
+    
     // Map of leave type variations to their normalized form
     const typeMapping: { [key: string]: LeaveType } = {
       Paid: "Paid",
@@ -384,7 +384,7 @@ const LeaveManagement = (): ReactElement => {
 
     // Get the normalized type or use the original if not found in mapping
     const normalizedType = typeMapping[leaveType.toLowerCase()] || leaveType;
-
+    
     const colors: { [key in LeaveType]: string } = {
       Paid: "#059669", // Green for paid
       // Childcare: "#2563EB",   // Blue for childcare
@@ -412,7 +412,7 @@ const LeaveManagement = (): ReactElement => {
 
   const filteredRequests = leaveRequests.filter((request) =>
     viewMode === "status"
-      ? selectedStatus.includes(request.status)
+        ? selectedStatus.includes(request.status)
       : selectedTypes.includes(request.type)
   );
 
@@ -439,20 +439,11 @@ const LeaveManagement = (): ReactElement => {
   };
 
   const renderStats = () => (
-    <Card
-      sx={{
-        p: 3,
-        mb: 3,
-        borderRadius: "16px",
-        boxShadow: theme.shadows[0],
-        border: `1px solid ${theme.palette.divider}`,
-        bgcolor: theme.palette.background.paper,
-      }}
-    >
-      <Typography variant="h6" sx={{ fontSize: "1.5rem" }} gutterBottom>
+    <Card className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+      <Typography variant="h6" className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">
         Leave to Approve
       </Typography>
-      <Typography variant="h3" color="primary.main" sx={{ mb: 3 }}>
+      <Typography variant="h3" color="primary.main" className="mb-3 dark:text-white/90">
         {leaveRequests.filter((r) => r.status === "Pending").length}
       </Typography>
 
@@ -466,48 +457,38 @@ const LeaveManagement = (): ReactElement => {
               mb: 1,
             }}
           >
-            <Typography variant="subtitle1" fontWeight="medium">
+            <Typography variant="subtitle1" className="font-medium text-gray-800 dark:text-white/90">
               Leave Status
             </Typography>
             <Button
               size="small"
-              onClick={() =>
-                selectedStatus.length === 2
+              onClick={() => 
+                selectedStatus.length === 2 
                   ? setSelectedStatus([])
                   : setSelectedStatus(["Pending", "Approved"])
               }
+              className="text-gray-800 hover:bg-gray-100 dark:text-white/90 dark:hover:bg-white/[0.03]"
             >
               {selectedStatus.length === 2 ? "Deselect All" : "Select All"}
             </Button>
           </Box>
           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-            {["Pending", "Approved"].map((status) => (
-              <Chip
-                key={status}
-                label={status}
-                onClick={() => handleStatusToggle(status)}
-                sx={{
-                  bgcolor: selectedStatus.includes(status)
-                    ? getStatusColor(status as "Pending" | "Approved")
-                    : theme.palette.mode === "dark"
-                    ? alpha(theme.palette.grey[700], 0.5)
-                    : theme.palette.grey[100],
-                  color: selectedStatus.includes(status)
-                    ? "white"
-                    : theme.palette.text.primary,
-                  "&:hover": {
-                    bgcolor: selectedStatus.includes(status)
-                      ? alpha(
-                          getStatusColor(status as "Pending" | "Approved"),
-                          0.8
-                        )
-                      : theme.palette.mode === "dark"
-                      ? alpha(theme.palette.grey[700], 0.8)
-                      : theme.palette.grey[200],
-                  },
-                }}
-              />
-            ))}
+            <ToggleButton 
+              value="pending" 
+              selected={selectedStatus.includes("Pending")}
+              onClick={() => handleStatusToggle("Pending")}
+              className="border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
+            >
+              Pending
+            </ToggleButton>
+            <ToggleButton 
+              value="approved" 
+              selected={selectedStatus.includes("Approved")}
+              onClick={() => handleStatusToggle("Approved")}
+              className="border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
+            >
+              Approved
+            </ToggleButton>
           </Stack>
         </Box>
       )}
@@ -522,16 +503,17 @@ const LeaveManagement = (): ReactElement => {
               mb: 1,
             }}
           >
-            <Typography variant="subtitle1" fontWeight="medium">
+            <Typography variant="subtitle1" className="font-medium text-gray-800 dark:text-white/90">
               Types of Leave
             </Typography>
             <Button
               size="small"
-              onClick={() =>
+              onClick={() => 
                 selectedTypes.length === Object.keys(leaveTypeLabels).length
                   ? setSelectedTypes([])
                   : setSelectedTypes(Object.keys(leaveTypeLabels))
               }
+              className="text-gray-800 hover:bg-gray-100 dark:text-white/90 dark:hover:bg-white/[0.03]"
             >
               {selectedTypes.length === Object.keys(leaveTypeLabels).length
                 ? "Deselect All"
@@ -544,19 +526,11 @@ const LeaveManagement = (): ReactElement => {
                 key={type}
                 label={label}
                 onClick={() => handleTypeToggle(type)}
-                sx={{
-                  bgcolor: selectedTypes.includes(type)
-                    ? getLeaveTypeColor(type)
-                    : "grey.100",
-                  color: selectedTypes.includes(type)
-                    ? "white"
-                    : "text.primary",
-                  "&:hover": {
-                    bgcolor: selectedTypes.includes(type)
-                      ? alpha(getLeaveTypeColor(type), 0.8)
-                      : "grey.200",
-                  },
-                }}
+                className={`border border-gray-200 dark:border-gray-800 ${
+                  selectedTypes.includes(type)
+                    ? ""
+                    : "bg-white dark:bg-white/[0.03] text-gray-800 dark:text-white/90"
+                }`}
               />
             ))}
           </Stack>
@@ -593,24 +567,12 @@ const LeaveManagement = (): ReactElement => {
 
     return (
       <Box sx={{ mt: 3 }}>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" gutterBottom className="text-gray-800 dark:text-white/90">
           Approval List
         </Typography>
-        <Grid container spacing={2}>
+        <Stack spacing={2}>
           {pendingRequests.map((request) => (
-            <Grid item xs={12} key={request._id}>
-              <Card
-                sx={{
-                  borderRadius: "16px",
-                  boxShadow: theme.shadows[0],
-                  border: `1px solid ${theme.palette.divider}`,
-                  bgcolor: theme.palette.background.paper,
-                  "&:hover": {
-                    borderColor: theme.palette.primary.main,
-                    boxShadow: theme.shadows[2],
-                  },
-                }}
-              >
+            <Card key={request._id} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
                 <CardContent>
                   <Box
                     sx={{
@@ -622,32 +584,17 @@ const LeaveManagement = (): ReactElement => {
                   >
                     <Avatar
                       src={request.stylist?.profilePicture}
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        bgcolor: theme.palette.primary.main,
-                      }}
-                    >
-                      {request.stylist?.name
-                        ? request.stylist.name.charAt(0)
-                        : "?"}
+                    className="h-12 w-12 bg-primary"
+                  >
+                    {request.stylist?.name ? request.stylist.name.charAt(0) : "?"}
                     </Avatar>
-                    <Box
-                      sx={{
-                        flexGrow: 1,
-                        display: "flex",
-                        alignItems: "flex-start",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Box>
-                        <Typography variant="subtitle1" fontWeight="medium">
-                          {request.stylist?.name || "Unknown"}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {request.stylist?.email || "No email"}
-                        </Typography>
-                      </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                    <Typography variant="subtitle1" className="font-medium text-gray-800 dark:text-white/90">
+                      {request.stylist?.name || "Unknown"}
+                      </Typography>
+                    <Typography variant="body2" className="text-gray-600 dark:text-white/70">
+                      {request.stylist?.email || "No email"}
+                      </Typography>
                     </Box>
                   </Box>
                   <Stack spacing={1.5}>
@@ -674,44 +621,44 @@ const LeaveManagement = (): ReactElement => {
                       sx={{
                         p: 1.5,
                         borderRadius: "8px",
-                        bgcolor:
-                          theme.palette.mode === "dark"
-                            ? alpha(theme.palette.grey[800], 0.5)
-                            : theme.palette.grey[50],
+                      bgcolor:
+                        theme.palette.mode === "dark"
+                          ? alpha(theme.palette.grey[800], 0.5)
+                          : theme.palette.grey[50],
                       }}
                     >
-                      {request.reason || "No reason provided"}
+                    {request.reason || "No reason provided"}
                     </Typography>
-                    {request.image && (
-                      <Box sx={{ mt: 1.5 }}>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          gutterBottom
-                        >
-                          Supporting Document
-                        </Typography>
-                        <Box
-                          component="img"
-                          src={request.image}
-                          alt="Supporting document"
-                          sx={{
-                            maxWidth: "100%",
-                            maxHeight: "200px",
-                            borderRadius: "8px",
-                            border: "1px solid",
-                            borderColor: "divider",
-                            p: 1,
-                            cursor: "pointer",
-                            transition: "transform 0.2s",
-                            "&:hover": {
-                              transform: "scale(1.02)",
-                            },
-                          }}
-                          onClick={() => handleImageZoom(request.image!)}
-                        />
-                      </Box>
-                    )}
+                  {request.image && (
+                    <Box sx={{ mt: 1.5 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        gutterBottom
+                      >
+                        Supporting Document
+                      </Typography>
+                      <Box
+                        component="img"
+                        src={request.image}
+                        alt="Supporting document"
+                        sx={{
+                          maxWidth: "100%",
+                          maxHeight: "200px",
+                          borderRadius: "8px",
+                          border: "1px solid",
+                          borderColor: "divider",
+                          p: 1,
+                          cursor: "pointer",
+                          transition: "transform 0.2s",
+                          "&:hover": {
+                            transform: "scale(1.02)",
+                          },
+                        }}
+                        onClick={() => handleImageZoom(request.image!)}
+                      />
+                    </Box>
+                  )}
                   </Stack>
                 </CardContent>
                 <Divider />
@@ -721,6 +668,7 @@ const LeaveManagement = (): ReactElement => {
                     color="error"
                     onClick={() => handleReject(request._id)}
                     startIcon={<CancelIcon />}
+                  className="text-gray-800 dark:text-white/90"
                   >
                     Reject
                   </Button>
@@ -729,14 +677,14 @@ const LeaveManagement = (): ReactElement => {
                     color="primary"
                     onClick={() => handleApprove(request._id)}
                     startIcon={<CheckCircleIcon />}
+                  className="text-white dark:text-white/90"
                   >
                     Approve
                   </Button>
                 </CardActions>
               </Card>
-            </Grid>
           ))}
-        </Grid>
+        </Stack>
       </Box>
     );
   };
@@ -772,19 +720,14 @@ const LeaveManagement = (): ReactElement => {
   return (
     <Box
       sx={{
-        bgcolor:
-          theme.palette.mode === "dark"
-            ? "#1a1f2c" // Dark navy background
-            : theme.palette.grey[50],
         minHeight: "100vh",
         py: 3,
-        color: theme.palette.mode === "dark" ? "#fff" : "inherit",
       }}
-      className="dark:bg-transparent dark:text-white"
+      className="dark:bg-transparent"
     >
       <Container maxWidth="xl">
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" gutterBottom sx={{ color: "inherit" }}>
+          <Typography variant="h4" className="text-gray-800 dark:text-white/90">
             Leave Management
           </Typography>
         </Box>
@@ -814,19 +757,9 @@ const LeaveManagement = (): ReactElement => {
 
           {/* Right column with calendar */}
           <Grid item xs={12} md={8}>
-            <Card
-              sx={{
-                p: 3,
-                borderRadius: "16px",
-                boxShadow: theme.shadows[0],
-                border: `1px solid ${theme.palette.divider}`,
-                bgcolor: theme.palette.background.paper,
-              }}
-            >
+            <Card className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
               {/* Calendar Header */}
-              <Box
-                sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}
-              >
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
                 <Box
                   sx={{
                     display: "flex",
@@ -834,42 +767,24 @@ const LeaveManagement = (): ReactElement => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Typography variant="h6">Calendar View</Typography>
+                  <Typography variant="h6" className="text-gray-800 dark:text-white/90">
+                    Calendar View
+                  </Typography>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <IconButton
                       size="small"
                       onClick={() => setCurrentDate((d) => addDays(d, -7))}
-                      sx={{
-                        color: theme.palette.text.primary,
-                        "&:hover": {
-                          bgcolor:
-                            theme.palette.mode === "dark"
-                              ? alpha(theme.palette.common.white, 0.1)
-                              : alpha(theme.palette.common.black, 0.04),
-                        },
-                      }}
+                      className="text-gray-800 hover:bg-gray-100 dark:text-white/90 dark:hover:bg-white/[0.03]"
                     >
                       <ChevronLeftIcon fontSize="small" />
                     </IconButton>
-                    <Typography
-                      variant="body2"
-                      sx={{ minWidth: "120px", textAlign: "center" }}
-                    >
-                      {format(weekStart, "d MMM")} -{" "}
-                      {format(weekEnd, "d MMM yyyy")}
+                    <Typography variant="body2" className="min-w-[120px] text-center text-gray-800 dark:text-white/90">
+                      {format(weekStart, "d MMM")} - {format(weekEnd, "d MMM yyyy")}
                     </Typography>
                     <IconButton
                       size="small"
                       onClick={() => setCurrentDate((d) => addDays(d, 7))}
-                      sx={{
-                        color: theme.palette.text.primary,
-                        "&:hover": {
-                          bgcolor:
-                            theme.palette.mode === "dark"
-                              ? alpha(theme.palette.common.white, 0.1)
-                              : alpha(theme.palette.common.black, 0.04),
-                        },
-                      }}
+                      className="text-gray-800 hover:bg-gray-100 dark:text-white/90 dark:hover:bg-white/[0.03]"
                     >
                       <ChevronRightIcon fontSize="small" />
                     </IconButton>
@@ -878,19 +793,14 @@ const LeaveManagement = (): ReactElement => {
               </Box>
 
               {/* Calendar Grid */}
-              <Box
-                sx={{
-                  border: `1px solid ${theme.palette.divider}`,
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                }}
-              >
+              <Box className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
                 <Box
                   sx={{
                     display: "grid",
                     gridTemplateColumns: "200px 1fr",
                     width: "100%",
                   }}
+                  className="dark:bg-transparent dark:text-white"
                 >
                   {/* Staff Column */}
                   <Box
@@ -998,10 +908,10 @@ const LeaveManagement = (): ReactElement => {
                                   {format(days[i], "d")}
                                 </Typography>
                               </Box>
-                            </Grid>
+          </Grid>
                           )
                         )}
-                      </Grid>
+        </Grid>
                     </Box>
 
                     {/* Calendar Cells */}
