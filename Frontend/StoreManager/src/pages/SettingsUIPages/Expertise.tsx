@@ -164,14 +164,10 @@ export default function Expertise() {
                 </button>
               ))}
           </div>
-          <div className="flex items-center gap-3 mt-6 sm:justify-end">
-            <button
-              onClick={closeModal}
-              type="button"
-              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-            >
+          <div className="flex items-center gap-3 mt-6 mb-2 sm:justify-end">
+            <Button onClick={closeModal} size="sm" variant="outline">
               Close
-            </button>
+            </Button>
             <Button size="sm" variant="primary" onClick={onSaveChanges}>
               Save Changes
             </Button>
