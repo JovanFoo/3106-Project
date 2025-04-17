@@ -16,7 +16,7 @@ type UserContextType = {
   profilePicture: string;
   phoneNumber: string;
   bio: string;
-  role: "StylistManager" | "Stylist" | string;
+  role: "Manager" | "Stylist" | string;
   stylists: string[];
   expertises: string[];
   galleries: string[];
@@ -27,7 +27,7 @@ type UserContextType = {
   setEmail: Dispatch<string>;
   setProfilePicture: Dispatch<string>;
   setPhoneNumber: Dispatch<string>;
-  setBio: Dispatch<"StylistManager" | "Stylist" | string>;
+  setBio: Dispatch<"Manager" | "Stylist" | string>;
   setRole: Dispatch<string>;
   setStylists: Dispatch<string[]>;
   setExpertises: Dispatch<string[]>;
@@ -74,7 +74,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const [profilePicture, setProfilePicture] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [bio, setBio] = useState("");
-  const [role, setRole] = useState("StylistManager");
+  const [role, setRole] = useState("Manager");
   const [stylists, setStylists] = useState<string[]>([]);
   const [expertises, setExpertises] = useState<string[]>([]);
   const [appointments, setAppointments] = useState<string[]>([]);
@@ -179,7 +179,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
           res.data.bio || "Bio has not been set yet.",
           res.data.stylists
             ? res.data.stylists.length > 0
-              ? "StylistManager"
+              ? "Manager"
               : "Stylist"
             : "Stylist",
           res.data.stylists || [],
