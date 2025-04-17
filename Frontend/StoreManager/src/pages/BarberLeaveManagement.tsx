@@ -24,7 +24,6 @@ import {
   ToggleButton,
   Avatar,
   Badge,
-  CardActions,
 } from "@mui/material";
 import {
   format,
@@ -42,8 +41,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import axios from "axios";
-import CancelIcon from "@mui/icons-material/Cancel";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -133,33 +130,6 @@ const BarberLeaveManagement: React.FC = () => {
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
-  const fetchLeaveBalance = async () => {
-    try {
-      console.log("Fetching leave balance...");
-      const response = await axios.get(
-        `${api_address}/api/leave-requests/balance`,
-        {
-          headers: {
-            Authorization: sessionStorage.getItem("token"),
-          },
-        }
-      );
-
-      console.log("Leave balance response:", response.data);
-      if (response.data.success) {
-        // Use the values directly from the API response
-        setLeaveStats({
-          availableUnpaidLeave: response.data.data.availableUnpaidLeave,
-          availablePaidLeave: response.data.data.availablePaidLeave,
-          usedLeave: response.data.data.usedPaidLeave + response.data.data.usedUnpaidLeave,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching leave balance:", error);
-      // Don't set default values if fetch fails, keep the current values
-    }
-  };
-
   const fetchLeaveRequests = async () => {
     try {
       console.log("Fetching leave requests...");
@@ -213,6 +183,37 @@ const BarberLeaveManagement: React.FC = () => {
 
       console.log("Formatted requests:", formattedRequests);
       setLeaveApplications(formattedRequests);
+      
+      // Add console logs to debug leave stats calculation
+      console.log("All requests statuses:", formattedRequests.map((req: LeaveApplication) => req.status));
+
+      // Adjust leave stats based on approved applications
+      const approvedApplications = formattedRequests.filter(
+        (app: LeaveApplication) => app.status?.toLowerCase?.() === "approved"
+      );
+
+      console.log("Approved applications:", approvedApplications);
+
+      let usedPaid = 0;
+      let usedUnpaid = 0;
+
+      approvedApplications.forEach((app: LeaveApplication) => {
+        console.log("Processing app:", app);
+        if (app.type?.toLowerCase?.() === "paid") {
+          usedPaid += app.totalDays;
+        } else if (app.type?.toLowerCase?.() === "unpaid") {
+          usedUnpaid += app.totalDays;
+        }
+      });
+
+      console.log("Used paid days:", usedPaid);
+      console.log("Used unpaid days:", usedUnpaid);
+
+      setLeaveStats({
+        availablePaidLeave: 30 - usedPaid,
+        availableUnpaidLeave: 20 - usedUnpaid,
+        usedLeave: usedPaid + usedUnpaid,
+      });
     } catch (error) {
       console.error("Error fetching leave requests:", error);
       setLeaveApplications([]);
@@ -220,7 +221,6 @@ const BarberLeaveManagement: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchLeaveBalance();
     fetchLeaveRequests();
   }, []);
 
@@ -298,7 +298,6 @@ const BarberLeaveManagement: React.FC = () => {
           image: "",
         });
         // Refresh data
-        fetchLeaveBalance();
         fetchLeaveRequests();
       } else {
         alert("Failed to submit leave application. Please try again.");
@@ -342,7 +341,6 @@ const BarberLeaveManagement: React.FC = () => {
       if (response.status === 200 || response.status === 204) {
         alert("Leave request withdrawn successfully");
         fetchLeaveRequests();
-        fetchLeaveBalance();
       } else {
         throw new Error("Failed to withdraw leave request");
       }
@@ -355,70 +353,6 @@ const BarberLeaveManagement: React.FC = () => {
       alert(errorMessage);
       setWithdrawDialogOpen(false);
       setSelectedRequestId(null);
-    }
-  };
-
-  const handleApproveLeave = async (requestId: string) => {
-    try {
-      console.log("Approving leave request:", requestId);
-      const response = await axios.post(
-        `${api_address}/api/leave-requests/approve/${requestId}`,
-        {},
-        {
-          headers: {
-            Authorization: sessionStorage.getItem("token"),
-          },
-        }
-      );
-
-      console.log("Approve response:", response);
-      
-      if (response.status === 200) {
-        alert("Leave request approved successfully");
-        fetchLeaveRequests();
-        fetchLeaveBalance();
-      } else {
-        throw new Error("Failed to approve leave request");
-      }
-    } catch (error: any) {
-      console.error("Error approving leave request:", error);
-      console.error("Error details:", error.response?.data);
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to approve leave request. Please try again later.";
-      alert(errorMessage);
-    }
-  };
-
-  const handleRejectLeave = async (requestId: string) => {
-    try {
-      console.log("Rejecting leave request:", requestId);
-      const response = await axios.post(
-        `${api_address}/api/leave-requests/reject/${requestId}`,
-        {},
-        {
-          headers: {
-            Authorization: sessionStorage.getItem("token"),
-          },
-        }
-      );
-
-      console.log("Reject response:", response);
-      
-      if (response.status === 200) {
-        alert("Leave request rejected successfully");
-        fetchLeaveRequests();
-        fetchLeaveBalance();
-      } else {
-        throw new Error("Failed to reject leave request");
-      }
-    } catch (error: any) {
-      console.error("Error rejecting leave request:", error);
-      console.error("Error details:", error.response?.data);
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to reject leave request. Please try again later.";
-      alert(errorMessage);
     }
   };
 
@@ -654,26 +588,6 @@ const BarberLeaveManagement: React.FC = () => {
                     </Box>
                   )}
                 </CardContent>
-                {application.status === "Pending" && (
-                  <CardActions sx={{ justifyContent: "flex-end", gap: 1, p: 2 }}>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => handleRejectLeave(application.id)}
-                      startIcon={<CancelIcon />}
-                    >
-                      Reject
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleApproveLeave(application.id)}
-                      startIcon={<CheckCircleIcon />}
-                    >
-                      Approve
-                    </Button>
-                  </CardActions>
-                )}
               </Card>
             ))}
           </Stack>

@@ -1,7 +1,6 @@
 const LeaveRequest = require( "../models/LeaveRequest" );
 const Stylist = require( "../models/Stylist" );
 const mongodb = require("./config/database.js");
-const Leave = require( "../models/Leave" );
 
 const LeaveRequestController = {
     async createLeaveRequest ( req, res ) {
@@ -239,7 +238,7 @@ const LeaveRequestController = {
     },
     async approveLeaveRequest ( req, res ) {
         console.log( "LeaveRequestController > approve leave request" );
-        const { id: leaveRequestId } = req.params;
+        const { id:leaveRequestId } = req.params;
         const { userId: managerId } = req;
         
         // First get the leave request to find the stylist
@@ -269,44 +268,6 @@ const LeaveRequestController = {
             return res.status(400).json({ message: "Leave request is already " + leaveRequest.status });
         }
 
-        // Calculate the number of days for the leave request
-        const startDate = new Date(leaveRequest.startDate);
-        const endDate = new Date(leaveRequest.endDate);
-        const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-
-        // Get the current year
-        const currentYear = new Date().getFullYear();
-
-        // Find or create the leave record for the stylist
-        let leave = await Leave.findOne({
-            stylist: leaveRequest.stylist,
-            year: currentYear
-        });
-
-        if (!leave) {
-            leave = await Leave.create({
-                stylist: leaveRequest.stylist,
-                year: currentYear
-            });
-        }
-
-        // Update the leave balance based on the leave type
-        if (leaveRequest.type.toLowerCase() === "paid") {
-            if (days > leave.availablePaidLeave) {
-                return res.status(400).json({ message: "Not enough paid leave days available" });
-            }
-            leave.usedPaidLeave += days;
-        } else {
-            if (days > leave.availableUnpaidLeave) {
-                return res.status(400).json({ message: "Not enough unpaid leave days available" });
-            }
-            leave.usedUnpaidLeave += days;
-        }
-
-        // Save the updated leave balance
-        await leave.save();
-
-        // Update the leave request status
         leaveRequest.status = "Approved";
         leaveRequest.approvedBy = manager;
         await leaveRequest.save();

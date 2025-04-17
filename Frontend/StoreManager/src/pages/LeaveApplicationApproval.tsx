@@ -26,6 +26,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  alpha,
 } from "@mui/material";
 import {
   format,
@@ -50,7 +51,6 @@ import ArticleIcon from "@mui/icons-material/Article";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import PageMeta from "../components/common/PageMeta";
-import { alpha } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 
 // Create axios instance with default config
@@ -130,15 +130,14 @@ interface LeaveRequest {
   startDate: string;
   endDate: string;
   status: "Pending" | "Approved" | "Rejected";
-  reason: LeaveType;  // This is actually the leave type (backward compatibility)
-  description?: string; // Optional field for actual reason
-  type: LeaveType;     // This will be same as reason for now (backward compatibility)
+  type: LeaveType;     // Leave type (Paid/Unpaid)
+  reason: string;      // The actual reason for leave
   response?: string;
   approvedBy?: {
     _id: string;
     name: string;
   };
-  image?: string;  // Add image field
+  image?: string;
 }
 
 interface ApiResponse {
@@ -151,6 +150,56 @@ interface ApiResponse {
 
 type ViewMode = "status" | "type";
 type LeaveType = "Paid" | "Unpaid";
+
+interface LeaveRequestCellProps {
+  request: LeaveRequest;
+  currentDay: Date;
+  getCellColor: (request: LeaveRequest) => string;
+}
+
+const LeaveRequestCell: React.FC<LeaveRequestCellProps> = ({ request, currentDay, getCellColor }) => {
+  const startDate = new Date(request.startDate);
+  const endDate = new Date(request.endDate);
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(0, 0, 0, 0);
+
+  const isOneDay = format(startDate, 'yyyy-MM-dd') === format(endDate, 'yyyy-MM-dd');
+  const isFirstDay = format(currentDay, 'yyyy-MM-dd') === format(startDate, 'yyyy-MM-dd');
+  const isLastDay = format(currentDay, 'yyyy-MM-dd') === format(endDate, 'yyyy-MM-dd');
+  const isMiddleDay = !isOneDay && currentDay > startDate && currentDay < endDate;
+
+  return (
+    <Tooltip
+      title={`${request.type} (${request.status}): ${format(startDate, "MMM dd")}${
+        isOneDay ? '' : ` - ${format(endDate, "MMM dd")}`
+      }, ${format(startDate, "yyyy")}${
+        request.reason ? `\n${request.reason}` : ''
+      }`}
+    >
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          transform: "translateY(-50%)",
+          height: "24px",
+          bgcolor: getCellColor(request),
+          opacity: 0.8,
+          left: isFirstDay ? "8px" : 0,
+          right: isLastDay ? "8px" : 0,
+          borderRadius: isOneDay ? "4px" : `${isFirstDay ? "4px" : "0"} ${
+            isLastDay ? "4px" : "0"
+          } ${isLastDay ? "4px" : "0"} ${isFirstDay ? "4px" : "0"}`,
+          zIndex: 1,
+          ...(isMiddleDay && {
+            left: 0,
+            right: 0,
+            borderRadius: 0,
+          }),
+        }}
+      />
+    </Tooltip>
+  );
+};
 
 const LeaveManagement = (): ReactElement => {
   const theme = useTheme();
@@ -176,6 +225,11 @@ const LeaveManagement = (): ReactElement => {
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
+  // Calculate days for the calendar
+  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Start from Monday
+  const weekEnd = addDays(weekStart, 6); // Show 7 days
+  const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
   // Group leave types into categories
   const leaveCategories = {
     "Time Off": ["Paid", "Unpaid"],
@@ -187,34 +241,28 @@ const LeaveManagement = (): ReactElement => {
     const fetchLeaveRequests = async () => {
       try {
         setLoading(true);
-        // Check if we have a token
         const token = sessionStorage.getItem("token");
         if (!token) {
           window.location.href = "/signin";
           return;
         }
 
-        // Fetch leave requests
         const leaveRequestsResponse = await api.get("/api/leave-requests");
         let leaveRequestsData = leaveRequestsResponse.data;
 
-        // Get unique stylist IDs from leave requests
         const stylistIds = [...new Set(leaveRequestsData.map((req: any) => req.stylist))];
-        
-        // Fetch stylist details for each ID
         const stylistsResponse = await api.get("/api/stylists");
         const stylistsData = stylistsResponse.data;
         
-        // Create a map of stylist details by ID
         const stylistMap = stylistsData.reduce((acc: any, stylist: any) => {
           acc[stylist._id] = stylist;
           return acc;
         }, {});
 
-        // Merge stylist details with leave requests
         leaveRequestsData = leaveRequestsData.map((request: any) => ({
           ...request,
-          type: request.reason || 'Paid Time Off', // Use reason as the leave type
+          type: request.type || 'Paid', // Use the type field directly
+          reason: request.reason || '', // Use reason as is
           stylist: stylistMap[request.stylist] || {
             _id: request.stylist,
             name: 'Unknown',
@@ -332,7 +380,7 @@ const LeaveManagement = (): ReactElement => {
     (request) =>
       (viewMode === "status" 
         ? selectedStatus.includes(request.status)
-        : selectedTypes.includes(request.reason))
+        : selectedTypes.includes(request.type))
   );
 
   // Update the leave type mapping in the stats section
@@ -394,17 +442,21 @@ const LeaveManagement = (): ReactElement => {
                 sx={{
                   bgcolor: selectedStatus.includes(status)
                     ? getStatusColor(status as "Pending" | "Approved")
-                    : "grey.100",
+                    : theme.palette.mode === 'dark' 
+                      ? alpha(theme.palette.grey[700], 0.5)
+                      : theme.palette.grey[100],
                   color: selectedStatus.includes(status)
                     ? "white"
-                    : "text.primary",
+                    : theme.palette.text.primary,
                   "&:hover": {
                     bgcolor: selectedStatus.includes(status)
                       ? alpha(
                           getStatusColor(status as "Pending" | "Approved"),
                           0.8
                         )
-                      : "grey.200",
+                      : theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.grey[700], 0.8)
+                        : theme.palette.grey[200],
                   },
                 }}
               />
@@ -457,274 +509,6 @@ const LeaveManagement = (): ReactElement => {
     </Card>
   );
 
-  const renderCalendarHeader = () => {
-    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Start from Monday
-    const weekEnd = addDays(weekStart, 6); // Show 7 days
-
-    return (
-      <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Calendar View
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            bgcolor: "#F3F4F6",
-            borderRadius: "8px",
-            p: 0.5,
-          }}
-        >
-          <Button
-            variant={viewMode === "status" ? "contained" : "text"}
-            onClick={() => setViewMode("status")}
-            sx={{
-              minWidth: 120,
-              bgcolor: viewMode === "status" ? "white" : "transparent",
-              color: viewMode === "status" ? "text.primary" : "text.secondary",
-              boxShadow: viewMode === "status" ? 1 : 0,
-              "&:hover": {
-                bgcolor: viewMode === "status" ? "white" : "grey.200",
-              },
-            }}
-          >
-            LEAVE STATUS
-          </Button>
-          <Button
-            variant={viewMode === "type" ? "contained" : "text"}
-            onClick={() => setViewMode("type")}
-            sx={{
-              minWidth: 120,
-              bgcolor: viewMode === "type" ? "white" : "transparent",
-              color: viewMode === "type" ? "text.primary" : "text.secondary",
-              boxShadow: viewMode === "type" ? 1 : 0,
-              "&:hover": {
-                bgcolor: viewMode === "type" ? "white" : "grey.200",
-              },
-            }}
-          >
-            LEAVE TYPES
-          </Button>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, ml: 2 }}>
-          <IconButton onClick={() => setCurrentDate((d) => addDays(d, -7))}>
-            <ChevronLeftIcon />
-          </IconButton>
-          <Typography>
-            {format(weekStart, "MMM dd")} - {format(weekEnd, "MMM dd, yyyy")}
-          </Typography>
-          <IconButton onClick={() => setCurrentDate((d) => addDays(d, 7))}>
-            <ChevronRightIcon />
-          </IconButton>
-        </Box>
-      </Box>
-    );
-  };
-
-  const renderCalendar = () => {
-    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Start from Monday
-    const weekEnd = addDays(weekStart, 6); // Show 7 days
-    const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
-
-    return (
-      <Card
-        sx={{
-          p: 3,
-          borderRadius: "16px",
-          boxShadow: theme.shadows[0],
-          border: `1px solid ${theme.palette.divider}`,
-          bgcolor: theme.palette.background.paper,
-        }}
-      >
-        {renderCalendarHeader()}
-        <Box sx={{ overflowX: "auto" }}>
-          <Box sx={{ minWidth: 900 }}>
-            <Grid container>
-              {/* Header row with days */}
-              <Grid item xs={2}>
-                <Box
-                  sx={{
-                    p: 1,
-                    borderBottom: `1px solid ${theme.palette.divider}`,
-                  }}
-                >
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Staff
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={10}>
-                <Grid container>
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
-                    (day, i) => (
-                      <Grid item xs key={day}>
-                        <Box
-                          sx={{
-                            p: 1,
-                            textAlign: "center",
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                          }}
-                        >
-                          <Typography variant="caption" color="text.secondary">
-                            {day}
-                          </Typography>
-                          <Typography variant="body2" sx={{ mt: 0.5 }}>
-                            {format(days[i], "d")}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                    )
-                  )}
-                </Grid>
-              </Grid>
-
-              {/* Staff rows */}
-              {staff.map((member) => (
-                <React.Fragment key={member._id}>
-                  <Grid item xs={2}>
-                    <Box
-                      sx={{
-                        p: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                        minHeight: "48px",
-                      }}
-                    >
-                      <Avatar
-                        src={member.profilePicture}
-                        sx={{
-                          width: 32,
-                          height: 32,
-                          flexShrink: 0,
-                        }}
-                      >
-                        {member?.name ? member.name.charAt(0) : '?'}
-                      </Avatar>
-                      <Tooltip title={member?.name || 'Unknown'} placement="right-start">
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            maxWidth: "calc(100% - 40px)", // Account for avatar width
-                            cursor: "pointer",
-                          }}
-                        >
-                          {member?.name || 'Unknown'}
-                        </Typography>
-                      </Tooltip>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={10}>
-                    <Grid container>
-                      {days.map((day, i) => {
-                        const currentDay = new Date(day);
-                        currentDay.setHours(0, 0, 0, 0);
-
-                        const dayRequests = leaveRequests.filter((r) => {
-                          // Set request dates to midnight
-                          const startDate = new Date(r.startDate);
-                          const endDate = new Date(r.endDate);
-                          startDate.setHours(0, 0, 0, 0);
-                          endDate.setHours(0, 0, 0, 0);
-
-                          return (
-                            r.stylist._id === member._id &&
-                            currentDay >= startDate &&
-                            currentDay <= endDate &&
-                            r.status !== "Rejected" &&
-                            (viewMode === "status"
-                              ? selectedStatus.includes(r.status)
-                              : selectedTypes.includes(r.reason))
-                          );
-                        });
-
-                        const isOneDayLeave = dayRequests.length === 1 && 
-                          new Date(dayRequests[0].startDate).getTime() === new Date(dayRequests[0].endDate).getTime();
-
-                        return (
-                          <Grid item xs key={i}>
-                            <Box
-                              sx={{
-                                p: 1,
-                                height: "48px",
-                                borderBottom: `1px solid ${theme.palette.divider}`,
-                                borderLeft: `1px solid ${theme.palette.divider}`,
-                                position: "relative",
-                              }}
-                            >
-                              {dayRequests.map((request) => {
-                                const startDate = new Date(request.startDate);
-                                const endDate = new Date(request.endDate);
-                                startDate.setHours(0, 0, 0, 0);
-                                endDate.setHours(0, 0, 0, 0);
-
-                                const isOneDay = format(startDate, 'yyyy-MM-dd') === format(endDate, 'yyyy-MM-dd');
-                                const isFirstDay = format(currentDay, 'yyyy-MM-dd') === format(startDate, 'yyyy-MM-dd');
-                                const isLastDay = format(currentDay, 'yyyy-MM-dd') === format(endDate, 'yyyy-MM-dd');
-                                const isMiddleDay = !isOneDay && currentDay > startDate && currentDay < endDate;
-
-                                return (
-                                  <Tooltip
-                                    key={request._id}
-                                    title={`${request.reason} (${
-                                      request.status
-                                    }): ${format(
-                                      startDate,
-                                      "MMM dd"
-                                    )}${isOneDay ? '' : ` - ${format(
-                                      endDate,
-                                      "MMM dd"
-                                    )}`}, ${format(
-                                      startDate,
-                                      "yyyy"
-                                    )}${
-                                      request.description ? `\n${request.description}` : ''
-                                    }`}
-                                  >
-                                    <Box
-                                      sx={{
-                                        position: "absolute",
-                                        top: "50%",
-                                        transform: "translateY(-50%)",
-                                        height: "24px",
-                                        bgcolor: getCellColor(request),
-                                        opacity: 0.8,
-                                        left: isFirstDay ? "8px" : 0,
-                                        right: isLastDay ? "8px" : 0,
-                                        borderRadius: isOneDay ? "4px" : `${
-                                          isFirstDay ? "4px" : "0"
-                                        } ${isLastDay ? "4px" : "0"} ${
-                                          isLastDay ? "4px" : "0"
-                                        } ${isFirstDay ? "4px" : "0"}`,
-                                        zIndex: 1,
-                                        ...(isMiddleDay && {
-                                          left: 0,
-                                          right: 0,
-                                          borderRadius: 0,
-                                        }),
-                                      }}
-                                    />
-                                  </Tooltip>
-                                );
-                              })}
-                            </Box>
-                          </Grid>
-                        );
-                      })}
-                    </Grid>
-                  </Grid>
-                </React.Fragment>
-              ))}
-            </Grid>
-          </Box>
-        </Box>
-      </Card>
-    );
-  };
-
   const renderQuickApproval = () => {
     const pendingRequests = leaveRequests
       .filter((r) => r.status === "Pending")
@@ -737,6 +521,9 @@ const LeaveManagement = (): ReactElement => {
           sx={{
             mt: 3,
             borderRadius: "12px",
+            bgcolor: theme.palette.mode === 'dark' 
+              ? alpha(theme.palette.info.main, 0.1)
+              : undefined,
           }}
         >
           No pending leave requests to approve
@@ -757,6 +544,7 @@ const LeaveManagement = (): ReactElement => {
                   borderRadius: "16px",
                   boxShadow: theme.shadows[0],
                   border: `1px solid ${theme.palette.divider}`,
+                  bgcolor: theme.palette.background.paper,
                   "&:hover": {
                     borderColor: theme.palette.primary.main,
                     boxShadow: theme.shadows[2],
@@ -791,10 +579,10 @@ const LeaveManagement = (): ReactElement => {
                       </Typography>
                     </Box>
                     <Chip
-                      label={request.reason}
+                      label={request.type}
                       size="small"
                       sx={{
-                        bgcolor: getLeaveTypeColor(request.reason),
+                        bgcolor: getLeaveTypeColor(request.type),
                         color: "white",
                         fontWeight: "medium",
                         borderRadius: "8px",
@@ -825,10 +613,12 @@ const LeaveManagement = (): ReactElement => {
                       sx={{
                         p: 1.5,
                         borderRadius: "8px",
-                        bgcolor: theme.palette.grey[50],
+                        bgcolor: theme.palette.mode === 'dark' 
+                          ? alpha(theme.palette.grey[800], 0.5)
+                          : theme.palette.grey[50],
                       }}
                     >
-                      {request.description || 'No additional details provided'}
+                      {request.reason || 'No reason provided'}
                     </Typography>
                     {request.image && (
                       <Box sx={{ mt: 1.5 }}>
@@ -889,7 +679,7 @@ const LeaveManagement = (): ReactElement => {
     if (viewMode === "status") {
       return getStatusColor(request.status as "Pending" | "Approved");
     }
-    return getLeaveTypeColor(request.reason);
+    return getLeaveTypeColor(request.type);
   };
 
   // Add this function to handle image zoom
@@ -914,20 +704,32 @@ const LeaveManagement = (): ReactElement => {
   }
 
   return (
-    <Box sx={{ bgcolor: theme.palette.grey[50], minHeight: "100vh", py: 3 }}>
+    <Box 
+      sx={{ 
+        bgcolor: theme.palette.mode === 'dark' 
+          ? '#1a1f2c'  // Dark navy background
+          : theme.palette.grey[50], 
+        minHeight: "100vh", 
+        py: 3,
+        color: theme.palette.mode === 'dark' ? '#fff' : 'inherit'
+      }}
+    >
       <Container maxWidth="xl">
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" gutterBottom sx={{ color: 'inherit' }}>
             Leave Management
           </Typography>
         </Box>
 
         {error && (
-          <Alert
-            severity="error"
-            sx={{
-              mb: 3,
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 3, 
               borderRadius: "12px",
+              bgcolor: theme.palette.mode === 'dark' 
+                ? alpha(theme.palette.error.main, 0.1)
+                : undefined,
             }}
           >
             {error}
@@ -935,21 +737,290 @@ const LeaveManagement = (): ReactElement => {
         )}
 
         <Grid container spacing={3}>
+          {/* Left column with stats and quick approval */}
           <Grid item xs={12} md={4}>
             {renderStats()}
             {renderQuickApproval()}
           </Grid>
+
+          {/* Right column with calendar */}
           <Grid item xs={12} md={8}>
-            {renderCalendar()}
+            <Card
+              sx={{
+                p: 3,
+                borderRadius: "16px",
+                boxShadow: theme.shadows[0],
+                border: `1px solid ${theme.palette.divider}`,
+                bgcolor: theme.palette.background.paper,
+              }}
+            >
+              {/* Calendar Header */}
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Typography variant="h6">Calendar View</Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => setCurrentDate((d) => addDays(d, -7))}
+                      sx={{ 
+                        color: theme.palette.text.primary,
+                        '&:hover': {
+                          bgcolor: theme.palette.mode === 'dark'
+                            ? alpha(theme.palette.common.white, 0.1)
+                            : alpha(theme.palette.common.black, 0.04),
+                        }
+                      }}
+                    >
+                      <ChevronLeftIcon fontSize="small" />
+                    </IconButton>
+                    <Typography variant="body2" sx={{ minWidth: '120px', textAlign: 'center' }}>
+                      {format(weekStart, "d MMM")} - {format(weekEnd, "d MMM yyyy")}
+                    </Typography>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => setCurrentDate((d) => addDays(d, 7))}
+                      sx={{ 
+                        color: theme.palette.text.primary,
+                        '&:hover': {
+                          bgcolor: theme.palette.mode === 'dark'
+                            ? alpha(theme.palette.common.white, 0.1)
+                            : alpha(theme.palette.common.black, 0.04),
+                        }
+                      }}
+                    >
+                      <ChevronRightIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                </Box>
+
+                {/* Toggle Buttons */}
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <ToggleButtonGroup
+                    exclusive
+                    value={viewMode}
+                    onChange={(e, newValue) => {
+                      if (newValue !== null) {
+                        setViewMode(newValue);
+                      }
+                    }}
+                    size="small"
+                    sx={{
+                      bgcolor: theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.grey[800], 0.5)
+                        : '#F3F4F6',
+                      '& .MuiToggleButton-root': {
+                        px: 3,
+                        py: 0.5,
+                        typography: 'body2',
+                        border: 'none',
+                        color: theme.palette.text.primary,
+                        '&.Mui-selected': {
+                          bgcolor: theme.palette.mode === 'dark'
+                            ? theme.palette.grey[900]
+                            : 'white',
+                          color: theme.palette.mode === 'dark'
+                            ? theme.palette.primary.main
+                            : theme.palette.text.primary,
+                          '&:hover': {
+                            bgcolor: theme.palette.mode === 'dark'
+                              ? theme.palette.grey[900]
+                              : 'white',
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    <ToggleButton value="status">
+                      LEAVE STATUS
+                    </ToggleButton>
+                    <ToggleButton value="type">
+                      LEAVE TYPES
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+              </Box>
+
+              {/* Calendar Grid */}
+              <Box sx={{ 
+                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}>
+                <Box sx={{ 
+                  display: 'grid',
+                  gridTemplateColumns: '200px 1fr',
+                  width: '100%',
+                }}>
+                  {/* Staff Column */}
+                  <Box sx={{
+                    borderRight: `1px solid ${theme.palette.divider}`,
+                    bgcolor: theme.palette.background.paper,
+                  }}>
+                    {/* Staff Header */}
+                    <Box sx={{
+                      height: '72px',
+                      p: 1.5,
+                      borderBottom: `1px solid ${theme.palette.divider}`,
+                      bgcolor: theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.grey[800], 0.5)
+                        : theme.palette.grey[50],
+                    }}>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        Staff
+                      </Typography>
+                    </Box>
+
+                    {/* Staff List */}
+                    {staff.map((member) => (
+                      <Box
+                        key={member._id}
+                        sx={{
+                          p: 1.5,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          borderBottom: `1px solid ${theme.palette.divider}`,
+                          height: "48px",
+                          '&:hover': {
+                            bgcolor: theme.palette.mode === 'dark'
+                              ? alpha(theme.palette.common.white, 0.05)
+                              : alpha(theme.palette.common.black, 0.02),
+                          },
+                        }}
+                      >
+                        <Avatar
+                          src={member.profilePicture}
+                          sx={{
+                            width: 28,
+                            height: 28,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {member?.name ? member.name.charAt(0) : '?'}
+                        </Avatar>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            flexGrow: 1,
+                          }}
+                        >
+                          {member?.name || 'Unknown'}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+
+                  {/* Calendar Content */}
+                  <Box>
+                    {/* Days Header */}
+                    <Box sx={{ 
+                      height: '72px',
+                      borderBottom: `1px solid ${theme.palette.divider}`,
+                      bgcolor: theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.grey[800], 0.5)
+                        : theme.palette.grey[50],
+                    }}>
+                      <Grid container sx={{ height: '100%' }}>
+                        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+                          (dayName, i) => (
+                            <Grid item xs key={dayName}>
+                              <Box
+                                sx={{
+                                  height: '100%',
+                                  p: 1.5,
+                                  textAlign: "center",
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <Typography variant="caption" color="text.secondary" display="block">
+                                  {dayName}
+                                </Typography>
+                                <Typography variant="body2">
+                                  {format(days[i], "d")}
+                                </Typography>
+                              </Box>
+                            </Grid>
+                          )
+                        )}
+                      </Grid>
+                    </Box>
+
+                    {/* Calendar Cells */}
+                    {staff.map((member) => (
+                      <Grid container key={member._id}>
+                        {days.map((day, i) => {
+                          const currentDay = new Date(day);
+                          currentDay.setHours(0, 0, 0, 0);
+
+                          const dayRequests = leaveRequests.filter((r) => {
+                            const startDate = new Date(r.startDate);
+                            const endDate = new Date(r.endDate);
+                            startDate.setHours(0, 0, 0, 0);
+                            endDate.setHours(0, 0, 0, 0);
+
+                            return (
+                              r.stylist._id === member._id &&
+                              currentDay >= startDate &&
+                              currentDay <= endDate &&
+                              r.status !== "Rejected" &&
+                              (viewMode === "status"
+                                ? selectedStatus.includes(r.status)
+                                : selectedTypes.includes(r.type))
+                            );
+                          });
+
+                          return (
+                            <Grid item xs key={i}>
+                              <Box
+                                sx={{
+                                  height: "48px",
+                                  borderBottom: `1px solid ${theme.palette.divider}`,
+                                  borderLeft: `1px solid ${theme.palette.divider}`,
+                                  position: "relative",
+                                  '&:hover': {
+                                    bgcolor: theme.palette.mode === 'dark'
+                                      ? alpha(theme.palette.common.white, 0.02)
+                                      : alpha(theme.palette.common.black, 0.02),
+                                  },
+                                }}
+                              >
+                                {dayRequests.map((request) => (
+                                  <LeaveRequestCell
+                                    key={request._id}
+                                    request={request}
+                                    currentDay={currentDay}
+                                    getCellColor={getCellColor}
+                                  />
+                                ))}
+                              </Box>
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    ))}
+                  </Box>
+                </Box>
+              </Box>
+            </Card>
           </Grid>
         </Grid>
 
-        {/* Add this dialog component at the end of the return statement, before the closing Container tag */}
+        {/* Image Zoom Dialog */}
         <Dialog
           open={imageZoomOpen}
           onClose={() => setImageZoomOpen(false)}
           maxWidth="md"
           fullWidth
+          PaperProps={{
+            sx: {
+              bgcolor: theme.palette.background.paper,
+            }
+          }}
         >
           <DialogTitle>
             Supporting Document
@@ -960,6 +1031,7 @@ const LeaveManagement = (): ReactElement => {
                 position: 'absolute',
                 right: 8,
                 top: 8,
+                color: theme.palette.grey[500],
               }}
             >
               <CloseIcon />
@@ -975,7 +1047,8 @@ const LeaveManagement = (): ReactElement => {
                   width: '100%',
                   height: 'auto',
                   maxHeight: '80vh',
-                  objectFit: 'contain'
+                  objectFit: 'contain',
+                  borderRadius: '8px',
                 }} 
               />
             )}
