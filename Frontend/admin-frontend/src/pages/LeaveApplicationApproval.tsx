@@ -100,6 +100,7 @@ interface Staff {
   _id: string;
   name: string;
   email: string;
+  role: "Manager" | "Stylist";
   profilePicture?: string;
 }
 
@@ -109,6 +110,7 @@ interface LeaveRequest {
     _id: string;
     name: string;
     email: string;
+    role: "Manager" | "Stylist";
     profilePicture?: string;
   };
   startDate: string;
@@ -161,13 +163,11 @@ const LeaveRequestCell: React.FC<LeaveRequestCellProps> = ({
 
   return (
     <Tooltip
-      title={`${request.type} (${request.status}): ${format(
-        startDate,
-        "MMM dd"
-      )}${isOneDay ? "" : ` - ${format(endDate, "MMM dd")}`}, ${format(
-        startDate,
-        "yyyy"
-      )}${request.reason ? `\n${request.reason}` : ""}`}
+      title={`(${request.status}): ${format(startDate, "MMM dd")}${
+        isOneDay ? "" : ` - ${format(endDate, "MMM dd")}`
+      }, ${format(startDate, "yyyy")}${
+        request.reason ? `\n${request.reason}` : ""
+      }`}
     >
       <Box
         sx={{
@@ -248,7 +248,10 @@ const LeaveManagement = (): ReactElement => {
         ...new Set(leaveRequestsData.map((req: any) => req.stylist)),
       ];
       const stylistsResponse = await api.get("/api/stylists");
-      const stylistsData = stylistsResponse.data;
+      const stylistsData = stylistsResponse.data.map((stylist: any) => ({
+        ...stylist,
+        role: stylist.stylists.length > 0 ? "Manager" : "Stylist",
+      }));
       console.log("Stylists Response:", stylistsResponse.data);
       console.log("Leave Requests Response:", leaveRequestsResponse.data);
       const stylistMap = stylistsData.reduce((acc: any, stylist: any) => {
@@ -505,6 +508,9 @@ const LeaveManagement = (): ReactElement => {
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           {request.stylist?.email || "No email"}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {request.stylist.role || "Stylist"}
                         </Typography>
                       </Box>
                     </Box>
