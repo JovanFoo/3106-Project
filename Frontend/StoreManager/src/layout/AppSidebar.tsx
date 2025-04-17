@@ -1,9 +1,8 @@
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import DashboardIcon from "@mui/icons-material/Dashboard";
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import GroupsIcon from "@mui/icons-material/Groups";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import LayersIcon from "@mui/icons-material/Layers";
 import PaidIcon from "@mui/icons-material/Paid";
 import SettingsIcon from "@mui/icons-material/Settings";
 import StoreIcon from "@mui/icons-material/Store";
@@ -37,19 +36,19 @@ const AppSidebar: React.FC = () => {
       path: "/calendar",
     },
     {
-      icon: <CalendarMonthIcon />,
-      name: "Barber Leave",
-      path: "/barber-leave",
-    },
-    {
       icon: <PaidIcon />,
       name: "Transactions",
       path: "/transactions",
     },
     {
-      name: "Manage",
-      icon: <LayersIcon />,
-      subItems: [{ name: "Leave Approval", path: "/leave-Management" }],
+      icon: <CalendarMonthIcon />,
+      name: "Barber Leave",
+      path: "/barber-leave",
+    },
+    {
+      icon: <EventAvailableIcon />,
+      name: "Leave Approval",
+      path: "/leave-Management",
     },
     {
       icon: <GroupsIcon />,
@@ -101,6 +100,9 @@ const AppSidebar: React.FC = () => {
           })
           .filter((item) => {
             return item.name != "Transactions";
+          })
+          .filter((item) => {
+            return item.name != "Leave Approval";
           })
       );
     }
