@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
@@ -10,6 +9,7 @@ import StylistExpertise from "../StylistUIPage/stylistExpertise";
 import PortfolioView from "../StylistUIPage/stylistPortfolio";
 import StylistProfilePage from "../StylistUIPage/stylistProfilePage";
 import StylistTestimonials from "../StylistUIPage/stylistTestimonials";
+import { toast, ToastContainer } from "react-toastify";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 type Stylist = {
@@ -197,6 +197,7 @@ export default function StylistPage() {
           stylist={selectedStylist}
         />
       </div>
+      <ToastContainer autoClose={3000} position="bottom-right" />
     </div>
   );
 }
@@ -228,55 +229,33 @@ const CustomModal: React.FC<ModalProps> = ({
     role: "Stylist",
     profilePicture: "/images/default-avatar.jpg",
   });
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertTitle, setAlertTitle] = useState("Success");
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState<"success" | "error">("success");
   const handleSave = () => {
     if (!validateData()) return;
     onSave(stylistData);
   };
   const validateData = () => {
     if (!stylistData.name) {
-      setShowAlert(true);
-      setAlertTitle("Error");
-      setAlertType("error");
-      setAlertMessage("Please enter a name.");
+      toast.error("Please enter a name.");
       return false;
     }
     if (!stylistData.username) {
-      setShowAlert(true);
-      setAlertTitle("Error");
-      setAlertType("error");
-      setAlertMessage("Please enter a username.");
+      toast.error("Please enter a username.");
       return false;
     }
     if (!stylistData.email || !/\S+@\S+\.\S+/.test(stylistData.email)) {
-      setShowAlert(true);
-      setAlertTitle("Error");
-      setAlertType("error");
-      setAlertMessage("Please enter an email.");
+      toast.error("Please enter a valid email address.");
       return false;
     }
     if (!stylistData.password) {
-      setShowAlert(true);
-      setAlertTitle("Error");
-      setAlertType("error");
-      setAlertMessage("Please enter a password.");
+      toast.error("Please enter a password.");
       return false;
     }
     if (!stylistData.branch) {
-      setShowAlert(true);
-      setAlertTitle("Error");
-      setAlertType("error");
-      setAlertMessage("Please select a branch.");
+      toast.error("Please select a branch.");
       return false;
     }
     if (!stylistData.role) {
-      setShowAlert(true);
-      setAlertTitle("Error");
-      setAlertType("error");
-      setAlertMessage("Please select a role.");
+      toast.error("Please select a role.");
       return false;
     }
     if (
@@ -285,10 +264,7 @@ const CustomModal: React.FC<ModalProps> = ({
           stylistData.phoneNumber.length < 8
         : false
     ) {
-      setShowAlert(true);
-      setAlertTitle("Error");
-      setAlertType("error");
-      setAlertMessage("Please enter a valid phone number.");
+      toast.error("Please enter a valid phone number.");
       return false;
     }
 
@@ -304,10 +280,8 @@ const CustomModal: React.FC<ModalProps> = ({
       role: stylist?.role || "Stylist",
       branch: stylist?.branch || branches[0]?._id || "",
       phoneNumber: stylist?.phoneNumber || "",
-      profilePicture: stylist?.profilePicture || "/images/default-avatar.jpg",
+      profilePicture: stylist?.profilePicture || "/images/user/owner.jpg",
     });
-
-    setShowAlert(false);
   }, [isOpen]);
   return (
     <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] p-6">
@@ -315,15 +289,6 @@ const CustomModal: React.FC<ModalProps> = ({
         <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
           Add New Stylist
         </h4>
-        {showAlert && (
-          <div className="mb-2 mt-2">
-            <Alert
-              title={alertTitle}
-              variant={alertType}
-              message={alertMessage}
-            />
-          </div>
-        )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
@@ -454,11 +419,7 @@ const CustomModal: React.FC<ModalProps> = ({
         </div>
 
         <div className="flex justify-end gap-3 mt-6 mb-2">
-          <Button
-            onClick={closeModal}
-            size="sm"
-            type='neutral'
-          >
+          <Button onClick={closeModal} size="sm" type="neutral">
             Cancel
           </Button>
           <Button size="sm" onClick={handleSave}>
@@ -485,7 +446,7 @@ const ViewModal: React.FC<ModalProps> = ({
       <div className="flex h-[650px] ">
         {/* Sidebar */}
         <div className="w-64 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl pt-10">
-        {["Profile", "Expertise", "Portfolio", "Testimonials"].map((tab) => (
+          {["Profile", "Expertise", "Portfolio", "Testimonials"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
