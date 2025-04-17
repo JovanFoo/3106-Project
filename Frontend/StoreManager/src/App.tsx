@@ -13,8 +13,6 @@ import ForgetPassword from "./pages/AuthPages/ForgetPassword";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import Calendar from "./pages/CalenderPage/Calendar";
-import EmergencyLeaveManagement from "./pages/EmergencyLeaveManagement";
-import LeaveDocumentApproval from "./pages/LeaveDocumentApproval";
 import LeaveApplicationApproval from "./pages/LeaveApplicationApproval";
 import BarberLeaveManagement from "./pages/BarberLeaveManagement";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -78,8 +76,6 @@ export default function App() {
 
             {/* Leave Management Routes */}
             <Route path="/leave-management" element={<LeaveApplicationApproval />} />
-            <Route path="/emergency-leave" element={<EmergencyLeaveManagement />} />
-            <Route path="/leave-document-approval" element={<LeaveDocumentApproval />} />
             <Route path="/leave-application-approval" element={<LeaveApplicationApproval />} />
             <Route path="/barber-leave" element={<BarberLeaveManagement />} />
 

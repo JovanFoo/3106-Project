@@ -51,15 +51,6 @@ const AppSidebar: React.FC = () => {
       icon: <LayersIcon />,
       subItems: [
         { name: "Leave Approval", path: "/leave-Management" },
-        { name: "Emergency Leave", path: "/emergency-leave", pro: false },
-        {
-          name: "Documentation Approval",
-          path: "/leave-document-approval",
-          pro: false,
-        },
-        // { name: "Services", path: "/manage/services", pro: false },
-        // { name: "Service rates", path: "/manage/service-rates", pro: false },
-        // { name: "Ratings & Reviews", path: "/ratings", pro: false },
       ],
     },
     {

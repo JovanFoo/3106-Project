@@ -570,7 +570,8 @@ const LeaveManagement = (): ReactElement => {
                     >
                       {request.stylist?.name ? request.stylist.name.charAt(0) : '?'}
                     </Avatar>
-                    <Box sx={{ flexGrow: 1 }}>
+                    <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                      <Box>
                       <Typography variant="subtitle1" fontWeight="medium">
                         {request.stylist?.name || 'Unknown'}
                       </Typography>
@@ -579,15 +580,22 @@ const LeaveManagement = (): ReactElement => {
                       </Typography>
                     </Box>
                     <Chip
-                      label={request.type}
+                        label={request.type}
                       size="small"
                       sx={{
-                        bgcolor: getLeaveTypeColor(request.type),
+                          height: '20px',
+                          '& .MuiChip-label': {
+                            fontSize: '0.75rem',
+                            px: 1,
+                          },
+                          bgcolor: getLeaveTypeColor(request.type),
                         color: "white",
                         fontWeight: "medium",
-                        borderRadius: "8px",
+                          borderRadius: "4px",
+                          ml: 1,
                       }}
                     />
+                    </Box>
                   </Box>
                   <Stack spacing={1.5}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -722,10 +730,10 @@ const LeaveManagement = (): ReactElement => {
         </Box>
 
         {error && (
-          <Alert 
-            severity="error" 
-            sx={{ 
-              mb: 3, 
+          <Alert
+            severity="error"
+            sx={{
+              mb: 3,
               borderRadius: "12px",
               bgcolor: theme.palette.mode === 'dark' 
                 ? alpha(theme.palette.error.main, 0.1)
@@ -944,10 +952,10 @@ const LeaveManagement = (): ReactElement => {
                                   {format(days[i], "d")}
                                 </Typography>
                               </Box>
-                            </Grid>
+          </Grid>
                           )
                         )}
-                      </Grid>
+        </Grid>
                     </Box>
 
                     {/* Calendar Cells */}
@@ -1014,45 +1022,67 @@ const LeaveManagement = (): ReactElement => {
         <Dialog
           open={imageZoomOpen}
           onClose={() => setImageZoomOpen(false)}
-          maxWidth="md"
+          maxWidth={false}
           fullWidth
           PaperProps={{
             sx: {
-              bgcolor: theme.palette.background.paper,
+              bgcolor: 'transparent',
+              boxShadow: 'none',
+              overflow: 'hidden',
             }
           }}
+          sx={{
+            '& .MuiBackdrop-root': {
+              backdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            },
+          }}
         >
-          <DialogTitle>
-            Supporting Document
+          <Box
+            sx={{
+              position: 'relative',
+              width: '100vw',
+              height: '100vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              p: 2,
+            }}
+          >
             <IconButton
-              aria-label="close"
               onClick={() => setImageZoomOpen(false)}
               sx={{
                 position: 'absolute',
-                right: 8,
-                top: 8,
-                color: theme.palette.grey[500],
+                right: 16,
+                top: 16,
+                color: 'white',
+                bgcolor: 'rgba(0, 0, 0, 0.4)',
+                '&:hover': {
+                  bgcolor: 'rgba(0, 0, 0, 0.6)',
+                },
               }}
             >
               <CloseIcon />
             </IconButton>
-          </DialogTitle>
-          <DialogContent>
             {zoomedImage && (
-              <Box 
-                component="img" 
-                src={zoomedImage} 
-                alt="Supporting document" 
-                sx={{ 
-                  width: '100%',
-                  height: 'auto',
-                  maxHeight: '80vh',
+              <Box
+                component="img"
+                src={zoomedImage}
+                alt="Supporting document"
+                sx={{
+                  maxWidth: '90vw',
+                  maxHeight: '90vh',
                   objectFit: 'contain',
                   borderRadius: '8px',
-                }} 
+                  cursor: 'pointer',
+                }}
+                onClick={(e) => {
+                  // Prevent click from bubbling to backdrop
+                  e.stopPropagation();
+                }}
               />
             )}
-          </DialogContent>
+          </Box>
         </Dialog>
       </Container>
     </Box>

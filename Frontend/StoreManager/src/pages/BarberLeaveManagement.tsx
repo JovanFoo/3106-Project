@@ -157,7 +157,7 @@ const BarberLeaveManagement: React.FC = () => {
             new Date(request.startDate)
           ) + 1,
         status: request.status || "Pending",
-        type: request.type || "paid",
+        type: request.type?.toLowerCase() || "paid",
         reason: request.reason || "",
         image: request.image || "",
       }));
@@ -186,6 +186,7 @@ const BarberLeaveManagement: React.FC = () => {
       
       // Add console logs to debug leave stats calculation
       console.log("All requests statuses:", formattedRequests.map((req: LeaveApplication) => req.status));
+      console.log("All requests types:", formattedRequests.map((req: LeaveApplication) => req.type));
 
       // Adjust leave stats based on approved applications
       const approvedApplications = formattedRequests.filter(
@@ -199,9 +200,10 @@ const BarberLeaveManagement: React.FC = () => {
 
       approvedApplications.forEach((app: LeaveApplication) => {
         console.log("Processing app:", app);
-        if (app.type?.toLowerCase?.() === "paid") {
+        const leaveType = app.type?.toLowerCase();
+        if (leaveType === "paid") {
           usedPaid += app.totalDays;
-        } else if (app.type?.toLowerCase?.() === "unpaid") {
+        } else if (leaveType === "unpaid") {
           usedUnpaid += app.totalDays;
         }
       });
@@ -272,7 +274,7 @@ const BarberLeaveManagement: React.FC = () => {
         {
           startDate: newApplication.startDate,
           endDate: newApplication.endDate,
-          type: newApplication.type,
+          type: newApplication.type.toLowerCase(),
           reason: newApplication.reason,
           image: newApplication.image,
         },
@@ -741,8 +743,6 @@ const BarberLeaveManagement: React.FC = () => {
               >
                 <MenuItem value="paid">Paid Leave</MenuItem>
                 <MenuItem value="unpaid">Unpaid Leave</MenuItem>
-                <MenuItem value="medical">Medical Leave</MenuItem>
-                <MenuItem value="emergency">Emergency Leave</MenuItem>
               </Select>
             </FormControl>
             <TextField
