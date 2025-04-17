@@ -131,8 +131,7 @@ interface LeaveRequest {
   startDate: string;
   endDate: string;
   status: "Pending" | "Approved" | "Rejected";
-  type: LeaveType; // Leave type (Paid/Unpaid)
-  reason: string; // The actual reason for leave
+  reason: string;
   response?: string;
   approvedBy?: {
     _id: string;
@@ -177,6 +176,9 @@ const LeaveRequestCell: React.FC<LeaveRequestCellProps> = ({
   const isMiddleDay =
     !isOneDay && currentDay > startDate && currentDay < endDate;
 
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === 'dark';
+
   return (
     <Tooltip
       title={`${request.type} (${request.status}): ${format(
@@ -193,8 +195,8 @@ const LeaveRequestCell: React.FC<LeaveRequestCellProps> = ({
           top: "50%",
           transform: "translateY(-50%)",
           height: "24px",
-          bgcolor: getCellColor(request),
-          opacity: 0.8,
+          bgcolor: isDarkMode ? alpha(getCellColor(request), 0.3) : getCellColor(request),
+          opacity: isDarkMode ? 1 : 0.8,
           left: isFirstDay ? "8px" : 0,
           right: isLastDay ? "8px" : 0,
           borderRadius: isOneDay
@@ -226,14 +228,6 @@ const LeaveManagement = (): ReactElement => {
   const [selectedStatus, setSelectedStatus] = useState<string[]>([
     "Pending",
     "Approved",
-  ]);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([
-    "Paid",
-    "Childcare",
-    "Maternity",
-    "Paternity",
-    "Sick",
-    "Unpaid",
   ]);
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
@@ -371,31 +365,6 @@ const LeaveManagement = (): ReactElement => {
     return colors[status] || theme.palette.grey[500];
   };
 
-  const getLeaveTypeColor = (leaveType: string | undefined) => {
-    if (!leaveType) return theme.palette.grey[500];
-
-    // Map of leave type variations to their normalized form
-    const typeMapping: { [key: string]: LeaveType } = {
-      Paid: "Paid",
-      paid: "Paid",
-      Unpaid: "Unpaid",
-      unpaid: "Unpaid",
-    };
-
-    // Get the normalized type or use the original if not found in mapping
-    const normalizedType = typeMapping[leaveType.toLowerCase()] || leaveType;
-
-    const colors: { [key in LeaveType]: string } = {
-      Paid: "#059669", // Green for paid
-      // Childcare: "#2563EB",   // Blue for childcare
-      // Maternity: "#7C3AED",   // Purple for maternity
-      // Paternity: "#6366F1",   // Indigo for paternity
-      // Sick: "#DC2626",        // Red for sick
-      Unpaid: "#F97316", // Orange for unpaid
-    };
-    return colors[normalizedType as LeaveType] || theme.palette.grey[500];
-  };
-
   const handleStatusToggle = (status: string) => {
     setSelectedStatus((prev) =>
       prev.includes(status)
@@ -404,16 +373,8 @@ const LeaveManagement = (): ReactElement => {
     );
   };
 
-  const handleTypeToggle = (type: string) => {
-    setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
-  };
-
   const filteredRequests = leaveRequests.filter((request) =>
-    viewMode === "status"
-      ? selectedStatus.includes(request.status)
-      : selectedTypes.includes(request.type)
+    selectedStatus.includes(request.status)
   );
 
   // Update the leave type mapping in the stats section
@@ -483,23 +444,31 @@ const LeaveManagement = (): ReactElement => {
             </Button>
           </Box>
           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-            <ToggleButton
-              value="pending"
-              selected={selectedStatus.includes("Pending")}
-              onClick={() => handleStatusToggle("Pending")}
-              className="border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
-            >
-              Pending
-            </ToggleButton>
-            <ToggleButton
-              value="approved"
-              selected={selectedStatus.includes("Approved")}
-              onClick={() => handleStatusToggle("Approved")}
-              className="border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
-            >
-              Approved
-            </ToggleButton>
-          </Stack>
+          {["Pending", "Approved"].map((status) => (
+            <Chip
+              key={status}
+              label={status}
+              onClick={() => handleStatusToggle(status)}
+              sx={{
+                bgcolor: selectedStatus.includes(status)
+                  ? getStatusColor(status as "Pending" | "Approved")
+                  : theme.palette.mode === 'dark' 
+                    ? alpha(theme.palette.grey[700], 0.5)
+                    : theme.palette.grey[100],
+                  color: selectedStatus.includes(status)
+                    ? "white"
+                    : theme.palette.text.primary,
+                  "&:hover": {
+                    bgcolor: selectedStatus.includes(status)
+                      ? alpha(getStatusColor(status as "Pending" | "Approved"), 0.8)
+                      : theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.grey[700], 0.8)
+                        : theme.palette.grey[200],
+                  },
+                }}
+              />
+            ))}
+          </Stack>  
         </Box>
       )}
 
@@ -627,15 +596,15 @@ const LeaveManagement = (): ReactElement => {
                 </Box>
                 <Stack spacing={1.5}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <EventIcon fontSize="small" color="action" />
-                    <Typography variant="body2">
+                    <EventIcon fontSize="small" color="action" className="text-gray-800 dark:text-white"/>
+                    <Typography variant="body2" className="text-gray-800 dark:text-white">
                       {format(new Date(request.startDate), "MMM dd")} -{" "}
                       {format(new Date(request.endDate), "MMM dd, yyyy")}
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <AccessTimeIcon fontSize="small" color="action" />
-                    <Typography variant="body2">
+                    <AccessTimeIcon fontSize="small" color="action" className="text-gray-800 dark:text-white"/>
+                    <Typography variant="body2" className="text-gray-800 dark:text-white">
                       {differenceInDays(
                         new Date(request.endDate),
                         new Date(request.startDate)
@@ -697,7 +666,7 @@ const LeaveManagement = (): ReactElement => {
                   color="error"
                   onClick={() => handleReject(request._id)}
                   startIcon={<CancelIcon />}
-                  className="text-gray-800 dark:text-white/90"
+                  className="text-gray-800 dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
                 >
                   Reject
                 </Button>
@@ -979,9 +948,7 @@ const LeaveManagement = (): ReactElement => {
                               currentDay >= startDate &&
                               currentDay <= endDate &&
                               r.status !== "Rejected" &&
-                              (viewMode === "status"
-                                ? selectedStatus.includes(r.status)
-                                : selectedTypes.includes(r.type))
+                              selectedStatus.includes(r.status)
                             );
                           });
 

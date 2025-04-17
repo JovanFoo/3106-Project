@@ -114,8 +114,7 @@ interface LeaveRequest {
   startDate: string;
   endDate: string;
   status: "Pending" | "Approved" | "Rejected";
-  type: LeaveType; // Leave type (Paid/Unpaid)
-  reason: string; // The actual reason for leave
+  reason: string;
   response?: string;
   approvedBy?: {
     _id: string;
@@ -209,14 +208,6 @@ const LeaveManagement = (): ReactElement => {
   const [selectedStatus, setSelectedStatus] = useState<string[]>([
     "Pending",
     "Approved",
-  ]);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([
-    "Paid",
-    "Childcare",
-    "Maternity",
-    "Paternity",
-    "Sick",
-    "Unpaid",
   ]);
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
@@ -345,31 +336,6 @@ const LeaveManagement = (): ReactElement => {
     return colors[status] || theme.palette.grey[500];
   };
 
-  const getLeaveTypeColor = (leaveType: string | undefined) => {
-    if (!leaveType) return theme.palette.grey[500];
-
-    // Map of leave type variations to their normalized form
-    const typeMapping: { [key: string]: LeaveType } = {
-      Paid: "Paid",
-      paid: "Paid",
-      Unpaid: "Unpaid",
-      unpaid: "Unpaid",
-    };
-
-    // Get the normalized type or use the original if not found in mapping
-    const normalizedType = typeMapping[leaveType.toLowerCase()] || leaveType;
-
-    const colors: { [key in LeaveType]: string } = {
-      Paid: "#059669", // Green for paid
-      // Childcare: "#2563EB",   // Blue for childcare
-      // Maternity: "#7C3AED",   // Purple for maternity
-      // Paternity: "#6366F1",   // Indigo for paternity
-      // Sick: "#DC2626",        // Red for sick
-      Unpaid: "#F97316", // Orange for unpaid
-    };
-    return colors[normalizedType as LeaveType] || theme.palette.grey[500];
-  };
-
   const handleStatusToggle = (status: string) => {
     setSelectedStatus((prev) =>
       prev.includes(status)
@@ -378,39 +344,9 @@ const LeaveManagement = (): ReactElement => {
     );
   };
 
-  const handleTypeToggle = (type: string) => {
-    setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
-  };
-
   const filteredRequests = leaveRequests.filter((request) =>
-    viewMode === "status"
-      ? selectedStatus.includes(request.status)
-      : selectedTypes.includes(request.type)
+    selectedStatus.includes(request.status)
   );
-
-  // Update the leave type mapping in the stats section
-  const leaveTypeLabels: { [key in LeaveType]: string } = {
-    Paid: "Paid",
-    // Childcare: "Childcare",
-    // Maternity: "Maternity",
-    // Paternity: "Paternity",
-    // Sick: "Sick",
-    Unpaid: "Unpaid",
-  };
-
-  // Add type guard to check if a string is a valid LeaveType
-  const isValidLeaveType = (type: string): type is LeaveType => {
-    return [
-      "Paid",
-      "Childcare",
-      "Maternity",
-      "Paternity",
-      "Sick",
-      "Unpaid",
-    ].includes(type);
-  };
 
   const renderStats = () => (
     <Card
@@ -478,57 +414,6 @@ const LeaveManagement = (): ReactElement => {
                       : theme.palette.mode === "dark"
                       ? alpha(theme.palette.grey[700], 0.8)
                       : theme.palette.grey[200],
-                  },
-                }}
-              />
-            ))}
-          </Stack>
-        </Box>
-      )}
-
-      {viewMode === "type" && (
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 1,
-            }}
-          >
-            <Typography variant="subtitle1" fontWeight="medium">
-              Types of Leave
-            </Typography>
-            <Button
-              size="small"
-              onClick={() =>
-                selectedTypes.length === Object.keys(leaveTypeLabels).length
-                  ? setSelectedTypes([])
-                  : setSelectedTypes(Object.keys(leaveTypeLabels))
-              }
-            >
-              {selectedTypes.length === Object.keys(leaveTypeLabels).length
-                ? "Deselect All"
-                : "Select All"}
-            </Button>
-          </Box>
-          <Stack spacing={1} sx={{ mt: 1 }}>
-            {Object.entries(leaveTypeLabels).map(([type, label]) => (
-              <Chip
-                key={type}
-                label={label}
-                onClick={() => handleTypeToggle(type)}
-                sx={{
-                  bgcolor: selectedTypes.includes(type)
-                    ? getLeaveTypeColor(type)
-                    : "grey.100",
-                  color: selectedTypes.includes(type)
-                    ? "white"
-                    : "text.primary",
-                  "&:hover": {
-                    bgcolor: selectedTypes.includes(type)
-                      ? alpha(getLeaveTypeColor(type), 0.8)
-                      : "grey.200",
                   },
                 }}
               />
@@ -719,7 +604,7 @@ const LeaveManagement = (): ReactElement => {
     if (viewMode === "status") {
       return getStatusColor(request.status as "Pending" | "Approved");
     }
-    return getLeaveTypeColor(request.type);
+    return getStatusColor(request.status as "Pending" | "Approved");
   };
 
   // Add this function to handle image zoom
@@ -996,9 +881,7 @@ const LeaveManagement = (): ReactElement => {
                               currentDay >= startDate &&
                               currentDay <= endDate &&
                               r.status !== "Rejected" &&
-                              (viewMode === "status"
-                                ? selectedStatus.includes(r.status)
-                                : selectedTypes.includes(r.type))
+                              selectedStatus.includes(r.status)
                             );
                           });
 
