@@ -1,58 +1,43 @@
-import React, { useState, useEffect, ReactElement } from "react";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import CloseIcon from "@mui/icons-material/Close";
+import EventIcon from "@mui/icons-material/Event";
 import {
-  Box,
-  Container,
-  Typography,
-  Paper,
-  Button,
-  Chip,
-  IconButton,
-  TextField,
-  InputAdornment,
-  Avatar,
-  Grid,
-  Stack,
-  Badge,
-  ToggleButton,
-  ToggleButtonGroup,
-  Card,
-  CardContent,
-  CardActions,
-  Divider,
   Alert,
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Chip,
   CircularProgress,
-  Tooltip,
-  useTheme,
+  Container,
   Dialog,
-  DialogTitle,
-  DialogContent,
+  Divider,
+  Grid,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
   alpha,
+  useTheme
 } from "@mui/material";
+import axios from "axios";
 import {
-  format,
   addDays,
   differenceInDays,
   eachDayOfInterval,
-  startOfWeek,
-  endOfWeek,
+  format,
+  startOfWeek
 } from "date-fns";
-import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import EventIcon from "@mui/icons-material/Event";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ArticleIcon from "@mui/icons-material/Article";
-import CloseIcon from "@mui/icons-material/Close";
-import axios from "axios";
-import PageMeta from "../components/common/PageMeta";
-import { Link } from "react-router-dom";
+import React, { ReactElement, useEffect, useState } from "react";
+import 'react-toastify/dist/ReactToastify.css';
 import { useUser } from "../context/UserContext";
+
 
 // Create axios instance with default config
 const api = axios.create({

@@ -1,47 +1,41 @@
-import React, { useState, useEffect } from "react";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
   Box,
-  Container,
-  Typography,
-  Grid,
+  Button,
   Card,
   CardContent,
-  Button,
-  Stack,
   Chip,
-  Paper,
+  Container,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  DialogContent,
+  DialogTitle,
+  Grid,
   IconButton,
-  ToggleButtonGroup,
+  Stack,
+  TextField,
   ToggleButton,
-  Avatar,
-  Badge,
+  ToggleButtonGroup,
+  Typography
 } from "@mui/material";
-import {
-  format,
-  differenceInDays,
-  isSameDay,
-  isWithinInterval,
-  parseISO,
-} from "date-fns";
-import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import axios from "axios";
 import { useTheme } from "@mui/material/styles";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
+import axios from "axios";
+import {
+  differenceInDays,
+  format,
+  isSameDay,
+  parseISO
+} from "date-fns";
+import React, { useEffect, useState } from "react";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -222,14 +216,14 @@ const BarberLeaveManagement: React.FC = () => {
 
   const handleApplyLeave = async () => {
     if (!newApplication.startDate || !newApplication.endDate || !newApplication.reason) {
-      alert("Please fill in all required fields");
+      toast.warning("Please fill in all required fields");
       return;
     }
 
     const startDate = new Date(newApplication.startDate);
     const endDate = new Date(newApplication.endDate);
     if (startDate > endDate) {
-      alert("End date must be after start date");
+      toast.warning("End date must be after start date");
       return;
     }
 
@@ -253,7 +247,7 @@ const BarberLeaveManagement: React.FC = () => {
       console.log("Leave application response:", response.data);
 
       if (response.data && response.data._id) {
-        alert("Leave application submitted successfully");
+        toast.success("Leave application submitted successfully");
         setOpenApplyDialog(false);
         setNewApplication({
           startDate: "",
@@ -263,14 +257,14 @@ const BarberLeaveManagement: React.FC = () => {
         });
         fetchLeaveRequests();
       } else {
-        alert("Failed to submit leave application. Please try again.");
+        toast.error("Failed to submit leave application. Please try again.");
       }
     } catch (error: any) {
       console.error("Error submitting leave application:", error);
       const errorMessage =
         error.response?.data?.message ||
         "Failed to submit leave application. Please try again later.";
-      alert(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -302,7 +296,7 @@ const BarberLeaveManagement: React.FC = () => {
       setSelectedRequestId(null);
 
       if (response.status === 200 || response.status === 204) {
-        alert("Leave request withdrawn successfully");
+        toast.success("Leave request withdrawn successfully");
         fetchLeaveRequests();
       } else {
         throw new Error("Failed to withdraw leave request");
@@ -313,7 +307,7 @@ const BarberLeaveManagement: React.FC = () => {
       const errorMessage =
         error.response?.data?.message ||
         "Failed to withdraw leave request. Please try again later.";
-      alert(errorMessage);
+      toast.error(errorMessage);
       setWithdrawDialogOpen(false);
       setSelectedRequestId(null);
     }
@@ -873,6 +867,7 @@ const BarberLeaveManagement: React.FC = () => {
             )}
           </DialogContent>
         </Dialog>
+        <ToastContainer position="bottom-center" autoClose={3000} hideProgressBar />
       </Container>
     </Box>
   );
