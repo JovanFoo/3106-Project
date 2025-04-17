@@ -483,23 +483,31 @@ const LeaveManagement = (): ReactElement => {
             </Button>
           </Box>
           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-            <ToggleButton
-              value="pending"
-              selected={selectedStatus.includes("Pending")}
-              onClick={() => handleStatusToggle("Pending")}
-              className="border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
-            >
-              Pending
-            </ToggleButton>
-            <ToggleButton
-              value="approved"
-              selected={selectedStatus.includes("Approved")}
-              onClick={() => handleStatusToggle("Approved")}
-              className="border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
-            >
-              Approved
-            </ToggleButton>
-          </Stack>
+          {["Pending", "Approved"].map((status) => (
+            <Chip
+              key={status}
+              label={status}
+              onClick={() => handleStatusToggle(status)}
+              sx={{
+                bgcolor: selectedStatus.includes(status)
+                  ? getStatusColor(status as "Pending" | "Approved")
+                  : theme.palette.mode === 'dark' 
+                    ? alpha(theme.palette.grey[700], 0.5)
+                    : theme.palette.grey[100],
+                  color: selectedStatus.includes(status)
+                    ? "white"
+                    : theme.palette.text.primary,
+                  "&:hover": {
+                    bgcolor: selectedStatus.includes(status)
+                      ? alpha(getStatusColor(status as "Pending" | "Approved"), 0.8)
+                      : theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.grey[700], 0.8)
+                        : theme.palette.grey[200],
+                  },
+                }}
+              />
+            ))}
+          </Stack>  
         </Box>
       )}
 
