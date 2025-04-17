@@ -145,7 +145,7 @@ export default function Expertise() {
 
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[500px] p-6">
         <div className="flex flex-col px-2 overflow-y-auto">
-          <h4 className="text-lg text-white font-semibold mb-4">
+          <h4 className="text-lg font-semibold mb-4 dark:text-white">
             Edit Expertise
           </h4>
           <div className="flex flex-wrap gap-3">
@@ -165,8 +165,8 @@ export default function Expertise() {
               ))}
           </div>
           <div className="flex items-center gap-3 mt-6 mb-2 sm:justify-end">
-            <Button onClick={closeModal} size="sm" variant="outline">
-              Close
+            <Button onClick={closeModal} size="sm" type='neutral'>
+              Cancel
             </Button>
             <Button size="sm" variant="primary" onClick={onSaveChanges}>
               Save Changes

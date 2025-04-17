@@ -1,13 +1,17 @@
 import axios, { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
+import "react-clock/dist/Clock.css";
+import { Navigate } from "react-router-dom";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
-import { useModal } from "../../hooks/useModal";
 import { useUser } from "../../context/UserContext";
-import { Navigate } from "react-router-dom";
+import { useModal } from "../../hooks/useModal";
+
 
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -121,6 +125,15 @@ export default function ShopSettings() {
     }
   };
 
+  const formatTime = (time: string): string => {
+    const date = new Date(`1970-01-01T${time}`);
+    return date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
+
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 p-5">
@@ -212,54 +225,41 @@ export default function ShopSettings() {
                   <input
                     type="text"
                     value={shopData.phoneNumber}
-                    onChange={(e) =>
-                      setShopData({ ...shopData, phoneNumber: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^\d{0,8}$/.test(value)) {
+                        setShopData({ ...shopData, phoneNumber: value });
+                      }
+                    }}
                     className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
                   />
                 </div>
                 {["weekday", "weekend", "holiday"].map((key) => (
                   <div key={key}>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 capitalize">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 capitalize mb-1">
                       {key} hours
                     </label>
                     <div className="flex gap-2">
-                      <select
-                        value={
-                          shopData[`${key}OpeningTime` as keyof Shop] as string
+                      <TimePicker
+                        onChange={(val: string | null) =>
+                          setShopData({ ...shopData, [`${key}OpeningTime`]: val || "" })
                         }
-                        onChange={(e) =>
-                          setShopData({
-                            ...shopData,
-                            [`${key}OpeningTime`]: e.target.value,
-                          })
+                        value={shopData[`${key}OpeningTime` as keyof Shop]}
+                        format="HH:mm"
+                        disableClock
+                        clearIcon={null}
+                        className="custom-time-input w-full"
+                      />
+                      <TimePicker
+                        onChange={(val: string | null) =>
+                          setShopData({ ...shopData, [`${key}ClosingTime`]: val || "" })
                         }
-                        className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
-                      >
-                        {openingHours.map((hour) => (
-                          <option key={hour} value={hour}>
-                            {hour}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        value={
-                          shopData[`${key}ClosingTime` as keyof Shop] as string
-                        }
-                        onChange={(e) =>
-                          setShopData({
-                            ...shopData,
-                            [`${key}ClosingTime`]: e.target.value,
-                          })
-                        }
-                        className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
-                      >
-                        {openingHours.map((hour) => (
-                          <option key={hour} value={hour}>
-                            {hour}
-                          </option>
-                        ))}
-                      </select>
+                        value={shopData[`${key}ClosingTime` as keyof Shop]}
+                        format="HH:mm"
+                        disableClock
+                        clearIcon={null}
+                        className="custom-time-input w-full"
+                      />
                     </div>
                   </div>
                 ))}

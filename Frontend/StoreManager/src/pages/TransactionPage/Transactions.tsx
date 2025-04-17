@@ -2,10 +2,10 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
+import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import Alert from "../../components/ui/alert/Alert";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -591,8 +591,8 @@ const CustomerModal: React.FC<ModalProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-3 mt-6 sm:justify-end mb-2">
-          <Button onClick={closeModal} variant="outline" size="sm">
-            Close
+          <Button onClick={closeModal} type='neutral' size="sm">
+            Cancel
           </Button>
           <Button size="sm" variant="primary" onClick={handleSave}>
             {transaction ? "Update Transaction" : "Create"}

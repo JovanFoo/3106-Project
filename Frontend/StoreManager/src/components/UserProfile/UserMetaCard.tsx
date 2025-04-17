@@ -1,12 +1,12 @@
+import axios, { AxiosResponse } from "axios";
+import { useEffect, useState } from "react";
+import { useUser } from "../../context/UserContext";
 import { useModal } from "../../hooks/useModal";
-import { Modal } from "../ui/modal";
-import Button from "../ui/button/Button";
+import { AlertType } from "../../pages/SettingsUIPages/UserProfiles";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-import axios, { AxiosResponse } from "axios";
-import { AlertType } from "../../pages/SettingsUIPages/UserProfiles";
-import { useUser } from "../../context/UserContext";
-import { useEffect, useState } from "react";
+import Button from "../ui/button/Button";
+import { Modal } from "../ui/modal";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -375,8 +375,8 @@ export default function UserMetaCard(alert: AlertType) {
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
+              <Button size="sm" type='neutral' onClick={closeModal}>
+                Cancel
               </Button>
               <Button size="sm">Save Changes</Button>
             </div>

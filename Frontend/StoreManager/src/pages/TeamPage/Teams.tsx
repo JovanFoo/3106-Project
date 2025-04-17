@@ -215,7 +215,7 @@ export default function Teams() {
             </select>
 
             <div className="flex justify-end gap-3 mt-6 mb-2">
-              <Button onClick={closeModal} size="sm" variant="outline">
+              <Button onClick={closeModal} size="sm" type='neutral'>
                 Cancel
               </Button>
               <Button size="sm" variant="primary" onClick={handleAddStylist}>

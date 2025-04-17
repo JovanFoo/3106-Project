@@ -2,11 +2,10 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
+import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import { Navigate } from "react-router-dom";
-import Alert from "../../components/ui/alert/Alert";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -318,8 +317,8 @@ export default function Appointments() {
                 </div>
 
                 <div className="flex justify-end gap-3 mt-4">
-                  <Button onClick={closeModal} variant="primary" type="danger">
-                    Close
+                  <Button onClick={closeModal} size="sm" type="neutral">
+                    Cancel
                   </Button>
                   <Button
                     size="sm"

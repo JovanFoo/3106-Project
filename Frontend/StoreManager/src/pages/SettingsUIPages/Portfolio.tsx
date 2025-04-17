@@ -248,7 +248,7 @@ export default function PortfolioGallery() {
               )}
 
               <div className="flex items-center gap-3 mt-4 lg:justify-end">
-                <Button size="sm" variant="outline" onClick={closeModal}>
+                <Button size="sm" type='neutral' onClick={closeModal}>
                   Cancel
                 </Button>
                 <Button size="sm">Save Changes</Button>
