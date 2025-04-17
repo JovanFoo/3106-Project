@@ -113,7 +113,7 @@ export default function ClientTestimonials() {
                 </div>
               ))}
             {(reviews.length === 0 || reviews === undefined) && (
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 p-4 border rounded-lg shadow-sm text-center">
+              <div className="col-span-1 md:col-span-2 lg:col-span-5 p-4 border rounded-lg shadow-sm text-center">
                 <p className="text-gray-500">No reviews available.</p>
               </div>
             )}
