@@ -11,14 +11,19 @@ const StylistController = {
   async retrieveById(req, res) {
     console.log("StylistController > retrieve by ID");
     const { id } = req.params;
-    const stylist = await Stylist.findOne({ _id: id });
-    if (stylist) {
-      stylist.password = undefined;
-      return res.status(200).json(stylist);
-    } else {
-      return res
-        .status(400)
-        .json({ message: "Error retrieving stylist by ID" });
+    try {
+      const stylist = await Stylist.findOne({ _id: id });
+      if (stylist) {
+        stylist.password = undefined;
+        return res.status(200).json(stylist);
+      } else {
+        return res
+          .status(400)
+          .json({ message: "Error retrieving stylist by ID" });
+      }
+    } catch (error) {
+      console.error("Error in retrieveById:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   },
   // Retrieve a stylist by username

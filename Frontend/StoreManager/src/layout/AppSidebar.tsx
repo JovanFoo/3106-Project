@@ -37,6 +37,11 @@ const AppSidebar: React.FC = () => {
       path: "/calendar",
     },
     {
+      icon: <CalendarMonthIcon />,
+      name: "Barber Leave",
+      path: "/barber-leave",
+    },
+    {
       icon: <PaidIcon />,
       name: "Transactions",
       path: "/transactions",
@@ -46,15 +51,6 @@ const AppSidebar: React.FC = () => {
       icon: <LayersIcon />,
       subItems: [
         { name: "Leave Approval", path: "/leave-Management" },
-        { name: "Emergency Leave", path: "/emergency-leave", pro: false },
-        {
-          name: "Documentation Approval",
-          path: "/leave-document-approval",
-          pro: false,
-        },
-        // { name: "Services", path: "/manage/services", pro: false },
-        // { name: "Service rates", path: "/manage/service-rates", pro: false },
-        // { name: "Ratings & Reviews", path: "/ratings", pro: false },
       ],
     },
     {
@@ -92,8 +88,8 @@ const AppSidebar: React.FC = () => {
   }, [user.role]);
 
   const filterBasedOnRole = () => {
-    if (user.role !== "Manager") {
-      console.log("User role is not Manager, filtering nav items.");
+    if (user.role !== "StylistManager") {
+      console.log("User role is not StylistManager, filtering nav items.");
       setNavItems(
         navItems
           .filter((item) => {
