@@ -129,6 +129,8 @@ const LeaveRequestController = {
         console.log("LeaveRequestController > get leave requests");
         try {
             const { userId: managerId } = req;
+            console.log("Manager ID:", managerId);
+            
             const manager = await Stylist.findById(managerId)
                 .populate("stylists")
                 .populate("leaveRequests")
@@ -149,12 +151,13 @@ const LeaveRequestController = {
                 })
             );
 
-            // Only include leave requests from stylists under management
+            // Only include leave requests from stylists under management, excluding manager's own requests
             const leaveRequests = manager.stylists
                 .map((stylist) => stylist.leaveRequests)
-                .flat();
+                .flat()
+                .filter(request => request.stylist.toString() !== managerId); // Filter out manager's own requests
             
-            return res.status(200).json(leaveRequests); // Remove manager's own leave requests
+            return res.status(200).json(leaveRequests);
         } catch (error) {
             console.log(error.message);
             return res.status(400).json({ message: "Error getting leave requests" });
@@ -183,6 +186,12 @@ const LeaveRequestController = {
             const leaveRequests = [];
             if (manager.stylists && manager.stylists.length > 0) {
                 for (const stylist of manager.stylists) {
+                    // Skip if this is the manager's own ID
+                    if (stylist._id.toString() === managerId) {
+                        console.log("Skipping manager's own requests");
+                        continue;
+                    }
+
                     try {
                         console.log("Fetching pending leave requests for stylist:", stylist._id);
                         const stylistWithRequests = await Stylist.findById(stylist._id)
