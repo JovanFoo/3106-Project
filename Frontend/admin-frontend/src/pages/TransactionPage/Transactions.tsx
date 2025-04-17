@@ -161,7 +161,11 @@ export default function Transactions() {
   };
   const handleAddNewTransaction = async (transaction: Transaction) => {
     setIsLoading(true);
-
+    if (transaction.amount <= 0) {
+      toast.error("Amount must be greater than 0!");
+      setIsLoading(false);
+      return;
+    }
     closeModalNew();
     try {
       const res = await axios.post(
@@ -181,6 +185,11 @@ export default function Transactions() {
     setIsLoading(false);
   };
   const handleUpdateTransaction = async (transaction: Transaction) => {
+    if (transaction.amount <= 0) {
+      toast.error("Amount must be greater than 0!");
+      setIsLoading(false);
+      return;
+    }
     closeModalEdit();
     try {
       await axios.put(
@@ -347,7 +356,11 @@ export default function Transactions() {
           />
         </div>
       </div>
-      <ToastContainer position="bottom-right" autoClose={3000} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        className={"z-999999"}
+      />
     </div>
   );
 }

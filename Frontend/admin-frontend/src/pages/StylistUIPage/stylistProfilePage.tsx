@@ -211,7 +211,11 @@ export default function StylistProfilePage({ stylist }: Props) {
               <Button onClick={handleResetPassword}>Reset Password</Button>
             </div>
           </div>
-          <ToastContainer autoClose={3000} position="bottom-right" />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            className={"z-999999"}
+          />
         </div>
       </div>
     </div>

@@ -321,7 +321,11 @@ export default function Services() {
             service={selectedService}
           />
         </div>
-        <ToastContainer position="bottom-right" autoClose={3000} />
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          className={"z-999999"}
+        />
       </div>
     </>
   );

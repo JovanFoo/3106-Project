@@ -225,7 +225,6 @@ export default function CreateShop() {
       <div className="flex-1 p-5">
         <PageMeta title="Shops" description="Manage Shops" />
         <PageBreadcrumb pageTitle="Shops" />
-        <ToastContainer position="bottom-right" autoClose={3000} />
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           <div className="flex justify-between items-center mb-6">
@@ -465,6 +464,11 @@ export default function CreateShop() {
           </div>
         </Modal>
       </div>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        className={"z-999999"}
+      />
     </div>
   );
 }

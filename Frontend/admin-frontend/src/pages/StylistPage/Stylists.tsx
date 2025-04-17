@@ -197,7 +197,11 @@ export default function StylistPage() {
           stylist={selectedStylist}
         />
       </div>
-      <ToastContainer autoClose={3000} position="bottom-right" />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        className={"z-999999"}
+      />
     </div>
   );
 }

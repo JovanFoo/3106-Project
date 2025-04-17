@@ -198,7 +198,6 @@ export default function Expertise() {
             ))}
           </div>
         </div>
-        <ToastContainer position="bottom-right" autoClose={3000} />
         <CustomerModal
           isOpen={isOpenNew}
           closeModal={closeModalNew}
@@ -218,6 +217,11 @@ export default function Expertise() {
           expertise={selectedExpertise}
         />
       </div>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        className={"z-999999"}
+      />
     </div>
   );
 }
@@ -349,7 +353,6 @@ const DeleteModal: React.FC<ModalProps> = ({
           }}
           className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
         />
-        <ToastContainer position="bottom-right" autoClose={3000} />
         <div className="flex items-center gap-3 mt-6 mb-1 sm:justify-end">
           <Button onClick={closeModal} type="neutral">
             Cancel
