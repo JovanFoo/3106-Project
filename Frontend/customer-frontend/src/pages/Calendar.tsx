@@ -7,11 +7,7 @@ import { EventInput, DateSelectArg, EventClickArg } from "@fullcalendar/core";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
 import PageMeta from "../components/common/PageMeta";
-import BasicTableOne from "../components/tables/BasicTables/BasicTableOne";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
-import ComponentCard from "../components/common/ComponentCard";
-import Button from "../components/ui/button/Button";
-import ApptTable from "./Tables/ApptTable";
 const API_URL = import.meta.env.VITE_API_URL;
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -690,13 +686,37 @@ const Calendar: React.FC = () => {
   // console.log(Array.isArray(apptsalldetails)); // should be true
   // console.log(apptsalldetails);
 
+  // const today = new Date().toISOString().split("T")[0]; // to restrict dynamically to only today or dates in the future
+
+  // const maxDateObj = new Date();
+  // maxDateObj.setDate(maxDateObj.getDate() + 90);
+  // const maxDate = maxDateObj.toISOString().split("T")[0]; // to restrict dynamically to dates within 90 days
+
+  // const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const selectedDate = e.target.value;
+
+  //   if (selectedDate < today || selectedDate > maxDate) {
+  //     alert(
+  //       `Please select a date between ${new Date().toLocaleDateString()} and ${maxDateObj.toLocaleDateString()}.`
+  //     );
+  //     return;
+  //   }
+
+  //   setApptStartDate(selectedDate);
+  //   fetchServices(new Date(selectedDate));
+
+  //   // previous inside the Input for the date, it was:
+  //   // setApptStartDate(e.target.value);
+  //   // fetchServices(new Date(e.target.value));
+  // };
+
   return (
     <>
       <PageMeta
-        title="Customer | Appointments"
-        description="View Customer Appointments"
+        title="BuzzBook - Book Appointments"
+        description="BuzzBook - Book Appointments"
       />
-      <PageBreadcrumb pageTitle="Appointments" />
+      <PageBreadcrumb pageTitle="Book Appointments" />
       <div className="rounded-2xl border  border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="custom-calendar">
           <FullCalendar
@@ -987,11 +1007,11 @@ const Calendar: React.FC = () => {
           </div>
         </Modal>
       </div>
-      <div className="mt-8">
+      {/* <div className="mt-8">
         <ComponentCard title="Appointments">
           <ApptTable appointment={apptsalldetails} />
         </ComponentCard>
-      </div>
+      </div> */}
     </>
   );
 };
