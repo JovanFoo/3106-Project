@@ -5,6 +5,7 @@ import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
+import { toast, ToastContainer } from "react-toastify";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -208,7 +209,11 @@ export default function Appointments() {
           ))}
         </div>
       </div>
-
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        style={{ zIndex: 999999 }}
+      />
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-md p-6">
         {updatedAppt && (
           <div>
