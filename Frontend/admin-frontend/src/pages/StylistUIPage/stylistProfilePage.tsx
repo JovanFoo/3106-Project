@@ -31,8 +31,9 @@ export default function StylistProfilePage({ stylist }: Props) {
   const [title, setTitle] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [variant, setVariant] = useState<"info" | "error" | "success">("info");
+  const [assignedBranch, setAssignedBranch] = useState<string | null>(null);
 
-  useEffect(() => {
+
     const fetchStylist = async () => {
       try {
         const token = sessionStorage.getItem("token");
@@ -50,8 +51,38 @@ export default function StylistProfilePage({ stylist }: Props) {
       }
     };
 
-    if (stylist._id) fetchStylist();
+    const fetchAssignedBranch = async () => {
+      try {
+        const token = sessionStorage.getItem("token");
+        const res = await axios.get(`${api_address}/api/branches`, {
+          headers: {
+            Authorization: token,
+          },
+        });
+    
+        const allBranches = res.data;
+    
+        const assigned = allBranches.find((branch: any) =>
+          branch.stylists?.some((s: any) => s._id === stylist._id)
+        );
+    
+        setAssignedBranch(assigned?.location || "Not assigned");
+      } catch (error) {
+        console.error("Failed to fetch assigned branch", error);
+        setAssignedBranch("Unknown");
+      }
+    };
+    
+  
+  useEffect(() => {
+    if (stylist._id) {
+      fetchStylist();
+      fetchAssignedBranch();
+    }
   }, [stylist._id]);
+  
+
+  
   const handleToggle = () => {
     const token = sessionStorage.getItem("token");
     axios
@@ -185,6 +216,14 @@ export default function StylistProfilePage({ stylist }: Props) {
               <input
                 className="w-full border p-2 rounded dark:text-white/90 dark:bg-slate-800"
                 value={fullStylist.stylists.length > 0 ? "Manager" : "Stylist"}
+                disabled
+              />
+            </div>
+            <div>
+              <label className="dark:text-white">Assigned Branch</label>
+              <input
+                className="w-full border p-2 rounded dark:text-white/90 dark:bg-slate-800"
+                value={assignedBranch || "Loading..."}
                 disabled
               />
             </div>
