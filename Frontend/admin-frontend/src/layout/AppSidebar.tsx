@@ -1,5 +1,6 @@
 import BuildIcon from "@mui/icons-material/Build";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PaidIcon from "@mui/icons-material/Paid";
@@ -44,6 +45,11 @@ const AppSidebar: React.FC = () => {
       icon: <PsychologyIcon />,
       name: "Expertise",
       path: "/expertise",
+    },
+    {
+      icon: <EventAvailableIcon />,
+      name: "Leave Approval",
+      path: "/leave-Management",
     },
     {
       icon: <BuildIcon />,
