@@ -83,12 +83,12 @@ const AppSidebar: React.FC = () => {
   const user = useUser();
   useEffect(() => {
     filterBasedOnRole();
-    console.log("userrole", navItems);
+    // console.log("userrole", navItems);
   }, [user.role]);
 
   const filterBasedOnRole = () => {
-    console.log(navItems);
-    console.log("User role:", user.role);
+    // console.log(navItems);
+    // console.log("User role:", user.role);
     if (user.role !== "Manager") {
       console.log("User role is not StylistManager, filtering nav items.");
       setNavItems(
@@ -122,7 +122,7 @@ const AppSidebar: React.FC = () => {
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-    console.log("isActive", navItems);
+    // console.log("isActive", navItems);
   }, [location, isActive]);
 
   useEffect(() => {
@@ -136,7 +136,7 @@ const AppSidebar: React.FC = () => {
         }));
       }
     }
-    console.log("openSubmenu", navItems);
+    // console.log("openSubmenu", navItems);
   }, [openSubmenu]);
 
   const handleSubmenuToggle = (index: number) => {
