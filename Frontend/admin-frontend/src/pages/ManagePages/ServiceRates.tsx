@@ -479,7 +479,7 @@ const CustomerModal: React.FC<ModalProps> = ({
             type="neutral"
             size="sm"
           >
-            Close
+            Cancel
           </Button>
           <Button size="sm" onClick={handleSave}>
             {serviceRate ? "Update Service Rate" : "Create Service Rate"}

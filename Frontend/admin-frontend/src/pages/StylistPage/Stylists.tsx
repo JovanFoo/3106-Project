@@ -454,13 +454,14 @@ const CustomModal: React.FC<ModalProps> = ({
         </div>
 
         <div className="flex justify-end gap-3 mt-6 mb-2">
-          <button
+          <Button
             onClick={closeModal}
-            className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+            size="sm"
+            type='neutral'
           >
             Cancel
-          </button>
-          <Button size="sm" variant="primary" onClick={handleSave}>
+          </Button>
+          <Button size="sm" onClick={handleSave}>
             Add
           </Button>
         </div>

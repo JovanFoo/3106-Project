@@ -552,7 +552,7 @@ const CustomerModal: React.FC<ModalProps> = ({
             type="neutral"
             size="sm"
           >
-            Close
+            Cancel
           </Button>
           <Button size="sm" type="info" onClick={handleSave}>
             {service ? "Update Transaction" : "Create"}

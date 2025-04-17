@@ -1,13 +1,13 @@
+import axios, { AxiosResponse } from "axios";
+import { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Input from "../../components/form/input/InputField";
 import Label from "../../components/form/Label";
+import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
 import SettingsSidebar from "./SettingsSidebar";
-import Alert from "../../components/ui/alert/Alert";
-import { useState } from "react";
-import axios, { AxiosResponse } from "axios";
 
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -175,7 +175,7 @@ export default function ChangePassword() {
                 </div>
 
                 <div className="flex items-center gap-3 mt-4 lg:justify-end">
-                  <Button size="sm" variant="outline" onClick={closeModal}>
+                  <Button size="sm" type="neutral" onClick={closeModal}>
                     Cancel
                   </Button>
                   <Button size="sm">Save Changes</Button>
