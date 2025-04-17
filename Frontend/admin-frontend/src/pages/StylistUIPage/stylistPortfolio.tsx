@@ -48,26 +48,29 @@ export default function PortfolioGallery({ stylist }: Props) {
   if (errorMsg) return <p className="text-red-500">{errorMsg}</p>;
 
   return (
-    <div className="flex  mr-4">
+    <div className="flex mr-4">
       <div className="flex-1 p-5 mr-4">
       <PageBreadcrumb pageTitle="Portfolio/Gallery" />
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           {gallery.length === 0 ? (
             <p className="text-gray-500 italic">No portfolio items found.</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4 ">
-              {gallery.map((item) => (
-                <div key={item._id} className="p-2 rounded-lg border">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-40 object-cover rounded-md"
-                  />
-                  <p className="text-center mt-2 text-sm font-medium text-gray-800 dark:text-white">
-                    {item.title}
-                  </p>
-                </div>
+              <div className="max-h-[450px] overflow-y-auto pr-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4 ">
+                  {gallery.map((item) => (
+                    <div key={item._id}
+                      className="p-2 rounded-lg border ">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-40 object-cover rounded-md "
+                      />
+                      <p className="text-center mt-2 text-sm font-medium text-gray-800 dark:text-white">
+                        {item.title}
+                      </p>
+                    </div>
               ))}
+            </div>
             </div>
           )}
         </div>

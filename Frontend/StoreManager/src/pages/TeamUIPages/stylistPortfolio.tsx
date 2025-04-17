@@ -55,6 +55,7 @@ export default function PortfolioGallery({ stylist }: Props) {
           {gallery.length === 0 ? (
             <p className="text-gray-500 italic">No portfolio items found.</p>
           ) : (
+            <div className="max-h-[450px] overflow-y-auto pr-1">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
               {gallery.map((item) => (
                 <div key={item._id} className="p-2 rounded-lg border">
@@ -68,6 +69,7 @@ export default function PortfolioGallery({ stylist }: Props) {
                   </p>
                 </div>
               ))}
+            </div>
             </div>
           )}
         </div>

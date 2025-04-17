@@ -33,6 +33,10 @@ export default function CreateShop() {
   const [editingShopId, setEditingShopId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [shopToDelete, setShopToDelete] = useState<string | null>(null);
+  const [selectedStylists, setSelectedStylists] = useState<Stylist[]>([]);
+  const [manager, setManager] = useState<Stylist | null>(null);
+  
+
 
   const config = {
     headers: {
@@ -40,6 +44,10 @@ export default function CreateShop() {
     },
   };
 
+  type Stylist = {
+    _id: string;
+    name: string;
+  };
   type Shop = {
     _id: string;
     location: string;
@@ -50,6 +58,8 @@ export default function CreateShop() {
     weekendClosingTime: string;
     holidayOpeningTime: string;
     holidayClosingTime: string;
+    manager?: Stylist;
+    stylists?: Stylist[];
   };
 
   useEffect(() => {
@@ -157,18 +167,36 @@ export default function CreateShop() {
     setEditingShopId(null);
   };
 
-  const handleEdit = (shop: any) => {
-    setEditingShopId(shop._id);
-    setLocation(shop.location);
-    setPhoneNumber(shop.phoneNumber);
-    setWeekdayOpeningTime(shop.weekdayOpeningTime);
-    setWeekdayClosingTime(shop.weekdayClosingTime);
-    setWeekendOpeningTime(shop.weekendOpeningTime);
-    setWeekendClosingTime(shop.weekendClosingTime);
-    setHolidayOpeningTime(shop.holidayOpeningTime);
-    setHolidayClosingTime(shop.holidayClosingTime);
-    openModal();
+  const handleEdit = async (shop: any) => {
+    try {
+      const response = await axios.get(`${api_address}/api/branches/${shop._id}`, config);
+      const updatedShop = response.data;
+  
+      setEditingShopId(updatedShop._id);
+      setLocation(updatedShop.location);
+      setPhoneNumber(updatedShop.phoneNumber);
+      setWeekdayOpeningTime(updatedShop.weekdayOpeningTime);
+      setWeekdayClosingTime(updatedShop.weekdayClosingTime);
+      setWeekendOpeningTime(updatedShop.weekendOpeningTime);
+      setWeekendClosingTime(updatedShop.weekendClosingTime);
+      setHolidayOpeningTime(updatedShop.holidayOpeningTime);
+      setHolidayClosingTime(updatedShop.holidayClosingTime);
+  
+      // Make sure to set stylists and manager from latest data
+      setSelectedStylists(updatedShop.stylists || []);
+      setManager(updatedShop.manager || null);
+  
+      openModal();
+    } catch (err) {
+      console.error("Error loading shop data:", err);
+      setTitle("Error");
+      setMessage("Failed to load branch details.");
+      setVariant("error");
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 3000);
+    }
   };
+  
 
   // to format time to 24hr
   const formatTime = (time: string): string => {
@@ -192,6 +220,38 @@ export default function CreateShop() {
     ["Holiday Opening", holidayOpeningTime, setHolidayOpeningTime],
     ["Holiday Closing", holidayClosingTime, setHolidayClosingTime],
   ];
+
+  const handleRemoveStylist = async (stylistId: string) => {
+    if (!editingShopId || !manager?._id) return;
+  
+    try {
+      await axios.put(
+        `${api_address}/api/branches/remove/${editingShopId}`,
+        {
+          stylistManagerId: manager._id,
+          stylistId: stylistId,
+        },
+        config
+      );
+  
+      setSelectedStylists((prev) =>
+        prev.filter((stylist) => stylist._id !== stylistId)
+      );
+  
+      setTitle("Removed");
+      setMessage("Stylist removed from branch.");
+      setVariant("success");
+    } catch (error: any) {
+      console.error("Error removing stylist:", error);
+      setTitle("Error");
+      setMessage(error.response?.data?.message || "Failed to remove stylist.");
+      setVariant("error");
+    }
+  
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 3000);
+  };
+  
 
   return (
     <div className="flex min-h-screen">
@@ -247,6 +307,17 @@ export default function CreateShop() {
                   Holiday: {formatTime(shop.holidayOpeningTime)} -{" "}
                   {formatTime(shop.holidayClosingTime)}
                 </p>
+
+                <p className="text-sm text-gray-500 dark:text-white">
+                  <strong>Manager:</strong> {shop.manager?.name || "None"}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-white">
+                  <strong>Stylists:</strong>{" "}
+                  {shop.stylists?.length > 0
+                    ? shop.stylists.map((s: Stylist) => s.name).join(", ")
+                    : "None"}
+                </p>
+
               </div>
             ))}
           </div>
@@ -318,6 +389,52 @@ export default function CreateShop() {
                   />
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6 space-y-6">
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">Team</h4>
+              {manager && (
+                <div className="rounded-xl border border-gray-500 p-4 dark:border-gray-700">
+                  {/* Manager Info */}
+                  <div className="mb-4">
+                    <h4 className="font-medium text-gray-800 dark:text-white mb-2">👑 Manager</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex items-center border border-gray-400 rounded-md p-2 dark:border-gray-600 dark:bg-gray-800">
+                        <span className="text-gray-700 dark:text-white">{manager.name}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stylists */}
+                  <div>
+                    <h5 className="font-medium text-gray-800 dark:text-white mb-2">
+                      ✂️ Stylists ({
+                        selectedStylists.filter((s) => s._id !== manager._id).length
+                      })
+                    </h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {selectedStylists
+                        .filter((stylist) => stylist._id !== manager._id) // <-- this line filters out manager
+                        .map((stylist) => (
+                          <div
+                            key={stylist._id}
+                          className="flex justify-between items-center border border-gray-400  rounded-md p-2 dark:border-gray-600 dark:bg-gray-800"
+                        >
+                          <span className="text-gray-700 dark:text-white">{stylist.name}</span>
+                          <Button
+                            size="sm"
+                            type="danger"
+                            onClick={() => handleRemoveStylist(stylist._id)}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </div>
 
             <div className="flex justify-between gap-3">
