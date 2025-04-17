@@ -76,6 +76,27 @@ const ReviewController = {
     }
   },
 
+  // Retrieve all reviews
+  async retrieveAllReviews(req, res) {
+    console.log("ReviewController > retrieveAllReviews");
+
+    try {
+      const reviews = await Review.find({})
+        .populate("stylist", "name")
+        .populate("customer", "username")
+        .sort({ createdAt: -1 }); // Optional: sort by newest first
+
+      if (!reviews || reviews.length === 0) {
+        return res.status(404).json({ message: "No reviews found" });
+      }
+
+      return res.status(200).json(reviews);
+    } catch (error) {
+      console.error("Error retrieving all reviews:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  },
+
   // Retrieve reviews for a branch through stylists and appointments
   async retrieveBranchReviews(req, res) {
     const { branchId } = req.params;
@@ -202,57 +223,55 @@ const ReviewController = {
       return res.status(500).json({ message: "Internal Server Error" });
     }
   },
-  // Retrieve reviews for a specific stylist
+
+  // Retrieve reviews for a specific stylist (Customer-side)
   async retrieveStylistReviews(req, res) {
     console.log("ReviewController > retrieveStylistReviews");
     const { stylistId } = req.params;
 
-    const appointments = await Appointment.find({ stylist: stylistId })
-      .where("review")
-      .ne(null);
-    const customersWithReviews = await Customer.find({
-      appointments: { $in: appointments },
-    }).populate("appointments");
-    const newReviews = customersWithReviews
-      .flatMap((customer) => {
-        return customer.appointments.map((appointment) => {
-          appointment.customer = customer;
-          return appointment;
-        });
-      })
-      .filter((appointment) => {
-        return appointment.stylist == stylistId;
-      })
-      .map((appointment) => {
-        const customer = appointment.customer;
-        customer.password = undefined;
-        return {
-          review: appointment.review,
-          customer: customer.name,
-        };
-      });
-    const temp = [];
-    for (let index = 0; index < newReviews.length; index++) {
-      const element = newReviews[index];
-      console.log(element.customer);
-      console.log(element.review);
-      if (!element.review) {
-        continue;
+    try {
+      // Step 1: Find the stylist by ID
+      const stylist = await Stylist.findById(stylistId);
+      if (!stylist) {
+        return res.status(404).json({ message: "Stylist not found" });
       }
-      const review = await Review.findById(element.review);
-      temp.push({
-        text: review.text,
-        stars: review.stars,
-        title: review.title,
-        customer: element.customer,
+
+      // Step 2: Fetch all appointments for the given stylist that have reviews
+      const appointments = await Appointment.find({
+        stylist: stylistId,
+        review: { $ne: null }, // Only fetch appointments that have reviews
       });
+
+      if (appointments.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No reviews found for this stylist" });
+      }
+
+      // Step 3: Fetch reviews for the appointments
+      const reviews = await Review.find({
+        appointment: {
+          $in: appointments.map((appointment) => appointment._id),
+        },
+      })
+        .populate("stylist", "name")
+        .populate("customer", "username");
+
+      if (!reviews || reviews.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No reviews found for this stylist" });
+      }
+
+      // Return the reviews with the associated customer data
+      return res.status(200).json(reviews);
+    } catch (error) {
+      console.error("Error retrieving stylist reviews:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
-    if (temp.length === 0) {
-      return res.status(404).json({ message: "No reviews found" });
-    }
-    return res.status(200).json(temp);
   },
-  // stylist page
+
+  // Retrieve reviews for a specific stylist (Admin/Stylist-side)
   async retrieveStylistReviews1(req, res) {
     console.log("ReviewController > retrieveStylistReviews");
     const { stylistId } = req.params;

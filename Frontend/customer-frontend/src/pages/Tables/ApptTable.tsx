@@ -56,7 +56,7 @@ interface Props {
 export default function ApptTable({ appointment }: Props) {
   return (
     <>
-      <PageMeta title="BuzzBook" description="BuzzBook" />
+      {/* <PageMeta title="BuzzBook - Past Appointments" description="BuzzBook" /> */}
       {/* <PageBreadcrumb pageTitle="Appointments" /> */}
       <div className="space-y-6">
         <AppointmentTableOne appointment={appointment} />

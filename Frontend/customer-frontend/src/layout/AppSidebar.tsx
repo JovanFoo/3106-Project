@@ -26,8 +26,13 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <CalenderIcon />,
-    name: "Appointments",
+    name: "Book Appointments",
     path: "/appointments",
+  },
+  {
+    icon: <CalenderIcon />,
+    name: "View Appointments",
+    path: "/viewappointments",
   },
   {
     icon: <UserCircleIcon />,
@@ -301,8 +306,8 @@ const AppSidebar: React.FC = () => {
               />
               {/* Dark mode logo with invert and brightness classes */}
               <img
-                className="dark:block brightness-0 invert"
-                src="../logobuzzbook_long.png"
+                className="hidden dark:block brightness-0 invert"
+                src="/images/logo/logobuzzbookcropped.png"
                 alt="Logo"
                 width={270}
                 height={50}
