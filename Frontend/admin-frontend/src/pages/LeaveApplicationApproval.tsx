@@ -347,78 +347,78 @@ const LeaveManagement = (): ReactElement => {
   );
 
   const renderStats = () => (
-    <Card
-      sx={{
-        p: 3,
-        mb: 3,
-        borderRadius: "16px",
-        boxShadow: theme.shadows[0],
-        border: `1px solid ${theme.palette.divider}`,
-        bgcolor: theme.palette.background.paper,
-      }}
-    >
-      <Typography variant="h6" sx={{ fontSize: "1.5rem" }} gutterBottom>
+    <Card className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+      <Typography
+        variant="h6"
+        className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90"
+      >
         Leave to Approve
       </Typography>
-      <Typography variant="h3" color="primary.main" sx={{ mb: 3 }}>
+      <Typography
+        variant="h3"
+        color="primary.main"
+        className="mb-3 dark:text-white/90"
+      >
         {leaveRequests.filter((r) => r.status === "Pending").length}
       </Typography>
 
-      {viewMode === "status" && (
-        <Box sx={{ mb: 3 }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 1,
-            }}
+      <Box sx={{ mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1,
+          }}
+        >
+          <Typography
+            variant="subtitle1"
+            className="font-medium text-gray-800 dark:text-white/90"
           >
-            <Typography variant="subtitle1" fontWeight="medium">
-              Leave Status
-            </Typography>
-            <Button
-              size="small"
-              onClick={() =>
-                selectedStatus.length === 2
-                  ? setSelectedStatus([])
-                  : setSelectedStatus(["Pending", "Approved"])
-              }
-            >
-              {selectedStatus.length === 2 ? "Deselect All" : "Select All"}
-            </Button>
-          </Box>
-          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-            {["Pending", "Approved"].map((status) => (
-              <Chip
-                key={status}
-                label={status}
-                onClick={() => handleStatusToggle(status)}
-                sx={{
-                  bgcolor: selectedStatus.includes(status)
-                    ? getStatusColor(status as "Pending" | "Approved")
-                    : theme.palette.mode === "dark"
-                    ? alpha(theme.palette.grey[700], 0.5)
-                    : theme.palette.grey[100],
-                  color: selectedStatus.includes(status)
-                    ? "white"
-                    : theme.palette.text.primary,
-                  "&:hover": {
-                    bgcolor: selectedStatus.includes(status)
-                      ? alpha(
-                          getStatusColor(status as "Pending" | "Approved"),
-                          0.8
-                        )
-                      : theme.palette.mode === "dark"
-                      ? alpha(theme.palette.grey[700], 0.8)
-                      : theme.palette.grey[200],
-                  },
-                }}
-              />
-            ))}
-          </Stack>
+            Leave Status
+          </Typography>
+          <Button
+            size="small"
+            onClick={() =>
+              selectedStatus.length === 2
+                ? setSelectedStatus([])
+                : setSelectedStatus(["Pending", "Approved"])
+            }
+            className="text-gray-800 hover:bg-gray-100 dark:text-white/90 dark:hover:bg-white/[0.03]"
+          >
+            {selectedStatus.length === 2 ? "Deselect All" : "Select All"}
+          </Button>
         </Box>
-      )}
+        <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+          {["Pending", "Approved"].map((status) => (
+            <Chip
+              key={status}
+              label={status}
+              onClick={() => handleStatusToggle(status)}
+              sx={{
+                bgcolor: selectedStatus.includes(status)
+                  ? getStatusColor(status as "Pending" | "Approved")
+                  : theme.palette.mode === "dark"
+                  ? alpha(theme.palette.grey[700], 0.5)
+                  : theme.palette.grey[100],
+                color: selectedStatus.includes(status)
+                  ? "white"
+                  : theme.palette.text.primary,
+                "&:hover": {
+                  bgcolor: selectedStatus.includes(status)
+                    ? alpha(
+                        getStatusColor(status as "Pending" | "Approved"),
+                        0.8
+                      )
+                    : theme.palette.mode === "dark"
+                    ? alpha(theme.palette.grey[700], 0.8)
+                    : theme.palette.grey[200],
+                },
+              }}
+            />
+          ))}
+        </Stack>
+      </Box>
     </Card>
   );
 
@@ -429,159 +429,162 @@ const LeaveManagement = (): ReactElement => {
         (a, b) =>
           new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
       );
+
     if (pendingRequests.length === 0) {
       return <></>;
     }
 
     return (
       <Box sx={{ mt: 3 }}>
-        <Typography variant="h6" gutterBottom>
+        <Typography
+          variant="h6"
+          gutterBottom
+          className="text-gray-800 dark:text-white/90"
+        >
           Approval List
         </Typography>
-        <Grid container spacing={2}>
+        <Stack spacing={2}>
           {pendingRequests.map((request) => (
-            <Grid item xs={12} key={request._id}>
-              <Card
-                sx={{
-                  borderRadius: "16px",
-                  boxShadow: theme.shadows[0],
-                  border: `1px solid ${theme.palette.divider}`,
-                  bgcolor: theme.palette.background.paper,
-                  "&:hover": {
-                    borderColor: theme.palette.primary.main,
-                    boxShadow: theme.shadows[2],
-                  },
-                }}
-              >
-                <CardContent>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      mb: 2,
-                    }}
+            <Card
+              key={request._id}
+              className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]"
+            >
+              <CardContent>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    mb: 2,
+                  }}
+                >
+                  <Avatar
+                    src={request.stylist?.profilePicture}
+                    className="h-12 w-12 bg-primary"
                   >
-                    <Avatar
-                      src={request.stylist?.profilePicture}
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        bgcolor: theme.palette.primary.main,
-                      }}
+                    {request.stylist?.name
+                      ? request.stylist.name.charAt(0)
+                      : "?"}
+                  </Avatar>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography
+                      variant="subtitle1"
+                      className="font-medium text-gray-800 dark:text-white/90"
                     >
-                      {request.stylist?.name
-                        ? request.stylist.name.charAt(0)
-                        : "?"}
-                    </Avatar>
-                    <Box
-                      sx={{
-                        flexGrow: 1,
-                        display: "flex",
-                        alignItems: "flex-start",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Box>
-                        <Typography variant="subtitle1" fontWeight="medium">
-                          {request.stylist?.name || "Unknown"}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {request.stylist?.email || "No email"}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {request.stylist.role || "Stylist"}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                  <Stack spacing={1.5}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <EventIcon fontSize="small" color="action" />
-                      <Typography variant="body2">
-                        {format(new Date(request.startDate), "MMM dd")} -{" "}
-                        {format(new Date(request.endDate), "MMM dd, yyyy")}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <AccessTimeIcon fontSize="small" color="action" />
-                      <Typography variant="body2">
-                        {differenceInDays(
-                          new Date(request.endDate),
-                          new Date(request.startDate)
-                        ) + 1}{" "}
-                        days
-                      </Typography>
-                    </Box>
+                      {request.stylist?.name || "Unknown"}
+                    </Typography>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        p: 1.5,
-                        borderRadius: "8px",
-                        bgcolor:
-                          theme.palette.mode === "dark"
-                            ? alpha(theme.palette.grey[800], 0.5)
-                            : theme.palette.grey[50],
-                      }}
+                      className="text-gray-600 dark:text-white/70"
                     >
-                      {request.reason || "No reason provided"}
+                      {request.stylist?.email || "No email"}
                     </Typography>
-                    {request.image && (
-                      <Box sx={{ mt: 1.5 }}>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          gutterBottom
-                        >
-                          Supporting Document
-                        </Typography>
-                        <Box
-                          component="img"
-                          src={request.image}
-                          alt="Supporting document"
-                          sx={{
-                            maxWidth: "100%",
-                            maxHeight: "200px",
-                            borderRadius: "8px",
-                            border: "1px solid",
-                            borderColor: "divider",
-                            p: 1,
-                            cursor: "pointer",
-                            transition: "transform 0.2s",
-                            "&:hover": {
-                              transform: "scale(1.02)",
-                            },
-                          }}
-                          onClick={() => handleImageZoom(request.image!)}
-                        />
-                      </Box>
-                    )}
-                  </Stack>
-                </CardContent>
-                <Divider />
-                <CardActions sx={{ justifyContent: "flex-end", gap: 1, p: 2 }}>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => handleReject(request._id)}
-                    startIcon={<CancelIcon />}
+                  </Box>
+                </Box>
+                <Stack spacing={1.5}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <EventIcon
+                      fontSize="small"
+                      color="action"
+                      className="text-gray-800 dark:text-white"
+                    />
+                    <Typography
+                      variant="body2"
+                      className="text-gray-800 dark:text-white"
+                    >
+                      {format(new Date(request.startDate), "MMM dd")} -{" "}
+                      {format(new Date(request.endDate), "MMM dd, yyyy")}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <AccessTimeIcon
+                      fontSize="small"
+                      color="action"
+                      className="text-gray-800 dark:text-white"
+                    />
+                    <Typography
+                      variant="body2"
+                      className="text-gray-800 dark:text-white"
+                    >
+                      {differenceInDays(
+                        new Date(request.endDate),
+                        new Date(request.startDate)
+                      ) + 1}{" "}
+                      days
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      p: 1.5,
+                      borderRadius: "8px",
+                      bgcolor:
+                        theme.palette.mode === "dark"
+                          ? alpha(theme.palette.grey[800], 0.5)
+                          : theme.palette.grey[50],
+                    }}
+                    className="text-gray-800 dark:text-white/90 dark:bg-transparent border border-gray-200 dark:border-gray-800"
                   >
-                    Reject
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleApprove(request._id)}
-                    startIcon={<CheckCircleIcon />}
-                  >
-                    Approve
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
+                    {request.reason || "No reason provided"}
+                  </Typography>
+                  {request.image && (
+                    <Box sx={{ mt: 1.5 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        gutterBottom
+                        className="text-gray-800 dark:text-white"
+                      >
+                        Supporting Document
+                      </Typography>
+                      <Box
+                        component="img"
+                        src={request.image}
+                        alt="Supporting document"
+                        sx={{
+                          maxWidth: "100%",
+                          maxHeight: "200px",
+                          borderRadius: "8px",
+                          border: "1px solid",
+                          borderColor: "divider",
+                          p: 1,
+                          cursor: "pointer",
+                          transition: "transform 0.2s",
+                          "&:hover": {
+                            transform: "scale(1.02)",
+                          },
+                        }}
+                        onClick={() => handleImageZoom(request.image!)}
+                      />
+                    </Box>
+                  )}
+                </Stack>
+              </CardContent>
+              <Divider />
+              <CardActions sx={{ justifyContent: "flex-end", gap: 1, p: 2 }}>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => handleReject(request._id)}
+                  startIcon={<CancelIcon />}
+                  className="text-gray-800 dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
+                >
+                  Reject
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleApprove(request._id)}
+                  startIcon={<CheckCircleIcon />}
+                  className="text-white dark:text-white/90"
+                >
+                  Approve
+                </Button>
+              </CardActions>
+            </Card>
           ))}
-        </Grid>
+        </Stack>
       </Box>
     );
   };
@@ -643,15 +646,7 @@ const LeaveManagement = (): ReactElement => {
 
           {/* Right column with calendar */}
           <Grid item xs={12} md={8}>
-            <Card
-              sx={{
-                p: 3,
-                borderRadius: "16px",
-                boxShadow: theme.shadows[0],
-                border: `1px solid ${theme.palette.divider}`,
-                bgcolor: theme.palette.background.paper,
-              }}
-            >
+            <Card className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
               {/* Calendar Header */}
               <Box
                 sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}
@@ -663,26 +658,23 @@ const LeaveManagement = (): ReactElement => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Typography variant="h6">Calendar View</Typography>
+                  <Typography
+                    variant="h6"
+                    className="text-gray-800 dark:text-white/90"
+                  >
+                    Calendar View
+                  </Typography>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <IconButton
                       size="small"
                       onClick={() => setCurrentDate((d) => addDays(d, -7))}
-                      sx={{
-                        color: theme.palette.text.primary,
-                        "&:hover": {
-                          bgcolor:
-                            theme.palette.mode === "dark"
-                              ? alpha(theme.palette.common.white, 0.1)
-                              : alpha(theme.palette.common.black, 0.04),
-                        },
-                      }}
+                      className="text-gray-800 hover:bg-gray-100 dark:text-white/90 dark:hover:bg-white/[0.03]"
                     >
                       <ChevronLeftIcon fontSize="small" />
                     </IconButton>
                     <Typography
                       variant="body2"
-                      sx={{ minWidth: "120px", textAlign: "center" }}
+                      className="min-w-[120px] text-center text-gray-800 dark:text-white/90"
                     >
                       {format(weekStart, "d MMM")} -{" "}
                       {format(weekEnd, "d MMM yyyy")}
@@ -690,15 +682,7 @@ const LeaveManagement = (): ReactElement => {
                     <IconButton
                       size="small"
                       onClick={() => setCurrentDate((d) => addDays(d, 7))}
-                      sx={{
-                        color: theme.palette.text.primary,
-                        "&:hover": {
-                          bgcolor:
-                            theme.palette.mode === "dark"
-                              ? alpha(theme.palette.common.white, 0.1)
-                              : alpha(theme.palette.common.black, 0.04),
-                        },
-                      }}
+                      className="text-gray-800 hover:bg-gray-100 dark:text-white/90 dark:hover:bg-white/[0.03]"
                     >
                       <ChevronRightIcon fontSize="small" />
                     </IconButton>
@@ -707,19 +691,14 @@ const LeaveManagement = (): ReactElement => {
               </Box>
 
               {/* Calendar Grid */}
-              <Box
-                sx={{
-                  border: `1px solid ${theme.palette.divider}`,
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                }}
-              >
+              <Box className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
                 <Box
                   sx={{
                     display: "grid",
                     gridTemplateColumns: "200px 1fr",
                     width: "100%",
                   }}
+                  className="dark:bg-transparent dark:text-white"
                 >
                   {/* Staff Column */}
                   <Box
@@ -727,6 +706,7 @@ const LeaveManagement = (): ReactElement => {
                       borderRight: `1px solid ${theme.palette.divider}`,
                       bgcolor: theme.palette.background.paper,
                     }}
+                    className="dark:bg-transparent dark:text-white"
                   >
                     {/* Staff Header */}
                     <Box
@@ -739,8 +719,13 @@ const LeaveManagement = (): ReactElement => {
                             ? alpha(theme.palette.grey[800], 0.5)
                             : theme.palette.grey[50],
                       }}
+                      className="dark:bg-transparent dark:text-white"
                     >
-                      <Typography variant="subtitle2" color="text.secondary">
+                      <Typography
+                        variant="subtitle2"
+                        color="text.secondary"
+                        className="dark:text-white/90 dark:bg-transparent"
+                      >
                         Staff
                       </Typography>
                     </Box>
@@ -801,6 +786,7 @@ const LeaveManagement = (): ReactElement => {
                             ? alpha(theme.palette.grey[800], 0.5)
                             : theme.palette.grey[50],
                       }}
+                      className="dark:text-white/90 dark:bg-transparent"
                     >
                       <Grid container sx={{ height: "100%" }}>
                         {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
@@ -814,12 +800,14 @@ const LeaveManagement = (): ReactElement => {
                                   display: "flex",
                                   flexDirection: "column",
                                   justifyContent: "center",
+                                  borderLeft: `1px solid ${theme.palette.divider}`,
                                 }}
                               >
                                 <Typography
                                   variant="caption"
                                   color="text.secondary"
                                   display="block"
+                                  className="dark:text-white/90 dark:bg-transparent"
                                 >
                                   {dayName}
                                 </Typography>

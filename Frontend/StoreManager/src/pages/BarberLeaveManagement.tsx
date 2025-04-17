@@ -3,7 +3,6 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
   Box,
-  Button,
   Card,
   CardContent,
   Chip,
@@ -18,7 +17,7 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
-  Typography
+  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -26,17 +25,15 @@ import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
 import axios from "axios";
-import {
-  differenceInDays,
-  format,
-  isSameDay,
-  parseISO
-} from "date-fns";
+import { differenceInDays, format, isSameDay, parseISO } from "date-fns";
 import React, { useEffect, useState } from "react";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Modal } from "../components/ui/modal";
-
+import Button from "../components/ui/button/Button";
+import Input from "../components/form/input/InputField";
+import Label from "../components/form/Label";
+import TextArea from "../components/form/input/TextArea";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -82,7 +79,7 @@ const BarberLeaveManagement: React.FC = () => {
   const [leaveStats, setLeaveStats] = useState<LeaveStats>({
     totalLeave: 30,
     usedLeave: 0,
-    availableLeave: 30
+    availableLeave: 30,
   });
   const [filter, setFilter] = useState("all");
   const [openApplyDialog, setOpenApplyDialog] = useState(false);
@@ -93,8 +90,12 @@ const BarberLeaveManagement: React.FC = () => {
     reason: "",
     image: "",
   });
-  const [leaveApplications, setLeaveApplications] = useState<LeaveApplication[]>([]);
-  const [documentSubmissions, setDocumentSubmissions] = useState<DocumentSubmission[]>([
+  const [leaveApplications, setLeaveApplications] = useState<
+    LeaveApplication[]
+  >([]);
+  const [documentSubmissions, setDocumentSubmissions] = useState<
+    DocumentSubmission[]
+  >([
     {
       type: "Medical Certificate",
       leaveDate: "2024-12-20",
@@ -111,7 +112,9 @@ const BarberLeaveManagement: React.FC = () => {
     },
   ]);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    null
+  );
   const [highlights, setHighlights] = useState<ServerHighlight[]>([]);
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
@@ -166,7 +169,7 @@ const BarberLeaveManagement: React.FC = () => {
           date.setDate(date.getDate() + i);
           newHighlights.push({
             date,
-            status: request.status
+            status: request.status,
           });
         }
       });
@@ -174,7 +177,7 @@ const BarberLeaveManagement: React.FC = () => {
 
       console.log("Formatted requests:", formattedRequests);
       setLeaveApplications(formattedRequests);
-      
+
       // Calculate total used leave days
       const approvedApplications = formattedRequests.filter(
         (app: LeaveApplication) => app.status?.toLowerCase?.() === "approved"
@@ -188,7 +191,7 @@ const BarberLeaveManagement: React.FC = () => {
       setLeaveStats({
         totalLeave: 30,
         usedLeave: totalUsedDays,
-        availableLeave: 30 - totalUsedDays
+        availableLeave: 30 - totalUsedDays,
       });
     } catch (error) {
       console.error("Error fetching leave requests:", error);
@@ -222,7 +225,11 @@ const BarberLeaveManagement: React.FC = () => {
   };
 
   const handleApplyLeave = async () => {
-    if (!newApplication.startDate || !newApplication.endDate || !newApplication.reason) {
+    if (
+      !newApplication.startDate ||
+      !newApplication.endDate ||
+      !newApplication.reason
+    ) {
       toast.warning("Please fill in all required fields");
       return;
     }
@@ -435,26 +442,26 @@ const BarberLeaveManagement: React.FC = () => {
             size="small"
             className="dark:border-gray-800"
           >
-            <ToggleButton 
-              value="all" 
+            <ToggleButton
+              value="all"
               className="dark:bg-white/[0.03] dark:text-white/90 dark:border-gray-800 dark:hover:bg-white/[0.08]"
             >
               ALL
             </ToggleButton>
-            <ToggleButton 
-              value="pending" 
+            <ToggleButton
+              value="pending"
               className="dark:bg-white/[0.03] dark:text-white/90 dark:border-gray-800 dark:hover:bg-white/[0.08]"
             >
               PENDING
             </ToggleButton>
-            <ToggleButton 
-              value="approved" 
+            <ToggleButton
+              value="approved"
               className="dark:bg-white/[0.03] dark:text-white/90 dark:border-gray-800 dark:hover:bg-white/[0.08]"
             >
               APPROVED
             </ToggleButton>
-            <ToggleButton 
-              value="rejected" 
+            <ToggleButton
+              value="rejected"
               className="dark:bg-white/[0.03] dark:text-white/90 dark:border-gray-800 dark:hover:bg-white/[0.08]"
             >
               REJECTED
@@ -463,9 +470,8 @@ const BarberLeaveManagement: React.FC = () => {
 
           <Box>
             <Button
-              variant="contained"
-              color="primary"
-              sx={{ mr: 1 }}
+              variant="primary"
+              type="info"
               onClick={() => setOpenApplyDialog(true)}
               className="dark:text-white/90"
             >
@@ -483,11 +489,17 @@ const BarberLeaveManagement: React.FC = () => {
         ) : (
           <Stack spacing={2}>
             {filteredApplications.map((application) => (
-              <Card key={application.id} className="dark:bg-white/[0.03] dark:border-gray-800">
+              <Card
+                key={application.id}
+                className="dark:bg-white/[0.03] dark:border-gray-800"
+              >
                 <CardContent>
                   <Grid container alignItems="center" spacing={2}>
                     <Grid item xs={12} md={4}>
-                      <Typography variant="subtitle2" className="dark:text-white/70">
+                      <Typography
+                        variant="subtitle2"
+                        className="dark:text-white/70"
+                      >
                         Leave Date
                       </Typography>
                       <Typography className="dark:text-white/90">
@@ -496,7 +508,10 @@ const BarberLeaveManagement: React.FC = () => {
                       </Typography>
                     </Grid>
                     <Grid item xs={12} md={4}>
-                      <Typography variant="subtitle2" className="dark:text-white/70">
+                      <Typography
+                        variant="subtitle2"
+                        className="dark:text-white/70"
+                      >
                         Total Days
                       </Typography>
                       <Typography className="dark:text-white/90">
@@ -504,17 +519,21 @@ const BarberLeaveManagement: React.FC = () => {
                       </Typography>
                     </Grid>
                     <Grid item xs={12} md={4}>
-                      <Box sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        justifyContent: "flex-end",
-                      }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          justifyContent: "flex-end",
+                        }}
+                      >
                         {application.status === "Pending" && (
                           <>
                             <Chip label="Pending" color="warning" />
                             <IconButton
-                              onClick={() => handleWithdrawClick(application.id)}
+                              onClick={() =>
+                                handleWithdrawClick(application.id)
+                              }
                               color="error"
                               size="small"
                               className="dark:text-red-400 dark:hover:bg-red-900/20"
@@ -532,32 +551,42 @@ const BarberLeaveManagement: React.FC = () => {
                       </Box>
                     </Grid>
                   </Grid>
-                  <Typography variant="subtitle2" sx={{ mt: 2 }} className="dark:text-white/70">
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ mt: 2 }}
+                    className="dark:text-white/70"
+                  >
                     Reason
                   </Typography>
-                  <Typography className="dark:text-white/90">{application.reason}</Typography>
+                  <Typography className="dark:text-white/90">
+                    {application.reason}
+                  </Typography>
                   {application.image && (
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="subtitle2" className="dark:text-white/70" gutterBottom>
+                      <Typography
+                        variant="subtitle2"
+                        className="dark:text-white/70"
+                        gutterBottom
+                      >
                         Supporting Document
                       </Typography>
-                      <Box 
-                        component="img" 
-                        src={application.image} 
-                        alt="Supporting document" 
-                        sx={{ 
-                          maxWidth: '100%', 
-                          maxHeight: '200px', 
-                          borderRadius: '4px',
-                          border: '1px solid',
-                          borderColor: 'divider',
+                      <Box
+                        component="img"
+                        src={application.image}
+                        alt="Supporting document"
+                        sx={{
+                          maxWidth: "100%",
+                          maxHeight: "200px",
+                          borderRadius: "4px",
+                          border: "1px solid",
+                          borderColor: "divider",
                           p: 1,
-                          cursor: 'pointer',
-                          transition: 'transform 0.2s',
-                          '&:hover': {
-                            transform: 'scale(1.02)',
-                          }
-                        }} 
+                          cursor: "pointer",
+                          transition: "transform 0.2s",
+                          "&:hover": {
+                            transform: "scale(1.02)",
+                          },
+                        }}
                         onClick={() => handleImageZoom(application.image!)}
                       />
                     </Box>
@@ -593,8 +622,8 @@ const BarberLeaveManagement: React.FC = () => {
             </Button>
             <Button
               onClick={handleConfirmWithdraw}
-              variant="contained"
-              color="error"
+              variant="primary"
+              type="danger"
             >
               Withdraw
             </Button>
@@ -683,7 +712,12 @@ const BarberLeaveManagement: React.FC = () => {
     >
       <Container maxWidth="xl" className="dark:bg-transparent dark:text-white">
         <Box sx={{ mb: 4 }} className="dark:bg-transparent dark:text-white">
-          <Typography variant="h4" gutterBottom sx={{ color: "inherit" }} className="dark:text-white">
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{ color: "inherit" }}
+            className="dark:text-white"
+          >
             Leave Management
           </Typography>
         </Box>
@@ -693,8 +727,16 @@ const BarberLeaveManagement: React.FC = () => {
             {renderLeaveStats()}
             {renderLeaveApplications()}
           </Grid>
-          <Grid item xs={12} md={4} className="dark:bg-transparent dark:text-white">
-            <Box sx={{ mb: 4 }} className="dark:bg-white/[0.03] dark:border-gray-800 rounded-2xl">
+          <Grid
+            item
+            xs={12}
+            md={4}
+            className="dark:bg-transparent dark:text-white"
+          >
+            <Box
+              sx={{ mb: 4 }}
+              className="dark:bg-white/[0.03] dark:border-gray-800 rounded-2xl"
+            >
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <DateCalendar
                   value={selectedDate}
@@ -704,20 +746,35 @@ const BarberLeaveManagement: React.FC = () => {
                   }}
                   sx={{
                     width: "100%",
-                    '& .MuiPickersDay-root': {
-                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9) !important' : 'inherit',
+                    "& .MuiPickersDay-root": {
+                      color:
+                        theme.palette.mode === "dark"
+                          ? "rgba(255, 255, 255, 0.9) !important"
+                          : "inherit",
                     },
-                    '& .MuiDayCalendar-weekDayLabel': {
-                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7) !important' : 'inherit',
+                    "& .MuiDayCalendar-weekDayLabel": {
+                      color:
+                        theme.palette.mode === "dark"
+                          ? "rgba(255, 255, 255, 0.7) !important"
+                          : "inherit",
                     },
-                    '& .MuiPickersCalendarHeader-label': {
-                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9) !important' : 'inherit',
+                    "& .MuiPickersCalendarHeader-label": {
+                      color:
+                        theme.palette.mode === "dark"
+                          ? "rgba(255, 255, 255, 0.9) !important"
+                          : "inherit",
                     },
-                    '& .MuiPickersCalendarHeader-switchViewButton': {
-                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9) !important' : 'inherit',
+                    "& .MuiPickersCalendarHeader-switchViewButton": {
+                      color:
+                        theme.palette.mode === "dark"
+                          ? "rgba(255, 255, 255, 0.9) !important"
+                          : "inherit",
                     },
-                    '& .MuiPickersArrowSwitcher-button': {
-                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9) !important' : 'inherit',
+                    "& .MuiPickersArrowSwitcher-button": {
+                      color:
+                        theme.palette.mode === "dark"
+                          ? "rgba(255, 255, 255, 0.9) !important"
+                          : "inherit",
                     },
                   }}
                   className="dark:bg-transparent"
@@ -732,110 +789,125 @@ const BarberLeaveManagement: React.FC = () => {
           onClose={() => setOpenApplyDialog(false)}
           // maxWidth="sm"
           // fullWidth
-          className="max-w-[600px] p-6 dark:bg-transparent dark:text-white"
+          className="max-w-[600px] p-6  dark:text-white"
         >
-          <div className="dark:bg-transparent dark:text-white">
-          <DialogTitle>
-            Apply for Leave
-            {/* <IconButton
+          <div className=" dark:text-white">
+            <DialogTitle>
+              Apply for Leave
+              {/* <IconButton
               aria-label="close"
               onClick={() => setOpenApplyDialog(false)}
               sx={{ position: "absolute", right: 8, top: 8 }}
             > */}
               {/* <CloseIcon />
             </IconButton> */}
-          </DialogTitle>
-          <DialogContent>
-            <Stack spacing={2} sx={{ mt: 2 }}>
-              <TextField
-                label="Start Date"
-                type="date"
-                fullWidth
-                required
-                InputLabelProps={{ shrink: true }}
-                value={newApplication.startDate}
-                onChange={(e) =>
-                  setNewApplication({
-                    ...newApplication,
-                    startDate: e.target.value,
-                  })
-                }
-                inputProps={{ min: new Date().toISOString().split("T")[0] }}
-              />
-              <TextField
-                label="End Date"
-                type="date"
-                fullWidth
-                required
-                InputLabelProps={{ shrink: true }}
-                value={newApplication.endDate}
-                onChange={(e) =>
-                  setNewApplication({
-                    ...newApplication,
-                    endDate: e.target.value,
-                  })
-                }
-                inputProps={{
-                  min:
-                    newApplication.startDate ||
-                    new Date().toISOString().split("T")[0],
-                }}
-              />
-              <TextField
-                label="Reason"
-                multiline
-                rows={4}
-                fullWidth
-                required
-                value={newApplication.reason}
-                onChange={(e) =>
-                  setNewApplication({ ...newApplication, reason: e.target.value })
-                }
-              />
-              <Box>
-                <input
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  id="image-upload"
-                  type="file"
-                  onChange={handleImageUpload}
+            </DialogTitle>
+            <DialogContent>
+              <Stack spacing={2} sx={{ mt: 2 }}>
+                <Label>Start Date</Label>
+                <Input
+                  // label="Start Date"
+                  type="date"
+                  // fullWidth
+                  required
+                  // InputLabelProps={{ shrink: true }}
+                  value={newApplication.startDate}
+                  onChange={(e) =>
+                    setNewApplication({
+                      ...newApplication,
+                      startDate: e.target.value,
+                    })
+                  }
+                  // inputProps={{ min: new Date().toISOString().split("T")[0] }}
                 />
-                <label htmlFor="image-upload">
-                  <Button
-                    variant="outlined"
-                    component="span"
-                    fullWidth
-                    sx={{ mb: 1 }}
-                  >
-                    Upload Supporting Document
-                  </Button>
-                </label>
-                {newApplication.image && (
-                  <Box sx={{ mt: 1, textAlign: 'center' }}>
-                    <img
-                      src={newApplication.image}
-                      alt="Uploaded document"
-                      style={{ maxWidth: '100%', maxHeight: '200px' }}
-                    />
-                  </Box>
-                )}
-              </Box>
-            </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenApplyDialog(false)}>Cancel</Button>
-            <Button
-              variant="contained"
-              onClick={handleApplyLeave}
-              disabled={
-                !newApplication.startDate ||
-                !newApplication.endDate ||
-                !newApplication.reason
-              }
-            >
-              Submit Application
-            </Button>
-          </DialogActions>
+                <Label>End Date</Label>
+                <Input
+                  // label="End Date"
+                  className=" dark:text-white"
+                  type="date"
+                  // fullWidth
+                  // required
+                  // InputLabelProps={{ shrink: true }}
+                  value={newApplication.endDate}
+                  onChange={(e) =>
+                    setNewApplication({
+                      ...newApplication,
+                      endDate: e.target.value,
+                    })
+                  }
+                  // inputProps={{
+                  //   min:
+                  //     newApplication.startDate ||
+                  //     new Date().toISOString().split("T")[0],
+                  // }}
+                />
+
+                <Label>
+                  Reason <span className="text-red-500">*</span>
+                </Label>
+                <TextArea
+                  // label="Reason"
+                  // multiline
+                  rows={4}
+                  // fullWidth
+                  required
+                  value={newApplication.reason}
+                  onChange={(e) =>
+                    setNewApplication({
+                      ...newApplication,
+                      reason: e,
+                    })
+                  }
+                  className=" dark:text-white"
+                />
+                <Box>
+                  <input
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    id="image-upload"
+                    type="file"
+                    onChange={handleImageUpload}
+                  />
+                  <label htmlFor="image-upload">
+                    <Button
+                      variant="outline"
+                      // component="span"
+                      // fullWidth
+                      // sx={{ mb: 1 }}
+                      className="w-full"
+                      onClick={() => {
+                        document.getElementById("image-upload")?.click();
+                      }}
+                    >
+                      Upload Supporting Document
+                    </Button>
+                  </label>
+                  {newApplication.image && (
+                    <Box sx={{ mt: 1, textAlign: "center" }}>
+                      <img
+                        src={newApplication.image}
+                        alt="Uploaded document"
+                        style={{ maxWidth: "100%", maxHeight: "200px" }}
+                      />
+                    </Box>
+                  )}
+                </Box>
+              </Stack>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenApplyDialog(false)}>Cancel</Button>
+              <Button
+                variant="primary"
+                onClick={handleApplyLeave}
+                disabled={
+                  !newApplication.startDate ||
+                  !newApplication.endDate ||
+                  !newApplication.reason
+                }
+              >
+                Submit Application
+              </Button>
+            </DialogActions>
           </div>
         </Modal>
 
@@ -852,7 +924,7 @@ const BarberLeaveManagement: React.FC = () => {
               aria-label="close"
               onClick={() => setImageZoomOpen(false)}
               sx={{
-                position: 'absolute',
+                position: "absolute",
                 right: 8,
                 top: 8,
               }}
@@ -867,16 +939,20 @@ const BarberLeaveManagement: React.FC = () => {
                 src={zoomedImage}
                 alt="Supporting document"
                 sx={{
-                  width: '100%',
-                  height: 'auto',
-                  maxHeight: '80vh',
-                  objectFit: 'contain'
+                  width: "100%",
+                  height: "auto",
+                  maxHeight: "80vh",
+                  objectFit: "contain",
                 }}
               />
             )}
           </DialogContent>
         </Dialog>
-        <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          style={{ zIndex: 999999 }}
+        />
       </Container>
     </Box>
   );
