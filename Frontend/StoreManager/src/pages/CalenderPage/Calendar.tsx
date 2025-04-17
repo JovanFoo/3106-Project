@@ -38,12 +38,6 @@ const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const user = useUser();
-  const [currentYear, setCurrentYear] = useState<number>(
-    new Date().getFullYear()
-  );
-  const [currentMonth, setCurrentMonth] = useState<number>(
-    new Date().getMonth()
-  );
   const config = {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -63,9 +57,9 @@ const Calendar: React.FC = () => {
       .then((res) => {
         const resEvents: CalendarEvent[] = res.data;
         const events: CalendarEvent[] = resEvents
-          .filter((x: CalendarEvent) => {
-            return x.status === "Pending";
-          })
+          // .filter((x: CalendarEvent) => {
+          //   return x.status === "Pending";
+          // })
           .map((event: CalendarEvent) => {
             return {
               id: event._id,
@@ -88,33 +82,16 @@ const Calendar: React.FC = () => {
             };
           });
         setEvents(events);
-        console.log(events);
+        console.log("events: ", events);
       })
       .catch((err) => {
         console.log(err);
       });
   };
-  const handlePageChangeLoad = async () => {
-    const date = calendarRef.current?.getApi().getDate();
-    if (
-      date?.getFullYear() != currentYear ||
-      date?.getMonth() != currentMonth
-    ) {
-      setCurrentYear(date?.getFullYear() ?? 0);
-      setCurrentMonth(date?.getMonth() ?? 0);
-      load();
-    }
-  };
-
-  useEffect(() => {
-    // Initialize with some events
-    if (user._id === "") return;
-    handlePageChangeLoad();
-  }, [user._id, calendarRef.current?.getApi().getDate()]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [user._id]);
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
     openModal();
@@ -171,6 +148,20 @@ const Calendar: React.FC = () => {
                   addEventButton: {
                     text: "Add Event +",
                     click: openModal,
+                  },
+                  prev: {
+                    text: "Prev",
+                    click: function () {
+                      load();
+                      calendarRef.current?.getApi().prev();
+                    },
+                  },
+                  next: {
+                    text: "Next",
+                    click: function () {
+                      load();
+                      calendarRef.current?.getApi().next();
+                    },
                   },
                 }}
               />
