@@ -804,7 +804,9 @@ const BarberLeaveManagement: React.FC = () => {
             </DialogTitle>
             <DialogContent>
               <Stack spacing={2} sx={{ mt: 2 }}>
-                <Label>Start Date</Label>
+                <Label>
+                  Start Date<span className="text-red-500">*</span>
+                </Label>
                 <Input
                   // label="Start Date"
                   type="date"
@@ -820,7 +822,9 @@ const BarberLeaveManagement: React.FC = () => {
                   }
                   // inputProps={{ min: new Date().toISOString().split("T")[0] }}
                 />
-                <Label>End Date</Label>
+                <Label>
+                  End Date<span className="text-red-500">*</span>
+                </Label>
                 <Input
                   // label="End Date"
                   className=" dark:text-white"
@@ -843,7 +847,7 @@ const BarberLeaveManagement: React.FC = () => {
                 />
 
                 <Label>
-                  Reason <span className="text-red-500">*</span>
+                  Reason<span className="text-red-500">*</span>
                 </Label>
                 <TextArea
                   // label="Reason"
@@ -858,6 +862,7 @@ const BarberLeaveManagement: React.FC = () => {
                       reason: e,
                     })
                   }
+                  placeholder="Enter reason for leave"
                   className=" dark:text-white"
                 />
                 <Box>
