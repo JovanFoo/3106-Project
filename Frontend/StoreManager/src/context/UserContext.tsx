@@ -129,7 +129,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       })
     );
 
-    console.log("UserContext saved.");
+    // console.log("UserContext saved.");
   };
 
   const loadUserContext = () => {
@@ -147,7 +147,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       setStylists(userObj.stylists);
       setExpertises(userObj.expertises);
       setGalleries(userObj.galleries);
-      console.log("UserContext loaded.");
+      // console.log("UserContext loaded.");
     }
   };
 
@@ -165,10 +165,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       .get(api_address + "/api/stylists/" + _id, config)
       .then((res: AxiosResponse) => {
         if (res.status !== 200) {
-          console.log("Failed to fetch user data.");
+          console.error("Failed to fetch user data.");
           return;
         }
-        console.log("UserContext fetched.");
+        // console.log("UserContext fetched.");
         saveUserContext(
           res.data._id,
           res.data.username,
