@@ -19,12 +19,6 @@ const leaveRequestSchema = new Schema({
         type: String,
         default: "Pending",
     },
-    type: {
-        type: String,
-        enum: ["Paid", "Unpaid"],
-        required: true,
-        //default: "Paid"
-    },
     reason: {
         type: String,
         required: true,

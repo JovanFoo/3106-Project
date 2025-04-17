@@ -131,8 +131,7 @@ interface LeaveRequest {
   startDate: string;
   endDate: string;
   status: "Pending" | "Approved" | "Rejected";
-  type: LeaveType; // Leave type (Paid/Unpaid)
-  reason: string; // The actual reason for leave
+  reason: string;
   response?: string;
   approvedBy?: {
     _id: string;
@@ -229,14 +228,6 @@ const LeaveManagement = (): ReactElement => {
   const [selectedStatus, setSelectedStatus] = useState<string[]>([
     "Pending",
     "Approved",
-  ]);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([
-    "Paid",
-    "Childcare",
-    "Maternity",
-    "Paternity",
-    "Sick",
-    "Unpaid",
   ]);
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
@@ -374,31 +365,6 @@ const LeaveManagement = (): ReactElement => {
     return colors[status] || theme.palette.grey[500];
   };
 
-  const getLeaveTypeColor = (leaveType: string | undefined) => {
-    if (!leaveType) return theme.palette.grey[500];
-
-    // Map of leave type variations to their normalized form
-    const typeMapping: { [key: string]: LeaveType } = {
-      Paid: "Paid",
-      paid: "Paid",
-      Unpaid: "Unpaid",
-      unpaid: "Unpaid",
-    };
-
-    // Get the normalized type or use the original if not found in mapping
-    const normalizedType = typeMapping[leaveType.toLowerCase()] || leaveType;
-
-    const colors: { [key in LeaveType]: string } = {
-      Paid: "#059669", // Green for paid
-      // Childcare: "#2563EB",   // Blue for childcare
-      // Maternity: "#7C3AED",   // Purple for maternity
-      // Paternity: "#6366F1",   // Indigo for paternity
-      // Sick: "#DC2626",        // Red for sick
-      Unpaid: "#F97316", // Orange for unpaid
-    };
-    return colors[normalizedType as LeaveType] || theme.palette.grey[500];
-  };
-
   const handleStatusToggle = (status: string) => {
     setSelectedStatus((prev) =>
       prev.includes(status)
@@ -407,16 +373,8 @@ const LeaveManagement = (): ReactElement => {
     );
   };
 
-  const handleTypeToggle = (type: string) => {
-    setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
-  };
-
   const filteredRequests = leaveRequests.filter((request) =>
-    viewMode === "status"
-      ? selectedStatus.includes(request.status)
-      : selectedTypes.includes(request.type)
+    selectedStatus.includes(request.status)
   );
 
   // Update the leave type mapping in the stats section
@@ -990,9 +948,7 @@ const LeaveManagement = (): ReactElement => {
                               currentDay >= startDate &&
                               currentDay <= endDate &&
                               r.status !== "Rejected" &&
-                              (viewMode === "status"
-                                ? selectedStatus.includes(r.status)
-                                : selectedTypes.includes(r.type))
+                              selectedStatus.includes(r.status)
                             );
                           });
 

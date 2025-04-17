@@ -11,19 +11,11 @@ const leaveSchema = new Schema({
         type: Number,
         required: true,
     },
-    totalPaidLeave: {
+    totalLeave: {
         type: Number,
-        default: 30, // Default annual paid leave days
+        default: 30, // Default annual leave days
     },
-    totalUnpaidLeave: {
-        type: Number,
-        default: 20, // Default annual unpaid leave days
-    },
-    usedPaidLeave: {
-        type: Number,
-        default: 0,
-    },
-    usedUnpaidLeave: {
+    usedLeave: {
         type: Number,
         default: 0,
     },
@@ -32,12 +24,6 @@ const leaveSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: "LeaveRequest"
         },
-        type: {
-            type: String,
-            enum: ["Paid", "Unpaid"],
-            required: true
-        },
-
         days: {
             type: Number,
             required: true
@@ -49,26 +35,17 @@ const leaveSchema = new Schema({
     }]
 });
 
-// Virtual fields for available leave
-leaveSchema.virtual('availablePaidLeave').get(function() {
-    return this.totalPaidLeave - this.usedPaidLeave;
-});
-
-leaveSchema.virtual('availableUnpaidLeave').get(function() {
-    return this.totalUnpaidLeave - this.usedUnpaidLeave;
+// Virtual field for available leave
+leaveSchema.virtual('availableLeave').get(function() {
+    return this.totalLeave - this.usedLeave;
 });
 
 // Method to update leave balance when a leave request is approved
-leaveSchema.methods.updateLeaveBalance = async function(leaveRequestId, type, days) {
-    if (type === "paid") {
-        this.usedPaidLeave += days;
-    } else {
-        this.usedUnpaidLeave += days;
-    }
+leaveSchema.methods.updateLeaveBalance = async function(leaveRequestId, days) {
+    this.usedLeave += days;
 
     this.leaveHistory.push({
         leaveRequestId,
-        type,
         days
     });
 

@@ -21,12 +21,9 @@ exports.getLeaveBalance = async (req, res) => {
         res.status(200).json({
             success: true,
             data: {
-                totalPaidLeave: leave.totalPaidLeave,
-                totalUnpaidLeave: leave.totalUnpaidLeave,
-                usedPaidLeave: leave.usedPaidLeave,
-                usedUnpaidLeave: leave.usedUnpaidLeave,
-                availablePaidLeave: leave.availablePaidLeave,
-                availableUnpaidLeave: leave.availableUnpaidLeave
+                totalLeave: leave.totalLeave,
+                usedLeave: leave.usedLeave,
+                availableLeave: leave.availableLeave
             }
         });
     } catch (error) {
@@ -69,7 +66,7 @@ exports.getLeaveHistory = async (req, res) => {
 
 exports.applyForLeave = async (req, res) => {
     try {
-        const { startDate, endDate, type, reason } = req.body;
+        const { startDate, endDate, reason } = req.body;
         const days = differenceInDays(new Date(endDate), new Date(startDate)) + 1;
         const currentYear = new Date().getFullYear();
 
@@ -80,16 +77,10 @@ exports.applyForLeave = async (req, res) => {
         });
 
         // Check if enough leave days are available
-        if (type === "paid" && days > leave.availablePaidLeave) {
+        if (days > leave.availableLeave) {
             return res.status(400).json({
                 success: false,
-                error: "Not enough paid leave days available"
-            });
-        }
-        if (type === "unpaid" && days > leave.availableUnpaidLeave) {
-            return res.status(400).json({
-                success: false,
-                error: "Not enough unpaid leave days available"
+                error: "Not enough leave days available"
             });
         }
 
@@ -98,8 +89,7 @@ exports.applyForLeave = async (req, res) => {
             stylist: req.userId,
             startDate,
             endDate,
-            reason,
-            type
+            reason
         });
 
         res.status(201).json({
