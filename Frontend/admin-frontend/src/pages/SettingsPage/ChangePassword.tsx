@@ -3,11 +3,11 @@ import { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Input from "../../components/form/input/InputField";
 import Label from "../../components/form/Label";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
 import SettingsSidebar from "./SettingsSidebar";
+import { toast, ToastContainer } from "react-toastify";
 
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -24,12 +24,6 @@ export default function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("success");
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,34 +32,18 @@ export default function ChangePassword() {
     console.log("Changing password...");
     closeModal();
     if (newPassword !== confirmNewPassword) {
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Passwords do not match.");
+      toast.error("Passwords do not match.");
       return;
     } else if (newPassword.length < 8) {
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Password must be at least 8 characters long.");
+      toast.error("Password must be at least 8 characters long.");
       return;
     } else if (newPassword === currentPassword) {
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("New password cannot be the same as the current password.");
+      toast.error("New password cannot be the same as the current password.");
       return;
     } else if (newPassword === "") {
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Please enter a new password.");
+      toast.error("Please enter a new password.");
       return;
     }
-    setVariant("info");
-    setTitle("Updating Password");
-    setMessage("Please wait...");
-    setShowAlert(true);
     setIsUpdating(true);
     await axios
       .put(
@@ -77,11 +55,7 @@ export default function ChangePassword() {
         config
       )
       .then((response: AxiosResponse) => {
-        console.log(response.data);
-        setVariant("success");
-        setTitle("Success");
-        setMessage("Password changed successfully.");
-        setShowAlert(true);
+        toast.success("Password changed successfully.");
         setConfirmNewPassword("");
         setCurrentPassword("");
         setNewPassword("");
@@ -89,15 +63,9 @@ export default function ChangePassword() {
       })
       .catch((error) => {
         console.log(error);
-        setVariant("error");
-        setTitle("Error");
-        setMessage(error.response.data.message);
-        setShowAlert(true);
+        toast.error(error.response.data.message);
         setIsUpdating(false);
       });
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 5000);
   };
 
   return (
@@ -122,9 +90,6 @@ export default function ChangePassword() {
             <Button onClick={openModal} disabled={isUpdating}>
               Change Password
             </Button>
-            <div className={showAlert ? "mb-5" : "hidden"}>
-              <Alert title={title} message={message} variant={variant} />
-            </div>
           </div>
 
           <Modal
@@ -185,6 +150,7 @@ export default function ChangePassword() {
           </Modal>
         </div>
       </div>
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 }
