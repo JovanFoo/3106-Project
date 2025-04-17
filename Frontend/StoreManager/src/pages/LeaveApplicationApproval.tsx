@@ -247,6 +247,11 @@ const LeaveManagement = (): ReactElement => {
           return;
         }
 
+        // Get manager's ID from token
+        const tokenData = JSON.parse(atob(token.split('.')[1]));
+        const managerId = tokenData.id;
+        console.log("Manager ID:", managerId);
+
         const leaveRequestsResponse = await api.get("/api/leave-requests");
         let leaveRequestsData = leaveRequestsResponse.data;
 
@@ -261,8 +266,8 @@ const LeaveManagement = (): ReactElement => {
 
         leaveRequestsData = leaveRequestsData.map((request: any) => ({
           ...request,
-          type: request.type || 'Paid', // Use the type field directly
-          reason: request.reason || '', // Use reason as is
+          type: request.type || 'Paid',
+          reason: request.reason || '',
           stylist: stylistMap[request.stylist] || {
             _id: request.stylist,
             name: 'Unknown',
@@ -270,8 +275,11 @@ const LeaveManagement = (): ReactElement => {
           }
         }));
 
+        // Filter out manager from staff list
+        const filteredStaff = stylistsData.filter((staff: Staff) => staff._id !== managerId);
+
         setLeaveRequests(leaveRequestsData);
-        setStaff(stylistsData);
+        setStaff(filteredStaff);
         setLoading(false);
       } catch (error: any) {
         console.error("Error fetching data:", error);
@@ -413,13 +421,7 @@ const LeaveManagement = (): ReactElement => {
         Leave to Approve
       </Typography>
       <Typography variant="h3" color="primary.main" sx={{ mb: 3 }}>
-        {leaveRequests
-          .filter((r) => r.status === "Pending")
-          .reduce((total, request) => {
-            const startDate = new Date(request.startDate);
-            const endDate = new Date(request.endDate);
-            return total + (differenceInDays(endDate, startDate) + 1);
-          }, 0)} days
+        {leaveRequests.filter((r) => r.status === "Pending").length}
       </Typography>
 
       {viewMode === "status" && (
@@ -440,27 +442,30 @@ const LeaveManagement = (): ReactElement => {
             </Button>
           </Box>
           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-            {['Pending', 'Approved'].map((status) => (
+            {["Pending", "Approved"].map((status) => (
               <Chip
                 key={status}
-                label={`${status} (${leaveRequests
-                  .filter(r => r.status === status)
-                  .reduce((total, request) => {
-                    const startDate = new Date(request.startDate);
-                    const endDate = new Date(request.endDate);
-                    return total + (differenceInDays(endDate, startDate) + 1);
-                  }, 0)} days)`}
+                label={status}
                 onClick={() => handleStatusToggle(status)}
                 sx={{
                   bgcolor: selectedStatus.includes(status)
-                    ? getStatusColor(status as 'Pending' | 'Approved')
-                    : 'grey.100',
-                  color: selectedStatus.includes(status) ? 'white' : 'text.primary',
-                  '&:hover': {
+                    ? getStatusColor(status as "Pending" | "Approved")
+                    : theme.palette.mode === 'dark' 
+                      ? alpha(theme.palette.grey[700], 0.5)
+                      : theme.palette.grey[100],
+                  color: selectedStatus.includes(status)
+                    ? "white"
+                    : theme.palette.text.primary,
+                  "&:hover": {
                     bgcolor: selectedStatus.includes(status)
-                      ? alpha(getStatusColor(status as 'Pending' | 'Approved'), 0.8)
-                      : 'grey.200'
-                  }
+                      ? alpha(
+                          getStatusColor(status as "Pending" | "Approved"),
+                          0.8
+                        )
+                      : theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.grey[700], 0.8)
+                        : theme.palette.grey[200],
+                  },
                 }}
               />
             ))}
@@ -489,13 +494,7 @@ const LeaveManagement = (): ReactElement => {
             {Object.entries(leaveTypeLabels).map(([type, label]) => (
               <Chip
                 key={type}
-                label={`${label} (${leaveRequests
-                  .filter(r => r.type === type)
-                  .reduce((total, request) => {
-                    const start = new Date(request.startDate);
-                    const end = new Date(request.endDate);
-                    return total + (differenceInDays(end, start) + 1);
-                  }, 0)} days`}
+                label={label}
                 onClick={() => handleTypeToggle(type)}
                 sx={{
                   bgcolor: selectedTypes.includes(type)
@@ -543,46 +542,70 @@ const LeaveManagement = (): ReactElement => {
     return (
       <Box sx={{ mt: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Quick Approval ({pendingRequests.reduce((total, request) => {
-            const startDate = new Date(request.startDate);
-            const endDate = new Date(request.endDate);
-            return total + (differenceInDays(endDate, startDate) + 1);
-          }, 0)} total days)
+          Quick Approval
         </Typography>
         <Grid container spacing={2}>
           {pendingRequests.map((request) => (
             <Grid item xs={12} key={request._id}>
               <Card
                 sx={{
-                  borderRadius: "12px",
+                  borderRadius: "16px",
                   boxShadow: theme.shadows[0],
                   border: `1px solid ${theme.palette.divider}`,
                   bgcolor: theme.palette.background.paper,
+                  "&:hover": {
+                    borderColor: theme.palette.primary.main,
+                    boxShadow: theme.shadows[2],
+                  },
                 }}
               >
                 <CardContent>
-                  <Stack spacing={1.5}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      mb: 2,
+                    }}
+                  >
                     <Avatar
-                        src={request.stylist.profilePicture}
-                        sx={{ width: 32, height: 32 }}
-                      >
-                        {request.stylist.name ? request.stylist.name.charAt(0) : "?"}
+                      src={request.stylist?.profilePicture}
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        bgcolor: theme.palette.primary.main,
+                      }}
+                    >
+                      {request.stylist?.name ? request.stylist.name.charAt(0) : '?'}
                     </Avatar>
+                    <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                       <Box>
-                        <Typography variant="subtitle2">
-                          {request.stylist.name}
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        {request.stylist?.name || 'Unknown'}
                       </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {request.stylist.email}
+                      <Typography variant="body2" color="text.secondary">
+                        {request.stylist?.email || 'No email'}
                       </Typography>
                     </Box>
+                    
+                    </Box>
                   </Box>
+                  <Stack spacing={1.5}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <EventIcon fontSize="small" color="action" />
                       <Typography variant="body2">
                         {format(new Date(request.startDate), "MMM dd")} -{" "}
-                        {format(new Date(request.endDate), "MMM dd, yyyy")} ({differenceInDays(new Date(request.endDate), new Date(request.startDate)) + 1} days)
+                        {format(new Date(request.endDate), "MMM dd, yyyy")}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <AccessTimeIcon fontSize="small" color="action" />
+                      <Typography variant="body2">
+                        {differenceInDays(
+                          new Date(request.endDate),
+                          new Date(request.startDate)
+                        ) + 1}{" "}
+                        days
                       </Typography>
                     </Box>
                     <Typography
@@ -596,7 +619,7 @@ const LeaveManagement = (): ReactElement => {
                           : theme.palette.grey[50],
                       }}
                     >
-                      {request.reason || "No reason provided"}
+                      {request.reason || 'No reason provided'}
                     </Typography>
                     {request.image && (
                       <Box sx={{ mt: 1.5 }}>
