@@ -199,9 +199,6 @@ export default function Services() {
                 + Add new service
               </Button>
             </div>
-
-            <ToastContainer position="bottom-right" autoClose={3000} />
-
             <Table className="min-w-full">
               <TableHeader className="bg-gray-50 border-b-2 border-gray-200">
                 <TableRow isHeader={true}>
@@ -324,6 +321,7 @@ export default function Services() {
             service={selectedService}
           />
         </div>
+        <ToastContainer position="bottom-right" autoClose={3000} />
       </div>
     </>
   );
@@ -385,7 +383,6 @@ const CustomerModal: React.FC<ModalProps> = ({
         <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
           {service ? "Edit Service" : "Add Service"}
         </h4>
-        <ToastContainer position="bottom-right" autoClose={3000} />
         <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 ">
@@ -554,7 +551,6 @@ const DeleteModal: React.FC<ModalProps> = ({
           }}
           className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
         />
-        <ToastContainer position="bottom-right" autoClose={3000} />
         <div className="flex items-center gap-3 mt-6 mb-2 sm:justify-end">
           <Button
             size="sm"
