@@ -41,6 +41,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import axios from "axios";
+import { useTheme } from "@mui/material/styles";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -119,6 +120,7 @@ const BarberLeaveManagement: React.FC = () => {
   const [highlights, setHighlights] = useState<ServerHighlight[]>([]);
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const theme = useTheme();
 
   const fetchLeaveRequests = async () => {
     try {
@@ -362,37 +364,48 @@ const BarberLeaveManagement: React.FC = () => {
   };
 
   const renderLeaveStats = () => (
-    <Card sx={{ mb: 4 }}>
+    <Card
+      sx={{
+        p: 3,
+        mb: 3,
+        borderRadius: "16px",
+        boxShadow: theme.shadows[0],
+        border: `1px solid ${theme.palette.divider}`,
+      }}
+      className="dark:bg-white/[0.03] dark:border-gray-800"
+    >
       <CardContent>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" gutterBottom className="dark:text-white/90">
           Leave Balance
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" className="dark:text-white/70">
           1 Jan 2025 - 31 Dec 2025
         </Typography>
 
         <Grid container spacing={4} sx={{ mt: 2 }}>
           <Grid item>
-            <Typography variant="body2" color="primary.main">
+            <Typography variant="body2" className="dark:text-white/70">
               Total Leave Days
             </Typography>
-            <Typography variant="h4">
+            <Typography variant="h4" className="dark:text-white/90">
               {leaveStats.totalLeave}
             </Typography>
           </Grid>
           <Grid item>
-            <Typography variant="body2" color="success.main">
+            <Typography variant="body2" className="dark:text-white/70">
               Available Leave
             </Typography>
-            <Typography variant="h4">
+            <Typography variant="h4" className="dark:text-white/90">
               {leaveStats.availableLeave}
             </Typography>
           </Grid>
           <Grid item>
-            <Typography variant="body2" color="error.main">
+            <Typography variant="body2" className="dark:text-white/70">
               Used Leave
             </Typography>
-            <Typography variant="h4">{leaveStats.usedLeave}</Typography>
+            <Typography variant="h4" className="dark:text-white/90">
+              {leaveStats.usedLeave}
+            </Typography>
           </Grid>
         </Grid>
       </CardContent>
@@ -419,11 +432,32 @@ const BarberLeaveManagement: React.FC = () => {
             exclusive
             onChange={handleFilterChange}
             size="small"
+            className="dark:border-gray-800"
           >
-            <ToggleButton value="all">All</ToggleButton>
-            <ToggleButton value="pending">Pending</ToggleButton>
-            <ToggleButton value="approved">Approved</ToggleButton>
-            <ToggleButton value="rejected">Rejected</ToggleButton>
+            <ToggleButton 
+              value="all" 
+              className="dark:bg-white/[0.03] dark:text-white/90 dark:border-gray-800 dark:hover:bg-white/[0.08]"
+            >
+              ALL
+            </ToggleButton>
+            <ToggleButton 
+              value="pending" 
+              className="dark:bg-white/[0.03] dark:text-white/90 dark:border-gray-800 dark:hover:bg-white/[0.08]"
+            >
+              PENDING
+            </ToggleButton>
+            <ToggleButton 
+              value="approved" 
+              className="dark:bg-white/[0.03] dark:text-white/90 dark:border-gray-800 dark:hover:bg-white/[0.08]"
+            >
+              APPROVED
+            </ToggleButton>
+            <ToggleButton 
+              value="rejected" 
+              className="dark:bg-white/[0.03] dark:text-white/90 dark:border-gray-800 dark:hover:bg-white/[0.08]"
+            >
+              REJECTED
+            </ToggleButton>
           </ToggleButtonGroup>
 
           <Box>
@@ -432,48 +466,49 @@ const BarberLeaveManagement: React.FC = () => {
               color="primary"
               sx={{ mr: 1 }}
               onClick={() => setOpenApplyDialog(true)}
+              className="dark:text-white/90"
             >
-              Leave Application
+              LEAVE APPLICATION
             </Button>
           </Box>
         </Box>
 
         {filteredApplications.length === 0 ? (
           <Box sx={{ textAlign: "center", py: 4 }}>
-            <Typography color="text.secondary">
+            <Typography className="dark:text-white/70">
               No leave requests found
             </Typography>
           </Box>
         ) : (
           <Stack spacing={2}>
             {filteredApplications.map((application) => (
-              <Card key={application.id}>
+              <Card key={application.id} className="dark:bg-white/[0.03] dark:border-gray-800">
                 <CardContent>
                   <Grid container alignItems="center" spacing={2}>
                     <Grid item xs={12} md={4}>
-                      <Typography variant="subtitle2" color="text.secondary">
+                      <Typography variant="subtitle2" className="dark:text-white/70">
                         Leave Date
                       </Typography>
-                      <Typography>
+                      <Typography className="dark:text-white/90">
                         {format(new Date(application.startDate), "dd MMM")} -{" "}
                         {format(new Date(application.endDate), "dd MMM")}
                       </Typography>
                     </Grid>
                     <Grid item xs={12} md={4}>
-                      <Typography variant="subtitle2" color="text.secondary">
+                      <Typography variant="subtitle2" className="dark:text-white/70">
                         Total Days
                       </Typography>
-                      <Typography>{application.totalDays} Days</Typography>
+                      <Typography className="dark:text-white/90">
+                        {application.totalDays} Days
+                      </Typography>
                     </Grid>
                     <Grid item xs={12} md={4}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          justifyContent: "flex-end",
-                        }}
-                      >
+                      <Box sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        justifyContent: "flex-end",
+                      }}>
                         {application.status === "Pending" && (
                           <>
                             <Chip label="Pending" color="warning" />
@@ -481,11 +516,7 @@ const BarberLeaveManagement: React.FC = () => {
                               onClick={() => handleWithdrawClick(application.id)}
                               color="error"
                               size="small"
-                              sx={{
-                                "&:hover": {
-                                  backgroundColor: "rgba(211, 47, 47, 0.04)",
-                                },
-                              }}
+                              className="dark:text-red-400 dark:hover:bg-red-900/20"
                             >
                               <DeleteOutlineIcon />
                             </IconButton>
@@ -500,17 +531,13 @@ const BarberLeaveManagement: React.FC = () => {
                       </Box>
                     </Grid>
                   </Grid>
-                  <Typography
-                    variant="subtitle2"
-                    color="text.secondary"
-                    sx={{ mt: 2 }}
-                  >
+                  <Typography variant="subtitle2" sx={{ mt: 2 }} className="dark:text-white/70">
                     Reason
                   </Typography>
-                  <Typography>{application.reason}</Typography>
+                  <Typography className="dark:text-white/90">{application.reason}</Typography>
                   {application.image && (
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                      <Typography variant="subtitle2" className="dark:text-white/70" gutterBottom>
                         Supporting Document
                       </Typography>
                       <Box 
@@ -577,7 +604,16 @@ const BarberLeaveManagement: React.FC = () => {
   };
 
   const renderPendingDocuments = () => (
-    <Card>
+    <Card
+      sx={{
+        p: 3,
+        borderRadius: "16px",
+        boxShadow: theme.shadows[0],
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor: theme.palette.background.paper,
+      }}
+      className="dark:bg-transparent dark:text-white"
+    >
       <CardContent>
         <Typography variant="h6" gutterBottom>
           Pending Document Submissions
@@ -632,178 +668,213 @@ const BarberLeaveManagement: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" sx={{ mb: 4 }}>
-        Leave Management
-      </Typography>
+    <Box
+      sx={{
+        bgcolor:
+          theme.palette.mode === "dark"
+            ? "#1a1f2c" // Dark navy background
+            : theme.palette.grey[50],
+        minHeight: "100vh",
+        py: 3,
+        color: theme.palette.mode === "dark" ? "#fff" : "inherit",
+      }}
+      className="dark:bg-transparent dark:text-white"
+    >
+      <Container maxWidth="xl" className="dark:bg-transparent dark:text-white">
+        <Box sx={{ mb: 4 }} className="dark:bg-transparent dark:text-white">
+          <Typography variant="h4" gutterBottom sx={{ color: "inherit" }} className="dark:text-white">
+            Leave Management
+          </Typography>
+        </Box>
 
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={8}>
-          {renderLeaveStats()}
-          {renderLeaveApplications()}
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Box sx={{ mb: 4 }}>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DateCalendar
-                value={selectedDate}
-                onChange={(newValue) => setSelectedDate(newValue)}
-                slots={{
-                  day: CustomPickersDay,
-                }}
-                sx={{ width: "100%" }}
-              />
-            </LocalizationProvider>
-          </Box>
-        </Grid>
-      </Grid>
-
-      <Dialog
-        open={openApplyDialog}
-        onClose={() => setOpenApplyDialog(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          Apply for Leave
-          <IconButton
-            aria-label="close"
-            onClick={() => setOpenApplyDialog(false)}
-            sx={{ position: "absolute", right: 8, top: 8 }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 2 }}>
-            <TextField
-              label="Start Date"
-              type="date"
-              fullWidth
-              required
-              InputLabelProps={{ shrink: true }}
-              value={newApplication.startDate}
-              onChange={(e) =>
-                setNewApplication({
-                  ...newApplication,
-                  startDate: e.target.value,
-                })
-              }
-              inputProps={{ min: new Date().toISOString().split("T")[0] }}
-            />
-            <TextField
-              label="End Date"
-              type="date"
-              fullWidth
-              required
-              InputLabelProps={{ shrink: true }}
-              value={newApplication.endDate}
-              onChange={(e) =>
-                setNewApplication({
-                  ...newApplication,
-                  endDate: e.target.value,
-                })
-              }
-              inputProps={{
-                min:
-                  newApplication.startDate ||
-                  new Date().toISOString().split("T")[0],
-              }}
-            />
-            <TextField
-              label="Reason"
-              multiline
-              rows={4}
-              fullWidth
-              required
-              value={newApplication.reason}
-              onChange={(e) =>
-                setNewApplication({ ...newApplication, reason: e.target.value })
-              }
-            />
-            <Box>
-              <input
-                accept="image/*"
-                style={{ display: 'none' }}
-                id="image-upload"
-                type="file"
-                onChange={handleImageUpload}
-              />
-              <label htmlFor="image-upload">
-                <Button
-                  variant="outlined"
-                  component="span"
-                  fullWidth
-                  sx={{ mb: 1 }}
-                >
-                  Upload Supporting Document
-                </Button>
-              </label>
-              {newApplication.image && (
-                <Box sx={{ mt: 1, textAlign: 'center' }}>
-                  <img 
-                    src={newApplication.image} 
-                    alt="Uploaded document" 
-                    style={{ maxWidth: '100%', maxHeight: '200px' }} 
-                  />
-                </Box>
-              )}
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={8}>
+            {renderLeaveStats()}
+            {renderLeaveApplications()}
+          </Grid>
+          <Grid item xs={12} md={4} className="dark:bg-transparent dark:text-white">
+            <Box sx={{ mb: 4 }} className="dark:bg-white/[0.03] dark:border-gray-800 rounded-2xl">
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DateCalendar
+                  value={selectedDate}
+                  onChange={(newValue) => setSelectedDate(newValue)}
+                  slots={{
+                    day: CustomPickersDay,
+                  }}
+                  sx={{
+                    width: "100%",
+                    '& .MuiPickersDay-root': {
+                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9) !important' : 'inherit',
+                    },
+                    '& .MuiDayCalendar-weekDayLabel': {
+                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7) !important' : 'inherit',
+                    },
+                    '& .MuiPickersCalendarHeader-label': {
+                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9) !important' : 'inherit',
+                    },
+                    '& .MuiPickersCalendarHeader-switchViewButton': {
+                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9) !important' : 'inherit',
+                    },
+                    '& .MuiPickersArrowSwitcher-button': {
+                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9) !important' : 'inherit',
+                    },
+                  }}
+                  className="dark:bg-transparent"
+                />
+              </LocalizationProvider>
             </Box>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenApplyDialog(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleApplyLeave}
-            disabled={
-              !newApplication.startDate ||
-              !newApplication.endDate ||
-              !newApplication.reason
-            }
-          >
-            Submit Application
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </Grid>
+        </Grid>
 
-      <Dialog
-        open={imageZoomOpen}
-        onClose={() => setImageZoomOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          Supporting Document
-          <IconButton
-            aria-label="close"
-            onClick={() => setImageZoomOpen(false)}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          {zoomedImage && (
-            <Box 
-              component="img" 
-              src={zoomedImage} 
-              alt="Supporting document" 
-              sx={{ 
-                width: '100%',
-                height: 'auto',
-                maxHeight: '80vh',
-                objectFit: 'contain'
-              }} 
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-    </Container>
+        <Dialog
+          open={openApplyDialog}
+          onClose={() => setOpenApplyDialog(false)}
+          maxWidth="sm"
+          fullWidth
+          className="dark:bg-transparent dark:text-white"
+        >
+          <DialogTitle>
+            Apply for Leave
+            <IconButton
+              aria-label="close"
+              onClick={() => setOpenApplyDialog(false)}
+              sx={{ position: "absolute", right: 8, top: 8 }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} sx={{ mt: 2 }}>
+              <TextField
+                label="Start Date"
+                type="date"
+                fullWidth
+                required
+                InputLabelProps={{ shrink: true }}
+                value={newApplication.startDate}
+                onChange={(e) =>
+                  setNewApplication({
+                    ...newApplication,
+                    startDate: e.target.value,
+                  })
+                }
+                inputProps={{ min: new Date().toISOString().split("T")[0] }}
+              />
+              <TextField
+                label="End Date"
+                type="date"
+                fullWidth
+                required
+                InputLabelProps={{ shrink: true }}
+                value={newApplication.endDate}
+                onChange={(e) =>
+                  setNewApplication({
+                    ...newApplication,
+                    endDate: e.target.value,
+                  })
+                }
+                inputProps={{
+                  min:
+                    newApplication.startDate ||
+                    new Date().toISOString().split("T")[0],
+                }}
+              />
+              <TextField
+                label="Reason"
+                multiline
+                rows={4}
+                fullWidth
+                required
+                value={newApplication.reason}
+                onChange={(e) =>
+                  setNewApplication({ ...newApplication, reason: e.target.value })
+                }
+              />
+              <Box>
+                <input
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  id="image-upload"
+                  type="file"
+                  onChange={handleImageUpload}
+                />
+                <label htmlFor="image-upload">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    fullWidth
+                    sx={{ mb: 1 }}
+                  >
+                    Upload Supporting Document
+                  </Button>
+                </label>
+                {newApplication.image && (
+                  <Box sx={{ mt: 1, textAlign: 'center' }}>
+                    <img 
+                      src={newApplication.image} 
+                      alt="Uploaded document" 
+                      style={{ maxWidth: '100%', maxHeight: '200px' }} 
+                    />
+                  </Box>
+                )}
+              </Box>
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenApplyDialog(false)}>Cancel</Button>
+            <Button
+              variant="contained"
+              onClick={handleApplyLeave}
+              disabled={
+                !newApplication.startDate ||
+                !newApplication.endDate ||
+                !newApplication.reason
+              }
+            >
+              Submit Application
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={imageZoomOpen}
+          onClose={() => setImageZoomOpen(false)}
+          maxWidth="md"
+          fullWidth
+          className="dark:bg-transparent dark:text-white"
+        >
+          <DialogTitle>
+            Supporting Document
+            <IconButton
+              aria-label="close"
+              onClick={() => setImageZoomOpen(false)}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            {zoomedImage && (
+              <Box 
+                component="img" 
+                src={zoomedImage} 
+                alt="Supporting document" 
+                sx={{ 
+                  width: '100%',
+                  height: 'auto',
+                  maxHeight: '80vh',
+                  objectFit: 'contain'
+                }} 
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+      </Container>
+    </Box>
   );
 };
 
