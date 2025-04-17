@@ -148,8 +148,7 @@ interface ApiResponse {
   message?: string;
 }
 
-type ViewMode = "status" | "type";
-type LeaveType = "Paid" | "Unpaid";
+type ViewMode = "status";
 
 interface LeaveRequestCellProps {
   request: LeaveRequest;
@@ -176,12 +175,9 @@ const LeaveRequestCell: React.FC<LeaveRequestCellProps> = ({
   const isMiddleDay =
     !isOneDay && currentDay > startDate && currentDay < endDate;
 
-  const theme = useTheme();
-  const isDarkMode = theme.palette.mode === 'dark';
-
   return (
     <Tooltip
-      title={`${request.type} (${request.status}): ${format(
+      title={`${request.status}: ${format(
         startDate,
         "MMM dd"
       )}${isOneDay ? "" : ` - ${format(endDate, "MMM dd")}`}, ${format(
@@ -195,8 +191,8 @@ const LeaveRequestCell: React.FC<LeaveRequestCellProps> = ({
           top: "50%",
           transform: "translateY(-50%)",
           height: "24px",
-          bgcolor: isDarkMode ? alpha(getCellColor(request), 0.3) : getCellColor(request),
-          opacity: isDarkMode ? 1 : 0.8,
+          bgcolor: getCellColor(request),
+          opacity: 0.8,
           left: isFirstDay ? "8px" : 0,
           right: isLastDay ? "8px" : 0,
           borderRadius: isOneDay
@@ -243,12 +239,6 @@ const LeaveManagement = (): ReactElement => {
       user.loadUserContext();
     }
   }, [user._id]);
-  // Group leave types into categories
-  const leaveCategories = {
-    "Time Off": ["Paid", "Unpaid"],
-    Family: ["Childcare", "Maternity", "Paternity"],
-    Medical: ["Sick"],
-  };
 
   useEffect(() => {
     const fetchLeaveRequests = async () => {
@@ -285,7 +275,6 @@ const LeaveManagement = (): ReactElement => {
           .filter((x: any) => user.stylists.includes(x.stylist))
           .map((request: any) => ({
             ...request,
-            type: request.type || "Paid", // Use the type field directly
             reason: request.reason || "", // Use reason as is
             stylist: stylistMap[request.stylist] || {
               _id: request.stylist,
@@ -377,26 +366,14 @@ const LeaveManagement = (): ReactElement => {
     selectedStatus.includes(request.status)
   );
 
-  // Update the leave type mapping in the stats section
-  const leaveTypeLabels: { [key in LeaveType]: string } = {
-    Paid: "Paid",
-    // Childcare: "Childcare",
-    // Maternity: "Maternity",
-    // Paternity: "Paternity",
-    // Sick: "Sick",
-    Unpaid: "Unpaid",
+  const getCellColor = (request: LeaveRequest) => {
+    return getStatusColor(request.status as "Pending" | "Approved");
   };
 
-  // Add type guard to check if a string is a valid LeaveType
-  const isValidLeaveType = (type: string): type is LeaveType => {
-    return [
-      "Paid",
-      "Childcare",
-      "Maternity",
-      "Paternity",
-      "Sick",
-      "Unpaid",
-    ].includes(type);
+  // Add this function to handle image zoom
+  const handleImageZoom = (image: string) => {
+    setZoomedImage(image);
+    setImageZoomOpen(true);
   };
 
   const renderStats = () => (
@@ -415,109 +392,60 @@ const LeaveManagement = (): ReactElement => {
         {leaveRequests.filter((r) => r.status === "Pending").length}
       </Typography>
 
-      {viewMode === "status" && (
-        <Box sx={{ mb: 3 }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 1,
-            }}
+      <Box sx={{ mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1,
+          }}
+        >
+          <Typography
+            variant="subtitle1"
+            className="font-medium text-gray-800 dark:text-white/90"
           >
-            <Typography
-              variant="subtitle1"
-              className="font-medium text-gray-800 dark:text-white/90"
-            >
-              Leave Status
-            </Typography>
-            <Button
-              size="small"
-              onClick={() =>
-                selectedStatus.length === 2
-                  ? setSelectedStatus([])
-                  : setSelectedStatus(["Pending", "Approved"])
-              }
-              className="text-gray-800 hover:bg-gray-100 dark:text-white/90 dark:hover:bg-white/[0.03]"
-            >
-              {selectedStatus.length === 2 ? "Deselect All" : "Select All"}
-            </Button>
-          </Box>
-          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-          {["Pending", "Approved"].map((status) => (
-            <Chip
-              key={status}
-              label={status}
-              onClick={() => handleStatusToggle(status)}
-              sx={{
+            Leave Status
+          </Typography>
+          <Button
+            size="small"
+            onClick={() =>
+              selectedStatus.length === 2
+                ? setSelectedStatus([])
+                : setSelectedStatus(["Pending", "Approved"])
+            }
+            className="text-gray-800 hover:bg-gray-100 dark:text-white/90 dark:hover:bg-white/[0.03]"
+          >
+            {selectedStatus.length === 2 ? "Deselect All" : "Select All"}
+          </Button>
+        </Box>
+        <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+        {["Pending", "Approved"].map((status) => (
+          <Chip
+            key={status}
+            label={status}
+            onClick={() => handleStatusToggle(status)}
+            sx={{
+              bgcolor: selectedStatus.includes(status)
+                ? getStatusColor(status as "Pending" | "Approved")
+                : theme.palette.mode === 'dark' 
+                  ? alpha(theme.palette.grey[700], 0.5)
+                  : theme.palette.grey[100],
+              color: selectedStatus.includes(status)
+                ? "white"
+                : theme.palette.text.primary,
+              "&:hover": {
                 bgcolor: selectedStatus.includes(status)
-                  ? getStatusColor(status as "Pending" | "Approved")
-                  : theme.palette.mode === 'dark' 
-                    ? alpha(theme.palette.grey[700], 0.5)
-                    : theme.palette.grey[100],
-                  color: selectedStatus.includes(status)
-                    ? "white"
-                    : theme.palette.text.primary,
-                  "&:hover": {
-                    bgcolor: selectedStatus.includes(status)
-                      ? alpha(getStatusColor(status as "Pending" | "Approved"), 0.8)
-                      : theme.palette.mode === 'dark'
-                        ? alpha(theme.palette.grey[700], 0.8)
-                        : theme.palette.grey[200],
-                  },
-                }}
-              />
-            ))}
-          </Stack>  
-        </Box>
-      )}
-
-      {viewMode === "type" && (
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 1,
+                  ? alpha(getStatusColor(status as "Pending" | "Approved"), 0.8)
+                  : theme.palette.mode === 'dark'
+                    ? alpha(theme.palette.grey[700], 0.8)
+                    : theme.palette.grey[200],
+              },
             }}
-          >
-            <Typography
-              variant="subtitle1"
-              className="font-medium text-gray-800 dark:text-white/90"
-            >
-              Types of Leave
-            </Typography>
-            <Button
-              size="small"
-              onClick={() =>
-                selectedTypes.length === Object.keys(leaveTypeLabels).length
-                  ? setSelectedTypes([])
-                  : setSelectedTypes(Object.keys(leaveTypeLabels))
-              }
-              className="text-gray-800 hover:bg-gray-100 dark:text-white/90 dark:hover:bg-white/[0.03]"
-            >
-              {selectedTypes.length === Object.keys(leaveTypeLabels).length
-                ? "Deselect All"
-                : "Select All"}
-            </Button>
-          </Box>
-          <Stack spacing={1} sx={{ mt: 1 }}>
-            {Object.entries(leaveTypeLabels).map(([type, label]) => (
-              <Chip
-                key={type}
-                label={label}
-                onClick={() => handleTypeToggle(type)}
-                className={`border border-gray-200 dark:border-gray-800 ${
-                  selectedTypes.includes(type)
-                    ? ""
-                    : "bg-white dark:bg-white/[0.03] text-gray-800 dark:text-white/90"
-                }`}
-              />
-            ))}
-          </Stack>
-        </Box>
-      )}
+          />
+          ))}
+        </Stack>  
+      </Box>
     </Card>
   );
 
@@ -633,6 +561,7 @@ const LeaveManagement = (): ReactElement => {
                         variant="body2"
                         color="text.secondary"
                         gutterBottom
+                        className="text-gray-800 dark:text-white"
                       >
                         Supporting Document
                       </Typography>
@@ -685,19 +614,6 @@ const LeaveManagement = (): ReactElement => {
         </Stack>
       </Box>
     );
-  };
-
-  const getCellColor = (request: LeaveRequest) => {
-    if (viewMode === "status") {
-      return getStatusColor(request.status as "Pending" | "Approved");
-    }
-    return getLeaveTypeColor(request.type);
-  };
-
-  // Add this function to handle image zoom
-  const handleImageZoom = (image: string) => {
-    setZoomedImage(image);
-    setImageZoomOpen(true);
   };
 
   if (loading) {
