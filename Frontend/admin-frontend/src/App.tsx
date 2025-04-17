@@ -13,8 +13,6 @@ import SignIn from "./pages/AuthPages/SignIn";
 import Blank from "./pages/ExtraPages/Blank";
 // import BarChart from "./pages/Charts/BarChart";
 // import LineChart from "./pages/Charts/LineChart";
-import Home from "./pages/ExtraPages/Dashboard/Home";
-import LeaveManagement from "./pages/LeaveManagement";
 import ServiceRates from "./pages/ManagePages/ServiceRates";
 import Service from "./pages/ManagePages/Services";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -27,9 +25,10 @@ import Transactions from "./pages/TransactionPage/Transactions";
 // import Images from "./pages/UiElements/Images";
 // import Videos from "./pages/UiElements/Videos";
 import Expertise from "./pages/ExpertisePage/Expertise";
+import LeaveApplicationApproval from "./pages/LeaveApplicationApproval";
+import UserProfiles from "./pages/SettingsPage/UserProfiles";
 import Shop from "./pages/ShopPage/Shop";
 import Stylists from "./pages/StylistPage/Stylists";
-import UserProfiles from "./pages/SettingsPage/UserProfiles";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -83,7 +82,7 @@ export default function App() {
             <Route path="/service-rates" element={<ServiceRates />} />
 
             {/* Leave Management Routes */}
-            <Route path="/leave-management" element={<LeaveManagement />} />
+            <Route path="/leave-management" element={<LeaveApplicationApproval />} />
 
             {/* Settings */}
             <Route
