@@ -6,6 +6,7 @@ import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
+import { toast, ToastContainer } from "react-toastify";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -22,12 +23,6 @@ export default function Expertise() {
   const [newName, setNewName] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("info");
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
   const {
     isOpen: isOpenNew,
     openModal: openModalNew,
@@ -55,10 +50,9 @@ export default function Expertise() {
       setExpertises(res.data);
     } catch (err) {
       console.error(err);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Failed to fetch expertises");
-      setShowAlert(true);
+      toast.error("Failed to fetch expertises", {
+        autoClose: false,
+      });
     }
   };
 
@@ -71,10 +65,7 @@ export default function Expertise() {
   const createExpertise = async (expertise: Expertise) => {
     try {
       closeModalNew();
-      setVariant("info");
-      setTitle("Creating Expertises");
-      setMessage("Creating Expertises");
-      setShowAlert(true);
+      // toast.info("Creating expertise...");
       setIsLoading(true);
       await axios.post(
         `${api_address}/api/expertises`,
@@ -94,20 +85,11 @@ export default function Expertise() {
           _id: "",
         },
       ]);
-      setVariant("success");
-      setTitle("Success");
-      setMessage("Expertise added successfully");
-      setShowAlert(true);
+      toast.success("Expertise added successfully");
     } catch (err) {
       console.error(err);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Failed to add expertise");
-      setShowAlert(true);
+      toast.error("Failed to add expertise");
     }
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 5000);
     setIsLoading(false);
   };
 
@@ -115,41 +97,26 @@ export default function Expertise() {
     try {
       closeModalDelete();
       setIsLoading(true);
-      setVariant("info");
-      setTitle("Deleting an expertise");
-      setMessage("Deleting an expertise");
-      setShowAlert(true);
+      // toast.info("Deleting expertise...");
       fetchExpertises();
       await axios.delete(
         `${api_address}/api/expertises/${expertise._id}`,
         config
       );
       setExpertises(expertises.filter((x) => x._id != expertise._id));
-      setVariant("success");
-      setTitle("Success");
-      setMessage("Deleted an expertise");
-      setShowAlert(true);
+      toast.success("Deleted expertise successfully");
       fetchExpertises();
     } catch (err) {
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Failed to delete expertise");
-      setShowAlert(true);
+      toast.error("Failed to delete expertise");
       console.error(err);
     }
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 2000);
     setIsLoading(false);
   };
 
   const updateExpertise = async (expertise: Expertise) => {
     try {
       closeModalEdit();
-      setVariant("info");
-      setTitle("Updating expertise");
-      setMessage("Updating expertise");
-      setShowAlert(true);
+      // toast.info("Updating expertise...");
       setIsLoading(true);
       await axios.put(
         `${api_address}/api/expertises/${expertise._id}`,
@@ -164,20 +131,11 @@ export default function Expertise() {
           x._id == expertise._id ? { ...x, ...expertise } : x
         )
       );
-      setVariant("success");
-      setTitle("Success");
-      setMessage("Updated expertise successfully");
-      setShowAlert(true);
+      toast.success("Updated expertise successfully");
     } catch (err) {
       console.error(err);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Failed to update expertise");
-      setShowAlert(true);
+      toast.error("Failed to update expertise");
     }
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 2000);
     setIsLoading(false);
   };
   return (
@@ -195,12 +153,6 @@ export default function Expertise() {
               Add Expertise +
             </Button>
           </div>
-
-          {showAlert && (
-            <div className="mb-5">
-              <Alert variant={variant} title={title} message={message} />
-            </div>
-          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {expertises.map((exp: Expertise) => (
@@ -246,7 +198,7 @@ export default function Expertise() {
             ))}
           </div>
         </div>
-
+        <ToastContainer position="bottom-right" autoClose={3000} />
         <CustomerModal
           isOpen={isOpenNew}
           closeModal={closeModalNew}
@@ -412,10 +364,10 @@ const DeleteModal: React.FC<ModalProps> = ({
           />
         </div>
         <div className="flex items-center gap-3 mt-6 mb-1 sm:justify-end">
-          <Button onClick={closeModal} type="info">
+          <Button onClick={closeModal} type="neutral">
             Cancel
           </Button>
-          <Button  type="danger" onClick={handleDelete}>
+          <Button type="danger" onClick={handleDelete}>
             Delete
           </Button>
         </div>
