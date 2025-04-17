@@ -7,6 +7,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EventIcon from "@mui/icons-material/Event";
 import {
   Alert,
+  alpha,
   Avatar,
   Box,
   Button,
@@ -23,7 +24,6 @@ import {
   Stack,
   Tooltip,
   Typography,
-  alpha,
   useTheme
 } from "@mui/material";
 import axios from "axios";
@@ -35,6 +35,7 @@ import {
   startOfWeek
 } from "date-fns";
 import React, { ReactElement, useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useUser } from "../context/UserContext";
 
@@ -297,15 +298,14 @@ const LeaveManagement = (): ReactElement => {
 
       // Refresh the leave requests list
       const updatedResponse = await api.get("/api/leave-requests");
+      toast.success("Leave request approved successfully");
       setLeaveRequests(updatedResponse.data);
       setError(null);
     } catch (error: any) {
       console.error("Error approving leave request:", error);
       console.error("Response data:", error.response?.data);
       console.error("Status code:", error.response?.status);
-      setError(
-        error.response?.data?.message || "Failed to approve leave request"
-      );
+      toast.error("Failed to approve leave request");
     }
   };
 
@@ -319,15 +319,14 @@ const LeaveManagement = (): ReactElement => {
 
       // Refresh the leave requests list
       const updatedResponse = await api.get("/api/leave-requests");
+      toast.success("Leave request rejected successfully");
       setLeaveRequests(updatedResponse.data);
       setError(null);
     } catch (error: any) {
       console.error("Error rejecting leave request:", error);
       console.error("Response data:", error.response?.data);
       console.error("Status code:", error.response?.status);
-      setError(
-        error.response?.data?.message || "Failed to reject leave request"
-      );
+      toast.error("Failed to reject leave request");
     }
   };
 
@@ -962,6 +961,7 @@ const LeaveManagement = (): ReactElement => {
             )}
           </Box>
         </Dialog>
+        <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
       </Container>
     </Box>
   );

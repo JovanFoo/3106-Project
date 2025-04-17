@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useUser } from "../../context/UserContext";
@@ -35,12 +35,6 @@ export default function Teams() {
   const [availableStylists, setAvailableStylists] = useState<TeamMember[]>([]);
   const [selectedStylistId, setSelectedStylistId] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("info");
-  const [title, setTitle] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
 
   const [selectedStylist, setSelectedStylist] = useState<TeamMember | null>(
     null
@@ -91,10 +85,7 @@ export default function Teams() {
         setAvailableStylists(filteredStylists);
       } catch (error) {
         console.error("Error fetching data", error);
-        setShowAlert(true);
-        setVariant("error");
-        setTitle("Error");
-        setMessage("Failed to load team or stylists.");
+        toast.error("Failed to load team or stylists.");
       } finally {
         setIsLoading(false);
       }
@@ -117,18 +108,12 @@ export default function Teams() {
       );
       console.log("📦 Response from adding stylist:", res.data);
       setTeamMembers((prev) => [...prev, res.data]);
-      setShowAlert(true);
-      setVariant("success");
-      setTitle("Success");
-      setMessage("Stylist added to team.");
+      toast.success("Stylist added to team.");
       closeModal();
     } catch (error) {
       closeModal();
       console.error("Error adding stylist:", error);
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Failed to add stylist.");
+      toast.error("Failed to add stylist.");
     }
   };
 
@@ -146,12 +131,6 @@ export default function Teams() {
               Add Team Member +
             </Button>
           </div>
-
-          {showAlert && (
-            <div className="mb-5">
-              <Alert variant={variant} title={title} message={message} />
-            </div>
-          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {teamMembers.map((member, index) => (
@@ -271,6 +250,7 @@ export default function Teams() {
           </Modal>
         )}
       </div>
+      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
     </div>
   );
 }

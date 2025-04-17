@@ -1,8 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
@@ -34,12 +34,7 @@ export default function Appointments() {
   const [status, setStatus] = useState<string>("Pending");
   const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
   const [datetime, setDatetime] = useState<string>("");
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("info");
-  const [title, setTitle] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
+  
   const config = {
     headers: {
       Authorization: sessionStorage.getItem("token"),
@@ -136,26 +131,17 @@ export default function Appointments() {
           config
         );
       }
-      setShowAlert(true);
-      setVariant("success");
-      setTitle("Success");
-      setMessage("Appointment updated successfully.");
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
 
+      toast.success("Appointment updated successfully");
+      
       closeModal();
       await fetchAppointments();
     } catch (err) {
       console.error("Error saving changes:", err);
       closeModal();
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Failed to update appointment.");
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
+
+      toast.error("Failed to update appointment");
+
     }
   };
 
@@ -164,11 +150,7 @@ export default function Appointments() {
       <div className="flex-1 p-5">
         <PageMeta title="Appointments" description="Manage your Appointments" />
         <PageBreadcrumb pageTitle="Upcoming Appointments" />
-        {showAlert && (
-          <div className="mb-5">
-            <Alert variant={variant} title={title} message={message} />
-          </div>
-        )}
+        
         <div className="flex rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           {/* <div className="flex justify-between items-center mb-6"> */}
           {appointments.length === 0 && (
@@ -335,6 +317,7 @@ export default function Appointments() {
           {/* </div> */}
         </div>
       </div>
+      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
     </div>
   );
 }

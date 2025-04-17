@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Input from "../../components/form/input/InputField";
 import Label from "../../components/form/Label";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useUser } from "../../context/UserContext";
@@ -32,12 +32,6 @@ export default function PortfolioGallery() {
 
   const user = useUser();
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
-  const [showAlert, setShowAlert] = useState(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("success");
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
   const [currentImage, setCurrentImage] = useState("");
@@ -59,16 +53,10 @@ export default function PortfolioGallery() {
             setGallery(response.data);
           })
           .catch((error: any) => {
-            setShowAlert(true);
-            setVariant("error");
-            setTitle("Error fetching gallery");
-            setMessage("Failed to fetch gallery items.");
+            toast.error("Failed to fetch gallery items.");
           });
       } catch (error) {
-        setShowAlert(true);
-        setVariant("error");
-        setTitle("Error fetching gallery");
-        setMessage("Failed to fetch gallery items.");
+        toast.error("Failed to fetch gallery items.");
       }
     };
     fetchGallery();
@@ -78,36 +66,21 @@ export default function PortfolioGallery() {
     e.preventDefault();
     console.log("Adding photos...");
     setIsUpdating(true);
-    setVariant("info");
-    setTitle("Adding Photos");
-    setMessage("Please wait...");
-    setShowAlert(true);
+
     if (!currentImage) {
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Please select an image.");
+      toast.info("Please select an image.");
       setIsUpdating(false);
       setCurrentImage("");
       setCurrentTitle("");
       closeModal();
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 2000);
       return;
     }
     if (!currentTitle) {
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Please enter a title.");
+      toast.info("Please enter a title.");
       setIsUpdating(false);
       setCurrentImage("");
       setCurrentTitle("");
       closeModal();
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 2000);
       return;
     }
     try {
@@ -121,32 +94,20 @@ export default function PortfolioGallery() {
           config
         )
         .then((response: any) => {
-          setShowAlert(true);
-          setVariant("success");
-          setTitle("Success");
-          setMessage("Photos added successfully.");
+          toast.success("Photos added successfully.");
           setGallery((prev) => [...prev, response.data]);
           user.addGalleries(response.data._id);
         })
         .catch((error: any) => {
-          setShowAlert(true);
-          setVariant("error");
-          setTitle("Error adding photos");
-          setMessage("Failed to add photos.");
+          toast.error("Failed to add photos.");
           console.log(error);
         });
     } catch (error) {
-      setShowAlert(true);
-      setVariant("error");
-      setTitle("Error adding photos");
-      setMessage("Failed to add photos.");
+      toast.error("Failed to add photos.");
     }
     setIsUpdating(false);
     setCurrentImage("");
     setCurrentTitle("");
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 5000);
     closeModal();
   };
   return (
@@ -155,9 +116,6 @@ export default function PortfolioGallery() {
       <div className="flex-1 p-5">
         <PageBreadcrumb pageTitle="Portfolio/Gallery" />
         <div className="rounded-2xl  min-h-[80vh] border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-          <div className={showAlert ? "mb-5" : "hidden"}>
-            <Alert title={title} message={message} variant={variant} />
-          </div>
           <div className="flex justify-between items-center mb-6">
             <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Portfolio/Gallery
@@ -257,6 +215,7 @@ export default function PortfolioGallery() {
           </div>
         </Modal>
       </div>
+      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
     </div>
   );
 }

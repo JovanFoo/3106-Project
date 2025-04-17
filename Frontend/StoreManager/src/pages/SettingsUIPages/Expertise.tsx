@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useUser } from "../../context/UserContext";
@@ -24,12 +24,7 @@ export default function Expertise() {
   );
   const user = useUser();
   const { isOpen, openModal, closeModal } = useModal();
-  const [showAlert, setShowAlert] = useState(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("success");
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
+  
   const [isUpdating, setIsUpdating] = useState(false);
 
   const config = {
@@ -48,10 +43,6 @@ export default function Expertise() {
   };
   const onSaveChanges = async () => {
     closeModal();
-    setShowAlert(true);
-    setVariant("info");
-    setTitle("Updating Expertise");
-    setMessage("Please wait...");
     setIsUpdating(true);
     const updateExpertise = async () => {
       const selectedExpertiseIds = selectedExpertise.map((expertise) => {
@@ -65,24 +56,16 @@ export default function Expertise() {
         )
         .then((res: AxiosResponse) => {
           user.fetchUserContext();
-          setShowAlert(true);
-          setVariant("success");
-          setTitle("Success");
-          setMessage("Expertise updated successfully.");
+          toast.success("Expertise updated successfully");
           setIsUpdating(false);
         })
         .catch((err) => {
-          setShowAlert(true);
-          setVariant("error");
-          setTitle("Error updating Expertise");
-          setMessage(err.response.data.message);
+          toast.error(err.response.data.message);
           setIsUpdating(false);
         });
     };
     updateExpertise();
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 5000);
+
   };
 
   useEffect(() => {
@@ -116,9 +99,7 @@ export default function Expertise() {
       <div className="flex-1 p-5">
         <PageBreadcrumb pageTitle="Expertise" />
         <div className="rounded-2xl  min-h-[80vh] border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-          <div className={showAlert ? "mb-5" : "hidden"}>
-            <Alert title={title} message={message} variant={variant} />
-          </div>
+
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
             Expertise
           </h4>
@@ -174,6 +155,7 @@ export default function Expertise() {
           </div>
         </div>
       </Modal>
+      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
     </div>
   );
 }
