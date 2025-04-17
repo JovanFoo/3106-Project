@@ -51,7 +51,7 @@ const Calendar: React.FC = () => {
       .get(
         `${
           import.meta.env.VITE_APP_API_ADDRESS_DEV
-        }/api/calendar/my-events?currentYear=${date?.getFullYear()}&currentMonth=${date?.getMonth()}`,
+        }/api/calendar-events/my-events?currentYear=${date?.getFullYear()}&currentMonth=${date?.getMonth()}`,
         config
       )
       .then((res) => {
