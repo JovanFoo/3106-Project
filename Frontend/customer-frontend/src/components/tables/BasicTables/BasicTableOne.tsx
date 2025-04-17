@@ -108,7 +108,7 @@ export default function BasicTableOne() {
               Select Branch:
             </label>
             <select
-              className="border border-gray-300 rounded px-2 py-1 text-sm dark:bg-gray-800 dark:text-white"
+              className="border border-gray-300 rounded px-2 py-1 text-sm dark:bg-gray-800 dark:text-white min-w-[158px] w-auto"
               value={branch}
               onChange={(e) => setBranch(e.target.value)}
             >
