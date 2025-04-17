@@ -862,16 +862,16 @@ const BarberLeaveManagement: React.FC = () => {
           </DialogTitle>
           <DialogContent>
             {zoomedImage && (
-              <Box 
-                component="img" 
-                src={zoomedImage} 
-                alt="Supporting document" 
-                sx={{ 
+              <Box
+                component="img"
+                src={zoomedImage}
+                alt="Supporting document"
+                sx={{
                   width: '100%',
                   height: 'auto',
                   maxHeight: '80vh',
                   objectFit: 'contain'
-                }} 
+                }}
               />
             )}
           </DialogContent>

@@ -4,9 +4,9 @@ import "react-clock/dist/Clock.css";
 import { Navigate } from "react-router-dom";
 import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
+import { toast, ToastContainer } from "react-toastify";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useUser } from "../../context/UserContext";
@@ -59,12 +59,6 @@ export default function ShopSettings() {
 
   const [shopData, setShopData] = useState<Shop | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("error");
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const stylistId = sessionStorage.getItem("stylistId");
@@ -83,13 +77,9 @@ export default function ShopSettings() {
           } else {
             setShopData(null);
           }
-          setShowAlert(false);
         }
       } catch (err) {
-        setShowAlert(true);
-        setVariant("error");
-        setTitle("Error");
-        setMessage("Failed to fetch shop data.");
+        toast.error("Failed to fetch shop data.");
       } finally {
         setIsLoading(false);
       }
@@ -113,15 +103,9 @@ export default function ShopSettings() {
       );
       setShopData(updated);
       closeModal();
-      setVariant("success");
-      setTitle("Success");
-      setMessage("Shop details updated.");
-      setShowAlert(true);
+      toast.success("Shop details updated.");
     } catch (err) {
-      setVariant("error");
-      setTitle("Error");
-      setMessage("Failed to update shop.");
-      setShowAlert(true);
+      toast.error("Failed to update shop.");
     }
   };
 
@@ -147,9 +131,6 @@ export default function ShopSettings() {
           <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
             My Assigned Shop
           </h3>
-          <div className={showAlert ? "mb-5" : "mb-5 hidden"}>
-            <Alert variant={variant} title={title} message={message} />
-          </div>
 
           {shopData ? (
             <div className="relative p-4 border rounded-md mb-4 dark:bg-gray-800 dark:border-gray-700 dark:text-white/90">
@@ -277,6 +258,7 @@ export default function ShopSettings() {
           )}
         </Modal>
       </div>
+      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
     </div>
   );
 }
