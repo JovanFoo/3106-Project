@@ -292,17 +292,17 @@ const LeaveManagement = (): ReactElement => {
       const response = await api.post(
         `/api/leave-requests/approve/${requestId}/admin`
       );
+      toast.success("Leave request approved successfully!");
       console.log("Approve response:", response);
 
       fetchLeaveRequests(); // Refresh the leave requests list
-      toast.success("Leave request approved successfully!");
     } catch (error: any) {
-      console.error("Error approving leave request:", error);
-      console.error("Response data:", error.response?.data);
-      console.error("Status code:", error.response?.status);
       toast.error(
         error.response?.data?.message || "Failed to approve leave request"
       );
+      console.error("Error approving leave request:", error);
+      console.error("Response data:", error.response?.data);
+      console.error("Status code:", error.response?.status);
     }
   };
 
@@ -312,17 +312,17 @@ const LeaveManagement = (): ReactElement => {
       const response = await api.post(
         `/api/leave-requests/reject/${requestId}/admin`
       );
+      toast.success("Leave request rejected successfully!");
       console.log("Reject response:", response);
 
       fetchLeaveRequests(); // Refresh the leave requests list
-      toast.success("Leave request rejected successfully!");
     } catch (error: any) {
-      console.error("Error rejecting leave request:", error);
-      console.error("Response data:", error.response?.data);
-      console.error("Status code:", error.response?.status);
       toast.error(
         error.response?.data?.message || "Failed to reject leave request"
       );
+      console.error("Error rejecting leave request:", error);
+      console.error("Response data:", error.response?.data);
+      console.error("Status code:", error.response?.status);
     }
   };
 
@@ -431,7 +431,11 @@ const LeaveManagement = (): ReactElement => {
       );
 
     if (pendingRequests.length === 0) {
-      return <></>;
+      return (
+        <div className=" mt-4 dark:text-white rounded-sm border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+          No pending leave requests to approve
+        </div>
+      );
     }
 
     return (
@@ -602,20 +606,20 @@ const LeaveManagement = (): ReactElement => {
     setImageZoomOpen(true);
   };
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <Box
+  //       sx={{
+  //         display: "flex",
+  //         justifyContent: "center",
+  //         alignItems: "center",
+  //         minHeight: "60vh",
+  //       }}
+  //     >
+  //       <CircularProgress />
+  //     </Box>
+  //   );
+  // }
 
   return (
     <Box
@@ -631,6 +635,11 @@ const LeaveManagement = (): ReactElement => {
       className="dark:bg-transparent dark:text-white"
     >
       <Container maxWidth="xl">
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          className={"z-999999"}
+        />
         <Box sx={{ mb: 4 }}>
           <Typography variant="h4" gutterBottom sx={{ color: "inherit" }}>
             Leave Management
@@ -952,11 +961,6 @@ const LeaveManagement = (): ReactElement => {
             )}
           </Box>
         </Dialog>
-        <ToastContainer
-          position="bottom-right"
-          autoClose={3000}
-          className={"z-999999"}
-        />
       </Container>
     </Box>
   );

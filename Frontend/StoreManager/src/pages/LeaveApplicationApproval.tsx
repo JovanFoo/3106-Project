@@ -24,7 +24,7 @@ import {
   Stack,
   Tooltip,
   Typography,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import axios from "axios";
 import {
@@ -32,13 +32,12 @@ import {
   differenceInDays,
   eachDayOfInterval,
   format,
-  startOfWeek
+  startOfWeek,
 } from "date-fns";
 import React, { ReactElement, useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import { useUser } from "../context/UserContext";
-
 
 // Create axios instance with default config
 const api = axios.create({
@@ -163,13 +162,11 @@ const LeaveRequestCell: React.FC<LeaveRequestCellProps> = ({
 
   return (
     <Tooltip
-      title={`${request.status}: ${format(
-        startDate,
-        "MMM dd"
-      )}${isOneDay ? "" : ` - ${format(endDate, "MMM dd")}`}, ${format(
-        startDate,
-        "yyyy"
-      )}${request.reason ? `\n${request.reason}` : ""}`}
+      title={`${request.status}: ${format(startDate, "MMM dd")}${
+        isOneDay ? "" : ` - ${format(endDate, "MMM dd")}`
+      }, ${format(startDate, "yyyy")}${
+        request.reason ? `\n${request.reason}` : ""
+      }`}
     >
       <Box
         sx={{
@@ -404,31 +401,34 @@ const LeaveManagement = (): ReactElement => {
           </Button>
         </Box>
         <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-        {["Pending", "Approved"].map((status) => (
-          <Chip
-            key={status}
-            label={status}
-            onClick={() => handleStatusToggle(status)}
-            sx={{
-              bgcolor: selectedStatus.includes(status)
-                ? getStatusColor(status as "Pending" | "Approved")
-                : theme.palette.mode === 'dark' 
+          {["Pending", "Approved"].map((status) => (
+            <Chip
+              key={status}
+              label={status}
+              onClick={() => handleStatusToggle(status)}
+              sx={{
+                bgcolor: selectedStatus.includes(status)
+                  ? getStatusColor(status as "Pending" | "Approved")
+                  : theme.palette.mode === "dark"
                   ? alpha(theme.palette.grey[700], 0.5)
                   : theme.palette.grey[100],
-              color: selectedStatus.includes(status)
-                ? "white"
-                : theme.palette.text.primary,
-              "&:hover": {
-                bgcolor: selectedStatus.includes(status)
-                  ? alpha(getStatusColor(status as "Pending" | "Approved"), 0.8)
-                  : theme.palette.mode === 'dark'
+                color: selectedStatus.includes(status)
+                  ? "white"
+                  : theme.palette.text.primary,
+                "&:hover": {
+                  bgcolor: selectedStatus.includes(status)
+                    ? alpha(
+                        getStatusColor(status as "Pending" | "Approved"),
+                        0.8
+                      )
+                    : theme.palette.mode === "dark"
                     ? alpha(theme.palette.grey[700], 0.8)
                     : theme.palette.grey[200],
-              },
-            }}
-          />
+                },
+              }}
+            />
           ))}
-        </Stack>  
+        </Stack>
       </Box>
     </Card>
   );
@@ -443,19 +443,9 @@ const LeaveManagement = (): ReactElement => {
 
     if (pendingRequests.length === 0) {
       return (
-        <Alert
-          severity="info"
-          sx={{
-            mt: 3,
-            borderRadius: "12px",
-            bgcolor:
-              theme.palette.mode === "dark"
-                ? alpha(theme.palette.info.main, 0.1)
-                : undefined,
-          }}
-        >
+        <div className=" mt-4 dark:text-white rounded-sm border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
           No pending leave requests to approve
-        </Alert>
+        </div>
       );
     }
 
@@ -508,15 +498,29 @@ const LeaveManagement = (): ReactElement => {
                 </Box>
                 <Stack spacing={1.5}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <EventIcon fontSize="small" color="action" className="text-gray-800 dark:text-white"/>
-                    <Typography variant="body2" className="text-gray-800 dark:text-white">
+                    <EventIcon
+                      fontSize="small"
+                      color="action"
+                      className="text-gray-800 dark:text-white"
+                    />
+                    <Typography
+                      variant="body2"
+                      className="text-gray-800 dark:text-white"
+                    >
                       {format(new Date(request.startDate), "MMM dd")} -{" "}
                       {format(new Date(request.endDate), "MMM dd, yyyy")}
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <AccessTimeIcon fontSize="small" color="action" className="text-gray-800 dark:text-white"/>
-                    <Typography variant="body2" className="text-gray-800 dark:text-white">
+                    <AccessTimeIcon
+                      fontSize="small"
+                      color="action"
+                      className="text-gray-800 dark:text-white"
+                    />
+                    <Typography
+                      variant="body2"
+                      className="text-gray-800 dark:text-white"
+                    >
                       {differenceInDays(
                         new Date(request.endDate),
                         new Date(request.startDate)
@@ -961,7 +965,11 @@ const LeaveManagement = (): ReactElement => {
             )}
           </Box>
         </Dialog>
-        <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          style={{ zIndex: 999999 }}
+        />
       </Container>
     </Box>
   );
