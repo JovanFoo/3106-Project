@@ -35,6 +35,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Modal } from "../components/ui/modal";
 
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -115,6 +116,12 @@ const BarberLeaveManagement: React.FC = () => {
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const theme = useTheme();
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [variant, setVariant] = useState<
+    "success" | "error" | "warning" | "info"
+  >("info");
+  const [title, setTitle] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
 
   const fetchLeaveRequests = async () => {
     try {
@@ -720,22 +727,23 @@ const BarberLeaveManagement: React.FC = () => {
           </Grid>
         </Grid>
 
-        <Dialog
-          open={openApplyDialog}
+        <Modal
+          isOpen={openApplyDialog}
           onClose={() => setOpenApplyDialog(false)}
-          maxWidth="sm"
-          fullWidth
-          className="dark:bg-transparent dark:text-white"
+          // maxWidth="sm"
+          // fullWidth
+          className="max-w-[600px] p-6 dark:bg-transparent dark:text-white"
         >
+          <div className="dark:bg-transparent dark:text-white">
           <DialogTitle>
             Apply for Leave
-            <IconButton
+            {/* <IconButton
               aria-label="close"
               onClick={() => setOpenApplyDialog(false)}
               sx={{ position: "absolute", right: 8, top: 8 }}
-            >
-              <CloseIcon />
-            </IconButton>
+            > */}
+              {/* <CloseIcon />
+            </IconButton> */}
           </DialogTitle>
           <DialogContent>
             <Stack spacing={2} sx={{ mt: 2 }}>
@@ -804,10 +812,10 @@ const BarberLeaveManagement: React.FC = () => {
                 </label>
                 {newApplication.image && (
                   <Box sx={{ mt: 1, textAlign: 'center' }}>
-                    <img 
-                      src={newApplication.image} 
-                      alt="Uploaded document" 
-                      style={{ maxWidth: '100%', maxHeight: '200px' }} 
+                    <img
+                      src={newApplication.image}
+                      alt="Uploaded document"
+                      style={{ maxWidth: '100%', maxHeight: '200px' }}
                     />
                   </Box>
                 )}
@@ -828,7 +836,8 @@ const BarberLeaveManagement: React.FC = () => {
               Submit Application
             </Button>
           </DialogActions>
-        </Dialog>
+          </div>
+        </Modal>
 
         <Dialog
           open={imageZoomOpen}
@@ -867,7 +876,7 @@ const BarberLeaveManagement: React.FC = () => {
             )}
           </DialogContent>
         </Dialog>
-        <ToastContainer position="bottom-center" autoClose={3000} hideProgressBar />
+        <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
       </Container>
     </Box>
   );
