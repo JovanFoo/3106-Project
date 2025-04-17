@@ -45,6 +45,11 @@ export default function Services() {
 
   const [selectedServiceRate, setSelectedServiceRate] = useState<ServiceRate>();
   const [isLoading, setIsLoading] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState<"success" | "error" | "info" | "warning">("info");
+
 
   const {
     isOpen: isOpenNew,
@@ -92,10 +97,18 @@ export default function Services() {
         console.log("Service rate saved:", response.data);
         closeModalNew(); // Close the modal after saving
         fetchServiceRates(); // Refresh the list after saving
+        setAlertTitle("Success");
+        setAlertMessage("Service rate created successfully.");
+        setAlertType("success");
       })
       .catch((error) => {
         console.error("Error saving service rate:", error);
+        setAlertTitle("Error");
+        setAlertMessage("Failed to create service rate.");
+        setAlertType("error");
       });
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 4000);
   };
   const handleEditServiceRate = async (serviceRate: ServiceRate) => {
     await axios
@@ -108,10 +121,18 @@ export default function Services() {
         console.log("Service rate updated:", response.data);
         closeModalEdit(); // Close the modal after saving
         fetchServiceRates(); // Refresh the list after saving
+        setAlertTitle("Success");
+        setAlertMessage("Service rate updated successfully.");
+        setAlertType("success");
       })
       .catch((error) => {
         console.error("Error updating service rate:", error);
+        setAlertTitle("Error");
+        setAlertMessage("Failed to update service rate.");
+        setAlertType("error");
       });
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 4000);
   };
   const handleDeleteServiceRate = async (serviceRate: ServiceRate) => {
     await axios
@@ -119,11 +140,19 @@ export default function Services() {
       .then((response) => {
         console.log("Service rate deleted:", response.data);
         fetchServiceRates(); // Refresh the list after deleting
+        setAlertTitle("Success");
+        setAlertMessage("Service rate deleted successfully.");
+        setAlertType("success");
       })
       .catch((error) => {
         console.error("Error deleting service rate:", error);
+        setAlertTitle("Error");
+        setAlertMessage("Failed to delete service rate.");
+        setAlertType("error");
       });
     closeModalDelete(); // Close the modal after deleting
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 4000);
   };
 
   useEffect(() => {
@@ -165,6 +194,17 @@ export default function Services() {
                 + Add new service rate
               </Button>
             </div>
+
+            {showAlert && (
+              <div className="mb-4">
+                <Alert
+                  variant={alertType}
+                  title={alertTitle}
+                  message={alertMessage}
+                />
+              </div>
+            )}
+
             <Table>
               <TableHeader>
                 <TableRow>
@@ -189,7 +229,8 @@ export default function Services() {
                       <TableCell>
                         {new Date(serviceRate.endDate).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="justify-around flex gap-2">
+                      {/* <TableCell className="justify-around flex gap-2"> */}
+                      <div className="flex gap-2 justify-center mt-2 mb-2 ml-2 mr-2">
                         <Button
                           variant="primary"
                           type="warning"
@@ -212,7 +253,8 @@ export default function Services() {
                         >
                           <TrashBinIcon />
                         </Button>
-                      </TableCell>
+                      </div>
+                      {/* </TableCell> */}
                     </TableRow>
                   ))}
               </TableBody>
@@ -243,7 +285,7 @@ export default function Services() {
                   </span>
                 ))}
               </div>
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 mt-4 ml-2 items-center">
                 <Button
                   onClick={handlePrev}
                   variant="primary"
@@ -498,17 +540,19 @@ const DeleteModal: React.FC<ModalProps> = ({
             message={alertMessage}
           />
         </div>
-        <div className="flex items-center gap-3 mt-6 sm:justify-end">
-          <button
-            onClick={closeModal}
-            type="button"
-            className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
-          >
-            Cancel
-          </button>
+        <div className="flex items-center gap-3 mt-6 mb-2 sm:justify-end">
           <Button
             size="sm"
             variant="outline"
+            type="neutral"
+            onClick={closeModal}
+          >
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            type="danger"
             className="bg-red-500"
             onClick={handleDelete}
           >

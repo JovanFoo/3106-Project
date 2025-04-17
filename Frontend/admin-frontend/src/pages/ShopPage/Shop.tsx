@@ -271,7 +271,7 @@ export default function CreateShop() {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full p-2 border rounded-md"
+                  className="w-full p-2 border rounded-md dark:bg-gray-800 dark:text-white"
                   placeholder="e.g. 123 Katong Ave"
                 />
               </div>
@@ -279,13 +279,29 @@ export default function CreateShop() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Phone Number
                 </label>
-                <input
+                {/* <input
                   type="text"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
+                  maxLength={8}
                   className="w-full p-2 border rounded-md"
                   placeholder="e.g. 61234567"
+                /> */}
+                {/* Stricter control */}
+                <input
+                  type="text"
+                  value={phoneNumber}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Only allow digits and max 8 characters
+                    if (/^\d{0,8}$/.test(value)) {
+                      setPhoneNumber(value);
+                    }
+                  }}
+                  className="w-full p-2 border rounded-md dark:bg-gray-800 dark:text-white"
+                  placeholder="e.g. 61234567"
                 />
+
               </div>
               {timeFields.map(([label, value, setter]) => (
                 <div key={label}>

@@ -60,9 +60,9 @@ export default function StylistPage() {
       .then((response) => {
         console.log(response.data);
         setStylists((prev) => [...prev, response.data]);
-        if (stylist.role === "Manager") {
-          fetchStylistsData();
-        }
+        fetchStylistsData();
+        // if (stylist.role === "Manager") {
+        // }
       });
     closeModalNew();
   };
@@ -483,8 +483,8 @@ const ViewModal: React.FC<ModalProps> = ({
     <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[900px] p-0">
       <div className="flex h-[650px] ">
         {/* Sidebar */}
-        <div className="w-64 bg-gray-100 dark:bg-gray-800 p-4 rounded-2xl">
-          {["Profile", "Expertise", "Portfolio", "Testimonials"].map((tab) => (
+        <div className="w-64 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl pt-10">
+        {["Profile", "Expertise", "Portfolio", "Testimonials"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}

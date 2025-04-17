@@ -64,7 +64,7 @@ StylistRouter.get(
 // get list of all stylists
 StylistRouter.get(
   "/",
-  AuthMiddleware.authCustomerOrStylistToken,
+  AuthMiddleware.authAdminCustomerStylistOrManagerToken,
   StylistController.retrieveAllStylists
 );
 // get stylist by id

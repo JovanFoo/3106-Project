@@ -35,6 +35,10 @@ export default function Services() {
   // UseStates for Services
   const [services, setServices] = useState<Service[]>([]);
   const [allServiceRates, setAllServiceRates] = useState<ServiceRate[]>([]);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState<"success" | "error" | "info" | "warning">("info");
 
   const [selectedService, setSelectedService] = useState<Service | undefined>();
   const {
@@ -109,11 +113,19 @@ export default function Services() {
       .then((response) => {
         console.log("Service updated successfully:", response.data);
         fetchServices(); // Refresh the services list after saving
+        setAlertTitle("Success");
+        setAlertMessage("Service updated successfully.");
+        setAlertType("success");
       })
       .catch((error) => {
         console.error("Error updating service:", error);
+        setAlertTitle("Error");
+        setAlertMessage("Failed to update service.");
+        setAlertType("error");
       });
     closeModalEdit();
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 4000);
   };
   const handleAdd = async (service: Service) => {
     // Perform edit operation hereawait axios
@@ -132,11 +144,19 @@ export default function Services() {
       .then((response) => {
         console.log("Service saved successfully:", response.data);
         fetchServices(); // Refresh the services list after saving
+        setAlertTitle("Success");
+        setAlertMessage("Service created successfully.");
+        setAlertType("success");
       })
       .catch((error) => {
         console.error("Error saving service:", error);
+        setAlertTitle("Error");
+        setAlertMessage("Failed to create service.");
+        setAlertType("error");
       });
     closeModalNew();
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 4000);
   };
   const handleDelete = async (service: Service) => {
     // Perform delete operation here
@@ -145,11 +165,19 @@ export default function Services() {
       .then((response) => {
         console.log("Service deleted successfully:", response.data);
         fetchServices(); // Refresh the services list after deleting
+        setAlertTitle("Success");
+        setAlertMessage("Service deleted successfully.");
+        setAlertType("success");
       })
       .catch((error) => {
         console.error("Error deleting service:", error);
+        setAlertTitle("Error");
+        setAlertMessage("Failed to delete service.");
+        setAlertType("error");
       });
     closeModalDelete();
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 4000);
   };
   useEffect(() => {
     fetchServices();
@@ -193,6 +221,17 @@ export default function Services() {
                 + Add new service
               </Button>
             </div>
+
+            {showAlert && (
+              <div className="mb-4">
+                <Alert
+                  variant={alertType}
+                  title={alertTitle}
+                  message={alertMessage}
+                />
+              </div>
+            )}
+
             <Table className="min-w-full">
               <TableHeader className="bg-gray-50 border-b-2 border-gray-200">
                 <TableRow isHeader={true}>
@@ -215,7 +254,8 @@ export default function Services() {
                           ? service.description.substring(0, 80) + " ..."
                           : service.description}
                       </TableCell>
-                      <TableCell className="justify-around flex gap-2">
+                      {/* <TableCell className="justify-around flex gap-2"> */}
+                      <div className="flex gap-2 justify-center mt-2 mb-2">
                         <Button
                           variant="primary"
                           type="warning"
@@ -236,7 +276,8 @@ export default function Services() {
                         >
                           <TrashBinIcon />
                         </Button>
-                      </TableCell>
+                      </div>
+                      {/* </TableCell> */}
                     </TableRow>
                   ))}
               </TableBody>
@@ -265,7 +306,7 @@ export default function Services() {
                   </span>
                 ))}
               </div>
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 mt-4 ml-2 items-center">
                 <Button
                   onClick={handlePrev}
                   variant="primary"
@@ -575,17 +616,20 @@ const DeleteModal: React.FC<ModalProps> = ({
             message={alertMessage}
           />
         </div>
-        <div className="flex items-center gap-3 mt-6 sm:justify-end">
-          <button
-            onClick={closeModal}
-            type="button"
-            className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
-          >
-            Cancel
-          </button>
+        <div className="flex items-center gap-3 mt-6 mb-2 sm:justify-end">
           <Button
             size="sm"
             variant="outline"
+            type='neutral'
+            onClick={closeModal}
+            className="bg-gray-500"
+          >
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            type='danger'
             className="bg-red-500"
             onClick={handleDelete}
           >

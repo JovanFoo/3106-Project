@@ -1,6 +1,5 @@
 import BuildIcon from "@mui/icons-material/Build";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PaidIcon from "@mui/icons-material/Paid";
@@ -72,9 +71,13 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const isActive = useCallback(
-    (path: string) => location.pathname.startsWith(path),
+    (path: string) =>
+      path === '/'
+        ? location.pathname === '/'
+        : location.pathname.startsWith(path),
     [location.pathname]
   );
+  
   const user = useUser();
   useEffect(() => {
     // filterBasedOnRole();
