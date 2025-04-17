@@ -24,7 +24,7 @@ import {
   Tooltip,
   Typography,
   alpha,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import axios from "axios";
 import {
@@ -32,7 +32,7 @@ import {
   differenceInDays,
   eachDayOfInterval,
   format,
-  startOfWeek
+  startOfWeek,
 } from "date-fns";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
@@ -249,39 +249,35 @@ const LeaveManagement = (): ReactElement => {
           return;
         }
 
-        const leaveRequestsResponse = await api.get("/api/leave-requests");
+        const leaveRequestsResponse = await api.get(
+          "/api/leave-requests/all-branch-manager"
+        );
         let leaveRequestsData = leaveRequestsResponse.data;
 
         const stylistIds = [
           ...new Set(leaveRequestsData.map((req: any) => req.stylist)),
         ];
-        const stylistsResponse = await api.get("/api/stylists");
-        const stylistsData = stylistsResponse.data.filter((x: any) =>
-          user.stylists.includes(x._id)
-        );
-
-        const stylistMap = stylistsData
-          .filter((x: any) => user.stylists.includes(x._id))
-          .reduce((acc: any, stylist: any) => {
-            acc[stylist._id] = stylist;
-            return acc;
-          }, {});
+        const stylistsResponse = await api.get("/api/branches");
+        const stylistsData = stylistsResponse.data.map((x: any) => x.manager);
+        console.log("Stylists Response:", stylistsResponse.data);
+        console.log("Leave Requests Response:", leaveRequestsResponse.data);
+        const stylistMap = stylistsData.reduce((acc: any, stylist: any) => {
+          acc[stylist._id] = stylist;
+          return acc;
+        }, {});
         console.log("Stylists Data:", stylistsData);
         console.log("Leave Requests Data:", leaveRequestsData);
-        console.log("User Stylists:", user.stylists);
         console.log("Stylist Map:", stylistMap);
-        leaveRequestsData = leaveRequestsData
-          .filter((x: any) => user.stylists.includes(x.stylist))
-          .map((request: any) => ({
-            ...request,
-            type: request.type || "Paid", // Use the type field directly
-            reason: request.reason || "", // Use reason as is
-            stylist: stylistMap[request.stylist] || {
-              _id: request.stylist,
-              name: "Unknown",
-              email: "No email",
-            },
-          }));
+        leaveRequestsData = leaveRequestsData.map((request: any) => ({
+          ...request,
+          type: request.type || "Paid", // Use the type field directly
+          reason: request.reason || "", // Use reason as is
+          stylist: stylistMap[request.stylist] || {
+            _id: request.stylist,
+            name: "Unknown",
+            email: "No email",
+          },
+        }));
         console.log("Filtered Leave Requests Data:", leaveRequestsData);
         setLeaveRequests(leaveRequestsData);
         setStaff(stylistsData);

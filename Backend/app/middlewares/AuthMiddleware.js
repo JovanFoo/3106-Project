@@ -35,26 +35,26 @@ const AuthMiddleware = {
   async authStylistManagerToken(req, res, next) {
     console.log("AuthMiddleware > only Stylist Manager can access");
     const token = req.headers["authorization"];
-    console.log("Received token:", token);
+    // console.log("Received token:", token);
     if (!token) {
-      console.log("No token provided");
+      // console.log("No token provided");
       return res.status(401).json({ message: "Unauthorized" });
     }
-    
+
     const decoded = jwt.decodeToken(token);
-    console.log("Decoded token result:", decoded);
-    
+    // console.log("Decoded token result:", decoded);
+
     if (!decoded.status) {
-      console.log("Token validation failed");
+      // console.log("Token validation failed");
       return res.status(401).json({ message: "Unauthorized" });
     }
-    
+
     if (decoded.values.type !== "StylistManager") {
-      console.log("User is not a StylistManager:", decoded.values.type);
+      // console.log("User is not a StylistManager:", decoded.values.type);
       return res.status(401).json({ message: "Unauthorized" });
     }
-    
-    console.log("User is authorized as StylistManager");
+
+    // console.log("User is authorized as StylistManager");
     req.userId = decoded.values.userId;
     next();
   },
@@ -138,7 +138,7 @@ const AuthMiddleware = {
       decoded.values.type != "Admin" &&
       decoded.values.type != "StylistManager"
     ) {
-      console.log(decoded);
+      // console.log(decoded);
       return res.status(401).json({ message: "Unauthorized" });
     }
     req.userId = decoded.values.userId;
