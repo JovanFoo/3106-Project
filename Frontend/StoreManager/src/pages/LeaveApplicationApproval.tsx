@@ -276,13 +276,13 @@ const LeaveManagement = (): ReactElement => {
         const stylistsData = stylistsResponse.data.filter((x: any) =>
           user.stylists.includes(x._id)
         );
-        
+
         const stylistMap = stylistsData
           .filter((x: any) => user.stylists.includes(x._id))
           .reduce((acc: any, stylist: any) => {
-          acc[stylist._id] = stylist;
-          return acc;
-        }, {});
+            acc[stylist._id] = stylist;
+            return acc;
+          }, {});
         console.log("Stylists Data:", stylistsData);
         console.log("Leave Requests Data:", leaveRequestsData);
         console.log("User Stylists:", user.stylists);
@@ -290,11 +290,11 @@ const LeaveManagement = (): ReactElement => {
         leaveRequestsData = leaveRequestsData
           .filter((x: any) => user.stylists.includes(x.stylist))
           .map((request: any) => ({
-          ...request,
+            ...request,
             type: request.type || "Paid", // Use the type field directly
             reason: request.reason || "", // Use reason as is
-          stylist: stylistMap[request.stylist] || {
-            _id: request.stylist,
+            stylist: stylistMap[request.stylist] || {
+              _id: request.stylist,
               name: "Unknown",
               email: "No email",
             },
@@ -326,7 +326,7 @@ const LeaveManagement = (): ReactElement => {
         `/api/leave-requests/approve/${requestId}`
       );
       console.log("Approve response:", response);
-      
+
       // Refresh the leave requests list
       const updatedResponse = await api.get("/api/leave-requests");
       setLeaveRequests(updatedResponse.data);
@@ -348,7 +348,7 @@ const LeaveManagement = (): ReactElement => {
         `/api/leave-requests/reject/${requestId}`
       );
       console.log("Reject response:", response);
-      
+
       // Refresh the leave requests list
       const updatedResponse = await api.get("/api/leave-requests");
       setLeaveRequests(updatedResponse.data);
@@ -373,7 +373,7 @@ const LeaveManagement = (): ReactElement => {
 
   const getLeaveTypeColor = (leaveType: string | undefined) => {
     if (!leaveType) return theme.palette.grey[500];
-    
+
     // Map of leave type variations to their normalized form
     const typeMapping: { [key: string]: LeaveType } = {
       Paid: "Paid",
@@ -384,7 +384,7 @@ const LeaveManagement = (): ReactElement => {
 
     // Get the normalized type or use the original if not found in mapping
     const normalizedType = typeMapping[leaveType.toLowerCase()] || leaveType;
-    
+
     const colors: { [key in LeaveType]: string } = {
       Paid: "#059669", // Green for paid
       // Childcare: "#2563EB",   // Blue for childcare
@@ -412,7 +412,7 @@ const LeaveManagement = (): ReactElement => {
 
   const filteredRequests = leaveRequests.filter((request) =>
     viewMode === "status"
-        ? selectedStatus.includes(request.status)
+      ? selectedStatus.includes(request.status)
       : selectedTypes.includes(request.type)
   );
 
@@ -440,10 +440,17 @@ const LeaveManagement = (): ReactElement => {
 
   const renderStats = () => (
     <Card className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-      <Typography variant="h6" className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">
+      <Typography
+        variant="h6"
+        className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90"
+      >
         Leave to Approve
       </Typography>
-      <Typography variant="h3" color="primary.main" className="mb-3 dark:text-white/90">
+      <Typography
+        variant="h3"
+        color="primary.main"
+        className="mb-3 dark:text-white/90"
+      >
         {leaveRequests.filter((r) => r.status === "Pending").length}
       </Typography>
 
@@ -457,13 +464,16 @@ const LeaveManagement = (): ReactElement => {
               mb: 1,
             }}
           >
-            <Typography variant="subtitle1" className="font-medium text-gray-800 dark:text-white/90">
+            <Typography
+              variant="subtitle1"
+              className="font-medium text-gray-800 dark:text-white/90"
+            >
               Leave Status
             </Typography>
             <Button
               size="small"
-              onClick={() => 
-                selectedStatus.length === 2 
+              onClick={() =>
+                selectedStatus.length === 2
                   ? setSelectedStatus([])
                   : setSelectedStatus(["Pending", "Approved"])
               }
@@ -473,16 +483,16 @@ const LeaveManagement = (): ReactElement => {
             </Button>
           </Box>
           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-            <ToggleButton 
-              value="pending" 
+            <ToggleButton
+              value="pending"
               selected={selectedStatus.includes("Pending")}
               onClick={() => handleStatusToggle("Pending")}
               className="border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
             >
               Pending
             </ToggleButton>
-            <ToggleButton 
-              value="approved" 
+            <ToggleButton
+              value="approved"
               selected={selectedStatus.includes("Approved")}
               onClick={() => handleStatusToggle("Approved")}
               className="border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
@@ -503,12 +513,15 @@ const LeaveManagement = (): ReactElement => {
               mb: 1,
             }}
           >
-            <Typography variant="subtitle1" className="font-medium text-gray-800 dark:text-white/90">
+            <Typography
+              variant="subtitle1"
+              className="font-medium text-gray-800 dark:text-white/90"
+            >
               Types of Leave
             </Typography>
             <Button
               size="small"
-              onClick={() => 
+              onClick={() =>
                 selectedTypes.length === Object.keys(leaveTypeLabels).length
                   ? setSelectedTypes([])
                   : setSelectedTypes(Object.keys(leaveTypeLabels))
@@ -567,68 +580,84 @@ const LeaveManagement = (): ReactElement => {
 
     return (
       <Box sx={{ mt: 3 }}>
-        <Typography variant="h6" gutterBottom className="text-gray-800 dark:text-white/90">
+        <Typography
+          variant="h6"
+          gutterBottom
+          className="text-gray-800 dark:text-white/90"
+        >
           Approval List
         </Typography>
         <Stack spacing={2}>
           {pendingRequests.map((request) => (
-            <Card key={request._id} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-                <CardContent>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      mb: 2,
-                    }}
-                  >
-                    <Avatar
-                      src={request.stylist?.profilePicture}
+            <Card
+              key={request._id}
+              className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]"
+            >
+              <CardContent>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    mb: 2,
+                  }}
+                >
+                  <Avatar
+                    src={request.stylist?.profilePicture}
                     className="h-12 w-12 bg-primary"
                   >
-                    {request.stylist?.name ? request.stylist.name.charAt(0) : "?"}
-                    </Avatar>
-                    <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="subtitle1" className="font-medium text-gray-800 dark:text-white/90">
+                    {request.stylist?.name
+                      ? request.stylist.name.charAt(0)
+                      : "?"}
+                  </Avatar>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography
+                      variant="subtitle1"
+                      className="font-medium text-gray-800 dark:text-white/90"
+                    >
                       {request.stylist?.name || "Unknown"}
-                      </Typography>
-                    <Typography variant="body2" className="text-gray-600 dark:text-white/70">
-                      {request.stylist?.email || "No email"}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Stack spacing={1.5}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <EventIcon fontSize="small" color="action" />
-                      <Typography variant="body2">
-                        {format(new Date(request.startDate), "MMM dd")} -{" "}
-                        {format(new Date(request.endDate), "MMM dd, yyyy")}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <AccessTimeIcon fontSize="small" color="action" />
-                      <Typography variant="body2">
-                        {differenceInDays(
-                          new Date(request.endDate),
-                          new Date(request.startDate)
-                        ) + 1}{" "}
-                        days
-                      </Typography>
-                    </Box>
+                    </Typography>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        p: 1.5,
-                        borderRadius: "8px",
+                      className="text-gray-600 dark:text-white/70"
+                    >
+                      {request.stylist?.email || "No email"}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Stack spacing={1.5}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <EventIcon fontSize="small" color="action" />
+                    <Typography variant="body2">
+                      {format(new Date(request.startDate), "MMM dd")} -{" "}
+                      {format(new Date(request.endDate), "MMM dd, yyyy")}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <AccessTimeIcon fontSize="small" color="action" />
+                    <Typography variant="body2">
+                      {differenceInDays(
+                        new Date(request.endDate),
+                        new Date(request.startDate)
+                      ) + 1}{" "}
+                      days
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      p: 1.5,
+                      borderRadius: "8px",
                       bgcolor:
                         theme.palette.mode === "dark"
                           ? alpha(theme.palette.grey[800], 0.5)
                           : theme.palette.grey[50],
-                      }}
-                    >
+                    }}
+                    className="text-gray-800 dark:text-white/90 dark:bg-transparent border border-gray-200 dark:border-gray-800"
+                  >
                     {request.reason || "No reason provided"}
-                    </Typography>
+                  </Typography>
                   {request.image && (
                     <Box sx={{ mt: 1.5 }}>
                       <Typography
@@ -659,30 +688,30 @@ const LeaveManagement = (): ReactElement => {
                       />
                     </Box>
                   )}
-                  </Stack>
-                </CardContent>
-                <Divider />
-                <CardActions sx={{ justifyContent: "flex-end", gap: 1, p: 2 }}>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => handleReject(request._id)}
-                    startIcon={<CancelIcon />}
+                </Stack>
+              </CardContent>
+              <Divider />
+              <CardActions sx={{ justifyContent: "flex-end", gap: 1, p: 2 }}>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => handleReject(request._id)}
+                  startIcon={<CancelIcon />}
                   className="text-gray-800 dark:text-white/90"
-                  >
-                    Reject
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleApprove(request._id)}
-                    startIcon={<CheckCircleIcon />}
+                >
+                  Reject
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleApprove(request._id)}
+                  startIcon={<CheckCircleIcon />}
                   className="text-white dark:text-white/90"
-                  >
-                    Approve
-                  </Button>
-                </CardActions>
-              </Card>
+                >
+                  Approve
+                </Button>
+              </CardActions>
+            </Card>
           ))}
         </Stack>
       </Box>
@@ -759,7 +788,9 @@ const LeaveManagement = (): ReactElement => {
           <Grid item xs={12} md={8}>
             <Card className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
               {/* Calendar Header */}
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
+              <Box
+                sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}
+              >
                 <Box
                   sx={{
                     display: "flex",
@@ -767,7 +798,10 @@ const LeaveManagement = (): ReactElement => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Typography variant="h6" className="text-gray-800 dark:text-white/90">
+                  <Typography
+                    variant="h6"
+                    className="text-gray-800 dark:text-white/90"
+                  >
                     Calendar View
                   </Typography>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -778,8 +812,12 @@ const LeaveManagement = (): ReactElement => {
                     >
                       <ChevronLeftIcon fontSize="small" />
                     </IconButton>
-                    <Typography variant="body2" className="min-w-[120px] text-center text-gray-800 dark:text-white/90">
-                      {format(weekStart, "d MMM")} - {format(weekEnd, "d MMM yyyy")}
+                    <Typography
+                      variant="body2"
+                      className="min-w-[120px] text-center text-gray-800 dark:text-white/90"
+                    >
+                      {format(weekStart, "d MMM")} -{" "}
+                      {format(weekEnd, "d MMM yyyy")}
                     </Typography>
                     <IconButton
                       size="small"
@@ -808,6 +846,7 @@ const LeaveManagement = (): ReactElement => {
                       borderRight: `1px solid ${theme.palette.divider}`,
                       bgcolor: theme.palette.background.paper,
                     }}
+                    className="dark:bg-transparent dark:text-white"
                   >
                     {/* Staff Header */}
                     <Box
@@ -820,8 +859,13 @@ const LeaveManagement = (): ReactElement => {
                             ? alpha(theme.palette.grey[800], 0.5)
                             : theme.palette.grey[50],
                       }}
+                      className="dark:bg-transparent dark:text-white"
                     >
-                      <Typography variant="subtitle2" color="text.secondary">
+                      <Typography
+                        variant="subtitle2"
+                        color="text.secondary"
+                        className="dark:text-white/90 dark:bg-transparent"
+                      >
                         Staff
                       </Typography>
                     </Box>
@@ -882,6 +926,7 @@ const LeaveManagement = (): ReactElement => {
                             ? alpha(theme.palette.grey[800], 0.5)
                             : theme.palette.grey[50],
                       }}
+                      className="dark:text-white/90 dark:bg-transparent"
                     >
                       <Grid container sx={{ height: "100%" }}>
                         {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
@@ -895,12 +940,14 @@ const LeaveManagement = (): ReactElement => {
                                   display: "flex",
                                   flexDirection: "column",
                                   justifyContent: "center",
+                                  borderLeft: `1px solid ${theme.palette.divider}`,
                                 }}
                               >
                                 <Typography
                                   variant="caption"
                                   color="text.secondary"
                                   display="block"
+                                  className="dark:text-white/90 dark:bg-transparent"
                                 >
                                   {dayName}
                                 </Typography>
@@ -908,10 +955,10 @@ const LeaveManagement = (): ReactElement => {
                                   {format(days[i], "d")}
                                 </Typography>
                               </Box>
-          </Grid>
+                            </Grid>
                           )
                         )}
-        </Grid>
+                      </Grid>
                     </Box>
 
                     {/* Calendar Cells */}
