@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
+import { toast, ToastContainer } from "react-toastify";
 
 type Review = {
   _id: string;
@@ -23,16 +23,8 @@ export default function ClientTestimonials({ stylist }: Props) {
   const [totalReviews, setTotalReviews] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("info");
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
-
-
 
   const config = {
     headers: {
@@ -77,7 +69,10 @@ export default function ClientTestimonials({ stylist }: Props) {
   const handleDelete = async () => {
     setShowDeleteConfirm(false);
     try {
-      await axios.delete(`${api_address}/api/reviews/${reviewToDelete}/admin`, config);
+      await axios.delete(
+        `${api_address}/api/reviews/${reviewToDelete}/admin`,
+        config
+      );
       // Remove the deleted review from the state
       setReviews((prev) => prev.filter((r) => r._id !== reviewToDelete));
       setTotalReviews((prev) => prev - 1);
@@ -88,17 +83,11 @@ export default function ClientTestimonials({ stylist }: Props) {
             remaining.length
           : 0;
       setAverageRating(avg);
-      setTitle("Deleted");
-      setMessage("Review deleted successfully.");
-      setVariant("success");
+      toast.success("Review deleted successfully.");
     } catch (err) {
       console.error("Failed to delete review:", err);
-      setTitle("Error");
-      setMessage("Failed to delete review.");
-      setVariant("error");
+      toast.error("Failed to delete review.");
     }
-    setShowAlert(true);
-    setTimeout(() => setShowAlert(false), 3000);
   };
 
   if (isLoading) return <p className="text-gray-500">Loading reviews...</p>;
@@ -112,11 +101,6 @@ export default function ClientTestimonials({ stylist }: Props) {
         <div className="space-y-4">
           {/* Summary */}
           <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            {showAlert && (
-              <div className="mb-5">
-                <Alert variant={variant} title={title} message={message} />
-              </div>
-            )}
             <h5 className="text-md font-semibold mb-1 text-gray-800 dark:text-white">
               Summary
             </h5>
@@ -149,11 +133,12 @@ export default function ClientTestimonials({ stylist }: Props) {
                   </p>
                   <p className="text-xs text-gray-500 mt-1">{review.text}</p>
                   <Button
-                  className="mt-2 w-full"
-                  size="sm"
-                  type='danger'
-                  onClick={() => confirmDeleteReview(review._id)}
-                  >Delete
+                    className="mt-2 w-full"
+                    size="sm"
+                    type="danger"
+                    onClick={() => confirmDeleteReview(review._id)}
+                  >
+                    Delete
                   </Button>
                 </div>
               ))}
@@ -162,38 +147,39 @@ export default function ClientTestimonials({ stylist }: Props) {
         </div>
 
         <Modal
-                  isOpen={showDeleteConfirm}
-                  onClose={() => setShowDeleteConfirm(false)}
-                  className="max-w-md p-6"
-                >
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-800 mb-4 dark:text-white">
-                      Confirm Delete
-                    </h4>
-                    <p className="text-sm text-gray-600 mb-6 dark:text-white">
-                      Are you sure you want to delete this review? This action cannot be
-                      undone.
-                    </p>
-                    <div className="flex justify-end gap-3">
-                      <Button
-                      variant="outline"
-                      size="sm"
-                        onClick={() => setShowDeleteConfirm(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        type="danger"
-                        onClick={() => handleDelete()}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </Modal>
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          className="max-w-md p-6"
+        >
+          <div>
+            <h4 className="text-lg font-semibold text-gray-800 mb-4 dark:text-white">
+              Confirm Delete
+            </h4>
+            <p className="text-sm text-gray-600 mb-6 dark:text-white">
+              Are you sure you want to delete this review? This action cannot be
+              undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                type="danger"
+                onClick={() => handleDelete()}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </div>
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 }

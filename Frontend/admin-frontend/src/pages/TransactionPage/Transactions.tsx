@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import Alert from "../../components/ui/alert/Alert";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
@@ -604,11 +603,7 @@ const CustomerModal: React.FC<ModalProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-3 mt-6 mb-2 sm:justify-end">
-          <Button
-            onClick={closeModal}
-            type="neutral"
-            size="sm"
-          >
+          <Button onClick={closeModal} type="neutral" size="sm">
             Cancel
           </Button>
           <Button size="sm" onClick={handleSave}>
