@@ -436,6 +436,9 @@ const CustomerModal: React.FC<ModalProps> = ({
                       new Date(e.target.value).getHours() + 8
                     )
                   );
+                  if (isNaN(date.getTime())) {
+                    throw new Error("Invalid date format");
+                  }
                   setServiceRateData({
                     ...serviceRateData,
                     endDate: date,
