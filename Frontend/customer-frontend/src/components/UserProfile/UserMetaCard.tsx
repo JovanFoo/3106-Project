@@ -5,6 +5,8 @@ import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import { useState } from "react";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
@@ -13,7 +15,6 @@ export default function UserMetaCard() {
   const [username, setUsername] = useState("");
   const [newProfilePic, setNewProfilePic] = useState(null);
   const [profilepic, setProfilepic] = useState("");
-  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
 
   useEffect(() => {
     console.log("activated");
@@ -27,7 +28,7 @@ export default function UserMetaCard() {
 
         try {
           const response = await fetch(
-            `http://localhost:3000/api/customers/${user.customer._id}`,
+            `${API_URL}/api/customers/${user.customer._id}`,
             {
               method: "GET",
               headers: {
@@ -45,7 +46,6 @@ export default function UserMetaCard() {
           setfirstName(data.name);
           setEmail(data.email);
           setProfilepic(data.profilePicture);
-          setLoyaltyPoints(data.loyaltyPoints);
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -56,20 +56,37 @@ export default function UserMetaCard() {
   }, []);
 
   const handleSave = async () => {
-    // Handle save logic here
+    // Check if email or username is already taken
+    const isEmailTaken = await handleEmailCheck(email);
+    const isUsernameTaken = await handleUsernameCheck(username);
+
+    if (isEmailTaken) {
+      closeModal();
+      toast.error("Email is already in use");
+    }
+
+    if (isUsernameTaken) {
+      closeModal();
+      toast.error("Username is already in use");
+    }
+
+    // Handle saving logic after validation
     console.log("Saving changes...");
     const userData = localStorage.getItem("user");
+    console.log("WTF");
     if (userData) {
       const user = JSON.parse(userData);
+      const token = user.tokens.token;
       console.log(profilepic);
+
       try {
         const response = await fetch(
-          `http://localhost:3000/api/customers/${user.customer._id}`,
+          `${API_URL}/api/customers/${user.customer._id}`,
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `${user.tokens.token}`, // Send token for authorization
+              Authorization: token,
             },
             body: JSON.stringify({
               name: firstName,
@@ -94,6 +111,70 @@ export default function UserMetaCard() {
     }
   };
 
+  const handleEmailCheck = async (email: string) => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const user = JSON.parse(userData);
+      const token = user.tokens.token;
+      try {
+        const response = await fetch(
+          `${API_URL}/api/customers/email/${email}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const customer = await response.json();
+          console.log("Customer found by email:", customer);
+          return true; // email is already taken
+        } else {
+          return false; // email is available
+        }
+      } catch (error) {
+        console.error("Error checking email:", error);
+        return true; // error case, assume email is already taken (prevent changes)
+      }
+    }
+    return false; // if no userData in localStorage
+  };
+
+  const handleUsernameCheck = async (username: string) => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const user = JSON.parse(userData);
+      const token = user.tokens.token;
+      try {
+        const response = await fetch(
+          `${API_URL}/api/customers/username/${username}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const customer = await response.json();
+          console.log("Customer found by username:", customer);
+          return true; // username is already taken
+        } else {
+          return false; // username is available
+        }
+      } catch (error) {
+        console.error("Error checking username:", error);
+        return false; // error case, assume username has already been taken (prevent changes)
+      }
+    }
+    return false; // if no userData in localStorage
+  };
+
   return (
     <>
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -107,17 +188,9 @@ export default function UserMetaCard() {
             </div>
 
             <div className="order-3 xl:order-2">
-              <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
+              <h2 className=" text-xl font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
                 {firstName}
-              </h4>
-            </div>
-            <div className="mt-4 border border-blue-300 dark:border-blue-700 rounded-lg p-3 bg-blue-50 dark:bg-blue-900/30">
-              <h5 className="text-sm font-medium text-gray-700 dark:text-blue-100">
-                Loyalty Points:
-              </h5>
-              <div className="text-sm font-semibold text-blue-600 dark:text-blue-300 mt-1">
-                {loyaltyPoints} Points
-              </div>
+              </h2>
             </div>
           </div>
 
