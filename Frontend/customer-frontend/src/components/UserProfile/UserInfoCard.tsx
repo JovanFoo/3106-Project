@@ -56,7 +56,7 @@ export default function UserInfoCard() {
       const user = JSON.parse(userData);
       try {
         const response = await fetch(
-          `http://localhost:3000/api/customers/${user.customer._id}`,
+          `${API_URL}/api/customers/${user.customer._id}`,
           {
             method: "PUT",
             headers: {
@@ -106,7 +106,7 @@ export default function UserInfoCard() {
       const user = JSON.parse(userData);
       try {
         const response = await fetch(
-          `http://localhost:3000/api/customers/${user.customer._id}/updatepassword`,
+          `${API_URL}/api/customers/${user.customer._id}/updatepassword`,
           {
             method: "PUT",
             headers: {
@@ -176,7 +176,7 @@ export default function UserInfoCard() {
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-start space-y-2 w-full max-w-xs">
+        {/* <div className="flex flex-col items-start space-y-2 w-full max-w-xs">
           <button
             onClick={openModal}
             className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -220,141 +220,9 @@ export default function UserInfoCard() {
             </svg>
             Change Password
           </button>
-        </div>
+        </div> */}
       </div>
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-        <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-          <div className="px-2 pr-14">
-            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Personal Information
-            </h4>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details to keep your profile up-to-date.
-            </p>
-          </div>
-          <form className="flex flex-col">
-            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              <div className="mt-7">
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Personal Information
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input
-                      type="text"
-                      value={firstName}
-                      onChange={(e) => {
-                        setfirstName(e.target.value);
-                        // console.log(firstName);
-                      }}
-                    />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Email Address</Label>
-                    <Input
-                      type="text"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                      }}
-                    />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Username</Label>
-                    <Input
-                      type="text"
-                      value={username}
-                      onChange={(e) => {
-                        setUsername(e.target.value);
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
-              </Button>
-              <Button size="sm" onClick={handleSave}>
-                Save Changes
-              </Button>
-            </div>
-          </form>
-        </div>
-      </Modal>
-      <div>
-        {/* Modal */}
-        {isOpen2 && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-xl w-96">
-              <h4 className="text-center text-xl font-semibold mb-4">
-                Change Password
-              </h4>
-
-              {/* Success or error messages */}
-              {message && (
-                <p className="text-green-600 text-center">{message}</p>
-              )}
-              {error && <p className="text-red-600 text-center">{error}</p>}
-
-              <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label
-                    htmlFor="newPassword"
-                    className="block text-gray-700 font-medium mb-2"
-                  >
-                    New Password
-                  </label>
-                  <input
-                    type="password"
-                    className="form-control w-full p-3 border border-gray-300 rounded-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 hover:border-blue-500"
-                    id="newPassword"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-gray-700 font-medium mb-2"
-                  >
-                    Confirm New Password
-                  </label>
-                  <input
-                    type="password"
-                    className="form-control w-full p-3 border border-gray-300 rounded-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 hover:border-blue-500"
-                    id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-blue-500 text-white rounded-md font-medium shadow-md hover:bg-blue-600 transform hover:scale-105 transition-all duration-300 focus:outline-none"
-                >
-                  Change Password
-                </button>
-              </form>
-
-              <button
-                onClick={toggleModal}
-                className="w-full mt-4 py-2 bg-gray-300 text-gray-700 rounded-md font-medium shadow-sm hover:bg-gray-400 transform hover:scale-105 transition-all duration-300"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      {/*  */}
     </div>
   );
 }
