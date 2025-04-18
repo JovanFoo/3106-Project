@@ -86,6 +86,7 @@ const AuthMiddleware = {
     )
       return res.status(401).json({ message: "Unauthorized" });
     req.userId = decoded.values.userId;
+    req.userType = decoded.values.type;
     next();
   },
   // Multiple Auth Middleware
