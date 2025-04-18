@@ -34,7 +34,9 @@ const AuthController = {
         return res.status(200).json({ customer, tokens: tokens });
       }
     }
-    return res.status(400).json({ message: "Invalid username or password" });
+    return res
+      .status(400)
+      .json({ message: "Invalid username or password. Please try again." });
   },
 
   async registerCustomer(req, res) {
@@ -52,18 +54,25 @@ const AuthController = {
     try {
       let customer = await Customer.findOne({ username: username });
       if (customer) {
-        return res.status(400).json({ message: "Username already exists" });
+        return res
+          .status(400)
+          .json({ message: "Username has already been taken." });
       }
       customer = await Customer.findOne({ email: email });
       if (customer) {
-        return res.status(400).json({ message: "Email already exists" });
+        return res.status(400).json({ message: "Email is already in use." });
       }
       await newCustomer.save();
       newCustomer.password = undefined;
-      return res.status(201).json(newCustomer);
+      console.log("Registered customer:");
+      console.log(newCustomer);
+
+      const tokens = jwt.generateCustomerToken(newCustomer._id);
+
+      return res.status(201).json({ customer: newCustomer, tokens: tokens });
     } catch (error) {
       console.log(error.message);
-      return res.status(400).json({ message: "Error creating user" });
+      return res.status(400).json({ message: "Error creating user." });
     }
   },
 
@@ -71,12 +80,14 @@ const AuthController = {
     console.log("AuthController > reset customer password");
     const { email } = req.body;
     const customer = await Customer.findOne({ email: email });
+    console.log(customer);
     if (customer) {
       const result = await resetPassword(
         email,
         customer.name,
         jwt.generateCustomerResetToken(customer._id)
       );
+      console.log(result);
       if (!result) {
         return res.status(400).json({ message: "Error sending email" });
       }

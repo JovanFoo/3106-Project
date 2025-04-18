@@ -7,11 +7,7 @@ import { EventInput, DateSelectArg, EventClickArg } from "@fullcalendar/core";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
 import PageMeta from "../components/common/PageMeta";
-import BasicTableOne from "../components/tables/BasicTables/BasicTableOne";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
-import ComponentCard from "../components/common/ComponentCard";
-import Button from "../components/ui/button/Button";
-import ApptTable from "./Tables/ApptTable";
 const API_URL = import.meta.env.VITE_API_URL;
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -43,7 +39,10 @@ const Calendar: React.FC = () => {
   const [request, setRequest] = useState("");
   const [service, setService] = useState("");
   const [services, setServices] = useState<
-    { _id: string; name: string; serviceRate: Number; duration: Number }[]
+    { _id: string; name: string; serviceRate: number; duration: number }[]
+  >([]);
+  const [allServices, setAllServices] = useState<
+    { _id: string; name: string; serviceRate: number; duration: number }[]
   >([]);
   const [branch, setBranch] = useState("");
   const [branches, setBranches] = useState<{ _id: string; location: string }[]>(
@@ -85,33 +84,40 @@ const Calendar: React.FC = () => {
     fetchAppointments();
     // fetchStylists();
     fetchBranches();
-    fetchServices(new Date()); //to allow initial rendering of appointment service types on calendar
-    // MIGHT BREAK THE SERVICE RATE CALCULATION //
+    initialServiceFetch(); // fetch EVERY SINGLE service, regardless of date
+    // fetchServices(new Date()); //to allow initial rendering of appointment service types on calendar
 
-    async function getuserdetails() {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      try {
-        const response = await fetch(
-          `http://localhost:3000/api/customers/${storedUser.customer._id}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `${storedUser.tokens.token}`,
-            },
-          }
-        );
-        const data = await response.json();
-        console.log(data);
-        setUserLoyaltyPoints(data.loyaltyPoints);
-        if (!response.ok) {
+    async function getUserDetails() {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const customer = JSON.parse(userData);
+        const customerId = customer.customer._id;
+        const token = customer.tokens.token;
+        try {
+          const response = await fetch(
+            `${API_URL}/api/customers/${customerId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json", // added this
+                Authorization: token,
+              },
+            }
+          );
+          const data = await response.json();
           console.log(data);
+          setUserLoyaltyPoints(data.loyaltyPoints);
+          if (!response.ok) {
+            console.log(data);
+          }
+        } catch (error) {
+          console.error("Error fetching branches:", error);
         }
-      } catch (error) {
-        console.error("Error fetching branches:", error);
       }
     }
-    getuserdetails();
+    getUserDetails();
   }, []);
+
   // to re-get the list of available times if any of the values change
   useEffect(() => {
     if (apptStartDate && branch && service && stylist) {
@@ -124,7 +130,7 @@ const Calendar: React.FC = () => {
 
   //fetch appt all details
   useEffect(() => {
-    async function fetchapptdetails() {
+    async function fetchApptDetails() {
       const userData = localStorage.getItem("user");
       if (userData) {
         const customer = JSON.parse(userData);
@@ -155,7 +161,7 @@ const Calendar: React.FC = () => {
         }
       }
     }
-    fetchapptdetails();
+    fetchApptDetails();
   }, []);
 
   // get list of all available branches
@@ -182,6 +188,29 @@ const Calendar: React.FC = () => {
       }
     }
   };
+  const initialServiceFetch = async () => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.tokens.token;
+      try {
+        const response = await fetch(
+          `${API_URL}/api/services`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch services");
+        const data = await response.json();
+        // console.log(data, "initial");
+        setAllServices(data);
+      } catch {}
+    }
+  };
   // get a list of all services and their prices for dropdown
   const fetchServices = async (date: Date) => {
     const userData = localStorage.getItem("user");
@@ -194,7 +223,7 @@ const Calendar: React.FC = () => {
         const day = date.getDay();
         // Edit Back to endpoint URL
         const response = await fetch(
-          `http://localhost:3000/api/services?year=${year}&month=${month}&day=${day}`,
+          `${API_URL}/api/services?year=${year}&month=${month}&day=${day}`,
           // `${API_URL}/api/services?year=${year}&month=${month}&day=${day}`,
           {
             method: "GET",
@@ -264,7 +293,8 @@ const Calendar: React.FC = () => {
 
         const data = await response.json();
         // const test = data.map((appointment: any) => {
-        //   console.log(appointment)
+        //   console.log("Appointment:");
+        //   console.log(appointment);
         // });
 
         const formattedAppointments = data
@@ -288,7 +318,7 @@ const Calendar: React.FC = () => {
 
         setAppts(formattedAppointments);
       } catch (error) {
-        console.error("Error  fetching appointments:", error);
+        console.error("Error fetching appointments:", error);
       }
     }
   };
@@ -371,7 +401,7 @@ const Calendar: React.FC = () => {
     await fetchServices(date);
     await fetchStylists(appt.extendedProps.branch);
 
-    const serviceObj = services.find(
+    const serviceObj = allServices.find(
       (s) => s._id === appt.extendedProps.service
     );
 
@@ -497,6 +527,23 @@ const Calendar: React.FC = () => {
 
     // get the selected date time
     const dateTime = selectedTimeSlot?.startTime;
+
+    if (!dateTime) {
+      toast.error("Invalid Time Slot: handleAddOrUpdateEvent");
+      closeModal();
+      resetModalFields();
+      return;
+    }
+
+    // check if selected dateTime is in the past
+    if (new Date(dateTime) < new Date()) {
+      toast.error(
+        "You cannot book an appointment in the past. Please try again."
+      );
+      closeModal();
+      resetModalFields();
+      return;
+    }
 
     if (selectedEvent) {
       // Edit appointment
@@ -661,7 +708,7 @@ const Calendar: React.FC = () => {
   const renderEventContent = (eventInfo: any) => {
     // // map serviceId(in extendedProps) to service name in services list (got from backend)
     const getServiceName = (serviceId: string) => {
-      const serviceObj = services.find((s) => s._id === serviceId);
+      const serviceObj = allServices.find((s) => s._id === serviceId);
       return serviceObj ? serviceObj.name : "Unknown Service";
     };
     return (
@@ -682,13 +729,37 @@ const Calendar: React.FC = () => {
   // console.log(Array.isArray(apptsalldetails)); // should be true
   // console.log(apptsalldetails);
 
+  // const today = new Date().toISOString().split("T")[0]; // to restrict dynamically to only today or dates in the future
+
+  // const maxDateObj = new Date();
+  // maxDateObj.setDate(maxDateObj.getDate() + 90);
+  // const maxDate = maxDateObj.toISOString().split("T")[0]; // to restrict dynamically to dates within 90 days
+
+  // const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const selectedDate = e.target.value;
+
+  //   if (selectedDate < today || selectedDate > maxDate) {
+  //     alert(
+  //       `Please select a date between ${new Date().toLocaleDateString()} and ${maxDateObj.toLocaleDateString()}.`
+  //     );
+  //     return;
+  //   }
+
+  //   setApptStartDate(selectedDate);
+  //   fetchServices(new Date(selectedDate));
+
+  //   // previous inside the Input for the date, it was:
+  //   // setApptStartDate(e.target.value);
+  //   // fetchServices(new Date(e.target.value));
+  // };
+
   return (
     <>
       <PageMeta
-        title="Customer | Appointments"
-        description="View Customer Appointments"
+        title="BuzzBook - Book Appointments"
+        description="BuzzBook - Book Appointments"
       />
-      <PageBreadcrumb pageTitle="Appointments" />
+      <PageBreadcrumb pageTitle="Book Appointments" />
       <div className="rounded-2xl border  border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="custom-calendar">
           <FullCalendar
@@ -722,13 +793,11 @@ const Calendar: React.FC = () => {
           <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
             <div>
               <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                {selectedEvent ? "Edit Appointment" : "Add Appointment"}
+                {selectedEvent ? "Edit Appointment" : "Book Appointment"}
               </h5>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Book an Appointment Now!
-              </p>
             </div>
-            <div className="mt-8">
+            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-6">
+              {/* Enter Date */}
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   Enter Date
@@ -742,12 +811,14 @@ const Calendar: React.FC = () => {
                       setApptStartDate(e.target.value);
                       fetchServices(new Date(e.target.value));
                     }}
-                    className={`dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800`}
+                    className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     required
                   />
                 </div>
               </div>
-              <div className="mt-6">
+
+              {/* Select Branch */}
+              <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   Select Branch
                 </label>
@@ -766,7 +837,9 @@ const Calendar: React.FC = () => {
                   ))}
                 </select>
               </div>
-              <div className="mt-6">
+
+              {/* Stylist */}
+              <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   Stylist
                 </label>
@@ -788,7 +861,9 @@ const Calendar: React.FC = () => {
                   ))}
                 </select>
               </div>
-              <div className="mt-6">
+
+              {/* Service */}
+              <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   Service
                 </label>
@@ -806,12 +881,13 @@ const Calendar: React.FC = () => {
                   {services.map((s) => (
                     <option key={s._id} value={s._id}>
                       {s.name} (${s.serviceRate.toString()})
-                      {/* display service name, save service value as name also */}
                     </option>
                   ))}
                 </select>
               </div>
-              <div className="mt-6">
+            </div>
+            <div className="mt-8">
+              <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   Time Slot
                 </label>
@@ -877,8 +953,9 @@ const Calendar: React.FC = () => {
                       htmlFor="points-slider"
                       className="block text-sm text-gray-700 dark:text-gray-400"
                     >
-                      Points to use: <strong>{useLoyaltyPoints}</strong> /{" "}
-                      {userLoyaltyPoints + editpointsused}
+                      Points to use:{" "}
+                      <strong>{useLoyaltyPoints.toFixed(2)}</strong> /{" "}
+                      {(userLoyaltyPoints + editpointsused).toFixed(2)}
                     </label>
                     <input
                       id="points-slider"
@@ -896,14 +973,10 @@ const Calendar: React.FC = () => {
                 )}
               </div>
               {service && (
-                <div className="mt-6">
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Total Price
-                  </label>
-                  <div className="text-md text-gray-800 dark:text-white/90">
-                    ${servicePrice}
+                <div className="mt-4 text-right">
+                  <div className="text-md font-semibold text-gray-700 dark:text-gray-400">
+                    Total Price ${servicePrice}
                   </div>
-
                   {useLoyaltyPoints > 0 && (
                     <>
                       <div className="mt-2 text-sm text-gray-700 dark:text-gray-400">
@@ -979,11 +1052,11 @@ const Calendar: React.FC = () => {
           </div>
         </Modal>
       </div>
-      <div className="mt-8">
+      {/* <div className="mt-8">
         <ComponentCard title="Appointments">
           <ApptTable appointment={apptsalldetails} />
         </ComponentCard>
-      </div>
+      </div> */}
     </>
   );
 };

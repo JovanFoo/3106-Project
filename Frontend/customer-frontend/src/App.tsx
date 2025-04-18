@@ -12,26 +12,25 @@ import Buttons from "./pages/UiElements/Buttons";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
-import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
-import BasicTables2 from "./pages/Tables/BasicTables2";
+import BasicTables from "./pages/Tables/BasicTables";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
-import Home from "./pages/Dashboard/Home";
 import { Navigate } from "react-router";
 import ReviewsList from "./pages/ReviewsList";
-import { ToastContainer, toast } from "react-toastify"; // Import ToastContainer and toast
 import "react-toastify/dist/ReactToastify.css";
+import ResetPassword from "./components/auth/resetpassword";
+import PastApptsPage from "./pages/PastApptsPage";
 
-const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
-const config = {
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-  },
-};
+// const config = {
+//   headers: {
+//     "Access-Control-Allow-Origin": "*",
+//     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+//   },
+// };
 
 export default function App() {
   return (
@@ -42,12 +41,14 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
+            {/* Re-routing, front page as /appointments */}
             <Route index path="/" element={<Navigate to="/signin" />} />
-            <Route path="/home" element={<Home />} />
+            <Route index path="/home" element={<Navigate to="/appointments" />} />
 
             {/* Others Page */}
+            <Route path="/appointments" element={<Calendar />} />
+            <Route path="/viewappointments" element={<PastApptsPage />} />
             <Route path="/profile" element={<UserProfiles />} />
-            <Route path="appointments" element={<Calendar />} />
             <Route path="/reviews" element={<ReviewsList />} />
             <Route path="/blank" element={<Blank />} />
 
@@ -55,8 +56,7 @@ export default function App() {
             <Route path="/form-elements" element={<FormElements />} />
 
             {/* Tables */}
-            <Route path="/past-appointments" element={<BasicTables />} />
-            <Route path="/allstylists" element={<BasicTables2 />} />
+            <Route path="/allstylists" element={<BasicTables />} />
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />
@@ -77,6 +77,7 @@ export default function App() {
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
         </Routes>
       </Router>
     </>

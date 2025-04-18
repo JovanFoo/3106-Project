@@ -5,7 +5,7 @@ const AuthMiddleware = {
   async authCustomerToken(req, res, next) {
     console.log("AuthMiddleware > only Customer can access");
     token = req.headers["authorization"];
-    console.log(token);
+    // console.log(token);
     if (token == null) return res.status(401).json({ message: "Unauthorized" });
     decoded = jwt.decodeToken(token);
     if (!decoded.status)
@@ -34,13 +34,27 @@ const AuthMiddleware = {
   // Middleware to check if the user is Stylist Manager
   async authStylistManagerToken(req, res, next) {
     console.log("AuthMiddleware > only Stylist Manager can access");
-    token = req.headers["authorization"];
-    if (token == null) return res.status(401).json({ message: "Unauthorized" });
-    decoded = jwt.decodeToken(token);
-    if (!decoded.status)
+    const token = req.headers["authorization"];
+    // console.log("Received token:", token);
+    if (!token) {
+      // console.log("No token provided");
       return res.status(401).json({ message: "Unauthorized" });
-    if (decoded.values.type != "StylistManager")
+    }
+
+    const decoded = jwt.decodeToken(token);
+    // console.log("Decoded token result:", decoded);
+
+    if (!decoded.status) {
+      // console.log("Token validation failed");
       return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (decoded.values.type !== "StylistManager") {
+      // console.log("User is not a StylistManager:", decoded.values.type);
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // console.log("User is authorized as StylistManager");
     req.userId = decoded.values.userId;
     next();
   },
@@ -124,7 +138,7 @@ const AuthMiddleware = {
       decoded.values.type != "Admin" &&
       decoded.values.type != "StylistManager"
     ) {
-      console.log(decoded);
+      // console.log(decoded);
       return res.status(401).json({ message: "Unauthorized" });
     }
     req.userId = decoded.values.userId;

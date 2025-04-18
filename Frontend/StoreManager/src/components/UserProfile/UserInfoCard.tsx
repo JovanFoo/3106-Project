@@ -1,6 +1,5 @@
 import { useUser } from "../../context/UserContext";
-import { AlertType } from "../../pages/UserProfiles";
-export default function UserInfoCard(alert: AlertType) {
+export default function UserInfoCard() {
   const user = useUser();
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">

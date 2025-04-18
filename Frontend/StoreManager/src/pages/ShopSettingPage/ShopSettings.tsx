@@ -1,0 +1,264 @@
+import axios, { AxiosResponse } from "axios";
+import { useEffect, useState } from "react";
+import "react-clock/dist/Clock.css";
+import { Navigate } from "react-router-dom";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
+import { toast, ToastContainer } from "react-toastify";
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import PageMeta from "../../components/common/PageMeta";
+import Button from "../../components/ui/button/Button";
+import { Modal } from "../../components/ui/modal";
+import { useUser } from "../../context/UserContext";
+import { useModal } from "../../hooks/useModal";
+
+
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+
+const openingHours = [
+  "08:00 AM",
+  "09:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "12:00 PM",
+  "01:00 PM",
+  "02:00 PM",
+  "03:00 PM",
+  "04:00 PM",
+  "05:00 PM",
+  "06:00 PM",
+  "07:00 PM",
+  "08:00 PM",
+  "09:00 PM",
+];
+
+type Shop = {
+  _id: string;
+  location: string;
+  phoneNumber: string;
+  weekdayOpeningTime: string;
+  weekdayClosingTime: string;
+  weekendOpeningTime: string;
+  weekendClosingTime: string;
+  holidayOpeningTime: string;
+  holidayClosingTime: string;
+};
+
+export default function ShopSettings() {
+  const user = useUser();
+  if (user.role != "Manager") {
+    return <Navigate to="/" />;
+  }
+  const { isOpen, openModal, closeModal } = useModal();
+  const config = {
+    headers: {
+      Authorization: sessionStorage.getItem("token"),
+    },
+  };
+
+  const [shopData, setShopData] = useState<Shop | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const stylistId = sessionStorage.getItem("stylistId");
+    if (!stylistId || isLoading) return;
+
+    const fetchShop = async () => {
+      try {
+        setIsLoading(true);
+        const res: AxiosResponse = await axios.get(
+          `${api_address}/api/branches/shops`,
+          config
+        );
+        if (res.status === 200 && res.data) {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            setShopData(res.data[0]); // just pick the first shop
+          } else {
+            setShopData(null);
+          }
+        }
+      } catch (err) {
+        toast.error("Failed to fetch shop data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchShop();
+  }, []);
+
+  const handleOpenModal = () => {
+    openModal();
+  };
+
+  const handleSave = async () => {
+    try {
+      if (!shopData?._id) return;
+      const updated = { ...shopData };
+      await axios.put(
+        `${api_address}/api/branches/${updated._id}`,
+        updated,
+        config
+      );
+      setShopData(updated);
+      closeModal();
+      toast.success("Shop details updated.");
+    } catch (err) {
+      toast.error("Failed to update shop.");
+    }
+  };
+
+  const formatTime = (time: string): string => {
+    const date = new Date(`1970-01-01T${time}`);
+    return date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
+
+  return (
+    <div className="flex min-h-screen">
+      <div className="flex-1 p-5">
+        <PageMeta
+          title="Shop Settings"
+          description="Stylist's assigned shop details"
+        />
+        <PageBreadcrumb pageTitle="Shop Settings" />
+
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+          <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
+            My Assigned Shop
+          </h3>
+
+          {shopData ? (
+            <div className="relative p-4 border rounded-md mb-4 dark:bg-gray-800 dark:border-gray-700 dark:text-white/90">
+              <p>
+                <strong>Location:</strong> {shopData.location}
+              </p>
+              <p>
+                <strong>Phone:</strong> {shopData.phoneNumber}
+              </p>
+              <p>
+                <strong>WeekdayOpeningTime:</strong>{" "}
+                {shopData.weekdayOpeningTime}
+              </p>
+              <p>
+                <strong>WeekdayClosingTime:</strong>{" "}
+                {shopData.weekdayClosingTime}
+              </p>
+              <p>
+                <strong>WeekendOpeningTime:</strong>{" "}
+                {shopData.weekendOpeningTime}
+              </p>
+              <p>
+                <strong>WeekendClosingTime:</strong>{" "}
+                {shopData.weekendClosingTime}
+              </p>
+              <p>
+                <strong>Public Holiday Opening Time:</strong>{" "}
+                {shopData.holidayOpeningTime}
+              </p>
+              <p>
+                <strong>Public Holiday Closing Time:</strong>{" "}
+                {shopData.holidayClosingTime}
+              </p>
+              <div className="absolute bottom-2 right-2">
+                <Button size="sm" variant="primary" onClick={handleOpenModal}>
+                  Edit
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p>No shop assigned to you.</p>
+          )}
+        </div>
+
+        <Modal
+          isOpen={isOpen}
+          onClose={closeModal}
+          className="max-w-[600px] p-6"
+        >
+          {shopData && (
+            <div className="flex flex-col px-2 py-2 overflow-y-auto">
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
+                Edit Shop
+              </h4>
+              <div className="grid grid-cols-1 gap-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={shopData.location}
+                    onChange={(e) =>
+                      setShopData({ ...shopData, location: e.target.value })
+                    }
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Phone
+                  </label>
+                  <input
+                    type="text"
+                    value={shopData.phoneNumber}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^\d{0,8}$/.test(value)) {
+                        setShopData({ ...shopData, phoneNumber: value });
+                      }
+                    }}
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white/90"
+                  />
+                </div>
+                {["weekday", "weekend", "holiday"].map((key) => (
+                  <div key={key}>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 capitalize mb-1">
+                      {key} hours
+                    </label>
+                    <div className="flex gap-2">
+                      <TimePicker
+                        onChange={(val: string | null) =>
+                          setShopData({ ...shopData, [`${key}OpeningTime`]: val || "" })
+                        }
+                        value={shopData[`${key}OpeningTime` as keyof Shop]}
+                        format="HH:mm"
+                        disableClock
+                        clearIcon={null}
+                        className="custom-time-input w-full"
+                      />
+                      <TimePicker
+                        onChange={(val: string | null) =>
+                          setShopData({ ...shopData, [`${key}ClosingTime`]: val || "" })
+                        }
+                        value={shopData[`${key}ClosingTime` as keyof Shop]}
+                        format="HH:mm"
+                        disableClock
+                        clearIcon={null}
+                        className="custom-time-input w-full"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-center mt-6">
+                <Button
+                  className="w-full"
+                  variant="primary"
+                  onClick={handleSave}
+                >
+                  Save
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
+      </div>
+      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
+    </div>
+  );
+}

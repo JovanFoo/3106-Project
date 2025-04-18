@@ -1,18 +1,16 @@
-import AnalyticsIcon from "@mui/icons-material/Analytics";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import DashboardIcon from "@mui/icons-material/Dashboard";
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import GroupsIcon from "@mui/icons-material/Groups";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import LayersIcon from "@mui/icons-material/Layers";
 import PaidIcon from "@mui/icons-material/Paid";
 import SettingsIcon from "@mui/icons-material/Settings";
 import StoreIcon from "@mui/icons-material/Store";
-import { use, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
-import { HorizontaLDots } from "../icons";
 import { useUser } from "../context/UserContext";
+import { HorizontaLDots } from "../icons";
 
 type NavItem = {
   name: string;
@@ -22,15 +20,15 @@ type NavItem = {
 };
 const AppSidebar: React.FC = () => {
   const [navItems, setNavItems] = useState<NavItem[]>([
-    {
-      icon: <DashboardIcon />,
-      name: "Dashboard",
-      path: "/",
-    },
+    // {
+    //   icon: <DashboardIcon />,
+    //   name: "Dashboard",
+    //   path: "/",
+    // },
     {
       icon: <InfoOutlinedIcon />,
       name: "Appointments",
-      path: "/appointments",
+      path: "/",
     },
     {
       icon: <CalendarMonthIcon />,
@@ -43,25 +41,14 @@ const AppSidebar: React.FC = () => {
       path: "/transactions",
     },
     {
-      name: "Manage",
-      icon: <LayersIcon />,
-      subItems: [
-        { name: "Leave Approval", path: "/leave-Management" },
-        { name: "Emergency Leave", path: "/emergency-leave", pro: false },
-        {
-          name: "Documentation Approval",
-          path: "/leave-document-approval",
-          pro: false,
-        },
-        { name: "Services", path: "/manage/services", pro: false },
-        { name: "Service rates", path: "/manage/service-rates", pro: false },
-        // { name: "Ratings & Reviews", path: "/ratings", pro: false },
-      ],
+      icon: <CalendarMonthIcon />,
+      name: "Barber Leave",
+      path: "/barber-leave",
     },
     {
-      icon: <AnalyticsIcon />,
-      name: "Analytics",
-      path: "/analytics",
+      icon: <EventAvailableIcon />,
+      name: "Leave Approval",
+      path: "/leave-Management",
     },
     {
       icon: <GroupsIcon />,
@@ -89,17 +76,20 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const isActive = useCallback(
-    (path: string) => location.pathname.startsWith(path),
+    (path: string) => location.pathname == path,
     [location.pathname]
   );
   const user = useUser();
   useEffect(() => {
     filterBasedOnRole();
+    // console.log("userrole", navItems);
   }, [user.role]);
 
   const filterBasedOnRole = () => {
+    // console.log(navItems);
+    // console.log("User role:", user.role);
     if (user.role !== "Manager") {
-      console.log("User role is not Manager, filtering nav items.");
+      console.log("User role is not StylistManager, filtering nav items.");
       setNavItems(
         navItems
           .filter((item) => {
@@ -107,6 +97,12 @@ const AppSidebar: React.FC = () => {
           })
           .filter((item) => {
             return item.name != "Shop Settings";
+          })
+          .filter((item) => {
+            return item.name != "Transactions";
+          })
+          .filter((item) => {
+            return item.name != "Leave Approval";
           })
       );
     }
@@ -128,6 +124,7 @@ const AppSidebar: React.FC = () => {
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
+    // console.log("isActive", navItems);
   }, [location, isActive]);
 
   useEffect(() => {
@@ -141,6 +138,7 @@ const AppSidebar: React.FC = () => {
         }));
       }
     }
+    // console.log("openSubmenu", navItems);
   }, [openSubmenu]);
 
   const handleSubmenuToggle = (index: number) => {
@@ -182,11 +180,18 @@ const AppSidebar: React.FC = () => {
               />
             </>
           ) : (
-            <img
-              className="w-8 h-8 object-contain"
-              src="/images/logo/LogoSide.png"
-              alt="Logo"
-            />
+            <>
+              <img
+                className="dark:hidden w-8 h-8 object-contain"
+                src="/images/logo/logobuzzbook_cropped.png"
+                alt="Logo"
+              />
+              <img
+                className="hidden dark:block w-8 h-8 object-contain brightness-0 invert"
+                src="/images/logo/logobuzzbook_cropped.png"
+                alt="Logo"
+              />
+            </>
           )}
         </Link>
       </div>

@@ -10,26 +10,25 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import AppLayout from "./layout/AppLayout";
 import ForgetPassword from "./pages/AuthPages/ForgetPassword";
 import SignIn from "./pages/AuthPages/SignIn";
-import Blank from "./pages/Blank";
+import Blank from "./pages/ExtraPages/Blank";
 // import BarChart from "./pages/Charts/BarChart";
 // import LineChart from "./pages/Charts/LineChart";
-import Home from "./pages/Dashboard/Home";
-import LeaveManagement from "./pages/LeaveManagement";
 import ServiceRates from "./pages/ManagePages/ServiceRates";
 import Service from "./pages/ManagePages/Services";
 import NotFound from "./pages/OtherPage/NotFound";
-import ChangePassword from "./pages/Settings/ChangePassword";
-import Transactions from "./pages/Transactions";
+import ChangePassword from "./pages/SettingsPage/ChangePassword";
+import Transactions from "./pages/TransactionPage/Transactions";
 // import Alerts from "./pages/UiElements/Alerts";
 // import Avatars from "./pages/UiElements/Avatars";
 // import Badges from "./pages/UiElements/Badges";
 // import Buttons from "./pages/UiElements/Buttons";
 // import Images from "./pages/UiElements/Images";
 // import Videos from "./pages/UiElements/Videos";
-import Expertise from "./pages/Expertise";
-import Shop from "./pages/Shop";
-import Stylists from "./pages/Stylists";
-import UserProfiles from "./pages/UserProfiles";
+import Expertise from "./pages/ExpertisePage/Expertise";
+import LeaveApplicationApproval from "./pages/LeaveApplicationApproval";
+import UserProfiles from "./pages/SettingsPage/UserProfiles";
+import Shop from "./pages/ShopPage/Shop";
+import Stylists from "./pages/StylistPage/Stylists";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -72,10 +71,10 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
+            <Route index path="/" element={<Stylists />} />
 
             {/* Main Page */}
-            <Route path="/stylists" element={<Stylists />} />
+            {/* <Route path="/stylists" element={<Stylists />} /> */}
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/expertise" element={<Expertise />} />
@@ -83,7 +82,7 @@ export default function App() {
             <Route path="/service-rates" element={<ServiceRates />} />
 
             {/* Leave Management Routes */}
-            <Route path="/leave-management" element={<LeaveManagement />} />
+            <Route path="/leave-management" element={<LeaveApplicationApproval />} />
 
             {/* Settings */}
             <Route

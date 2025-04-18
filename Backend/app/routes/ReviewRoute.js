@@ -7,11 +7,16 @@ const AuthMiddleware = require("../middlewares/AuthMiddleware.js");
 // Get single review
 ReviewRouter.get("/:id", ReviewController.retrieve);
 
-// Get reviews for a specific stylist
+// Get all reviews
+ReviewRouter.get("/", ReviewController.retrieveAllReviews); // could use auth too
+
+// Get reviews for a specific stylist (Customer side)
 ReviewRouter.get(
   "/stylist/:stylistId",
+  AuthMiddleware.authCustomerToken,
   ReviewController.retrieveStylistReviews
 );
+// Get reviews for a specific stylist (Admin side)
 ReviewRouter.get(
   "/:stylistId/stylistReviews",
   AuthMiddleware.authAdminOrStylistToken,
@@ -33,6 +38,12 @@ ReviewRouter.put(
   "/:id",
   AuthMiddleware.authCustomerToken,
   ReviewController.update
+);
+
+ReviewRouter.delete(
+  "/:id/admin",
+  AuthMiddleware.authAdminToken,
+  ReviewController.deleteForAdmin
 );
 
 // Delete a review

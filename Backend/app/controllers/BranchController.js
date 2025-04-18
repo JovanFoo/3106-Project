@@ -45,7 +45,9 @@ const BranchController = {
     const { id } = req.params;
 
     try {
-      const branch = await Branch.findById(id);
+      const branch = await Branch.findById(id)
+        .populate("manager", "name") // populate manager name
+        .populate("stylists", "name"); // populate stylist names
       if (!branch) {
         return res.status(404).json({ message: "Branch not found" });
       }
@@ -82,7 +84,9 @@ const BranchController = {
     console.log("BranchController > retrieveAll");
 
     try {
-      const branches = await Branch.find();
+      const branches = await Branch.find()
+        .populate("manager") // populate manager's name
+        .populate("stylists", "name"); // populate each stylist's name
       return res.status(200).json(branches);
     } catch (error) {
       console.log(error.message);
@@ -198,16 +202,37 @@ const BranchController = {
     if (!branch) {
       return res.status(400).json({ message: "Branch not found" });
     }
-    if (branch.staffs.includes(stylist._id)) {
+    if (branch.stylists.includes(stylist._id)) {
       return res
         .status(400)
         .json({ message: "Stylist already assigned to branch" });
     }
-    stylistManager.stylists.push(stylist);
-    if (!branch.staffs.includes(stylistManager._id)) {
-      branch.staffs.push(stylistManager);
+    const otherBranch = await Branch.findOne({ stylists: stylist._id });
+    if (otherBranch) {
+      if (otherBranch.manager.equals(stylist._id)) {
+        return res
+          .status(400)
+          .json({ message: "Stylist is a manager of another branch" });
+      }
+      otherBranch.stylists = otherBranch.stylists.filter(
+        (x) => !stylist._id.equals(x._id)
+      );
+      await otherBranch.save();
+      const otherManager = await Stylist.findOne({
+        _id: otherBranch.manager,
+      });
+      if (otherManager)
+        otherManager.stylists = otherManager.stylists.filter(
+          (x) => !stylist._id.equals(x._id)
+        );
+      await otherManager.save();
     }
-    branch.staffs.push(stylist);
+
+    stylistManager.stylists.push(stylist);
+    if (!branch.stylists.includes(stylistManager._id)) {
+      branch.stylists.push(stylistManager);
+    }
+    branch.stylists.push(stylist);
     await branch.save();
     await stylistManager.save();
     return res.status(200).json(branch);
@@ -229,7 +254,7 @@ const BranchController = {
     if (!branch) {
       return res.status(400).json({ message: "Branch not found" });
     }
-    branch.staffs = branch.staffs.filter((x) => !stylist._id.equals(x._id));
+    branch.stylists = branch.stylists.filter((x) => !stylist._id.equals(x._id));
     stylistManager.stylists = stylistManager.stylists.filter(
       (x) => !stylist._id.equals(x._id)
     );

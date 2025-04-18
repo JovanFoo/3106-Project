@@ -1,10 +1,13 @@
 const LeaveRequest = require("../models/LeaveRequest");
 const Stylist = require("../models/Stylist");
+const Branch = require("../models/Branch");
+const mongodb = require("./config/database.js");
+const Admin = require("../models/Admin.js");
 
 const LeaveRequestController = {
   async createLeaveRequest(req, res) {
     console.log("LeaveRequestController > create leave request");
-    const { startDate, endDate, reason } = req.body;
+    const { startDate, endDate, reason, image } = req.body;
     const { userId: stylistId } = req;
     const stylist = await Stylist.findById(stylistId);
     if (!stylist) return res.status(404).json({ message: "Stylist not found" });
@@ -13,6 +16,7 @@ const LeaveRequestController = {
       startDate,
       endDate,
       reason,
+      image,
     });
     try {
       await newLeaveRequest.save();
@@ -26,15 +30,31 @@ const LeaveRequestController = {
   },
   async getMyLeaveRequests(req, res) {
     console.log("LeaveRequestController > get my leave requests");
-    const { userId: stylistId } = req;
-    const stylist = await Stylist.findById(stylistId)
+    try {
+      const { userId: stylistId } = req;
+      const stylist = await Stylist.findById(stylistId)
+        .populate("leaveRequests")
+        .exec();
 
-      .populate("leaveRequests")
-      .exec();
-    if (!stylist) {
-      return res.status(404).json({ message: "Stylist not found" });
+      if (!stylist) {
+        return res.status(404).json({
+          success: false,
+          message: "Stylist not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: stylist.leaveRequests,
+      });
+    } catch (error) {
+      console.error("Error in getMyLeaveRequests:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Error fetching leave requests",
+        error: error.message,
+      });
     }
-    return res.status(200).json(stylist.leaveRequests);
   },
   async update(req, res) {
     console.log("LeaveRequestController > update leave request");
@@ -67,27 +87,44 @@ const LeaveRequestController = {
   },
   async delete(req, res) {
     console.log("LeaveRequestController > delete leave request");
-    const { id } = req.params;
-    const { userId: stylistId } = req;
-    const stylist = await Stylist.findById(stylistId)
-      .populate("leaveRequests")
-      .exec();
-    if (!stylist) return res.status(404).json({ message: "Stylist not found" });
-    const leaveRequest = stylist.leaveRequests.find(
-      (leaveRequest) => leaveRequest._id == id
-    );
-    if (!leaveRequest)
-      return res.status(404).json({ message: "Leave request not found" });
-    if (leaveRequest.status != "Pending")
-      return res
-        .status(400)
-        .json({ message: "Leave request is already " + leaveRequest.status });
     try {
-      await leaveRequest.remove();
-      return res.status(200).json(leaveRequest);
+      const { id } = req.params;
+      const { userId: stylistId } = req;
+
+      // Find the leave request and check if it belongs to the stylist
+      const leaveRequest = await LeaveRequest.findOne({
+        _id: id,
+        stylist: stylistId,
+        status: "Pending", // Only allow deletion of pending requests
+      });
+
+      if (!leaveRequest) {
+        return res.status(404).json({
+          success: false,
+          message: "Leave request not found or cannot be withdrawn",
+        });
+      }
+
+      // Delete the leave request
+      await LeaveRequest.deleteOne({ _id: id });
+
+      // Remove the reference from the stylist's leaveRequests array
+      await Stylist.updateOne(
+        { _id: stylistId },
+        { $pull: { leaveRequests: id } }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Leave request withdrawn successfully",
+      });
     } catch (error) {
-      console.log(error.message);
-      return res.status(400).json({ message: error.message });
+      console.error("Error in delete leave request:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Error withdrawing leave request",
+        error: error.message,
+      });
     }
   },
 
@@ -96,22 +133,56 @@ const LeaveRequestController = {
     console.log("LeaveRequestController > get leave requests");
     try {
       const { userId: managerId } = req;
+      console.log("Manager ID:", managerId);
+
       const manager = await Stylist.findById(managerId)
         .populate("stylists")
+        .populate("leaveRequests")
         .exec();
       if (!manager) {
         return res.status(404).json({ message: "Manager not found" });
       }
-      if (!(manager.stylists.length < 0)) {
-        return res.status(403).json({ message: "Not authorized" });
+      if (manager.stylists.length === 0) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized - No stylists under management" });
       }
-      manager.stylists.forEach(async (stylist) => {
-        await stylist.populate("leaveRequests").execPopulate();
-      });
 
+      // Populate leave requests for all stylists
+      await Promise.all(
+        manager.stylists.map(async (stylist) => {
+          await stylist.populate("leaveRequests");
+        })
+      );
+
+      // Only include leave requests from stylists under management, excluding manager's own requests
       const leaveRequests = manager.stylists
         .map((stylist) => stylist.leaveRequests)
+        .flat()
+        .filter((request) => request.stylist.toString() !== managerId); // Filter out manager's own requests
+
+      return res.status(200).json(leaveRequests);
+    } catch (error) {
+      console.log(error.message);
+      return res.status(400).json({ message: "Error getting leave requests" });
+    }
+  },
+  async getAllLeaveRequestsFromBranchManager(req, res) {
+    console.log("LeaveRequestController > get leave requests");
+    try {
+      const stylists = await Stylist.find().populate("leaveRequests");
+
+      if (stylists.length === 0) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized - No stylists under management" });
+      }
+
+      // Only include leave requests from stylists under management, excluding manager's own requests
+      const leaveRequests = stylists
+        .map((stylist) => stylist.leaveRequests)
         .flat();
+
       return res.status(200).json(leaveRequests);
     } catch (error) {
       console.log(error.message);
@@ -119,100 +190,299 @@ const LeaveRequestController = {
     }
   },
   async getAllPendingLeaveRequests(req, res) {
-    console.log("LeaveRequestController > get leave requests");
+    console.log("LeaveRequestController > get pending leave requests");
     try {
-      const { userId: managerId } = req;
-      const manager = await Stylist.findById(managerId)
-        .populate("stylists")
-        .exec();
-      if (!manager) {
-        return res.status(404).json({ message: "Manager not found" });
-      }
-      if (!(manager.stylists.length < 0)) {
-        return res.status(403).json({ message: "Not authorized" });
-      }
-      manager.stylists.forEach(async (stylist) => {
-        await stylist.populate("leaveRequests").execPopulate();
+      const managerId = req.user?.id || req.userId || req.body.userId;
+      console.log("Fetching manager with ID:", managerId);
+
+      const manager = await Stylist.findById(managerId).populate({
+        path: "stylists",
+        select: "_id name email profilePicture",
       });
 
-      const leaveRequests = manager.stylists
-        .map((stylist) =>
-          stylist.leaveRequests.filter(
-            (leaveRequest) => leaveRequest.status == "Pending"
-          )
-        )
-        .flat();
+      if (!manager) {
+        console.log("Manager not found");
+        return res.status(404).json({ message: "Manager not found" });
+      }
+
+      console.log("Manager has stylists:", manager.stylists?.length || 0);
+
+      // Get all pending leave requests from stylists under management
+      const leaveRequests = [];
+      if (manager.stylists && manager.stylists.length > 0) {
+        for (const stylist of manager.stylists) {
+          // Skip if this is the manager's own ID
+          if (stylist._id.toString() === managerId) {
+            console.log("Skipping manager's own requests");
+            continue;
+          }
+
+          try {
+            console.log(
+              "Fetching pending leave requests for stylist:",
+              stylist._id
+            );
+            const stylistWithRequests = await Stylist.findById(
+              stylist._id
+            ).populate({
+              path: "leaveRequests",
+              select: "_id startDate endDate status reason type",
+            });
+
+            if (stylistWithRequests && stylistWithRequests.leaveRequests) {
+              const pendingRequests = stylistWithRequests.leaveRequests.filter(
+                (request) => request.status === "Pending"
+              );
+
+              if (pendingRequests.length > 0) {
+                console.log(
+                  "Stylist has pending leave requests:",
+                  pendingRequests.length
+                );
+                // Add stylist info to each leave request
+                const requestsWithStylist = pendingRequests.map((request) => ({
+                  ...request.toObject(),
+                  stylist: {
+                    _id: stylist._id,
+                    name: stylist.name,
+                    email: stylist.email,
+                    profilePicture: stylist.profilePicture,
+                  },
+                }));
+                leaveRequests.push(...requestsWithStylist);
+              } else {
+                console.log("Stylist has no pending leave requests");
+              }
+            }
+          } catch (stylistError) {
+            console.error(
+              "Error processing stylist:",
+              stylist._id,
+              stylistError
+            );
+            // Continue with next stylist even if one fails
+            continue;
+          }
+        }
+      } else {
+        console.log("Manager has no stylists assigned");
+        // Return empty array with 200 status code
+        return res.status(200).json([]);
+      }
+
+      console.log(`Found ${leaveRequests.length} pending leave requests`);
       return res.status(200).json(leaveRequests);
     } catch (error) {
-      console.log(error.message);
-      return res.status(400).json({ message: "Error getting leave requests" });
+      console.error("Error in getAllPendingLeaveRequests:", error);
+      console.error("Error stack:", error.stack);
+      return res.status(500).json({
+        message: "Error getting pending leave requests",
+        error: error.message,
+        stack: error.stack,
+      });
     }
   },
   async approveLeaveRequest(req, res) {
     console.log("LeaveRequestController > approve leave request");
     const { id: leaveRequestId } = req.params;
     const { userId: managerId } = req;
-    const manager = await Stylist.findById(managerId);
-    manager.populate("stylists");
-    manager.stylists.forEach(async (stylist) => {
-      await stylist.populate("leaveRequests").execPopulate();
-    });
-    const consists = manager.stylists
-      .map((stylist) => stylist.leaveRequests)
-      .flat()
-      .some((leaveRequest) => leaveRequest._id == leaveRequestId);
-    if (!consists) {
-      return res.status(403).json({ message: "Stylist not under manager" });
-    }
-    if (!manager) {
-      return res.status(404).json({ message: "Manager not found" });
-    }
+
+    // First get the leave request to find the stylist
     const leaveRequest = await LeaveRequest.findById(leaveRequestId);
     if (!leaveRequest) {
       return res.status(404).json({ message: "Leave request not found" });
     }
-    if (leaveRequest.status != "Pending") {
+
+    // Get the manager and populate their stylists
+    const manager = await Stylist.findById(managerId);
+    if (!manager) {
+      return res.status(404).json({ message: "Manager not found" });
+    }
+
+    await manager.populate("stylists");
+
+    // Check if the stylist is under the manager's management
+    const stylistUnderManagement = manager.stylists.some(
+      (stylist) => stylist._id.toString() === leaveRequest.stylist.toString()
+    );
+
+    if (!stylistUnderManagement) {
+      return res.status(403).json({ message: "Stylist not under manager" });
+    }
+
+    if (leaveRequest.status.toLowerCase() !== "pending") {
       return res
         .status(400)
         .json({ message: "Leave request is already " + leaveRequest.status });
     }
+
     leaveRequest.status = "Approved";
     leaveRequest.approvedBy = manager;
     await leaveRequest.save();
-    return res.status(200).json(leaveRequest);
+
+    // Get the stylist information
+    const stylist = await Stylist.findById(leaveRequest.stylist).select(
+      "_id name email profilePicture"
+    );
+
+    // Create response with stylist information
+    const response = {
+      ...leaveRequest.toObject(),
+      stylist: {
+        _id: stylist._id,
+        name: stylist.name,
+        email: stylist.email,
+        profilePicture: stylist.profilePicture,
+      },
+    };
+
+    return res.status(200).json(response);
   },
   async rejectLeaveRequest(req, res) {
     console.log("LeaveRequestController > reject leave request");
     const { id: leaveRequestId } = req.params;
     const { userId: managerId } = req;
-    const manager = await Stylist.findById(managerId);
-    manager.populate("stylists");
-    manager.stylists.forEach(async (stylist) => {
-      await stylist.populate("leaveRequests").execPopulate();
-    });
-    const consists = manager.stylists
-      .map((stylist) => stylist.leaveRequests)
-      .flat()
-      .some((leaveRequest) => leaveRequest._id == leaveRequestId);
-    if (!consists) {
-      return res.status(403).json({ message: "Stylist not under manager" });
-    }
-    if (!manager) {
-      return res.status(404).json({ message: "Manager not found" });
-    }
+
+    // First get the leave request to find the stylist
     const leaveRequest = await LeaveRequest.findById(leaveRequestId);
     if (!leaveRequest) {
       return res.status(404).json({ message: "Leave request not found" });
     }
-    if (leaveRequest.status != "Pending") {
+
+    // Get the manager and populate their stylists
+    const manager = await Stylist.findById(managerId);
+    if (!manager) {
+      return res.status(404).json({ message: "Manager not found" });
+    }
+
+    await manager.populate("stylists");
+
+    // Check if the stylist is under the manager's management
+    const stylistUnderManagement = manager.stylists.some(
+      (stylist) => stylist._id.toString() === leaveRequest.stylist.toString()
+    );
+
+    if (!stylistUnderManagement) {
+      return res.status(403).json({ message: "Stylist not under manager" });
+    }
+
+    if (leaveRequest.status.toLowerCase() !== "pending") {
       return res
         .status(400)
         .json({ message: "Leave request is already " + leaveRequest.status });
     }
+
     leaveRequest.status = "Rejected";
     leaveRequest.approvedBy = manager;
     await leaveRequest.save();
-    return res.status(200).json(leaveRequest);
+
+    // Get the stylist information
+    const stylist = await Stylist.findById(leaveRequest.stylist).select(
+      "_id name email profilePicture"
+    );
+
+    // Create response with stylist information
+    const response = {
+      ...leaveRequest.toObject(),
+      stylist: {
+        _id: stylist._id,
+        name: stylist.name,
+        email: stylist.email,
+        profilePicture: stylist.profilePicture,
+      },
+    };
+
+    return res.status(200).json(response);
+  },
+  async approveLeaveRequestAdmin(req, res) {
+    console.log("LeaveRequestController > approve leave request");
+    const { id: leaveRequestId } = req.params;
+    const { userId: adminId } = req;
+
+    // First get the leave request to find the stylist
+    const leaveRequest = await LeaveRequest.findById(leaveRequestId);
+    if (!leaveRequest) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+
+    // Get the manager and populate their stylists
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    if (leaveRequest.status.toLowerCase() !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "Leave request is already " + leaveRequest.status });
+    }
+
+    leaveRequest.status = "Approved";
+    leaveRequest.approvedBy = admin;
+    await leaveRequest.save();
+
+    // Get the stylist information
+    const stylist = await Stylist.findById(leaveRequest.stylist).select(
+      "_id name email profilePicture"
+    );
+
+    // Create response with stylist information
+    const response = {
+      ...leaveRequest.toObject(),
+      stylist: {
+        _id: stylist._id,
+        name: stylist.name,
+        email: stylist.email,
+        profilePicture: stylist.profilePicture,
+      },
+    };
+
+    return res.status(200).json(response);
+  },
+  async rejectLeaveRequestAdmin(req, res) {
+    console.log("LeaveRequestController > reject leave request");
+    const { id: leaveRequestId } = req.params;
+    const { userId: adminId } = req;
+
+    // First get the leave request to find the stylist
+    const leaveRequest = await LeaveRequest.findById(leaveRequestId);
+    if (!leaveRequest) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+
+    // Get the manager and populate their stylists
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    if (leaveRequest.status.toLowerCase() !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "Leave request is already " + leaveRequest.status });
+    }
+
+    leaveRequest.status = "Rejected";
+    leaveRequest.approvedBy = admin;
+    await leaveRequest.save();
+
+    // Get the stylist information
+    const stylist = await Stylist.findById(leaveRequest.stylist).select(
+      "_id name email profilePicture"
+    );
+
+    // Create response with stylist information
+    const response = {
+      ...leaveRequest.toObject(),
+      stylist: {
+        _id: stylist._id,
+        name: stylist.name,
+        email: stylist.email,
+        profilePicture: stylist.profilePicture,
+      },
+    };
+
+    return res.status(200).json(response);
   },
 };
 

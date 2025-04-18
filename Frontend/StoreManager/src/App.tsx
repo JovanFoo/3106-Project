@@ -8,37 +8,23 @@ import {
 } from "react-router-dom";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import AppLayout from "./layout/AppLayout";
-import Analytics from "./pages/Analytics";
-import Appointments from "./pages/Appointments";
+import Appointments from "./pages/AppointmentPage/Appointments";
 import ForgetPassword from "./pages/AuthPages/ForgetPassword";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
-import Blank from "./pages/Blank";
-import Calendar from "./pages/Calendar";
-// import BarChart from "./pages/Charts/BarChart";
-// import LineChart from "./pages/Charts/LineChart";
-import Home from "./pages/Dashboard/Home";
-import EmergencyLeaveManagement from "./pages/EmergencyLeaveManagement";
-import LeaveDocumentApproval from "./pages/LeaveDocumentApproval";
-import LeaveManagement from "./pages/LeaveManagement";
+import Calendar from "./pages/CalenderPage/Calendar";
+import LeaveApplicationApproval from "./pages/LeaveApplicationApproval";
+import BarberLeaveManagement from "./pages/BarberLeaveManagement";
 import NotFound from "./pages/OtherPage/NotFound";
-import ChangePassword from "./pages/Settings/ChangePassword";
-import Expertise from "./pages/Settings/Expertise";
-import Notifications from "./pages/Settings/Notifications";
-import Portfolio from "./pages/Settings/Portfolio";
-import Testimonials from "./pages/Settings/Testimonials";
-import ShopSettings from "./pages/ShopSettings";
-import Teams from "./pages/Teams";
-import Transactions from "./pages/Transactions";
-import Service from "./pages/ManagePages/Services";
-import ServiceRates from "./pages/ManagePages/ServiceRates";
-// import Alerts from "./pages/UiElements/Alerts";
-// import Avatars from "./pages/UiElements/Avatars";
-// import Badges from "./pages/UiElements/Badges";
-// import Buttons from "./pages/UiElements/Buttons";
-// import Images from "./pages/UiElements/Images";
-// import Videos from "./pages/UiElements/Videos";
-import UserProfiles from "./pages/UserProfiles";
+import ChangePassword from "./pages/SettingsUIPages/ChangePassword";
+import Expertise from "./pages/SettingsUIPages/Expertise";
+import Notifications from "./pages/ExtraPages/Notifications";
+import Portfolio from "./pages/SettingsUIPages/Portfolio";
+import Testimonials from "./pages/SettingsUIPages/Testimonials";
+import ShopSettings from "./pages/ShopSettingPage/ShopSettings";
+import Teams from "./pages/TeamPage/Teams";
+import Transactions from "./pages/TransactionPage/Transactions";
+import UserProfiles from "./pages/SettingsUIPages/UserProfiles";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -81,26 +67,17 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
-
             {/* Main Page */}
-            <Route path="/appointments" element={<Appointments />} />
+            <Route path="/" element={<Appointments />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/transactions" element={<Transactions />} />
-            <Route path="/analytics" element={<Analytics />} />
             <Route path="/teams" element={<Teams />} />
             <Route path="/shops" element={<ShopSettings />} />
 
             {/* Leave Management Routes */}
-            <Route path="/leave-management" element={<LeaveManagement />} />
-            <Route
-              path="/emergency-leave"
-              element={<EmergencyLeaveManagement />}
-            />
-            <Route
-              path="/leave-document-approval"
-              element={<LeaveDocumentApproval />}
-            />
+            <Route path="/leave-management" element={<LeaveApplicationApproval />} />
+            <Route path="/leave-application-approval" element={<LeaveApplicationApproval />} />
+            <Route path="/barber-leave" element={<BarberLeaveManagement />} />
 
             {/* Settings */}
             <Route
@@ -118,10 +95,7 @@ export default function App() {
             <Route path="/settings/testimonials" element={<Testimonials />} />
 
             {/* Other Routes */}
-            <Route path="/manage/services" element={<Service />} />
-            <Route path="/manage/service-rates" element={<ServiceRates />} />
             <Route path="/ratings-reviews" element={<Testimonials />} />
-            <Route path="/blank" element={<Blank />} />
           </Route>
 
           {/* Auth Layout */}

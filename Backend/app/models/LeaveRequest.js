@@ -33,6 +33,10 @@ const leaveRequestSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Stylist",
     },
+    image: {
+        type: String,  // This will store the base64 encoded image
+        required: false
+    }
 });
 
 const LeaveRequest = mongose.model("LeaveRequest", leaveRequestSchema);

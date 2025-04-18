@@ -1,6 +1,6 @@
 import BuildIcon from "@mui/icons-material/Build";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
-import DashboardIcon from "@mui/icons-material/Dashboard";
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PaidIcon from "@mui/icons-material/Paid";
@@ -21,15 +21,15 @@ type NavItem = {
 };
 const AppSidebar: React.FC = () => {
   const [navItems, setNavItems] = useState<NavItem[]>([
-    {
-      icon: <DashboardIcon />,
-      name: "Dashboard",
-      path: "/home",
-    },
+    // {
+    //   icon: <DashboardIcon />,
+    //   name: "Dashboard",
+    //   path: "/home",
+    // },
     {
       icon: <ContentCutIcon />,
       name: "Stylists",
-      path: "/stylists",
+      path: "/",
     },
     {
       icon: <PaidIcon />,
@@ -45,6 +45,11 @@ const AppSidebar: React.FC = () => {
       icon: <PsychologyIcon />,
       name: "Expertise",
       path: "/expertise",
+    },
+    {
+      icon: <EventAvailableIcon />,
+      name: "Leave Approval",
+      path: "/leave-Management",
     },
     {
       icon: <BuildIcon />,
@@ -72,30 +77,34 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const isActive = useCallback(
-    (path: string) => location.pathname.startsWith(path),
+    (path: string) =>
+      path === '/'
+        ? location.pathname === '/'
+        : location.pathname.startsWith(path),
     [location.pathname]
   );
+  
   const user = useUser();
   useEffect(() => {
-    filterBasedOnRole();
-  }, [user.role]);
+    // filterBasedOnRole();
+  }, [user]);
 
-  const filterBasedOnRole = () => {
-    if (user.role !== "Manager") {
-      console.log("User role is not Manager, filtering nav items.");
-      setNavItems(
-        navItems
-          .filter((item) => {
-            return item.name != "Teams";
-          })
-          .filter((item) => {
-            return item.name != "Shop Settings";
-          })
-      );
-    }
-  };
+  // const filterBasedOnRole = () => {
+  //   if (user.role !== "Manager") {
+  //     console.log("User role is not Manager, filtering nav items.");
+  //     setNavItems(
+  //       navItems
+  //         .filter((item) => {
+  //           return item.name != "Teams";
+  //         })
+  //         .filter((item) => {
+  //           return item.name != "Shop Settings";
+  //         })
+  //     );
+  //   }
+  // };
   useEffect(() => {
-    filterBasedOnRole();
+    // filterBasedOnRole();
     let submenuMatched = false;
     navItems.forEach((nav, index) => {
       if (nav.subItems) {
@@ -114,7 +123,7 @@ const AppSidebar: React.FC = () => {
   }, [location, isActive]);
 
   useEffect(() => {
-    filterBasedOnRole;
+    // filterBasedOnRole;
     if (openSubmenu !== null) {
       const key = `${openSubmenu}`;
       if (subMenuRefs.current[key]) {
@@ -165,11 +174,18 @@ const AppSidebar: React.FC = () => {
               />
             </>
           ) : (
-            <img
-              className="w-8 h-8 object-contain"
-              src="/images/logo/LogoSide.png"
-              alt="Logo"
-            />
+            <>
+              <img
+                className="dark:hidden w-full h-auto object-contain"
+                src="/images/logo/logobuzzbook_cropped.png"
+                alt="Logo"
+              />
+              <img
+                className="hidden dark:block w-full h-auto object-contain brightness-0 invert"
+                src="/images/logo/logobuzzbook_cropped.png"
+                alt="Logo"
+              />
+            </>
           )}
         </Link>
       </div>

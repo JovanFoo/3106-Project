@@ -6,8 +6,11 @@ import {
   TableRow,
 } from "../../ui/table";
 
-import Badge from "../../ui/badge/Badge";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import Badge from "../../ui/badge/Badge";
+import Button from "../../ui/button/Button";
+import ReviewFormModal from "../../ui/modal/ReviewFormModal";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -29,6 +32,21 @@ interface Stylist {
   experience: number;
 }
 
+interface Review {
+  _id: string;
+  title: string;
+  text: string;
+  stars: number;
+  createdAt: Date;
+  modifiedAt: Date;
+  stylist: {
+    name: string;
+  };
+  customer: {
+    username: string;
+  };
+}
+
 interface Appointment {
   _id: string;
   name: string;
@@ -39,6 +57,7 @@ interface Appointment {
   branch?: Branch;
   service?: Service;
   stylist?: Stylist;
+  review: Review | null; // updated to allow null
 }
 
 interface Props {
@@ -46,7 +65,19 @@ interface Props {
 }
 
 export default function AppointmentTableOne({ appointment }: Props) {
+  // set initial dropdown value to Pending
   const [statusFilter, setStatusFilter] = useState("");
+  const [appointments, setAppointments] = useState<Appointment[]>(appointment);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    title: "",
+    text: "",
+    stars: 5,
+  });
+
+  const selectedReview = selectedAppointment?.review;
 
   // useEffect(() => {
   //   console.log(
@@ -57,9 +88,131 @@ export default function AppointmentTableOne({ appointment }: Props) {
   //   );
   // }, []);
 
-  const filteredData = statusFilter
-    ? appointment.filter((appt) => appt.status === statusFilter)
-    : appointment;
+  useEffect(() => {
+    setAppointments(appointment); // keep in sync with parent/props when it changes
+  }, [appointment]);
+
+  useEffect(() => {
+    if (selectedAppointment?.review) {
+      console.log("Review updated, text:", selectedAppointment.review.text);
+    }
+  }, [selectedAppointment]);
+
+  const handleCreateReview = async (data: {
+    title: string;
+    text: string;
+    stars: number;
+  }) => {
+    if (!selectedAppointment) return;
+
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.tokens.token;
+
+      try {
+        const response = await fetch(
+          `${API_URL}/api/reviews/${selectedAppointment._id}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+            body: JSON.stringify(data),
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to create review");
+
+        const createdReview = await response.json();
+
+        // update the appointment with the new review
+        updateAppointmentReview(selectedAppointment._id, createdReview);
+        toast.success("Review successfully created!");
+      } catch (err) {
+        console.error("Create Review Error:", err);
+      }
+    }
+  };
+
+  const handleEditReview = async (
+    id: string,
+    data: { title: string; text: string; stars: number }
+  ) => {
+    if (!selectedAppointment) return;
+
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.tokens.token;
+
+      try {
+        const response = await fetch(`${API_URL}/api/reviews/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) throw new Error("Failed to update review");
+
+        const updatedReview = await response.json();
+
+        // update the review inside the selected appointment
+        updateAppointmentReview(selectedAppointment._id, updatedReview);
+        toast.success("Review successfully edited!");
+      } catch (err) {
+        console.error("Edit Review Error:", err);
+      }
+    }
+  };
+
+  const handleDeleteReview = async (id: string) => {
+    if (!selectedAppointment) return;
+
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.tokens.token;
+      try {
+        const response = await fetch(`${API_URL}/api/reviews/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: token,
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to delete review");
+
+        // Remove the review from the appointment
+        updateAppointmentReview(selectedAppointment._id, null);
+        toast.success("Review successfully deleted!");
+      } catch (err) {
+        console.error("Delete Review Error:", err);
+      }
+    }
+  };
+
+  const updateAppointmentReview = (id: string, review: Review | null) => {
+    setAppointments((prevAppointments) =>
+      prevAppointments.map((appt) =>
+        appt._id === id ? { ...appt, review } : appt
+      )
+    );
+  };
+
+  const filteredData = (
+    statusFilter
+      ? appointments.filter((appt) => appt.status === statusFilter)
+      : appointments
+  ).sort((a, b) => {
+    const dateA = new Date(a.date ?? 0).getTime();
+    const dateB = new Date(b.date ?? 0).getTime();
+    return dateB - dateA; // descending: latest first
+  });
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -70,14 +223,45 @@ export default function AppointmentTableOne({ appointment }: Props) {
               Select Status:
             </label>
             <select
-              className="border border-gray-300 rounded px-2 py-1 text-sm dark:bg-gray-800 dark:text-white"
+              className="border border-gray-300 rounded px-2 py-1 text-sm dark:bg-gray-800 dark:text-white min-w-[200px] w-auto"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="">-- All Appointments --</option>
-              <option value="Pending">Pending</option>
-              <option value="Cancelled">Cancelled</option>
-              <option value="Completed">Completed</option>
+              <option value="">
+                -- All Appointments ({appointments.length}) --
+              </option>
+              <option value="Pending">
+                Pending (
+                {
+                  appointments.filter((appt) => appt.status === "Pending")
+                    .length
+                }
+                )
+              </option>
+              <option value="Cancelled">
+                Cancelled (
+                {
+                  appointments.filter((appt) => appt.status === "Cancelled")
+                    .length
+                }
+                )
+              </option>
+              <option value="Confirmed">
+                Confirmed (
+                {
+                  appointments.filter((appt) => appt.status === "Confirmed")
+                    .length
+                }
+                )
+              </option>
+              <option value="Completed">
+                Completed (
+                {
+                  appointments.filter((appt) => appt.status === "Completed")
+                    .length
+                }
+                )
+              </option>
             </select>
           </div>
 
@@ -152,15 +336,13 @@ export default function AppointmentTableOne({ appointment }: Props) {
                     {order.branch?.location || "—"}
                   </TableCell>
 
-                  <TableCell className="px-4 py-3 text-theme-sm">
-                    {" "}
-                    <TableCell className="px-4 py-3 text-theme-sm">
-                      {order.totalAmount.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      })}
-                    </TableCell>
+                  <TableCell className="px-4 py-3 text-theme-sm dark:text-gray-400">
+                    {order.totalAmount.toLocaleString("en-SG", {
+                      style: "currency",
+                      currency: "SGD",
+                    })}
                   </TableCell>
+
                   <TableCell className="px-4 py-3 text-theme-sm">
                     <Badge
                       size="sm"
@@ -180,10 +362,53 @@ export default function AppointmentTableOne({ appointment }: Props) {
                       {order.status}
                     </Badge>
                   </TableCell>
+                  {order.status === "Completed" ? (
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setSelectedAppointment(order);
+                          setReviewForm({
+                            title: order.review?.title || "",
+                            text: order.review?.text || "",
+                            stars: order.review?.stars || 5,
+                          });
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        {order.review ? "Edit Review" : "Add Review"}
+                      </Button>
+                    </TableCell>
+                  ) : (
+                    <></>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+
+          {isModalOpen && (
+            <ReviewFormModal
+              review={selectedReview} // optional, can be undefined for "Add"
+              onClose={() => setIsModalOpen(false)}
+              onSubmit={(data) => {
+                if (selectedAppointment?.review) {
+                  handleEditReview(selectedAppointment.review._id, data);
+                } else {
+                  handleCreateReview(data);
+                }
+                setIsModalOpen(false);
+              }}
+              onDelete={() => {
+                if (selectedAppointment?.review) {
+                  handleDeleteReview(selectedAppointment.review._id);
+                } else {
+                  console.log("Error deleting review!");
+                }
+                setIsModalOpen(false);
+              }}
+            />
+          )}
         </div>
       </div>
     </div>

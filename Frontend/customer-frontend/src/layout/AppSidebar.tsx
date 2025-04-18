@@ -26,8 +26,13 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <CalenderIcon />,
-    name: "Appointments",
+    name: "Book Appointments",
     path: "/appointments",
+  },
+  {
+    icon: <CalenderIcon />,
+    name: "View Appointments",
+    path: "/viewappointments",
   },
   {
     icon: <UserCircleIcon />,
@@ -291,6 +296,7 @@ const AppSidebar: React.FC = () => {
         <Link to="/home">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
+              {/* Light mode logo */}
               <img
                 className="dark:hidden"
                 src="/images/logo/logobuzzbookcropped.png"
@@ -298,21 +304,33 @@ const AppSidebar: React.FC = () => {
                 width={270}
                 height={50}
               />
+              {/* Dark mode logo with invert and brightness classes */}
               <img
-                className="hidden dark:block"
+                className="hidden dark:block brightness-0 invert"
                 src="/images/logo/logobuzzbookcropped.png"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={270}
+                height={50}
               />
             </>
           ) : (
-            <img
-              src="/images/logo/logobuzzbookcropped.png"
-              alt="Logo"
-              width={150}
-              height={100}
-            />
+            <>
+              <img
+                className="dark:hidden"
+                src="/images/logo/logobuzzbookcropped.png"
+                alt="Logo"
+                width={150}
+                height={100}
+              />
+
+              <img
+                className="hidden dark:block brightness-0 invert"
+                src="../logobuzzbook_long.png"
+                alt="Logo"
+                width={150}
+                height={100}
+              />
+            </>
           )}
         </Link>
       </div>

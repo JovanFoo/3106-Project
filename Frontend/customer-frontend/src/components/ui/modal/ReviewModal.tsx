@@ -8,6 +8,7 @@ interface Review {
   createdAt: Date;
   modifiedAt: Date;
   stylist: {
+    _id: string;
     name: string;
   };
   customer: {
@@ -18,11 +19,15 @@ interface Review {
 interface ReviewModalProps {
   review: Review;
   onClose: () => void;
+  stylistBranchMap: Record<string, string>; // <stylistId, location>
 }
 
-const ReviewModal: React.FC<ReviewModalProps> = ({ review, onClose }) => {
+const ReviewModal: React.FC<ReviewModalProps> = ({
+  review,
+  onClose,
+  stylistBranchMap,
+}) => {
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // only close if the click target is the backdrop itself
     if (e.target === e.currentTarget) {
       onClose();
     }
@@ -30,34 +35,50 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-99999"
+      className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-99999"
       onClick={handleBackdropClick}
     >
       <div
-        className="bg-white max-w-lg w-full p-6 rounded-xl shadow-xl relative"
-        onClick={(e) => e.stopPropagation()} // prevent click inside modal from closing it
+        className="bg-white dark:bg-gray-800 max-w-lg w-full p-6 rounded-xl shadow-xl relative text-gray-800 dark:text-gray-200"
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-5 text-gray-400 hover:text-gray-700 text-2xl font-bold transition-colors"
+          className="absolute top-3 right-5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl font-bold transition-colors"
           aria-label="Close"
         >
           &times;
         </button>
-        <h2 className="text-2xl font-bold text-gray-900">{review.title}</h2>
+
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {review.title}
+        </h2>
+
         <div className="mt-2 flex items-center">
           <span className="text-yellow-500 text-lg">
             {"★".repeat(review.stars)}
           </span>
-          <span className="ml-2 text-sm text-gray-500">{review.stars}/5</span>
+          <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+            {review.stars}/5
+          </span>
         </div>
-        <p className="mt-4 text-gray-700">{review.text}</p>
-        <div className="mt-6 text-sm text-gray-500 space-y-1">
+
+        <div className="mt-4 text-gray-700 dark:text-gray-300 whitespace-pre-line">
+          {review.text}
+        </div>
+
+        <div className="mt-6 text-sm text-gray-500 dark:text-gray-400 space-y-1">
           <p>Stylist: {review.stylist.name}</p>
+          <p>Branch: {stylistBranchMap[review.stylist._id]}</p>
           <p>Reviewed by: {review.customer.username}</p>
           <p>
-            Created On: {new Date(review.createdAt).toLocaleDateString()} ||
-            Last Modified: {new Date(review.modifiedAt).toLocaleDateString()}
+            Created On: {new Date(review.createdAt).toLocaleString() + " "}
+            {review.createdAt !== review.modifiedAt && (
+              <>
+                || Last Modified:
+                {" " + new Date(review.modifiedAt).toLocaleString()}
+              </>
+            )}
           </p>
         </div>
       </div>
