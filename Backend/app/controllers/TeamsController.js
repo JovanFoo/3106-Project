@@ -44,6 +44,22 @@ const TeamController = {
     // add stylist to the branch and stylist manager
 
     if (!otherbranchManager) {
+      const otherBranch = await Branch.findOne().where({
+        stylists: stylistId,
+      });
+      if (otherBranch) {
+        otherBranch.stylists = otherBranch.stylists.filter((staff) => {
+          return staff.toString() != stylistId;
+        });
+        await otherBranch.save();
+        const otherManager = await Stylist.findById(otherBranch.manager);
+        if (otherManager) {
+          otherManager.stylists = otherManager.stylists.filter((staff) => {
+            return staff._id.toString() != stylistId;
+          });
+          await otherManager.save();
+        }
+      }
       let included = false;
       if (branch.stylists.includes(stylistId)) {
         included = true;
@@ -63,22 +79,7 @@ const TeamController = {
       savedStylistManager.stylists.map(
         (stylist) => (stylist.password = undefined)
       );
-      const otherBranch = await Branch.findOne().where({
-        stylists: stylistId,
-      });
-      if (otherBranch) {
-        otherBranch.stylists = otherBranch.stylists.filter((staff) => {
-          return staff.toString() != stylistId;
-        });
-        await otherBranch.save();
-        const otherManager = await Stylist.findById(otherBranch.manager);
-        if (otherManager) {
-          otherManager.stylists = otherManager.stylists.filter((staff) => {
-            return staff._id.toString() != stylistId;
-          });
-          await otherManager.save();
-        }
-      }
+
       res.status(200).json(savedStylistManager.stylists);
     } else {
       return res.status(400).json({ message: "This Stylist is a manager" });
