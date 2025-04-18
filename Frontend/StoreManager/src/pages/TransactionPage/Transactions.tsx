@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
@@ -25,10 +25,6 @@ type Stylist = {
   _id: string;
   name: string;
 };
-
-// const services = ["Haircut", "Beard Trim", "Shave", "Hair Coloring"];
-// const paymentMethods = ["Cash", "Card"];
-// const statuses = ["Pending", "Completed", "Cancelled"];
 type Service = {
   _id: string;
   name: string;
@@ -86,7 +82,7 @@ export default function Transactions() {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(pageSizeOptions[1]); // Default to 10
   const [totalPages, setTotalPages] = useState(0);
-  const [hasNextPage, setHasNextPage] = useState(false);
+  const [, setHasNextPage] = useState(false);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction>();
 
@@ -171,7 +167,7 @@ export default function Transactions() {
     setIsLoading(true);
 
     closeModalNew();
-    
+
     try {
       const res = await axios.post(
         `${api_address}/api/transactions`,
@@ -205,7 +201,7 @@ export default function Transactions() {
   };
   const handleUpdateTransaction = async (transaction: Transaction) => {
     closeModalEdit();
-    
+
     try {
       await axios.put(
         `${api_address}/api/transactions/${transaction._id}`,
@@ -386,7 +382,11 @@ export default function Transactions() {
           />
         </div>
       </div>
-      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        style={{ zIndex: 999999 }}
+      />
     </div>
   );
 }
@@ -407,8 +407,6 @@ const CustomerModal: React.FC<ModalProps> = ({
   listOfServices = [],
   listOfStylists = [],
   onSave,
-  showCloseButton = true, // Default to true for backwards compatibility
-  isFullscreen = false,
 }) => {
   const [transactionData, setTransactionData] = useState<Transaction>({
     _id: "",
@@ -591,7 +589,7 @@ const CustomerModal: React.FC<ModalProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-3 mt-6 sm:justify-end mb-2">
-          <Button onClick={closeModal} type='neutral' size="sm">
+          <Button onClick={closeModal} type="neutral" size="sm">
             Cancel
           </Button>
           <Button size="sm" variant="primary" onClick={handleSave}>
@@ -600,6 +598,5 @@ const CustomerModal: React.FC<ModalProps> = ({
         </div>
       </div>
     </Modal>
-    
   );
 };

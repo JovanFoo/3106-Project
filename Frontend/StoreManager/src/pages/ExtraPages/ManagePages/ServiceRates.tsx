@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
+import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
+import PageMeta from "../../../components/common/PageMeta";
 import axios from "axios";
 import {
   Table,
   TableCell,
   TableHeader,
   TableRow,
-} from "../../components/ui/table";
-import Button from "../../components/ui/button/Button";
-import { PencilIcon, TrashBinIcon } from "../../icons";
-import { Modal } from "../../components/ui/modal";
-import { useModal } from "../../hooks/useModal";
+} from "../../../components/ui/table";
+import Button from "../../../components/ui/button/Button";
+import { PencilIcon, TrashBinIcon } from "../../../icons";
+import { Modal } from "../../../components/ui/modal";
+import { useModal } from "../../../hooks/useModal";
 import { TableBody } from "@mui/material";
-import Alert from "../../components/ui/alert/Alert";
+import Alert from "../../../components/ui/alert/Alert";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -25,14 +25,6 @@ type ServiceRate = {
   endDate: Date;
 };
 
-type PaginationData = {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  transactions: ServiceRate[];
-};
 export default function Services() {
   // UseStates for Services
   const [serviceRates, setServiceRates] = useState<ServiceRate[]>([]);
@@ -45,7 +37,7 @@ export default function Services() {
   const [totalServiceRates, setTotalServiceRates] = useState(0);
 
   const [selectedServiceRate, setSelectedServiceRate] = useState<ServiceRate>();
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
 
   const {
     isOpen: isOpenNew,
@@ -302,8 +294,6 @@ const CustomerModal: React.FC<ModalProps> = ({
   closeModal,
   serviceRate,
   onSave = () => {},
-  showCloseButton = true, // Default to true for backwards compatibility
-  isFullscreen = false,
 }) => {
   const [serviceRateData, setServiceRateData] = useState<ServiceRate>({
     _id: "",

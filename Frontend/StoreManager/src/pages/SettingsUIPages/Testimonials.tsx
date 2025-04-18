@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import SettingsSidebar from "../SettingsPage/SettingsSidebar";
 import axios from "axios";
-import { useUser } from "../../context/UserContext";
 
 type Review = {
   _id: number;

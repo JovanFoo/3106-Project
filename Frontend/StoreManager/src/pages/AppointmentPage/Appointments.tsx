@@ -28,13 +28,13 @@ type ServiceOption = {
 
 export default function Appointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
+  const [, setSelectedAppt] = useState<Appointment | null>(null);
   const [updatedAppt, setUpdatedAppt] = useState<Appointment | null>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const [status, setStatus] = useState<string>("Pending");
   const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
   const [datetime, setDatetime] = useState<string>("");
-  
+
   const config = {
     headers: {
       Authorization: sessionStorage.getItem("token"),
@@ -133,7 +133,7 @@ export default function Appointments() {
       }
 
       toast.success("Appointment updated successfully");
-      
+
       closeModal();
       await fetchAppointments();
     } catch (err) {
@@ -141,7 +141,6 @@ export default function Appointments() {
       closeModal();
 
       toast.error("Failed to update appointment");
-
     }
   };
 
@@ -150,7 +149,7 @@ export default function Appointments() {
       <div className="flex-1 p-5">
         <PageMeta title="Appointments" description="Manage your Appointments" />
         <PageBreadcrumb pageTitle="Upcoming Appointments" />
-        
+
         <div className="flex rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           {/* <div className="flex justify-between items-center mb-6"> */}
           {appointments.length === 0 && (
@@ -317,7 +316,11 @@ export default function Appointments() {
           {/* </div> */}
         </div>
       </div>
-      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        style={{ zIndex: 999999 }}
+      />
     </div>
   );
 }

@@ -24,7 +24,7 @@ export default function Expertise() {
   );
   const user = useUser();
   const { isOpen, openModal, closeModal } = useModal();
-  
+
   const [isUpdating, setIsUpdating] = useState(false);
 
   const config = {
@@ -54,7 +54,7 @@ export default function Expertise() {
           { expertises: selectedExpertiseIds },
           config
         )
-        .then((res: AxiosResponse) => {
+        .then(() => {
           user.fetchUserContext();
           toast.success("Expertise updated successfully");
           setIsUpdating(false);
@@ -65,7 +65,6 @@ export default function Expertise() {
         });
     };
     updateExpertise();
-
   };
 
   useEffect(() => {
@@ -99,7 +98,6 @@ export default function Expertise() {
       <div className="flex-1 p-5">
         <PageBreadcrumb pageTitle="Expertise" />
         <div className="rounded-2xl  min-h-[80vh] border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
             Expertise
           </h4>
@@ -146,7 +144,7 @@ export default function Expertise() {
               ))}
           </div>
           <div className="flex items-center gap-3 mt-6 mb-2 sm:justify-end">
-            <Button onClick={closeModal} size="sm" type='neutral'>
+            <Button onClick={closeModal} size="sm" type="neutral">
               Cancel
             </Button>
             <Button size="sm" variant="primary" onClick={onSaveChanges}>
@@ -155,7 +153,11 @@ export default function Expertise() {
           </div>
         </div>
       </Modal>
-      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        style={{ zIndex: 999999 }}
+      />
     </div>
   );
 }
