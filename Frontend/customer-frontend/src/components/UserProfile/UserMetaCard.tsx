@@ -76,11 +76,13 @@ export default function UserMetaCard() {
     if (isEmailTaken && originalEmail !== email) {
       closeModal();
       toast.error("Email is already in use");
+      setEmail(originalEmail);
     }
 
     if (isUsernameTaken && originalUsername !== username) {
       closeModal();
       toast.error("Username is already in use");
+      setUsername(originalUsername);
     }
 
     // Handle saving logic after validation
@@ -223,7 +225,7 @@ export default function UserMetaCard() {
         setNewPassword("");
         setConfirmPassword("");
         resetPasswordFieldsCloseModal();
-        toast.success("Password changed!")
+        toast.success("Password changed!");
       } catch (err) {
         console.log(err);
         console.log("error");
