@@ -6,6 +6,7 @@ import Label from "../form/Label";
 import { useState } from "react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UserMetaCard() {
@@ -18,10 +19,13 @@ export default function UserMetaCard() {
   const [firstName, setfirstName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+  const [originalEmail, setOriginalEmail] = useState("");
+  const [originalUsername, setOriginalUsername] = useState("");
   const [newProfilePic, setNewProfilePic] = useState(null);
   const [profilepic, setProfilepic] = useState("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log("activated");
@@ -53,6 +57,8 @@ export default function UserMetaCard() {
           setfirstName(data.name);
           setEmail(data.email);
           setProfilepic(data.profilePicture);
+          setOriginalEmail(data.email);
+          setOriginalUsername(data.username);
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -67,12 +73,12 @@ export default function UserMetaCard() {
     const isEmailTaken = await handleEmailCheck(email);
     const isUsernameTaken = await handleUsernameCheck(username);
 
-    if (isEmailTaken) {
+    if (isEmailTaken && originalEmail !== email) {
       closeModal();
       toast.error("Email is already in use");
     }
 
-    if (isUsernameTaken) {
+    if (isUsernameTaken && originalUsername !== username) {
       closeModal();
       toast.error("Username is already in use");
     }
@@ -107,6 +113,7 @@ export default function UserMetaCard() {
           const updatedUser = await response.json();
           console.log("User updated successfully:", updatedUser);
           closeModal(); // Close modal after saving
+          navigate(0);
         } else {
           const errorData = await response.json();
           console.error("Error updating user:", errorData.message);
@@ -322,7 +329,7 @@ export default function UserMetaCard() {
 
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div className="col-span-2 lg:col-span-1">
-                  <Label>First Name</Label>
+                  <Label>Name</Label>
                   <Input
                     type="text"
                     value={firstName}
