@@ -235,7 +235,6 @@ const ReviewController = {
       if (!stylist) {
         return res.status(404).json({ message: "Stylist not found" });
       }
-
       // Step 2: Fetch all appointments for the given stylist that have reviews
       const appointments = await Appointment.find({
         stylist: stylistId,

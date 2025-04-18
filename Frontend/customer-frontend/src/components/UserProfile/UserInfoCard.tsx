@@ -4,7 +4,7 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import { useState, useEffect } from "react";
-import ChangePassword from "./changepassword";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
@@ -23,7 +23,7 @@ export default function UserInfoCard() {
 
         try {
           const response = await fetch(
-            `http://localhost:3000/api/customers/${user.customer._id}`,
+            `${API_URL}/api/customers/${user.customer._id}`,
             {
               method: "GET",
               headers: {

@@ -170,6 +170,7 @@ const ReviewsList = () => {
         const matchingStylists = await retrieveStylistsByName(
           selectedStylistName
         );
+
         if (matchingStylists.length === 0) {
           setReviews([]);
           return;
