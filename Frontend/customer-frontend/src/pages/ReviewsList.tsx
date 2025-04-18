@@ -3,6 +3,7 @@ import ReviewCard from "./UiElements/ReviewCard";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import ReviewModal from "../components/ui/modal/ReviewModal";
+import { useNavigate } from "react-router";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -10,7 +11,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 interface Branch {
   _id: string;
   location: string;
-  stylists: string[];
+  stylists: Stylist[];
 }
 
 interface Stylist {
@@ -43,6 +44,15 @@ const ReviewsList = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [showModal, setShowModal] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      navigate("/"); // authentication check
+    }
+  }, []);
 
   useEffect(() => {
     fetchAllBranches(); // Fetch branches on page load
@@ -202,9 +212,8 @@ const ReviewsList = () => {
             return;
           }
 
-          const branchStylist = matchingStylists.find(
-            (stylist: { _id: string }) =>
-              branchObj.stylists.includes(stylist._id)
+          const branchStylist = matchingStylists.find((stylist) =>
+            branchObj.stylists.includes(stylist)
           );
 
           if (branchStylist) {
@@ -319,16 +328,17 @@ const ReviewsList = () => {
   // Filter stylists to show only those working at the selected branch
   const filteredStylists = branch
     ? allStylists.filter((stylist) =>
-        branches
-          .find((b) => b.location === branch)
-          ?.stylists.includes(stylist._id)
+        branches.find((b) => b.location === branch)?.stylists.includes(stylist)
       )
     : allStylists;
 
   const stylistBranchMap: Record<string, string> = {};
   branches.forEach((branch) => {
-    branch.stylists.forEach((stylistId) => {
-      stylistBranchMap[stylistId] = branch.location;
+    console.log("branch: " + branch.location);
+    console.log(branch.stylists);
+    branch.stylists.forEach((stylist) => {
+      console.log("stylistId: ");
+      stylistBranchMap[stylist._id] = branch.location;
     });
   });
 
@@ -343,7 +353,7 @@ const ReviewsList = () => {
         title="BuzzBook - Reviews"
         description="View Customer Reviews"
       />
-      <PageBreadcrumb pageTitle="Reviews" />
+      <PageBreadcrumb pageTitle="View Customer Reviews" />
 
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
         {/* Flex container for branch and stylist selects */}
