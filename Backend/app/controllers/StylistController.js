@@ -69,7 +69,7 @@ const StylistController = {
   // Retrieve a list of all stylists
   async retrieveAllStylists(req, res) {
     console.log("StylistController > retrieve all stylists");
-    const stylists = await Stylist.find({}); // get all stylists
+    const stylists = await Stylist.find({}).populate("expertises"); // get all stylists and their expertise
     stylists.map((stylist) => {
       stylist.password = undefined; // remove password from response
     });

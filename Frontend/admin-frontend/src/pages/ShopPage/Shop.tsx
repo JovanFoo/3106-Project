@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import "react-clock/dist/Clock.css";
 import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
+import { toast, ToastContainer } from "react-toastify";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import { toast, ToastContainer } from "react-toastify";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -274,10 +274,12 @@ export default function CreateShop() {
                 </p>
                 <p className="text-sm text-gray-500 dark:text-white">
                   <strong>Stylists:</strong>{" "}
-                  {shop.stylists?.length > 0
-                    ? shop.stylists.map((s: Stylist) => s.name).join(", ")
-                    : "None"}
+                  {shop.stylists
+                    ?.filter((s: Stylist) => s._id !== shop.manager?._id)
+                    .map((s: Stylist) => s.name)
+                    .join(", ") || "None"}
                 </p>
+
               </div>
             ))}
           </div>
