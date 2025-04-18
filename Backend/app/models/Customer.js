@@ -28,9 +28,6 @@ const customerSchema = new Schema({
     type: Number,
     default: 0,
   },
-  profilePicture: {
-    type: String,
-  },
   appointments: [
     {
       type: Schema.Types.ObjectId,
