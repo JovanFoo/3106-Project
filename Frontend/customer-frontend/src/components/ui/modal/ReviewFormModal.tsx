@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Star } from "lucide-react"; // or any other star icon lib you use
 
 interface Review {
   _id?: string;
@@ -28,7 +29,8 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
 }) => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
-  const [stars, setStars] = useState(5);
+  const [stars, setStars] = useState(0);
+  const [ratingError, setRatingError] = useState("");
 
   useEffect(() => {
     if (review) {
@@ -46,6 +48,16 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (stars === 0) {
+      setRatingError(
+        "Please select a star rating (out of 5) before submitting."
+      );
+      return;
+    }
+
+    setRatingError("");
+
     onSubmit({ title, text, stars });
   };
 
@@ -103,23 +115,39 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
             />
           </div>
 
-          <div>
-            <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
-              Stars
-            </label>
-            <select
-              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-3 py-2"
-              value={stars}
-              onChange={(e) => setStars(Number(e.target.value))}
-              required
-            >
-              {[1, 2, 3, 4, 5].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
+          <div className="flex justify-center">
+            <div className="flex items-center space-x-2">
+              <label className="block font-medium mr-2 text-gray-700 dark:text-gray-300">
+                Rating:
+              </label>
+              <div className="flex space-x-1">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setStars(n)}
+                    className="focus:outline-none"
+                    aria-label={`Rate ${n} stars`}
+                  >
+                    <Star
+                      size={36}
+                      className={
+                        n <= stars
+                          ? "fill-yellow-400 stroke-yellow-400"
+                          : "stroke-gray-400 dark:stroke-gray-600"
+                      }
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
+
+          {ratingError && (
+            <p className="text-sm text-red-600 mt-1 text-center">
+              {ratingError}
+            </p>
+          )}
 
           <button
             type="submit"
