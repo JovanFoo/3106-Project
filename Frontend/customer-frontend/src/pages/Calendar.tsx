@@ -54,7 +54,7 @@ const Calendar: React.FC = () => {
     null
   );
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
-  const [apptsalldetails, setapptsalldetails] = useState<[]>([]);
+  const [, setapptsalldetails] = useState<[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const {
@@ -194,16 +194,13 @@ const Calendar: React.FC = () => {
       const customer = JSON.parse(userData);
       const token = customer.tokens.token;
       try {
-        const response = await fetch(
-          `${API_URL}/api/services`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: token,
-            },
-          }
-        );
+        const response = await fetch(`${API_URL}/api/services`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
         if (!response.ok) throw new Error("Failed to fetch services");
         const data = await response.json();
         // console.log(data, "initial");

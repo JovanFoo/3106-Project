@@ -68,7 +68,6 @@ export default function ResetPassword() {
             placeholder="Enter your email"
             value={email}
             onChange={handleChange}
-            required
           />
           {message && <p className="text-green-500">{message}</p>}
           {error && <p className="text-red-500">{error}</p>}
@@ -79,12 +78,7 @@ export default function ResetPassword() {
         </form>
 
         <div className="mt-4 text-center">
-          <Button
-            className="w-full"
-            size="sm"
-            onClick={handleBack}
-            type="button"
-          >
+          <Button className="w-full" size="sm" onClick={handleBack}>
             Back
           </Button>
         </div>
