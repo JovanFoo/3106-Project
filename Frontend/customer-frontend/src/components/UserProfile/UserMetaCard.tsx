@@ -21,7 +21,7 @@ export default function UserMetaCard() {
   const [username, setUsername] = useState("");
   const [originalEmail, setOriginalEmail] = useState("");
   const [originalUsername, setOriginalUsername] = useState("");
-  const [newProfilePic, setNewProfilePic] = useState(null);
+  const [previewPic, setPreviewPic] = useState("");
   const [profilepic, setProfilepic] = useState("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -57,6 +57,7 @@ export default function UserMetaCard() {
           setfirstName(data.name);
           setEmail(data.email);
           setProfilepic(data.profilePicture);
+          setPreviewPic(data.profilePicture);
           setOriginalEmail(data.email);
           setOriginalUsername(data.username);
         } catch (error) {
@@ -67,6 +68,12 @@ export default function UserMetaCard() {
 
     fetchUserData();
   }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setPreviewPic(profilepic || "");
+    }
+  }, [isOpen]);
 
   const handleSave = async () => {
     // Check if email or username is already taken
@@ -106,7 +113,7 @@ export default function UserMetaCard() {
               name: firstName,
               email,
               username,
-              profilePicture: profilepic,
+              profilePicture: previewPic,
             }),
           }
         );
@@ -114,6 +121,7 @@ export default function UserMetaCard() {
         if (response.ok) {
           const updatedUser = await response.json();
           console.log("User updated successfully:", updatedUser);
+          setProfilepic(updatedUser.profilePicture);
           closeModal(); // Close modal after saving
           navigate(0);
         } else {
@@ -131,6 +139,7 @@ export default function UserMetaCard() {
     if (userData) {
       const user = JSON.parse(userData);
       const token = user.tokens.token;
+      const currentUserId = user.customer._id;
       try {
         const response = await fetch(
           `${API_URL}/api/customers/email/${email}`,
@@ -146,7 +155,7 @@ export default function UserMetaCard() {
         if (response.ok) {
           const customer = await response.json();
           console.log("Customer found by email:", customer);
-          return true; // email is already taken
+          return customer._id !== currentUserId; // email is already taken
         } else {
           return false; // email is available
         }
@@ -163,6 +172,7 @@ export default function UserMetaCard() {
     if (userData) {
       const user = JSON.parse(userData);
       const token = user.tokens.token;
+      const currentUserId = user.customer._id;
       try {
         const response = await fetch(
           `${API_URL}/api/customers/username/${username}`,
@@ -178,7 +188,8 @@ export default function UserMetaCard() {
         if (response.ok) {
           const customer = await response.json();
           console.log("Customer found by username:", customer);
-          return true; // username is already taken
+          console.log(customer);
+          return customer._id !== currentUserId; // username is already taken
         } else {
           return false; // username is available
         }
@@ -305,25 +316,34 @@ export default function UserMetaCard() {
           </div>
 
           {/* Profile Picture Upload */}
-          <div className="col-span-2 lg:col-span-1 mt-4">
+          <div className="flex flex-col items-center justify-center gap-2">
             <Label>Profile Picture</Label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const files = e.target.files;
-                if (!files) return;
-                const file = files[0];
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                  setProfilepic(reader.result as string);
-                };
-                reader.readAsDataURL(file);
-              }}
-              className="w-full text-sm"
+            <img
+              src={previewPic || "/images/logo/defaultprofile.png"}
+              alt="user"
+              className="h-[150px] w-[150px] object-cover rounded-full border"
             />
+
+            <label className="cursor-pointer rounded-lg border px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800">
+              Choose File
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const files = e.target.files;
+                  if (!files) return;
+                  const file = files[0];
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setPreviewPic(reader.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }}
+                className="hidden"
+              />
+            </label>
           </div>
-          <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
+          <div className="custom-scrollbar h-[350px] overflow-y-auto px-2 pb-3">
             <div className="mt-7">
               <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                 Personal Information
