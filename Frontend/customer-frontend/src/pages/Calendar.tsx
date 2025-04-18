@@ -41,6 +41,9 @@ const Calendar: React.FC = () => {
   const [services, setServices] = useState<
     { _id: string; name: string; serviceRate: number; duration: number }[]
   >([]);
+  const [allServices, setAllServices] = useState<
+    { _id: string; name: string; serviceRate: number; duration: number }[]
+  >([]);
   const [branch, setBranch] = useState("");
   const [branches, setBranches] = useState<{ _id: string; location: string }[]>(
     []
@@ -81,8 +84,8 @@ const Calendar: React.FC = () => {
     fetchAppointments();
     // fetchStylists();
     fetchBranches();
-    fetchServices(new Date()); //to allow initial rendering of appointment service types on calendar
-    // MIGHT BREAK THE SERVICE RATE CALCULATION //
+    initialServiceFetch(); // fetch EVERY SINGLE service, regardless of date
+    // fetchServices(new Date()); //to allow initial rendering of appointment service types on calendar
 
     async function getUserDetails() {
       const userData = localStorage.getItem("user");
@@ -183,6 +186,29 @@ const Calendar: React.FC = () => {
       } catch (error) {
         console.error("Error fetching branches:", error);
       }
+    }
+  };
+  const initialServiceFetch = async () => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.tokens.token;
+      try {
+        const response = await fetch(
+          `${API_URL}/api/services`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch services");
+        const data = await response.json();
+        // console.log(data, "initial");
+        setAllServices(data);
+      } catch {}
     }
   };
   // get a list of all services and their prices for dropdown
@@ -375,7 +401,7 @@ const Calendar: React.FC = () => {
     await fetchServices(date);
     await fetchStylists(appt.extendedProps.branch);
 
-    const serviceObj = services.find(
+    const serviceObj = allServices.find(
       (s) => s._id === appt.extendedProps.service
     );
 
@@ -682,7 +708,7 @@ const Calendar: React.FC = () => {
   const renderEventContent = (eventInfo: any) => {
     // // map serviceId(in extendedProps) to service name in services list (got from backend)
     const getServiceName = (serviceId: string) => {
-      const serviceObj = services.find((s) => s._id === serviceId);
+      const serviceObj = allServices.find((s) => s._id === serviceId);
       return serviceObj ? serviceObj.name : "Unknown Service";
     };
     return (
