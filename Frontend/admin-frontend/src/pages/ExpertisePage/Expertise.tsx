@@ -21,7 +21,7 @@ export default function Expertise() {
   const [expertises, setExpertises] = useState<Expertise[]>([]);
   const [selectedExpertise, setSelectedExpertise] = useState<Expertise>();
   const [newName, setNewName] = useState("");
-  const [newDescription, setNewDescription] = useState("");
+  const [newDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const {
     isOpen: isOpenNew,
@@ -240,8 +240,6 @@ const CustomerModal: React.FC<ModalProps> = ({
   closeModal,
   expertise,
   onSave = () => {},
-  showCloseButton = true, // Default to true for backwards compatibility
-  isFullscreen = false,
 }) => {
   const [expertiseData, setExpertiseData] = useState<Expertise>({
     _id: "",

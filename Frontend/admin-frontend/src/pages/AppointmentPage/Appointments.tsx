@@ -5,7 +5,7 @@ import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -28,7 +28,7 @@ type ServiceOption = {
 
 export default function Appointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
+  const [, setSelectedAppt] = useState<Appointment | null>(null);
   const [updatedAppt, setUpdatedAppt] = useState<Appointment | null>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const [status, setStatus] = useState<string>("Pending");

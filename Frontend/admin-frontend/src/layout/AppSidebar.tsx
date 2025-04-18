@@ -1,6 +1,6 @@
 import BuildIcon from "@mui/icons-material/Build";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PaidIcon from "@mui/icons-material/Paid";
@@ -20,7 +20,7 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 const AppSidebar: React.FC = () => {
-  const [navItems, setNavItems] = useState<NavItem[]>([
+  const [navItems] = useState<NavItem[]>([
     // {
     //   icon: <DashboardIcon />,
     //   name: "Dashboard",
@@ -78,12 +78,12 @@ const AppSidebar: React.FC = () => {
 
   const isActive = useCallback(
     (path: string) =>
-      path === '/'
-        ? location.pathname === '/'
+      path === "/"
+        ? location.pathname === "/"
         : location.pathname.startsWith(path),
     [location.pathname]
   );
-  
+
   const user = useUser();
   useEffect(() => {
     // filterBasedOnRole();

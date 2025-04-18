@@ -5,8 +5,6 @@ import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
-import { useUser } from "../../context/UserContext";
-import { Navigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 
 // const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
@@ -42,7 +40,6 @@ type Shop = {
 };
 
 export default function ShopSettings() {
-  const user = useUser();
   const { isOpen, openModal, closeModal } = useModal();
   const config = {
     headers: {

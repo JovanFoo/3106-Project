@@ -13,7 +13,6 @@ import {
   CardActions,
   CardContent,
   Chip,
-  CircularProgress,
   Container,
   Dialog,
   Divider,
@@ -125,16 +124,7 @@ interface LeaveRequest {
   image?: string;
 }
 
-interface ApiResponse {
-  data: {
-    leaveRequests: LeaveRequest[];
-    staff: Staff[];
-  };
-  message?: string;
-}
-
 type ViewMode = "status" | "type";
-type LeaveType = "Paid" | "Unpaid";
 
 interface LeaveRequestCellProps {
   request: LeaveRequest;
@@ -200,9 +190,8 @@ const LeaveManagement = (): ReactElement => {
   const theme = useTheme();
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>("status");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [, setLoading] = useState(true);
+  const [viewMode] = useState<ViewMode>("status");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedStatus, setSelectedStatus] = useState<string[]>([
     "Pending",
@@ -222,13 +211,6 @@ const LeaveManagement = (): ReactElement => {
       user.loadUserContext();
     }
   }, [user._id]);
-  // Group leave types into categories
-  const leaveCategories = {
-    "Time Off": ["Paid", "Unpaid"],
-    Family: ["Childcare", "Maternity", "Paternity"],
-    Medical: ["Sick"],
-  };
-
   const fetchLeaveRequests = async () => {
     try {
       setLoading(true);
@@ -243,9 +225,6 @@ const LeaveManagement = (): ReactElement => {
       );
       let leaveRequestsData = leaveRequestsResponse.data;
 
-      const stylistIds = [
-        ...new Set(leaveRequestsData.map((req: any) => req.stylist)),
-      ];
       const stylistsResponse = await api.get("/api/stylists");
       const stylistsData = stylistsResponse.data.map((stylist: any) => ({
         ...stylist,
@@ -341,10 +320,6 @@ const LeaveManagement = (): ReactElement => {
         : [...prev, status]
     );
   };
-
-  const filteredRequests = leaveRequests.filter((request) =>
-    selectedStatus.includes(request.status)
-  );
 
   const renderStats = () => (
     <Card className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">

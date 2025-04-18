@@ -9,8 +9,6 @@ import StylistExpertise from "../StylistUIPage/stylistExpertise";
 import PortfolioView from "../StylistUIPage/stylistPortfolio";
 import StylistProfilePage from "../StylistUIPage/stylistProfilePage";
 import StylistTestimonials from "../StylistUIPage/stylistTestimonials";
-import { useUser } from "../../context/UserContext";
-import { Navigate } from "react-router-dom";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -24,18 +22,17 @@ type TeamMember = {
 };
 
 export default function Teams() {
-  const user = useUser();
   const { isOpen, openModal, closeModal } = useModal();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [availableStylists, setAvailableStylists] = useState<TeamMember[]>([]);
   const [selectedStylistId, setSelectedStylistId] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("info");
-  const [title, setTitle] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
+  const [, setIsLoading] = useState<boolean>(false);
+  const [, setShowAlert] = useState<boolean>(false);
+  const [, setVariant] = useState<"success" | "error" | "warning" | "info">(
+    "info"
+  );
+  const [, setTitle] = useState<string>("");
+  const [, setMessage] = useState<string>("");
 
   const [selectedStylist, setSelectedStylist] = useState<TeamMember | null>(
     null

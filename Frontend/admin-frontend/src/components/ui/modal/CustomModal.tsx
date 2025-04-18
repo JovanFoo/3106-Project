@@ -7,7 +7,7 @@ interface InputProps<T> {
   placeholder: string;
   value: string | number;
   type: "Text" | "Number";
-  onChange: (value: any) => void;
+  onChange: (value: any | T) => void;
 }
 interface ModalProps<T> {
   isOpen: boolean;
@@ -27,10 +27,6 @@ export function CustomModal<V>({
   editObject,
   defaultObject,
   onSave = () => {},
-  onDelete = () => {},
-  isDelete = false,
-  showCloseButton = true, // Default to true for backwards compatibility
-  isFullscreen = false,
   inputs,
 }: ModalProps<V>) {
   const [v, setV] = useState<V>(defaultObject);

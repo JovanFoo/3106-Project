@@ -24,14 +24,6 @@ type ServiceRate = {
   endDate: Date;
 };
 
-type PaginationData = {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  transactions: ServiceRate[];
-};
 export default function Services() {
   // UseStates for Services
   const [serviceRates, setServiceRates] = useState<ServiceRate[]>([]);
@@ -44,7 +36,7 @@ export default function Services() {
   const [totalServiceRates, setTotalServiceRates] = useState(0);
 
   const [selectedServiceRate, setSelectedServiceRate] = useState<ServiceRate>();
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
 
   const {
     isOpen: isOpenNew,
@@ -319,8 +311,6 @@ const CustomerModal: React.FC<ModalProps> = ({
   closeModal,
   serviceRate,
   onSave = () => {},
-  showCloseButton = true, // Default to true for backwards compatibility
-  isFullscreen = false,
 }) => {
   const [serviceRateData, setServiceRateData] = useState<ServiceRate>({
     _id: "",
