@@ -45,7 +45,8 @@ export default function UserLoyaltyPointsCard() {
           <p className="text-gray-700 dark:text-white">
             You currently have{" "}
             <strong className="text-blue-600 dark:text-blue-400 font-bold">
-              {loyaltyPoints} {loyaltyPoints === 1 ? "Point" : "Points"}
+              {loyaltyPoints.toFixed(2)}{" "}
+              {loyaltyPoints === 1 ? "Point" : "Points"}
             </strong>
             ! Book appointments using our site and earn more for discounts!
           </p>

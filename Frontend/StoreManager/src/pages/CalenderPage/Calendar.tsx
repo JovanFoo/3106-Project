@@ -57,9 +57,9 @@ const Calendar: React.FC = () => {
       .then((res) => {
         const resEvents: CalendarEvent[] = res.data;
         const events: CalendarEvent[] = resEvents
-          // .filter((x: CalendarEvent) => {
-          //   return x.status === "Pending";
-          // })
+          .filter((x: CalendarEvent) => {
+            return x.status !== "Cancelled";
+          })
           .map((event: CalendarEvent) => {
             return {
               id: event._id,

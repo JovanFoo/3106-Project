@@ -35,7 +35,7 @@ export default function StylistProfilePage({ stylist }: Props) {
           }
         );
         const data: Stylist = res.data;
-        data.role = "Stylist"; // Ensure the role is set to "Stylist"
+        data.role = res.data.stylists.length > 0 ? "Manager" : "Stylist";
         data.profilePicture = data.profilePicture || "/images/user/owner.jpg"; // Default image if none provided
         setFullStylist(data);
       } catch (err) {

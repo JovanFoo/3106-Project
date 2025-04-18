@@ -65,7 +65,11 @@ export default function Teams() {
         const stylistList = stylistRes.data || [];
 
         teamList.map((member: TeamMember) => {
-          member.role = "Stylist";
+          if (member.stylists) {
+            member.role = member.stylists?.length > 0 ? "Manager" : "Stylist";
+          } else {
+            member.role = "Stylist";
+          }
         });
         setTeamMembers(teamList);
 
@@ -78,7 +82,10 @@ export default function Teams() {
                   member._id.toString() === stylist._id.toString()
               )
           )
-          .filter((stylist: TeamMember) => stylist._id !== user._id)
+          .filter(
+            (stylist: TeamMember) =>
+              stylist._id.toString() !== user._id.toString()
+          )
           .filter((x: TeamMember) =>
             x.stylists ? !(x.stylists.length > 0) : true
           ); // filter out stylists with no stylists
@@ -194,7 +201,7 @@ export default function Teams() {
             </select>
 
             <div className="flex justify-end gap-3 mt-6 mb-2">
-              <Button onClick={closeModal} size="sm" type='neutral'>
+              <Button onClick={closeModal} size="sm" type="neutral">
                 Cancel
               </Button>
               <Button size="sm" variant="primary" onClick={handleAddStylist}>
@@ -250,7 +257,11 @@ export default function Teams() {
           </Modal>
         )}
       </div>
-      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        style={{ zIndex: 999999 }}
+      />
     </div>
   );
 }

@@ -394,9 +394,8 @@ const CustomerModal: React.FC<ModalProps> = ({
             <input
               id="event-start-date"
               type="datetime-local"
+              // type="date"
               value={serviceRateData.startDate.toISOString().substring(0, 16)}
-              // value={eventStartDate?.toISOString().substring(0, 16) || ""}
-              // value="2020-03-12T12:12"
               onChange={(e) => {
                 try {
                   const date: Date = new Date(
@@ -404,6 +403,9 @@ const CustomerModal: React.FC<ModalProps> = ({
                       new Date(e.target.value).getHours() + 8
                     )
                   );
+                  if (isNaN(date.getTime())) {
+                    throw new Error("Invalid date format");
+                  }
                   setServiceRateData({
                     ...serviceRateData,
                     startDate: date,
@@ -422,6 +424,8 @@ const CustomerModal: React.FC<ModalProps> = ({
             <input
               id="event-start-date"
               type="datetime-local"
+              // type="date"
+              // value={serviceRateData.endDate.toDateString()}
               value={serviceRateData.endDate.toISOString().substring(0, 16)}
               // value={eventStartDate?.toISOString().substring(0, 16) || ""}
               // value="2020-03-12T12:12"
@@ -432,6 +436,9 @@ const CustomerModal: React.FC<ModalProps> = ({
                       new Date(e.target.value).getHours() + 8
                     )
                   );
+                  if (isNaN(date.getTime())) {
+                    throw new Error("Invalid date format");
+                  }
                   setServiceRateData({
                     ...serviceRateData,
                     endDate: date,
