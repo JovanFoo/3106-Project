@@ -42,8 +42,8 @@ export default function App() {
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
             {/* Re-routing, front page as /appointments */}
-            <Route index path="/" element={<Navigate to="/appointments" />} />
-            <Route path="/home" element={<Navigate to="/appointments" />} />
+            <Route index path="/" element={<Navigate to="/signin" />} />
+            <Route index path="/home" element={<Navigate to="/appointments" />} />
 
             {/* Others Page */}
             <Route path="/appointments" element={<Calendar />} />
