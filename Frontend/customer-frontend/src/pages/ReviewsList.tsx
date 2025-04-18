@@ -6,6 +6,35 @@ import ReviewModal from "../components/ui/modal/ReviewModal";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+// ---------------------------------- Defining Interfaces ---------------------------------- //
+interface Branch {
+  _id: string;
+  location: string;
+  stylists: string[];
+}
+
+interface Stylist {
+  _id: string;
+  name: string;
+}
+
+interface Review {
+  _id: string;
+  title: string;
+  text: string;
+  stars: number;
+  createdAt: Date;
+  modifiedAt: Date;
+  stylist: {
+    _id: string;
+    name: string;
+  };
+  customer: {
+    username: string;
+  };
+}
+// ---------------------------------- Defining Interfaces ---------------------------------- //
+
 const ReviewsList = () => {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [branch, setBranch] = useState<string>(""); // Now stores branch location (name)
@@ -16,78 +45,51 @@ const ReviewsList = () => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    fetchAllBranchesDefault(); // Fetch branches on page load
+    fetchAllBranches(); // Fetch branches on page load
     fetchAllStylists(); // Fetch all stylists on page load
+    fetchReviews("", ""); // (branch, stylist)
   }, []); // This will run only once, when the component is mounted
 
   useEffect(() => {
     if (branch) {
       fetchReviews(branch, stylist); // Fetch reviews for the selected branch and stylist
     }
-    fetchAllBranches; // reload if there are new branches added to system
-    fetchAllStylists; // reload if there are new stylists added to system
+    fetchAllBranches(); // reload if there are new branches added to system
+    fetchAllStylists(); // reload if there are new stylists added to system
   }, [branch, stylist]); // Whenever the branch or stylist changes, this effect will run
 
-  // ---------------------------------- Defining Interfaces ---------------------------------- //
-  interface Branch {
-    _id: string;
-    location: string;
-    stylists: string[];
-  }
+  // // Fetch all branches
+  // const fetchAllBranchesDefault = async () => {
+  //   const userData = localStorage.getItem("user");
+  //   if (userData) {
+  //     const customer = JSON.parse(userData);
+  //     const token = customer.tokens.token;
+  //     try {
+  //       const response = await fetch(`${API_URL}/api/branches`, {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: token,
+  //         },
+  //       });
+  //       if (!response.ok) throw new Error("Failed to fetch branches");
 
-  interface Stylist {
-    _id: string;
-    name: string;
-  }
+  //       const data: Branch[] = await response.json();
+  //       const sortedBranches = data.sort((a: Branch, b: Branch) =>
+  //         a.location.localeCompare(b.location)
+  //       );
+  //       setBranches(sortedBranches);
 
-  interface Review {
-    _id: string;
-    title: string;
-    text: string;
-    stars: number;
-    createdAt: Date;
-    modifiedAt: Date;
-    stylist: {
-      name: string;
-    };
-    customer: {
-      username: string;
-    };
-  }
-  // ---------------------------------- Defining Interfaces ---------------------------------- //
-
-  // Fetch all branches
-  const fetchAllBranchesDefault = async () => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const customer = JSON.parse(userData);
-      const token = customer.tokens.token;
-      try {
-        const response = await fetch(`${API_URL}/api/branches`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        });
-        if (!response.ok) throw new Error("Failed to fetch branches");
-
-        const data: Branch[] = await response.json();
-        const sortedBranches = data.sort((a: Branch, b: Branch) =>
-          a.location.localeCompare(b.location)
-        );
-        setBranches(sortedBranches);
-
-        // Set default branch (location) for the page
-        if (sortedBranches.length > 0) {
-          const defaultBranch = sortedBranches[0];
-          setBranch(defaultBranch.location); // Set default branch by location
-        }
-      } catch (error) {
-        console.error("Error fetching branches:", error);
-      }
-    }
-  };
+  //       // Set default branch (location) for the page
+  //       if (sortedBranches.length > 0) {
+  //         const defaultBranch = sortedBranches[0];
+  //         setBranch(defaultBranch.location); // Set default branch by location
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching branches:", error);
+  //     }
+  //   }
+  // };
 
   // Fetch all branches
   const fetchAllBranches = async () => {
@@ -140,47 +142,82 @@ const ReviewsList = () => {
     }
   };
 
-  // Fetch reviews for the selected branch and stylist
+  // fetch reviews
   const fetchReviews = async (
     branchLocation: string,
     selectedStylistName: string
   ) => {
-    if (!branchLocation) return;
-
     const userData = localStorage.getItem("user");
     if (!userData) return;
 
     const customer = JSON.parse(userData);
     const token = customer.tokens.token;
 
+    // console.log("FETCHREVIEWS ENTERED");
+    // console.log("branchLocation:", branchLocation);
+    // console.log("selectedStylistName:", selectedStylistName);
+
     try {
-      const branchId = await retrieveBranchIdByBranchLocation(branchLocation);
-      if (!branchId) return;
+      let url = "";
 
-      let url = `${API_URL}/api/reviews/branch/${branchId}`; // default: branch reviews
+      // case 1: no branch selected and no stylist — fetch all reviews
+      if (branchLocation === "" && selectedStylistName === "") {
+        url = `${API_URL}/api/reviews`;
+      }
 
-      // If a stylist is selected, validate they belong to the branch
-      if (selectedStylistName) {
+      // case 2: no branch selected, but have stylist — fetch stylist reviews globally
+      else if (branchLocation === "" && selectedStylistName !== "") {
         const matchingStylists = await retrieveStylistsByName(
           selectedStylistName
         );
-        const branchObj = branches.find((b) => b.location === branchLocation);
 
-        if (!branchObj || matchingStylists.length === 0) return;
-
-        // Find a stylist with matching name who works at the current branch
-        const branchStylist = matchingStylists.find(
-          (stylist: { _id: string }) => branchObj.stylists.includes(stylist._id)
-        );
-
-        if (branchStylist) {
-          url = `${API_URL}/api/reviews/stylist/${branchStylist._id}`;
-        } else {
-          // No stylist match for this branch – return empty review list
+        if (matchingStylists.length === 0) {
           setReviews([]);
           return;
         }
+        // ASSUMING stylist name is unique --> no duplicates
+        // else, need to change fetch method.
+        url = `${API_URL}/api/reviews/stylist/${matchingStylists[0]._id}`;
       }
+
+      // case 3 & 4: branch is selected
+      else if (branchLocation !== "") {
+        const branchId = await retrieveBranchIdByBranchLocation(branchLocation);
+        if (!branchId) return;
+
+        // case 3: branch selected but no stylist — fetch all reviews from branch
+        if (selectedStylistName === "") {
+          url = `${API_URL}/api/reviews/branch/${branchId}`;
+        }
+
+        // case 4: branch selected and have stylist — fetch reviews only if stylist works at this branch
+        else {
+          const matchingStylists = await retrieveStylistsByName(
+            selectedStylistName
+          );
+          const branchObj = branches.find((b) => b.location === branchLocation);
+
+          if (!branchObj || matchingStylists.length === 0) {
+            setReviews([]);
+            return;
+          }
+
+          const branchStylist = matchingStylists.find(
+            (stylist: { _id: string }) =>
+              branchObj.stylists.includes(stylist._id)
+          );
+
+          if (branchStylist) {
+            url = `${API_URL}/api/reviews/stylist/${branchStylist._id}`;
+          } else {
+            // Stylist does not belong to selected branch
+            setReviews([]);
+            return;
+          }
+        }
+      }
+
+      if (!url) return;
 
       const response = await fetch(url, {
         method: "GET",
@@ -260,6 +297,7 @@ const ReviewsList = () => {
     setBranch(selectedBranchLocation);
     setStylist(""); // Reset the selected stylist when branch changes
     setReviews([]);
+    fetchReviews(selectedBranchLocation, "");
   };
 
   // Handle stylist change
@@ -270,14 +308,41 @@ const ReviewsList = () => {
     fetchReviews(branch, selectedStylistName); // Re-fetch reviews for the branch with the selected stylist
   };
 
+  // Handle clear filters
+  const handleClearFilters = () => {
+    setBranch("");
+    setStylist("");
+    setReviews([]);
+    fetchReviews("", ""); // e-fetch all reviews
+  };
+
   // Filter stylists to show only those working at the selected branch
-  const filteredStylists = allStylists.filter((stylist) =>
-    branches.find((b) => b.location === branch)?.stylists.includes(stylist._id)
+  const filteredStylists = branch
+    ? allStylists.filter((stylist) =>
+        branches
+          .find((b) => b.location === branch)
+          ?.stylists.includes(stylist._id)
+      )
+    : allStylists;
+
+  const stylistBranchMap: Record<string, string> = {};
+  branches.forEach((branch) => {
+    branch.stylists.forEach((stylistId) => {
+      stylistBranchMap[stylistId] = branch.location;
+    });
+  });
+
+  // After setting reviews, use this to populate reviews (sorted, top-down left to right --> latest to oldest)
+  const sortedReviews = [...reviews].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
   return (
     <>
-      <PageMeta title="Customer Reviews" description="View Customer Reviews" />
+      <PageMeta
+        title="BuzzBook - Reviews"
+        description="View Customer Reviews"
+      />
       <PageBreadcrumb pageTitle="Reviews" />
 
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
@@ -293,7 +358,7 @@ const ReviewsList = () => {
               onChange={handleBranchChange}
               className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
             >
-              <option value="">Select a branch</option>
+              <option value="">All Branches</option>
               {branches.map((b) => (
                 <option key={b._id} value={b.location}>
                   {b.location}
@@ -320,11 +385,21 @@ const ReviewsList = () => {
               ))}
             </select>
           </div>
+
+          {/* Clear Filters Button */}
+          <div>
+            <button
+              onClick={handleClearFilters}
+              className="mt-8 h-11 px-4 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            >
+              Clear Filters
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Review Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {reviews.map((review) => (
+          {sortedReviews.map((review) => (
             <ReviewCard
               key={review._id}
               review={review}
@@ -332,6 +407,7 @@ const ReviewsList = () => {
                 setSelectedReview(review);
                 setShowModal(true);
               }}
+              stylistBranchMap={stylistBranchMap}
             />
           ))}
 
@@ -339,6 +415,7 @@ const ReviewsList = () => {
             <ReviewModal
               review={selectedReview}
               onClose={() => setShowModal(false)}
+              stylistBranchMap={stylistBranchMap}
             />
           )}
         </div>

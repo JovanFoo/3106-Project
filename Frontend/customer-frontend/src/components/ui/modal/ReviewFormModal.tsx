@@ -57,31 +57,33 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-99999"
+      className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-99999"
       onClick={handleBackdropClick}
     >
       <div
-        className="bg-white max-w-lg w-full p-6 rounded-xl shadow-xl relative"
+        className="bg-white dark:bg-gray-800 max-w-lg w-full p-6 rounded-xl shadow-xl relative text-gray-800 dark:text-gray-200"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-5 text-gray-400 hover:text-gray-700 text-2xl font-bold transition-colors"
+          className="absolute top-3 right-5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl font-bold transition-colors"
           aria-label="Close"
         >
           &times;
         </button>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
           {review ? "Edit Review" : "Add Review"}
         </h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-medium mb-1">
+            <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
               Title
             </label>
             <input
               type="text"
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-3 py-2"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -89,24 +91,24 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">
+            <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
               Review Text
             </label>
             <textarea
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-3 py-2"
               value={text}
               onChange={(e) => setText(e.target.value)}
               required
-              rows={4}
+              rows={5}
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">
+            <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
               Stars
             </label>
             <select
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-3 py-2"
               value={stars}
               onChange={(e) => setStars(Number(e.target.value))}
               required
@@ -126,7 +128,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
             {review ? "Update Review" : "Submit Review"}
           </button>
 
-          {/* Conditionally render delete button if the review exists */}
           {review && onDelete && (
             <button
               type="button"

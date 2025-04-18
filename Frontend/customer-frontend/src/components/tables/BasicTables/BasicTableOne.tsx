@@ -37,6 +37,34 @@ export default function BasicTableOne() {
     []
   );
 
+  const fetchStylistsall = async () => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const customer = JSON.parse(userData);
+      const token = customer.tokens.token;
+      try {
+        const response = await fetch(`${API_URL}/api/stylists`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch stylists");
+
+        const data = await response.json();
+        setStylists(data);
+        console.log(data, "stylists");
+      } catch (error) {
+        console.error("Error fetching stylist:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchStylistsall();
+  }, []);
+
   useEffect(() => {
     // get list of all available branches
     const fetchBranches = async () => {
@@ -95,6 +123,8 @@ export default function BasicTableOne() {
   useEffect(() => {
     if (branch) {
       fetchStylists(branch);
+    } else {
+      fetchStylistsall();
     }
   }, [branch]);
 
@@ -107,12 +137,13 @@ export default function BasicTableOne() {
             <label className="mr-2 font-medium text-gray-700 dark:text-white">
               Select Branch:
             </label>
+
             <select
-              className="border border-gray-300 rounded px-2 py-1 text-sm dark:bg-gray-800 dark:text-white"
+              className="border border-gray-300 rounded px-2 py-1 text-sm dark:bg-gray-800 dark:text-white min-w-[158px] w-auto"
               value={branch}
               onChange={(e) => setBranch(e.target.value)}
             >
-              <option value="">-- Select Branch --</option>
+              <option value="">-- All Branches --</option>
               {branches.map((b) => (
                 <option key={b._id} value={b._id}>
                   {b.location}

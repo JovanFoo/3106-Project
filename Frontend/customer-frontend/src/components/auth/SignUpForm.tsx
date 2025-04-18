@@ -5,6 +5,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function SignUpForm() {
@@ -20,7 +21,7 @@ export default function SignUpForm() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     console.log(formData);
   };
@@ -28,16 +29,11 @@ export default function SignUpForm() {
   // Inside your SignUpForm function
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     console.log("clicked");
     e.preventDefault();
     setLoading(true);
     setSuccessMessage("");
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      setLoading(false);
-      return;
-    }
 
     if (
       !formData.name ||
@@ -46,6 +42,12 @@ export default function SignUpForm() {
       !formData.password
     ) {
       setError("All fields are required.");
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
       setLoading(false);
       return;
     }
@@ -81,6 +83,7 @@ export default function SignUpForm() {
 
         // Redirect user to the login page
         // setSuccessMessage("Account created successfully! Please log in.");
+        toast.success("You have successfully registered an account!");
         navigate("/appointments");
       }
     } catch (error) {
@@ -117,7 +120,6 @@ export default function SignUpForm() {
                     placeholder="Enter your name"
                     value={formData.name}
                     onChange={handleChange}
-                    required
                   />
                 </div>
                 <div className="sm:col-span-1">
@@ -131,7 +133,6 @@ export default function SignUpForm() {
                     placeholder="Enter your username"
                     value={formData.username}
                     onChange={handleChange}
-                    required
                   />
                 </div>
               </div>
@@ -147,7 +148,6 @@ export default function SignUpForm() {
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={handleChange}
-                  required
                 />
               </div>
 
@@ -162,7 +162,6 @@ export default function SignUpForm() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    required
                   />
                   <span
                     onClick={() => setShowPassword(!showPassword)}
@@ -182,7 +181,6 @@ export default function SignUpForm() {
                   className="w-5 h-5"
                   checked={isChecked}
                   onChange={() => setIsChecked(!isChecked)}
-                  required
                 />
                 <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
                   By creating an account, you agree to the{" "}
@@ -196,9 +194,9 @@ export default function SignUpForm() {
                 </p>
               </div>
 
-              {error && <p className="text-red-500">{error}</p>}
+              {error && <p className="text-red-500 text-center">{error}</p>}
               {successMessage && (
-                <p className="text-green-500">{successMessage}</p>
+                <p className="text-green-500 text-center">{successMessage}</p>
               )}
 
               <div>
@@ -220,6 +218,7 @@ export default function SignUpForm() {
                 to="/signin"
                 className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
               >
+                {" "}
                 Sign In
               </Link>
             </p>

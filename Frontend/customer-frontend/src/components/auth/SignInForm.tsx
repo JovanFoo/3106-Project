@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
+import { toast } from "react-toastify";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
@@ -16,14 +17,14 @@ export default function SignInForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "username") setUsername(value);
     if (name === "password") setPassword(value);
     console.log(username, password);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -47,6 +48,7 @@ export default function SignInForm() {
       if (response.ok) {
         console.log(JSON.stringify(data));
         localStorage.setItem("user", JSON.stringify(data));
+        toast.success("You have successfully logged in!");
         navigate("/appointments");
       }
     } catch (err) {
@@ -81,7 +83,6 @@ export default function SignInForm() {
                   placeholder="Enter your username"
                   value={username}
                   onChange={handleChange}
-                  required
                 />
               </div>
 
@@ -96,7 +97,6 @@ export default function SignInForm() {
                     placeholder="Enter your password"
                     value={password}
                     onChange={handleChange}
-                    required
                   />
                   <span
                     onClick={() => setShowPassword(!showPassword)}
@@ -126,7 +126,7 @@ export default function SignInForm() {
                 </Link>
               </div>
 
-              {error && <p className="text-red-500">{error}</p>}
+              {error && <p className="text-red-500 text-center">{error}</p>}
 
               <div>
                 <Button className="w-full" size="sm" disabled={loading}>

@@ -4,7 +4,7 @@ const PasswordHash = require("../utils/passwordHash.js");
 const jwt = require("../utils/jwt.js");
 
 const CustomerController = {
-  // Retrieve a customer by username
+  // Retrieve a customer by ID
   async retrieve(req, res) {
     console.log("CustomerController > retrieve");
     const { id } = req.params;
@@ -16,7 +16,58 @@ const CustomerController = {
       return res.status(400).json({ message: "Error retrieving customer" });
     }
   },
-  // Update a customer's name email by username
+
+  // Retrieve customer by username
+  async retrieveByUsername(req, res) {
+    console.log("CustomerController > retrieveByUsername");
+
+    const { username } = req.params; // Get the username from the URL params
+
+    try {
+      const customer = await Customer.findOne({ username: username });
+
+      if (customer) {
+        customer.password = undefined; // Ensure password is not sent back in response
+        return res.status(200).json(customer);
+      } else {
+        return res
+          .status(404)
+          .json({ message: "Customer with this username not found" });
+      }
+    } catch (error) {
+      console.error("Error retrieving customer by username:", error);
+      return res
+        .status(500)
+        .json({ message: "Error retrieving customer", error: error.message });
+    }
+  },
+
+  // Retrieve customer by email
+  async retrieveByEmail(req, res) {
+    console.log("CustomerController > retrieveByEmail");
+
+    const { email } = req.params; // Get the email from the URL params
+
+    try {
+      const customer = await Customer.findOne({ email: email });
+
+      if (customer) {
+        customer.password = undefined; // Ensure password is not sent back in response
+        return res.status(200).json(customer);
+      } else {
+        return res
+          .status(404)
+          .json({ message: "Customer with this email not found" });
+      }
+    } catch (error) {
+      console.error("Error retrieving customer by email:", error);
+      return res
+        .status(500)
+        .json({ message: "Error retrieving customer", error: error.message });
+    }
+  },
+
+  // Update a customer's name email
   async update(req, res) {
     console.log("CustomerController > update");
     const { id } = req.params;
@@ -59,7 +110,7 @@ const CustomerController = {
     customer.password = undefined;
     return res.status(200).json(customer);
   },
-  // Delete a customer by username
+  // Delete a customer by ID
   async delete(req, res) {
     console.log("CustomerController > delete");
     const { id } = req.userId;

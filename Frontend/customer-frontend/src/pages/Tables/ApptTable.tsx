@@ -1,6 +1,3 @@
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import ComponentCard from "../../components/common/ComponentCard";
-import PageMeta from "../../components/common/PageMeta";
 import AppointmentTableOne from "../../components/tables/BasicTables/AppointmentTableOne";
 
 interface Branch {
@@ -56,7 +53,7 @@ interface Props {
 export default function ApptTable({ appointment }: Props) {
   return (
     <>
-      <PageMeta title="BuzzBook" description="BuzzBook" />
+      {/* <PageMeta title="BuzzBook - Past Appointments" description="BuzzBook" /> */}
       {/* <PageBreadcrumb pageTitle="Appointments" /> */}
       <div className="space-y-6">
         <AppointmentTableOne appointment={appointment} />
