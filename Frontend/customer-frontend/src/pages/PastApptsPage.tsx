@@ -4,11 +4,21 @@ import ComponentCard from "../components/common/ComponentCard";
 import ApptTable from "./Tables/ApptTable";
 import PageMeta from "../components/common/PageMeta";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
+import { useNavigate } from "react-router";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const PastApptsPage = () => {
   const [appts, setAppts] = useState<[]>([]);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      navigate("/"); // authentication check
+    }
+  }, []);
 
   // fetch all appointment details
   useEffect(() => {

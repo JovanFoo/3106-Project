@@ -11,6 +11,7 @@ import PageBreadcrumb from "../components/common/PageBreadCrumb";
 const API_URL = import.meta.env.VITE_API_URL;
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -73,6 +74,15 @@ const Calendar: React.FC = () => {
   const servicePrice = selectedService?.serviceRate ?? 0;
   const pointValue = 0.1; // 10 cents per point
   const finalPrice = Math.max(servicePrice - useLoyaltyPoints * pointValue, 0);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      navigate("/"); // authentication check
+    }
+  }, []);
 
   // const calendarsEvents = {
   //   Danger: "danger",
@@ -194,16 +204,13 @@ const Calendar: React.FC = () => {
       const customer = JSON.parse(userData);
       const token = customer.tokens.token;
       try {
-        const response = await fetch(
-          `${API_URL}/api/services`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: token,
-            },
-          }
-        );
+        const response = await fetch(`${API_URL}/api/services`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
         if (!response.ok) throw new Error("Failed to fetch services");
         const data = await response.json();
         // console.log(data, "initial");
