@@ -20,9 +20,6 @@ const TeamController = {
     const otherbranchManager = await Branch.findOne().where({
       manager: stylistId,
     });
-    const otherBranch = await Branch.findOne().where({
-      stylists: stylistId,
-    });
 
     if (!stylist) {
       return res.status(400).json({ message: "Stylist not found" });
@@ -66,12 +63,19 @@ const TeamController = {
       savedStylistManager.stylists.map(
         (stylist) => (stylist.password = undefined)
       );
+      const otherBranch = await Branch.findOne().where({
+        stylists: stylistId,
+      });
       if (otherBranch) {
-        otherBranch.stylists.filter((staff) => staff != stylistId);
+        otherBranch.stylists = otherBranch.stylists.filter((staff) => {
+          return staff.toString() != stylistId;
+        });
         await otherBranch.save();
         const otherManager = await Stylist.findById(otherBranch.manager);
         if (otherManager) {
-          otherManager.stylists.filter((staff) => staff != stylistId);
+          otherManager.stylists = otherManager.stylists.filter((staff) => {
+            return staff._id.toString() != stylistId;
+          });
           await otherManager.save();
         }
       }
