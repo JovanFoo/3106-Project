@@ -927,8 +927,9 @@ const Calendar: React.FC = () => {
                       htmlFor="points-slider"
                       className="block text-sm text-gray-700 dark:text-gray-400"
                     >
-                      Points to use: <strong>{useLoyaltyPoints}</strong> /{" "}
-                      {userLoyaltyPoints + editpointsused}
+                      Points to use:{" "}
+                      <strong>{useLoyaltyPoints.toFixed(2)}</strong> /{" "}
+                      {(userLoyaltyPoints + editpointsused).toFixed(2)}
                     </label>
                     <input
                       id="points-slider"
