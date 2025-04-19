@@ -55,22 +55,26 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex flex-col flex-1">
-      <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
-        <h1 className="mb-4 text-center font-semibold text-gray-800">
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+      <div className="w-full max-w-md p-6 rounded-2xl shadow-xl border border-border bg-card dark:border-2 dark:border-gray-600">
+        <h1 className="mb-6 text-3xl font-bold text-center dark:text-gray-200">
           Reset Password
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={handleChange}
-          />
-          {message && <p className="text-green-500">{message}</p>}
-          {error && <p className="text-red-500">{error}</p>}
+          <div className="space-y-2 mb-4">
+            <Input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            {message && <p className="text-green-500 text-center">{message}</p>}
+            {error && <p className="text-red-500 text-center">{error}</p>}
+          </div>
 
           <Button className="w-full" size="sm" disabled={loading}>
             {loading ? "Sending..." : "Send Reset Link"}
@@ -79,7 +83,7 @@ export default function ResetPassword() {
 
         <div className="mt-4 text-center">
           <Button className="w-full" size="sm" onClick={handleBack}>
-            Back
+            Back to Login
           </Button>
         </div>
       </div>
