@@ -15,13 +15,13 @@ export default function UserDropdown() {
   const { user } = useUser();
 
   useEffect(() => {
-    console.log("activated");
+    // console.log("activated");
     async function fetchUserData() {
       const userData = localStorage.getItem("user");
 
       if (userData) {
         const user = JSON.parse(userData);
-        console.log(user);
+        // console.log(user);
 
         try {
           const response = await fetch(
@@ -39,7 +39,7 @@ export default function UserDropdown() {
           }
 
           console.log(data);
-          setname(data.username); // Set the name in state
+          setname(data.username); // set the name in state
           setProfilepic(data.profilePicture);
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -138,8 +138,8 @@ export default function UserDropdown() {
         <Link
           to="/signin"
           onClick={() => {
-            localStorage.removeItem("user"); // Remove user data
-            setname(""); // Clear state
+            localStorage.removeItem("user"); // remove user data
+            setname(""); // clear state (redundant now)
             setemail("");
           }}
           className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"

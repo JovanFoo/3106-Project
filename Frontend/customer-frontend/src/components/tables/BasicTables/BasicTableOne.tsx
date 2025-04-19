@@ -30,8 +30,6 @@ interface Stylist {
   bio: string;
 }
 
-// Define the table data using the interface
-
 export default function BasicTableOne() {
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [branch, setBranch] = useState("");

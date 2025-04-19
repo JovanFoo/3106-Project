@@ -21,13 +21,13 @@ const CustomerController = {
   async retrieveByUsername(req, res) {
     console.log("CustomerController > retrieveByUsername");
 
-    const { username } = req.params; // Get the username from the URL params
+    const { username } = req.params; // get the username from the URL params
 
     try {
       const customer = await Customer.findOne({ username: username });
 
       if (customer) {
-        customer.password = undefined; // Ensure password is not sent back in response
+        customer.password = undefined; // to ensure password is not sent back in response
         return res.status(200).json(customer);
       } else {
         return res
@@ -46,13 +46,13 @@ const CustomerController = {
   async retrieveByEmail(req, res) {
     console.log("CustomerController > retrieveByEmail");
 
-    const { email } = req.params; // Get the email from the URL params
+    const { email } = req.params; // get the email from the URL params
 
     try {
       const customer = await Customer.findOne({ email: email });
 
       if (customer) {
-        customer.password = undefined; // Ensure password is not sent back in response
+        customer.password = undefined; // to ensure password is not sent back in response
         return res.status(200).json(customer);
       } else {
         return res
@@ -180,8 +180,8 @@ const CustomerController = {
     customer.password = await PasswordHash.hashPassword(password);
 
     await customer.save();
-    console.log("successs");
-    return res.status(200).json({ message: "password changes suucessfully" });
+    console.log("success");
+    return res.status(200).json({ message: "Password changed successfully!" });
   },
 
   async updateProfilePicture(req, res) {

@@ -12,13 +12,13 @@ const ReviewController = {
     const { appointmentId } = req.params;
     const { text, stars, title } = req.body;
 
-    // Check if all required fields are provided
+    // check if all required fields are provided
     if (!text || !stars || !title) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     try {
-      // Parse stars as a float, handle potential invalid input
+      // parse stars as a float (thought it should be integer), handle potential invalid input
       const numberStar = parseFloat(stars);
       if (isNaN(numberStar) || numberStar < 1 || numberStar > 5) {
         return res.status(400).json({
@@ -27,32 +27,32 @@ const ReviewController = {
         });
       }
 
-      // Find the appointment
+      // Ffind the appointment
       const appointment = await Appointment.findById(appointmentId);
       if (!appointment) {
         return res.status(404).json({ message: "Appointment not found" });
       }
 
-      // Create a new review object
+      // create a new review object
       const review = new Review({
         title,
         text,
         stars: numberStar,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        stylist: appointment.stylist, // This pulls stylist data from the appointment
-        appointment: appointment._id, // Store the appointment's _id reference here
-        customer: req.userId, // Link the review to the authenticated customer
+        stylist: appointment.stylist,
+        appointment: appointment._id,
+        customer: req.userId,
       });
 
-      // Save the review
+      // save the review
       await review.save();
 
-      // Update the appointment with the new review
+      // update the appointment with the new review
       appointment.review = review._id;
       await appointment.save();
 
-      // Return the created review
+      // return the created review
       return res.status(201).json(review);
     } catch (error) {
       console.log(error.message);
@@ -84,7 +84,7 @@ const ReviewController = {
       const reviews = await Review.find({})
         .populate("stylist", "name")
         .populate("customer", "username")
-        .sort({ createdAt: -1 }); // Optional: sort by newest first
+        .sort({ createdAt: -1 }); // optional: sort by newest first
 
       if (!reviews || reviews.length === 0) {
         return res.status(404).json({ message: "No reviews found" });
@@ -102,21 +102,21 @@ const ReviewController = {
     const { branchId } = req.params;
 
     try {
-      // Step 1: Fetch the branch by ID
+      // fetch the branch by ID
       const branch = await Branch.findById(branchId).populate("stylists");
 
       if (!branch) {
         return res.status(404).json({ message: "Branch not found" });
       }
 
-      // Step 2: Get all stylists for the branch
+      // get all stylists for the branch
       const stylists = branch.stylists;
 
       if (!stylists || stylists.length === 0) {
         return res.status(200).json([]);
       }
 
-      // Step 3: Fetch appointments for the stylists of the branch
+      // fetch appointments for the stylists of the branch
       const appointments = await Appointment.find({
         stylist: { $in: stylists.map((stylist) => stylist._id) },
       }).select("_id");
@@ -125,7 +125,7 @@ const ReviewController = {
         return res.status(200).json([]);
       }
 
-      // Step 4: Fetch reviews for the appointments
+      // fetch reviews for the appointments
       const reviews = await Review.find({
         appointment: {
           $in: appointments.map((appointment) => appointment._id),
@@ -134,7 +134,7 @@ const ReviewController = {
         .populate("stylist", "name")
         .populate("customer", "username");
 
-      // Step 5: Return the reviews (can be empty)
+      // return the reviews (can be empty)
       res.status(200).json(reviews);
     } catch (error) {
       console.error("Error fetching reviews for branch:", error);
@@ -148,7 +148,7 @@ const ReviewController = {
     const { text, stars, title } = req.body;
 
     try {
-      // Find and update the review
+      // find and update the review
       const updatedReview = await Review.findByIdAndUpdate(
         id,
         { title, text, stars, modifiedAt: new Date() },
@@ -184,7 +184,7 @@ const ReviewController = {
     }
 
     try {
-      // Remove the review from the appointment
+      // remove the review from the appointment
       const review = await Review.findByIdAndDelete(id);
 
       const matchingAppointments = customer.appointments.filter(
@@ -236,30 +236,29 @@ const ReviewController = {
       return res.status(500).json({ message: "Internal Server Error" });
     }
   },
-  // Retrieve reviews for a specific stylist
 
-  // Retrieve reviews for a specific stylist (Customer-side)
+  // retrieve reviews for a specific stylist (Customer-side)
   async retrieveStylistReviews(req, res) {
     console.log("ReviewController > retrieveStylistReviews");
     const { stylistId } = req.params;
 
     try {
-      // Step 1: Find the stylist by ID
+      // find the stylist by ID
       const stylist = await Stylist.findById(stylistId);
       if (!stylist) {
         return res.status(404).json({ message: "Stylist not found" });
       }
-      // Step 2: Fetch all appointments for the given stylist that have reviews
+      // fetch all appointments for the given stylist that have reviews
       const appointments = await Appointment.find({
         stylist: stylistId,
-        review: { $ne: null }, // Only fetch appointments that have reviews
+        review: { $ne: null }, // only fetch appointments that have reviews
       });
 
       if (appointments.length === 0) {
         return res.status(200).json([]);
       }
 
-      // Step 3: Fetch reviews for the appointments
+      // fetch reviews for the appointments
       const reviews = await Review.find({
         appointment: {
           $in: appointments.map((appointment) => appointment._id),
@@ -268,7 +267,7 @@ const ReviewController = {
         .populate("stylist", "name")
         .populate("customer", "username");
 
-      // Return the reviews with the associated customer data (can be empty)
+      // return the reviews with the associated customer data (can be empty)
       return res.status(200).json(reviews);
     } catch (error) {
       console.error("Error retrieving stylist reviews:", error);

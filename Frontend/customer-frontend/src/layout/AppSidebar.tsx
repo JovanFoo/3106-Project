@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
-// Assume these icons are imported from an icon library
 import {
   CalenderIcon,
   ChevronDownIcon,
@@ -41,7 +40,7 @@ const navItems: NavItem[] = [
   },
   {
     name: "View Customer Reviews",
-    icon: <ListIcon />, // to be replaced
+    icon: <ListIcon />,
     path: "/reviews",
   },
 ];
