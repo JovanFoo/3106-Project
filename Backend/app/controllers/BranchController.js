@@ -367,7 +367,7 @@ const BranchController = {
       await tobeManager.save();
       branch.manager = stylistId;
       await branch.save();
-      return res.status(204);
+      return res.status(200).json(branch);
     } catch (error) {
       console.log(error.message);
       return res.status(500).json({ message: "Error updating branch" });
@@ -436,7 +436,10 @@ const BranchController = {
         stylist.stylists.push(stylistId);
         await stylist.save();
       }
-      res.status(200).json(branch);
+      const returnBranch = await Branch.findById(branchId)
+        .populate("stylists", "name")
+        .populate("manager", "name");
+      res.status(200).json(returnBranch);
     } catch (error) {
       console.log(error.message);
       return res.status(500).json({ message: "Error updating branch" });

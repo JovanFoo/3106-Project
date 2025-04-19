@@ -60,24 +60,29 @@ export default function CreateShop() {
     stylists?: Stylist[];
   };
 
+  const fetchShops = async () => {
+    //   console.log("Fetching shops...");
+    try {
+      const response = await axios.get(`${api_address}/api/branches`, config);
+      setShops(response.data);
+      // console.log("Shops fetched:", response.data);
+    } catch (error) {
+      console.error("Error fetching shops:", error);
+    }
+  };
+  const fetchStylists = async () => {
+    try {
+      const response = await axios.get(`${api_address}/api/stylists`, config);
+      setAllStylists(response.data);
+    } catch (error) {
+      console.error("Error fetching stylists:", error);
+    }
+  };
   useEffect(() => {
-    if (isLoading) return; // Prevent multiple fetches
-    const fetchShops = async () => {
-      try {
-        const response = await axios.get(`${api_address}/api/branches`, config);
-        setShops(response.data);
-      } catch (error) {
-        console.error("Error fetching shops:", error);
-      }
-    };
-    const fetchStylists = async () => {
-      try {
-        const response = await axios.get(`${api_address}/api/stylists`, config);
-        setAllStylists(response.data);
-      } catch (error) {
-        console.error("Error fetching stylists:", error);
-      }
-    };
+    if (isLoading) {
+      // console.log("Loading...");
+      return;
+    } // Prevent multiple fetches
     fetchStylists();
     fetchShops();
   }, [isLoading]);
@@ -103,11 +108,11 @@ export default function CreateShop() {
           newShop,
           config
         );
-        setShops((prev) =>
-          prev.map((shop) =>
-            shop._id === editingShopId ? response.data : shop
-          )
-        );
+        // setShops((prev) =>
+        //   prev.map((shop) =>
+        //     shop._id === editingShopId ? response.data : shop
+        //   )
+        // );
         toast.success("Shop updated successfully.");
         setIsLoading(false);
       } else {
@@ -164,6 +169,8 @@ export default function CreateShop() {
     setSelectedStylists([]);
     setManager(null);
     setEditingShopId(null);
+    setUpdatedManager(null);
+    setAddedStylist(null);
   };
 
   const handleEdit = async (shop: any) => {
@@ -195,32 +202,28 @@ export default function CreateShop() {
     }
   };
 
-  const handleChangeManager = (stylistId: string) => {
+  const handleChangeManager = async (stylistId: string) => {
     setIsLoading(true);
     closeModal();
-    axios
+    await axios
       .put(
         `${api_address}/api/branches/assign/manager/${editingShopId}`,
         { stylistId: stylistId },
         config
       )
-      .then((response) => {
-        const updatedShop = response.data;
-        setManager(updatedShop.manager);
-        setSelectedStylists(updatedShop.stylists || []);
+      .then(() => {
         toast.success("Manager updated successfully.");
         setIsLoading(false);
+        fetchShops();
       })
       .catch((error) => {
         console.error("Error updating manager:", error);
-        toast.error(
-          error.response?.data?.message || "Failed to update manager."
-        );
+        toast.error("Failed to update manager.");
       });
   };
-  const handleAddStylist = (stylistId: string) => {
+  const handleAddStylist = async (stylistId: string) => {
     setIsLoading(true);
-    axios
+    await axios
       .put(
         `${api_address}/api/branches/add/stylist/${editingShopId}`,
         { stylistId: stylistId },
@@ -228,16 +231,15 @@ export default function CreateShop() {
       )
       .then((response) => {
         const updatedShop = response.data;
+        console.log("Updated shop:", updatedShop);
         setManager(updatedShop.manager);
         setSelectedStylists(updatedShop.stylists || []);
-        toast.success("Manager updated successfully.");
+        toast.success("Added stylist successfully.");
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error("Error updating manager:", error);
-        toast.error(
-          error.response?.data?.message || "Failed to update manager."
-        );
+        console.error("Error adding stylist:", error);
+        toast.error("Failed to add stylist.");
       });
   };
 
@@ -564,9 +566,6 @@ export default function CreateShop() {
                     type="danger"
                     onClick={() => {
                       confirmDeleteShop(editingShopId);
-                      if (updatedManager) {
-                        handleChangeManager(updatedManager?._id || "");
-                      }
                     }}
                   >
                     Delete
@@ -584,7 +583,17 @@ export default function CreateShop() {
                 >
                   Cancel
                 </Button>
-                <Button size="sm" variant="primary" onClick={handleCreateShop}>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => {
+                    if (updatedManager) {
+                      console.log("Updated manager:", updatedManager);
+                      handleChangeManager(updatedManager?._id || "");
+                    }
+                    handleCreateShop();
+                  }}
+                >
                   {editingShopId ? "Update Shop" : "Create Shop"}
                 </Button>
               </div>
