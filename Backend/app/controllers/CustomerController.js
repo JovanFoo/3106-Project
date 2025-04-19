@@ -184,6 +184,30 @@ const CustomerController = {
     return res.status(200).json({ message: "password changes suucessfully" });
   },
 
+  async updatePasswordView(req, res) {
+    console.log("custcontdoller > updatePassword");
+    const id = req.userId;
+
+    const { password, confirmPassword, token } = req.body;
+    const customer = await Customer.findOne({ _id: id });
+    if (!customer) {
+      console.log("cust nt fd");
+      return res.render("unsuccessful-update", {
+        backUrl: `${process.env.CLIENT_URL}/reset-password/${token}`,
+      });
+    }
+    if (password !== confirmPassword) {
+      console.log("password no match");
+      return res.render("unsuccessful-update", {
+        backUrl: `${process.env.CLIENT_URL}/reset-password/${token}`,
+      });
+    }
+    customer.password = await PasswordHash.hashPassword(password);
+
+    jwt.addToBlackList(req.params.token);
+    await customer.save();
+    return res.render("successful-update");
+  },
   async updateProfilePicture(req, res) {
     console.log("custcolleter > updateProfilePicture");
     const id = req.userId;

@@ -21,7 +21,7 @@ AuthRouter.post(
 AuthRouter.post(
   "/customers/reset-password/:token",
   AuthMiddleware.authCustomerResetToken,
-  CustomerController.updatePassword
+  CustomerController.updatePasswordView
 );
 
 // Stylist

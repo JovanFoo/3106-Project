@@ -258,6 +258,7 @@ const AuthController = {
     await stylist.save();
     return res.status(200).json({ message: "Password updated" });
   },
+
   async updatePasswordAdmin(req, res) {
     console.log("AuthController > update password");
     const { currentPassword, newPassword } = req.body;
