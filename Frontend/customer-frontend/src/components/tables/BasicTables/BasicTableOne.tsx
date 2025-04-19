@@ -27,6 +27,7 @@ interface Stylist {
   appointments?: string[];
   profilePicture: string;
   isActive: boolean;
+  bio: string;
 }
 
 // Define the table data using the interface
@@ -171,6 +172,9 @@ export default function BasicTableOne() {
   }, [branch]);
 
   const tableData: Stylist[] = stylists;
+  // tableData.forEach((stylist) => {
+  //   console.log(stylist);
+  // });
   const stylistToBranchMapRef = useRef<Record<string, string>>({});
 
   return (
@@ -256,6 +260,9 @@ export default function BasicTableOne() {
                         </span>
                         <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
                           {order.email}
+                        </span>
+                        <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
+                          {order.bio}
                         </span>
                       </div>
                     </div>
