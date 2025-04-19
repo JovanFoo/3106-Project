@@ -114,26 +114,28 @@ export default function ClientTestimonials({ stylist }: Props) {
           {reviews.length === 0 ? (
             <p className="text-gray-500 italic">No reviews available.</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto">
               {reviews.map((review) => (
                 <div
                   key={review._id}
-                  className="p-4 rounded-lg border shadow-sm"
+                  className="p-4 rounded-lg border shadow-sm flex justify-between flex-col"
                 >
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-gray-800 dark:text-white">
-                      {review.customer}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {review.stars} ⭐
-                    </span>
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-gray-800 dark:text-white">
+                        {review.customer}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {review.stars} ⭐
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 font-semibold">
+                      {review.title}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">{review.text}</p>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 font-semibold">
-                    {review.title}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">{review.text}</p>
                   <Button
-                    className="mt-2 w-full"
+                    className="mt-2 w-full "
                     size="sm"
                     type="danger"
                     onClick={() => confirmDeleteReview(review._id)}
