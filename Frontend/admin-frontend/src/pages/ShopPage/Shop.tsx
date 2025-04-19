@@ -11,7 +11,7 @@ import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
 import Select from "../../components/form/Select";
-import { PlusIcon, TrashBinIcon } from "../../icons";
+import { TrashBinIcon } from "../../icons";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
