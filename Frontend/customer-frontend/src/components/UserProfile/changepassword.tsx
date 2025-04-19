@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const ChangePassword: React.FC = () => {
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const [isOpen, setIsOpen] = useState<boolean>(false); // Modal visibility state
+  const [isOpen, setIsOpen] = useState<boolean>(false); // modal visibility state
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +24,7 @@ const ChangePassword: React.FC = () => {
       const user = JSON.parse(userData);
       try {
         const response = await fetch(
-          `http://localhost:3000/api/customers/${user.customer._id}/updatepassword`,
+          `${API_URL}/api/customers/${user.customer._id}/updatepassword`,
           {
             method: "PUT",
             headers: {
@@ -54,7 +55,7 @@ const ChangePassword: React.FC = () => {
     }
   };
 
-  const toggleModal = () => setIsOpen(!isOpen); // Toggle modal visibility
+  const toggleModal = () => setIsOpen(!isOpen); // toggle modal visibility
 
   return (
     <div>

@@ -38,9 +38,9 @@ interface Review {
 
 const ReviewsList = () => {
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [branch, setBranch] = useState<string>(""); // Now stores branch location (name)
-  const [allStylists, setAllStylists] = useState<Stylist[]>([]); // New state for all stylists
-  const [stylist, setStylist] = useState<string>(""); // Holds the selected stylist ID
+  const [branch, setBranch] = useState<string>(""); // stores branch location (name)
+  const [allStylists, setAllStylists] = useState<Stylist[]>([]); // for all stylists
+  const [stylist, setStylist] = useState<string>(""); // holds the selected stylist ID
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -55,18 +55,18 @@ const ReviewsList = () => {
   }, []);
 
   useEffect(() => {
-    fetchAllBranches(); // Fetch branches on page load
-    fetchAllStylists(); // Fetch all stylists on page load
+    fetchAllBranches(); // fetch branches on page load
+    fetchAllStylists(); // fetch all stylists on page load
     fetchReviews("", ""); // (branch, stylist)
-  }, []); // This will run only once, when the component is mounted
+  }, []);
 
   useEffect(() => {
     if (branch) {
-      fetchReviews(branch, stylist); // Fetch reviews for the selected branch and stylist
+      fetchReviews(branch, stylist); // fetch reviews for the selected branch and stylist
     }
     fetchAllBranches(); // reload if there are new branches added to system
     fetchAllStylists(); // reload if there are new stylists added to system
-  }, [branch, stylist]); // Whenever the branch or stylist changes, this effect will run
+  }, [branch, stylist]); // whenever the branch or stylist changes
 
   // // Fetch all branches
   // const fetchAllBranchesDefault = async () => {
@@ -101,7 +101,7 @@ const ReviewsList = () => {
   //   }
   // };
 
-  // Fetch all branches
+  // fetch all branches
   const fetchAllBranches = async () => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -128,7 +128,7 @@ const ReviewsList = () => {
     }
   };
 
-  // Fetch all stylists (to filter later)
+  // fetch all stylists (to filter later)
   const fetchAllStylists = async () => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -145,7 +145,7 @@ const ReviewsList = () => {
         if (!response.ok) throw new Error("Failed to fetch stylists");
 
         const data: Stylist[] = await response.json();
-        setAllStylists(data); // Store all stylists
+        setAllStylists(data); // store all stylists
       } catch (error) {
         console.error("Error fetching all stylists:", error);
       }
@@ -203,7 +203,7 @@ const ReviewsList = () => {
           if (branchStylist) {
             url = `${API_URL}/api/reviews/stylist/${stylistId}`;
           } else {
-            // Stylist does not belong to selected branch
+            // stylist does not belong to selected branch
             setReviews([]);
             return;
           }
@@ -229,7 +229,7 @@ const ReviewsList = () => {
     }
   };
 
-  // Retrieve branch ID by location (helper function)
+  // retrieve branch ID by location (helper function)
   const retrieveBranchIdByBranchLocation = async (branchLocation: string) => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -256,7 +256,7 @@ const ReviewsList = () => {
     }
   };
 
-  // // Retrieve stylists by name (with token in header)
+  // // retrieve stylists by name (with token in header)
   // const retrieveStylistsByName = async (name: string) => {
   //   const userData = localStorage.getItem("user");
   //   if (!userData) return []; // Early return if no user data
@@ -284,33 +284,30 @@ const ReviewsList = () => {
   //   }
   // };
 
-  // Handle branch change
   const handleBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedBranchLocation = e.target.value; // This now stores the branch location
+    const selectedBranchLocation = e.target.value; // this now stores the branch location
     setBranch(selectedBranchLocation);
-    setStylist(""); // Reset the selected stylist when branch changes
+    setStylist(""); // reset the selected stylist when branch changes
     setReviews([]);
     fetchReviews(selectedBranchLocation, "");
   };
 
-  // Handle stylist change
   const handleStylistChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const stylistId = e.target.value;
     // console.log(stylistId);
     setStylist(stylistId);
     setReviews([]);
-    fetchReviews(branch, stylistId); // Re-fetch reviews for the branch with the selected stylist
+    fetchReviews(branch, stylistId); // re-fetch reviews for the branch with the selected stylist
   };
 
-  // Handle clear filters
   const handleClearFilters = () => {
     setBranch("");
     setStylist("");
     setReviews([]);
-    fetchReviews("", ""); // e-fetch all reviews
+    fetchReviews("", ""); // re-fetch all reviews
   };
 
-  // Filter stylists to show only those working at the selected branch
+  // filter stylists to show only those working at the selected branch
   const filteredStylists = branch
     ? allStylists.filter(
         (stylist) =>
@@ -330,7 +327,7 @@ const ReviewsList = () => {
     });
   });
 
-  // After setting reviews, use this to populate reviews (sorted, top-down left to right --> latest to oldest)
+  // after setting reviews state, create variable to store sorted reviews (sorted, top-down left to right --> latest to oldest)
   const sortedReviews = [...reviews].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );

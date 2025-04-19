@@ -72,7 +72,6 @@ const ServiceController = {
         let rate = MAXRATE;
         for (let j = 0; j < service.serviceRates.length; j++) {
           const serviceRate = service.serviceRates[j];
-          // console.log("HELLO");
           // console.log(
           //   "startDAte: " +
           //     new Date(serviceRate.startDate).toISOString().split("T")[0]
