@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import axios, { AxiosResponse } from "axios";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
@@ -69,7 +69,7 @@ export default function SignInForm() {
         navigate("/");
         setIsLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setVariant("error");
         setTitle("Error");
         setMessage("Invalid credentials.");

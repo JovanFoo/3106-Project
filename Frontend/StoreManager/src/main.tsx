@@ -9,7 +9,6 @@ import { ThemeProvider as CustomThemeProvider } from "./context/ThemeContext.tsx
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { UserProvider } from "./context/UserContext.tsx";
-import { LocalizationProvider } from "@mui/x-date-pickers";
 const theme = createTheme({
   palette: {
     mode: "light",

@@ -125,16 +125,6 @@ interface LeaveRequest {
   image?: string;
 }
 
-interface ApiResponse {
-  data: {
-    leaveRequests: LeaveRequest[];
-    staff: Staff[];
-  };
-  message?: string;
-}
-
-type ViewMode = "status";
-
 interface LeaveRequestCellProps {
   request: LeaveRequest;
   currentDay: Date;
@@ -201,8 +191,6 @@ const LeaveManagement = (): ReactElement => {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>("status");
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedStatus, setSelectedStatus] = useState<string[]>([
     "Pending",
@@ -236,9 +224,6 @@ const LeaveManagement = (): ReactElement => {
         const leaveRequestsResponse = await api.get("/api/leave-requests");
         let leaveRequestsData = leaveRequestsResponse.data;
 
-        const stylistIds = [
-          ...new Set(leaveRequestsData.map((req: any) => req.stylist)),
-        ];
         const stylistsResponse = await api.get("/api/stylists");
         const stylistsData = stylistsResponse.data.filter((x: any) =>
           user.stylists.includes(x._id)
@@ -342,10 +327,6 @@ const LeaveManagement = (): ReactElement => {
         : [...prev, status]
     );
   };
-
-  const filteredRequests = leaveRequests.filter((request) =>
-    selectedStatus.includes(request.status)
-  );
 
   const getCellColor = (request: LeaveRequest) => {
     return getStatusColor(request.status as "Pending" | "Approved");

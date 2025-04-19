@@ -71,7 +71,7 @@ export default function AppointmentTableOne({ appointment }: Props) {
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [reviewForm, setReviewForm] = useState({
+  const [, setReviewForm] = useState({
     title: "",
     text: "",
     stars: 5,

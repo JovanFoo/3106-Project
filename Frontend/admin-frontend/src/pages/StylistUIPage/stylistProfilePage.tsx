@@ -125,7 +125,7 @@ export default function StylistProfilePage({ stylist }: Props) {
         toast.success("Password reset email sent successfully.");
       })
       .catch((err) => {
-        // console.log(err);
+        console.log(err);
       });
   };
 

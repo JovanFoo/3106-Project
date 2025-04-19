@@ -37,7 +37,7 @@ export default function StylistPage() {
   };
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [pageLimit, setPageLimit] = useState(10);
+  const [pageLimit] = useState(10);
   const [page, setPage] = useState(1);
   const [hasNextpage, setHasNextpage] = useState(false);
 
@@ -221,8 +221,6 @@ const CustomModal: React.FC<ModalProps> = ({
   stylist,
   branches = [],
   onSave = () => {},
-  showCloseButton = true, // Default to true for backwards compatibility
-  isFullscreen = false,
 }) => {
   const [stylistData, setStylistData] = useState<Stylist>({
     _id: "",

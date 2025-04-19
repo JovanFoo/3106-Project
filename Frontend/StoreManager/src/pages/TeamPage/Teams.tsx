@@ -34,7 +34,7 @@ export default function Teams() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [availableStylists, setAvailableStylists] = useState<TeamMember[]>([]);
   const [selectedStylistId, setSelectedStylistId] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [, setIsLoading] = useState<boolean>(false);
 
   const [selectedStylist, setSelectedStylist] = useState<TeamMember | null>(
     null

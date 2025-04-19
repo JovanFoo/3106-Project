@@ -12,26 +12,7 @@ import { Modal } from "../../components/ui/modal";
 import { useUser } from "../../context/UserContext";
 import { useModal } from "../../hooks/useModal";
 
-
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
-
-const openingHours = [
-  "08:00 AM",
-  "09:00 AM",
-  "10:00 AM",
-  "11:00 AM",
-  "12:00 PM",
-  "01:00 PM",
-  "02:00 PM",
-  "03:00 PM",
-  "04:00 PM",
-  "05:00 PM",
-  "06:00 PM",
-  "07:00 PM",
-  "08:00 PM",
-  "09:00 PM",
-];
 
 type Shop = {
   _id: string;
@@ -107,15 +88,6 @@ export default function ShopSettings() {
     } catch (err) {
       toast.error("Failed to update shop.");
     }
-  };
-
-  const formatTime = (time: string): string => {
-    const date = new Date(`1970-01-01T${time}`);
-    return date.toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
   };
 
   return (
@@ -223,7 +195,10 @@ export default function ShopSettings() {
                     <div className="flex gap-2">
                       <TimePicker
                         onChange={(val: string | null) =>
-                          setShopData({ ...shopData, [`${key}OpeningTime`]: val || "" })
+                          setShopData({
+                            ...shopData,
+                            [`${key}OpeningTime`]: val || "",
+                          })
                         }
                         value={shopData[`${key}OpeningTime` as keyof Shop]}
                         format="HH:mm"
@@ -233,7 +208,10 @@ export default function ShopSettings() {
                       />
                       <TimePicker
                         onChange={(val: string | null) =>
-                          setShopData({ ...shopData, [`${key}ClosingTime`]: val || "" })
+                          setShopData({
+                            ...shopData,
+                            [`${key}ClosingTime`]: val || "",
+                          })
                         }
                         value={shopData[`${key}ClosingTime` as keyof Shop]}
                         format="HH:mm"
@@ -258,7 +236,11 @@ export default function ShopSettings() {
           )}
         </Modal>
       </div>
-      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        style={{ zIndex: 999999 }}
+      />
     </div>
   );
 }

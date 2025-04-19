@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Input from "../../components/form/input/InputField";
@@ -54,7 +54,7 @@ export default function ChangePassword() {
         },
         config
       )
-      .then((response: AxiosResponse) => {
+      .then(() => {
         toast.success("Password changed successfully.");
         setConfirmNewPassword("");
         setCurrentPassword("");

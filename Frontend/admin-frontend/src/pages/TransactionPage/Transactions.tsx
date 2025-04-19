@@ -25,9 +25,6 @@ type Stylist = {
   name: string;
 };
 
-// const services = ["Haircut", "Beard Trim", "Shave", "Hair Coloring"];
-// const paymentMethods = ["Cash", "Card"];
-// const statuses = ["Pending", "Completed", "Cancelled"];
 type Service = {
   _id: string;
   name: string;
@@ -85,7 +82,7 @@ export default function Transactions() {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(pageSizeOptions[1]); // Default to 10
   const [totalPages, setTotalPages] = useState(0);
-  const [hasNextPage, setHasNextPage] = useState(false);
+  const [, setHasNextPage] = useState(false);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction>();
 
@@ -381,8 +378,6 @@ const CustomerModal: React.FC<ModalProps> = ({
   listOfServices = [],
   listOfStylists = [],
   onSave,
-  showCloseButton = true, // Default to true for backwards compatibility
-  isFullscreen = false,
 }) => {
   const [transactionData, setTransactionData] = useState<Transaction>({
     _id: "",

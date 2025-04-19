@@ -1,6 +1,5 @@
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
   Box,
   Card,
@@ -14,7 +13,6 @@ import {
   Grid,
   IconButton,
   Stack,
-  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -55,14 +53,6 @@ interface LeaveApplication {
   image?: string;
 }
 
-interface DocumentSubmission {
-  type: string;
-  leaveDate: string;
-  dueDate: string;
-  attachments: number;
-  comments: number;
-}
-
 interface NewApplication {
   startDate: string;
   endDate: string;
@@ -93,24 +83,6 @@ const BarberLeaveManagement: React.FC = () => {
   const [leaveApplications, setLeaveApplications] = useState<
     LeaveApplication[]
   >([]);
-  const [documentSubmissions, setDocumentSubmissions] = useState<
-    DocumentSubmission[]
-  >([
-    {
-      type: "Medical Certificate",
-      leaveDate: "2024-12-20",
-      dueDate: "2025-01-10",
-      attachments: 2,
-      comments: 13,
-    },
-    {
-      type: "Death Certificate",
-      leaveDate: "2024-12-31",
-      dueDate: "2025-01-17",
-      attachments: 1,
-      comments: 5,
-    },
-  ]);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     null
@@ -119,12 +91,6 @@ const BarberLeaveManagement: React.FC = () => {
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const theme = useTheme();
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [variant, setVariant] = useState<
-    "success" | "error" | "warning" | "info"
-  >("info");
-  const [title, setTitle] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
 
   const fetchLeaveRequests = async () => {
     try {
@@ -207,6 +173,7 @@ const BarberLeaveManagement: React.FC = () => {
     event: React.MouseEvent<HTMLElement>,
     newFilter: string
   ) => {
+    event;
     if (newFilter !== null) {
       setFilter(newFilter);
     }
@@ -633,64 +600,64 @@ const BarberLeaveManagement: React.FC = () => {
     );
   };
 
-  const renderPendingDocuments = () => (
-    <Card
-      sx={{
-        p: 3,
-        borderRadius: "16px",
-        boxShadow: theme.shadows[0],
-        border: `1px solid ${theme.palette.divider}`,
-        bgcolor: theme.palette.background.paper,
-      }}
-      className="dark:bg-transparent dark:text-white"
-    >
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Pending Document Submissions
-        </Typography>
-        <Stack spacing={3}>
-          {documentSubmissions.map((doc, index) => (
-            <Box key={index}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  mb: 1,
-                }}
-              >
-                <Box>
-                  <Typography variant="subtitle1">{doc.type}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Leave Date:{" "}
-                    {format(new Date(doc.leaveDate), "dd MMMM yyyy")}
-                  </Typography>
-                </Box>
-                <IconButton size="small">
-                  <MoreHorizIcon />
-                </IconButton>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography variant="body2" color="error.main">
-                  {format(new Date(doc.dueDate), "dd MMMM yyyy")}
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Typography variant="body2">📎 {doc.attachments}</Typography>
-                  <Typography variant="body2">💬 {doc.comments}</Typography>
-                </Box>
-              </Box>
-            </Box>
-          ))}
-        </Stack>
-      </CardContent>
-    </Card>
-  );
+  // const renderPendingDocuments = () => (
+  //   <Card
+  //     sx={{
+  //       p: 3,
+  //       borderRadius: "16px",
+  //       boxShadow: theme.shadows[0],
+  //       border: `1px solid ${theme.palette.divider}`,
+  //       bgcolor: theme.palette.background.paper,
+  //     }}
+  //     className="dark:bg-transparent dark:text-white"
+  //   >
+  //     <CardContent>
+  //       <Typography variant="h6" gutterBottom>
+  //         Pending Document Submissions
+  //       </Typography>
+  //       <Stack spacing={3}>
+  //         {documentSubmissions.map((doc, index) => (
+  //           <Box key={index}>
+  //             <Box
+  //               sx={{
+  //                 display: "flex",
+  //                 justifyContent: "space-between",
+  //                 alignItems: "flex-start",
+  //                 mb: 1,
+  //               }}
+  //             >
+  //               <Box>
+  //                 <Typography variant="subtitle1">{doc.type}</Typography>
+  //                 <Typography variant="body2" color="text.secondary">
+  //                   Leave Date:{" "}
+  //                   {format(new Date(doc.leaveDate), "dd MMMM yyyy")}
+  //                 </Typography>
+  //               </Box>
+  //               <IconButton size="small">
+  //                 <MoreHorizIcon />
+  //               </IconButton>
+  //             </Box>
+  //             <Box
+  //               sx={{
+  //                 display: "flex",
+  //                 alignItems: "center",
+  //                 justifyContent: "space-between",
+  //               }}
+  //             >
+  //               <Typography variant="body2" color="error.main">
+  //                 {format(new Date(doc.dueDate), "dd MMMM yyyy")}
+  //               </Typography>
+  //               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+  //                 <Typography variant="body2">📎 {doc.attachments}</Typography>
+  //                 <Typography variant="body2">💬 {doc.comments}</Typography>
+  //               </Box>
+  //             </Box>
+  //           </Box>
+  //         ))}
+  //       </Stack>
+  //     </CardContent>
+  //   </Card>
+  // );
 
   const handleImageZoom = (image: string) => {
     setZoomedImage(image);

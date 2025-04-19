@@ -55,7 +55,7 @@ const Calendar: React.FC = () => {
     null
   );
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
-  const [apptsalldetails, setapptsalldetails] = useState<[]>([]);
+  const [, setapptsalldetails] = useState<[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const {

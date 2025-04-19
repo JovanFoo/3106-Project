@@ -13,7 +13,6 @@ import {
 import { useModal } from "../../hooks/useModal";
 import { PencilIcon, TrashBinIcon } from "../../icons";
 import { toast, ToastContainer } from "react-toastify";
-// import MultiSelect from "../../components/form/MultiSelect";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 type Service = {
@@ -62,7 +61,7 @@ export default function Services() {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(pageSizeOptions[1]); // Default to 10
   const [totalPages, setTotalPages] = useState(0);
-  const [hasNextPage, setHasNextPage] = useState(false);
+  const [, setHasNextPage] = useState(false);
   const [totalService, setTotalService] = useState(0);
 
   const fetchServices = async () => {
@@ -107,7 +106,7 @@ export default function Services() {
         },
         config
       )
-      .then((response) => {
+      .then(() => {
         fetchServices(); // Refresh the services list after saving
         toast.success("Service updated successfully.");
       })
@@ -346,8 +345,6 @@ const CustomerModal: React.FC<ModalProps> = ({
   service,
   totalListOfServiceRates = [],
   onSave = () => {},
-  showCloseButton = true, // Default to true for backwards compatibility
-  isFullscreen = false,
 }) => {
   const [serviceData, setServiceData] = useState<Service>({
     name: "",

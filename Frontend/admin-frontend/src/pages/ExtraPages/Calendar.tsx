@@ -1,4 +1,4 @@
-import { DateSelectArg, EventClickArg, EventInput } from "@fullcalendar/core";
+import { EventClickArg, EventInput } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
@@ -30,7 +30,7 @@ const Calendar: React.FC = () => {
   const [eventTitle, setEventTitle] = useState("");
   const [eventStartDate, setEventStartDate] = useState<Date>();
   const [eventEndDate, setEventEndDate] = useState<Date>();
-  const [eventLevel, setEventLevel] = useState("");
+  const [, setEventLevel] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
@@ -118,7 +118,7 @@ const Calendar: React.FC = () => {
   //     },
   //   ]);
   // }, []);
-  const handleDateSelect = (selectInfo: DateSelectArg) => {
+  const handleDateSelect = () => {
     resetModalFields();
     // setEventStartDate(selectInfo.startStr);
     // setEventEndDate(selectInfo.endStr || selectInfo.startStr);

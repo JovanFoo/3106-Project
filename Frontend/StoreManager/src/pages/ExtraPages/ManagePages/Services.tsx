@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
+import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
+import PageMeta from "../../../components/common/PageMeta";
 import axios from "axios";
 import {
   Table,
   TableCell,
   TableHeader,
   TableRow,
-} from "../../components/ui/table";
-import Button from "../../components/ui/button/Button";
-import { PencilIcon, TrashBinIcon } from "../../icons";
-import { Modal } from "../../components/ui/modal";
-import { useModal } from "../../hooks/useModal";
-import { NativeSelect, TableBody } from "@mui/material";
-import Alert from "../../components/ui/alert/Alert";
-import { set } from "date-fns";
+} from "../../../components/ui/table";
+import Button from "../../../components/ui/button/Button";
+import { PencilIcon, TrashBinIcon } from "../../../icons";
+import { Modal } from "../../../components/ui/modal";
+import { useModal } from "../../../hooks/useModal";
+import { TableBody } from "@mui/material";
+import Alert from "../../../components/ui/alert/Alert";
 // import MultiSelect from "../../components/form/MultiSelect";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
@@ -64,7 +63,7 @@ export default function Services() {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(pageSizeOptions[1]); // Default to 10
   const [totalPages, setTotalPages] = useState(0);
-  const [hasNextPage, setHasNextPage] = useState(false);
+  const [, setHasNextPage] = useState(false);
   const [totalService, setTotalService] = useState(0);
 
   const fetchServices = async () => {
@@ -332,8 +331,6 @@ const CustomerModal: React.FC<ModalProps> = ({
   service,
   totalListOfServiceRates = [],
   onSave = () => {},
-  showCloseButton = true, // Default to true for backwards compatibility
-  isFullscreen = false,
 }) => {
   const [serviceData, setServiceData] = useState<Service>({
     name: "",

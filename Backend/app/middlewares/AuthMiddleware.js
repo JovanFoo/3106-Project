@@ -225,6 +225,24 @@ const AuthMiddleware = {
     req.userId = decoded.values.userId;
     next();
   },
+  async authAnyResetPassword(req, res, next) {
+    console.log("AuthMiddleware > any user can reset password");
+    token = req.params.token;
+    if (token == null) return res.status(401).json({ message: "Unauthorized" });
+    decoded = jwt.decodeToken(token);
+    if (!decoded.status)
+      return res.status(401).json({ message: "Unauthorized" });
+    if (
+      decoded.values.type != "Customer-Reset" &&
+      decoded.values.type != "Stylist-Reset" &&
+      decoded.values.type != "StylistManager-Reset" &&
+      decoded.values.type != "Admin-Reset"
+    )
+      return res.status(401).json({ message: "Unauthorized" });
+    req.userId = decoded.values.userId;
+    req.userType = decoded.values.type.split("-")[0]; // Extract the user type from the token
+    next();
+  },
 };
 
 module.exports = AuthMiddleware;

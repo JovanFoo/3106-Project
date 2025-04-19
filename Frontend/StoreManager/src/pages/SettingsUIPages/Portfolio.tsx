@@ -10,17 +10,8 @@ import { useUser } from "../../context/UserContext";
 import { useModal } from "../../hooks/useModal";
 import SettingsSidebar from "../SettingsPage/SettingsSidebar";
 
-// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
-const portfolioItems = [
-  { id: 1, title: "2 block", image: "/images/2block1.jpg" },
-  { id: 2, title: "Low Taper Fade", image: "/images/lowtaper1.jpg" },
-  { id: 3, title: "Wolf Cut", image: "/images/wolfcut1.jpg" },
-  { id: 4, title: "2 block", image: "/images/2block2.jpg" },
-  { id: 5, title: "Low Taper Fade", image: "/images/lowtaper2.jpg" },
-  { id: 6, title: "Wolf Cut", image: "/images/wolfcut2.jpg" },
-];
 type GalleryItem = {
   _id: string;
   title: string;
@@ -52,7 +43,7 @@ export default function PortfolioGallery() {
           .then((response: any) => {
             setGallery(response.data);
           })
-          .catch((error: any) => {
+          .catch(() => {
             toast.error("Failed to fetch gallery items.");
           });
       } catch (error) {
@@ -206,7 +197,7 @@ export default function PortfolioGallery() {
               )}
 
               <div className="flex items-center gap-3 mt-4 lg:justify-end">
-                <Button size="sm" type='neutral' onClick={closeModal}>
+                <Button size="sm" type="neutral" onClick={closeModal}>
                   Cancel
                 </Button>
                 <Button size="sm">Save Changes</Button>
@@ -215,7 +206,11 @@ export default function PortfolioGallery() {
           </div>
         </Modal>
       </div>
-      <ToastContainer position="bottom-right" autoClose={3000} style={{ zIndex: 999999 }} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        style={{ zIndex: 999999 }}
+      />
     </div>
   );
 }

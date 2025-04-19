@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useUser } from "../../context/UserContext";
 import { useModal } from "../../hooks/useModal";
@@ -61,7 +61,7 @@ export default function UserMetaCard() {
         },
         config
       )
-      .then((res: AxiosResponse) => {
+      .then(() => {
         isSuccess1 = true;
       })
       .catch((err) => {
@@ -80,7 +80,7 @@ export default function UserMetaCard() {
         { profilePicture: profilePicture },
         config
       )
-      .then((res: AxiosResponse) => {
+      .then(() => {
         isSuccess2 = true;
       })
       .catch((err) => {
@@ -178,7 +178,7 @@ export default function UserMetaCard() {
                       <label
                         htmlFor="profilePicture"
                         style={{ cursor: "pointer" }}
-                        onClick={(e) => {
+                        onClick={() => {
                           document.getElementById("profilePicture")?.click();
                         }}
                       >
