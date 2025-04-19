@@ -37,7 +37,9 @@ export default function ResetPassword() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage("Password reset link sent successfully.");
+        setMessage(
+          "Password reset link sent successfully. Redirecting back..."
+        );
         setTimeout(() => navigate("/signin"), 3000); // Redirect after 3 seconds
       } else {
         setError(data.message);
