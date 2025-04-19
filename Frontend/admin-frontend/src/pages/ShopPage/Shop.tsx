@@ -141,6 +141,8 @@ export default function CreateShop() {
     setWeekendClosingTime("");
     setHolidayOpeningTime("");
     setHolidayClosingTime("");
+    setSelectedStylists([]);
+    setManager(null);
     setEditingShopId(null);
   };
 
@@ -279,7 +281,6 @@ export default function CreateShop() {
                     .map((s: Stylist) => s.name)
                     .join(", ") || "None"}
                 </p>
-
               </div>
             ))}
           </div>
