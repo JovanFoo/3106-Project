@@ -6,6 +6,7 @@ import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useUser } from "../../context/UserContext";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function SignUpForm() {
@@ -21,12 +22,13 @@ export default function SignUpForm() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const { setUser } = useUser();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     console.log(formData);
   };
 
-  // Inside your SignUpForm function
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -75,13 +77,15 @@ export default function SignUpForm() {
 
       if (response.ok) {
         console.log("Successfully registered customer.");
-        // // Store token (not entire user data) in localStorage
+        // // store token (not entire user data) in localStorage
         // localStorage.setItem("token", data.token);
         // console.log(data);
         // console.log("token:" + localStorage.getItem("token"))
         localStorage.setItem("user", JSON.stringify(data));
+        // console.log(data.customer);
+        setUser(data.customer);
 
-        // Redirect user to the login page
+        // redirect user to the login page
         // setSuccessMessage("Account created successfully! Please log in.");
         toast.success("You have successfully registered an account!");
         navigate("/appointments");

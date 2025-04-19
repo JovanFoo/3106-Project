@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
 import { toast } from "react-toastify";
+import { useUser } from "../../context/UserContext";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
@@ -16,6 +17,8 @@ export default function SignInForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const { setUser } = useUser();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -48,6 +51,8 @@ export default function SignInForm() {
       if (response.ok) {
         console.log(JSON.stringify(data));
         localStorage.setItem("user", JSON.stringify(data));
+        setUser(data.customer);
+
         toast.success("You have successfully logged in!");
         navigate("/appointments");
       }
