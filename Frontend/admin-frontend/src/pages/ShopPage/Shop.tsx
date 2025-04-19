@@ -10,6 +10,7 @@ import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
+import Select from "../../components/form/Select";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -29,7 +30,7 @@ export default function CreateShop() {
   const [shopToDelete, setShopToDelete] = useState<string | null>(null);
   const [selectedStylists, setSelectedStylists] = useState<Stylist[]>([]);
   const [manager, setManager] = useState<Stylist | null>(null);
-
+  const [updatedManager, setUpdatedManager] = useState<Stylist | null>(null);
   const config = {
     headers: {
       Authorization: sessionStorage.getItem("token"),
@@ -173,6 +174,28 @@ export default function CreateShop() {
       console.error("Error loading shop data:", err);
       toast.error("Failed to load shop data.");
     }
+  };
+
+  const handleChangeManager = (stylistId: string) => {
+    closeModal();
+    axios
+      .put(
+        `${api_address}/api/branches/assign/manager/${editingShopId}`,
+        { stylistId: stylistId },
+        config
+      )
+      .then((response) => {
+        const updatedShop = response.data;
+        setManager(updatedShop.manager);
+        setSelectedStylists(updatedShop.stylists || []);
+        toast.success("Manager updated successfully.");
+      })
+      .catch((error) => {
+        console.error("Error updating manager:", error);
+        toast.error(
+          error.response?.data?.message || "Failed to update manager."
+        );
+      });
   };
 
   // to format time to 24hr
@@ -358,21 +381,54 @@ export default function CreateShop() {
                 Team
               </h4>
               {manager && (
-                <div className="rounded-xl border border-gray-500 p-4 dark:border-gray-700">
+                <div className="rounded-xl border border-gray-500 p-4 dark:border-gray-700 w-full">
                   {/* Manager Info */}
-                  <div className="mb-4">
-                    <h4 className="font-medium text-gray-800 dark:text-white mb-2">
-                      👑 Manager
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="flex items-center border border-gray-400 rounded-md p-2 dark:border-gray-600 dark:bg-gray-800">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="mb-4 col-span-1">
+                      <h4 className="font-medium text-gray-800 dark:text-white mb-2">
+                        👑 Manager
+                      </h4>
+                      <div className="flex items-center border border-gray-400 rounded-md p-2 dark:border-gray-600 dark:bg-gray-800 w-full">
                         <span className="text-gray-700 dark:text-white">
                           {manager.name}
                         </span>
                       </div>
                     </div>
+                    {/* Add Manager Button */}
+                    <div className="mb-4 col-span-1">
+                      <h5 className="font-medium text-gray-800 dark:text-white mb-2">
+                        Change Manager
+                      </h5>
+                      <Select
+                        options={selectedStylists
+                          .filter((stylist) => stylist._id !== manager._id)
+                          .map((stylist) => ({
+                            value: stylist._id,
+                            label: stylist.name,
+                          }))}
+                        onChange={(e) => {
+                          console.log("Selected stylist ID:", e);
+                          const selectedId = e;
+                          const selectedStylist = selectedStylists.find(
+                            (stylist) => stylist._id === selectedId
+                          );
+                          if (selectedStylist) {
+                            setUpdatedManager(selectedStylist);
+                          }
+                        }}
+                      />
+                      <Button
+                        className="mt-2 w-full"
+                        size="sm"
+                        variant="primary"
+                        onClick={() => {
+                          handleChangeManager(updatedManager?._id || "");
+                        }}
+                      >
+                        Change Manager
+                      </Button>
+                    </div>
                   </div>
-
                   {/* Stylists */}
                   <div>
                     <h5 className="font-medium text-gray-800 dark:text-white mb-2">

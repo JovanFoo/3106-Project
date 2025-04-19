@@ -37,6 +37,12 @@ BranchRouter.put(
   BranchController.removeStylist
 );
 
+BranchRouter.put(
+  "/assign/manager/:id",
+  AuthMiddleware.authAdminToken,
+  BranchController.changeManager
+);
+
 // Get all branches (Auth: admin and customer)
 BranchRouter.get(
   "/",

@@ -304,6 +304,64 @@ const BranchController = {
       return res.status(400).json({ message: "Error retrieving branch" });
     }
   },
+
+  async changeManager(req, res) {
+    console.log("TeamController > change manager of a team");
+    const { id: branchId } = req.params;
+    const { stylistId } = req.body;
+    const tobeManager = await Stylist.findById(stylistId);
+    const branch = await Branch.findOne({ _id: branchId });
+
+    const otherBranch = await Branch.findOne().where({
+      stylists: { $in: stylistId },
+    });
+    if (!tobeManager) {
+      return res.status(400).json({ message: "Stylist not found" });
+    }
+    if (tobeManager.stylists.length > 0) {
+      return res.status(400).json({ message: "Stylist is a manager" });
+    }
+    if (!branch) {
+      return res.status(400).json({ message: "Branch not found" });
+    }
+    if (branch.manager == stylistId) {
+      return res
+        .status(400)
+        .json({ message: "This stylist is already a manager" });
+    }
+    if (otherBranch && otherBranch._id != branchId) {
+      // remove stylist from other branch
+      otherBranch.stylists = otherBranch.stylists.filter((staff) => {
+        return staff.toString() != stylistId;
+      });
+      await otherBranch.save();
+      const otherManager = await Stylist.findById(otherBranch.manager);
+      if (otherManager) {
+        otherManager.stylists = otherManager.stylists.filter((staff) => {
+          return staff._id.toString() != stylistId;
+        });
+        await otherManager.save();
+      }
+    }
+    const branchManager = await Stylist.findById(branch.manager);
+
+    if (branchManager) {
+      branchManagerStylists = branchManager.stylists;
+      tobeManager.stylists = branchManager.stylists;
+      if (!tobeManager.stylists.includes(stylistId)) {
+        tobeManager.stylists.push(stylistId);
+      }
+      if (!tobeManager.stylists.includes(branchManager._id)) {
+        tobeManager.stylists.push(branchManager._id);
+      }
+      branchManager.stylists = [];
+      await branchManager.save();
+    }
+    await tobeManager.save();
+    branch.manager = stylistId;
+    await branch.save();
+    return res.status(204);
+  },
 };
 
 module.exports = BranchController;
