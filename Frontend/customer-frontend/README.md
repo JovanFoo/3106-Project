@@ -2,11 +2,20 @@
 
 1. Login/Signup ✅
 2. Appointments
-    - Create a new appointment (frontend not done)
+    - Create a new appointment ✅
     - View all existing appointments ✅
-    - Edit an appointment
-    - Cancel an appointment
-    - View past appointments
+    - Edit an appointment ✅
+    - Cancel an appointment ✅
+    - View past appointments + status (Pending, Confirmed Completed) ✅
+3. User Profile
+   - Edit user details ✅
+   - Change Password ✅
+4. Our Team
+   - View all stylists + details ✅
+   - Filter stylists by branch ✅
+5. Reviews
+   - View all customer reviews ✅
+   - Filter review by branch and stylist ✅
 
 ## Setup & Running the Customer Frontend Application
 

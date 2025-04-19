@@ -218,6 +218,7 @@ export default function SignUpForm() {
                   to="/signin"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
+                  {" "}
                   Sign In
                 </Link>
               </p>

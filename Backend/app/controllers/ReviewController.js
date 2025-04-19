@@ -113,9 +113,7 @@ const ReviewController = {
       const stylists = branch.stylists;
 
       if (!stylists || stylists.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No stylists found for this branch" });
+        return res.status(200).json([]);
       }
 
       // Step 3: Fetch appointments for the stylists of the branch
@@ -124,9 +122,7 @@ const ReviewController = {
       }).select("_id");
 
       if (!appointments || appointments.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No appointments found for this branch" });
+        return res.status(200).json([]);
       }
 
       // Step 4: Fetch reviews for the appointments
@@ -138,13 +134,7 @@ const ReviewController = {
         .populate("stylist", "name")
         .populate("customer", "username");
 
-      if (!reviews || reviews.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No reviews found for this branch" });
-      }
-
-      // Step 5: Return the reviews
+      // Step 5: Return the reviews (can be empty)
       res.status(200).json(reviews);
     } catch (error) {
       console.error("Error fetching reviews for branch:", error);
@@ -266,9 +256,7 @@ const ReviewController = {
       });
 
       if (appointments.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No reviews found for this stylist" });
+        return res.status(200).json([]);
       }
 
       // Step 3: Fetch reviews for the appointments
@@ -280,13 +268,7 @@ const ReviewController = {
         .populate("stylist", "name")
         .populate("customer", "username");
 
-      if (!reviews || reviews.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No reviews found for this stylist" });
-      }
-
-      // Return the reviews with the associated customer data
+      // Return the reviews with the associated customer data (can be empty)
       return res.status(200).json(reviews);
     } catch (error) {
       console.error("Error retrieving stylist reviews:", error);

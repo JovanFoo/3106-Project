@@ -8,12 +8,15 @@ import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { UserProvider } from "./context/UserContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <AppWrapper>
-        <App />
+        <UserProvider>
+          <App />
+        </UserProvider>
         <ToastContainer
           position="top-right"
           autoClose={3000}

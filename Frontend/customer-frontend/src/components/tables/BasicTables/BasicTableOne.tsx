@@ -8,7 +8,8 @@ import {
 
 import Badge from "../../ui/badge/Badge";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -26,6 +27,7 @@ interface Stylist {
   appointments?: string[];
   profilePicture: string;
   isActive: boolean;
+  bio: string;
 }
 
 // Define the table data using the interface
@@ -36,6 +38,15 @@ export default function BasicTableOne() {
   const [branches, setBranches] = useState<{ _id: string; location: string }[]>(
     []
   );
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      navigate("/"); // authentication check
+    }
+  }, []);
 
   const fetchStylistsall = async () => {
     const userData = localStorage.getItem("user");
@@ -54,7 +65,7 @@ export default function BasicTableOne() {
 
         const data = await response.json();
         setStylists(data);
-        console.log(data, "stylists");
+        // console.log(data, "stylists");
       } catch (error) {
         console.error("Error fetching stylist:", error);
       }
@@ -83,7 +94,7 @@ export default function BasicTableOne() {
           if (!response.ok) throw new Error("Failed to fetch branches");
 
           const data = await response.json();
-          console.log(data);
+          // console.log(data);
           setBranches(data);
         } catch (error) {
           console.error("Error fetching branches:", error);
@@ -91,6 +102,38 @@ export default function BasicTableOne() {
       }
     };
     fetchBranches();
+  }, []);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) return;
+
+    const customer = JSON.parse(userData);
+    const token = customer.tokens.token;
+
+    const buildMapFromAllBranches = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/branches`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch all branches");
+
+        const branchData = await res.json();
+        branchData.forEach((branch: any) => {
+          branch.stylists?.forEach((stylist: any) => {
+            stylistToBranchMapRef.current[stylist._id] = branch.location; // set the mapping from stylist to branch
+          });
+        });
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+
+    buildMapFromAllBranches();
   }, []);
 
   const fetchStylists = async (branchId: string) => {
@@ -113,7 +156,7 @@ export default function BasicTableOne() {
 
         const data = await response.json();
         setStylists(data);
-        console.log(data, "stylists");
+        // console.log(data, "stylists");
       } catch (error) {
         console.error("Error fetching stylist:", error);
       }
@@ -129,6 +172,11 @@ export default function BasicTableOne() {
   }, [branch]);
 
   const tableData: Stylist[] = stylists;
+  // tableData.forEach((stylist) => {
+  //   console.log(stylist);
+  // });
+  const stylistToBranchMapRef = useRef<Record<string, string>>({});
+
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
@@ -162,6 +210,12 @@ export default function BasicTableOne() {
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   Stylist
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  Branch
                 </TableCell>
                 <TableCell
                   isHeader
@@ -207,8 +261,14 @@ export default function BasicTableOne() {
                         <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
                           {order.email}
                         </span>
+                        <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
+                          {order.bio}
+                        </span>
                       </div>
                     </div>
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {stylistToBranchMapRef.current[order._id] || "—"}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {order.phoneNumber}

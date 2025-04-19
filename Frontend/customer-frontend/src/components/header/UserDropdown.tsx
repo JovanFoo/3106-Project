@@ -3,12 +3,16 @@ import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { Link } from "react-router";
 import { useEffect } from "react";
+import { useUser } from "../../context/UserContext";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [name, setname] = useState("");
-  const [email, setemail] = useState("");
-  const [profilepic, setProfilepic] = useState("");
+  const [, setname] = useState("");
+  const [, setemail] = useState("");
+  const [, setProfilepic] = useState("");
+
+  const { user } = useUser();
 
   useEffect(() => {
     console.log("activated");
@@ -21,7 +25,7 @@ export default function UserDropdown() {
 
         try {
           const response = await fetch(
-            `http://localhost:3000/api/customers/${user.customer._id}`,
+            `${API_URL}/api/customers/${user.customer._id}`,
             {
               method: "GET",
               headers: {
@@ -59,16 +63,17 @@ export default function UserDropdown() {
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
-        <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <div>
-            <img
-              src={profilepic || "/images/logo/defaultprofile.png"}
-              alt="user"
-            />
-          </div>
+        <span className="mr-3 h-11 w-11 overflow-hidden rounded-full">
+          <img
+            src={user?.profilePicture || "/images/logo/defaultprofile.png"}
+            alt="user"
+            className="object-cover h-full w-full"
+          />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">{name}</span>
+        <span className="block mr-1 font-medium text-theme-sm">
+          {user?.name}
+        </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -96,10 +101,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {name}
+            {user?.name}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {email}
+            {user?.email}
           </span>
         </div>
 

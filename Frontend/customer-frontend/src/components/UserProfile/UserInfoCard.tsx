@@ -1,8 +1,3 @@
-// import { useModal } from "../../hooks/useModal";
-// import { Modal } from "../ui/modal";
-// import Button from "../ui/button/Button";
-// import Input from "../form/input/InputField";
-// import Label from "../form/Label";
 import { useState, useEffect } from "react";
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -61,7 +56,7 @@ export default function UserInfoCard() {
   //           method: "PUT",
   //           headers: {
   //             "Content-Type": "application/json",
-  //             Authorization: `${user.tokens.token}`, // Send token for authorization
+  //             Authorization: `${user.tokens.token}`,
   //           },
   //           body: JSON.stringify({
   //             name: firstName,
@@ -74,7 +69,7 @@ export default function UserInfoCard() {
   //       if (response.ok) {
   //         const updatedUser = await response.json();
   //         console.log("User updated successfully:", updatedUser);
-  //         closeModal(); // Close modal after saving
+  //         closeModal();
   //       } else {
   //         const errorData = await response.json();
   //         console.error("Error updating user:", errorData.message);
@@ -88,7 +83,7 @@ export default function UserInfoCard() {
   // const [confirmPassword, setConfirmPassword] = useState<string>("");
   // const [message, setMessage] = useState<string>("");
   // const [error, setError] = useState<string>("");
-  // const [isOpen2, setIsOpen2] = useState<boolean>(false); // Modal visibility state
+  // const [isOpen2, setIsOpen2] = useState<boolean>(false); // modal visibility state
 
   // const handleSubmit = async (e: React.FormEvent) => {
   //   e.preventDefault();
@@ -136,6 +131,8 @@ export default function UserInfoCard() {
   //     }
   //   }
   // };
+
+  // const toggleModal = () => setIsOpen2(!isOpen2); // Toggle modal visibility
 
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">

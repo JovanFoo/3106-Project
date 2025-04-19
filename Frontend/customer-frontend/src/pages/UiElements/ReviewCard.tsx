@@ -50,6 +50,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
         {review.text}
       </p>
       <div className="mt-auto pt-4 text-sm text-gray-500 dark:text-gray-400">
+        <hr className="mb-2 border-t-1 border-gray-300 dark:border-gray-400" />
         <p>Stylist: {review.stylist.name}</p>
         <p>Branch: {stylistBranchMap[review.stylist._id]}</p>
         <p>Reviewed by: {review.customer.username}</p>

@@ -21,6 +21,14 @@ export default function AuthLayout({
                 <img
                   width={111231}
                   height={111218}
+                  className="dark:hidden w-[500px] h-auto"
+                  src="/images/logo/logobuzzbook.png"
+                  alt="Logo"
+                />
+                <img
+                  width={111231}
+                  height={111218}
+                  className="hidden dark:block object-contain brightness-0 invert w-[500px] h-auto"
                   src="/images/logo/logobuzzbook.png"
                   alt="Logo"
                 />

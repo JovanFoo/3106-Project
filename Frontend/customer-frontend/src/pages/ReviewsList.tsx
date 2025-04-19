@@ -3,6 +3,7 @@ import ReviewCard from "./UiElements/ReviewCard";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import ReviewModal from "../components/ui/modal/ReviewModal";
+import { useNavigate } from "react-router";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -10,7 +11,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 interface Branch {
   _id: string;
   location: string;
-  stylists: string[];
+  stylists: Stylist[];
 }
 
 interface Stylist {
@@ -43,6 +44,15 @@ const ReviewsList = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [showModal, setShowModal] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      navigate("/"); // authentication check
+    }
+  }, []);
 
   useEffect(() => {
     fetchAllBranches(); // Fetch branches on page load
@@ -143,10 +153,7 @@ const ReviewsList = () => {
   };
 
   // fetch reviews
-  const fetchReviews = async (
-    branchLocation: string,
-    selectedStylistName: string
-  ) => {
+  const fetchReviews = async (branchLocation: string, stylistId: string) => {
     const userData = localStorage.getItem("user");
     if (!userData) return;
 
@@ -155,29 +162,19 @@ const ReviewsList = () => {
 
     // console.log("FETCHREVIEWS ENTERED");
     // console.log("branchLocation:", branchLocation);
-    // console.log("selectedStylistName:", selectedStylistName);
+    // console.log("stylistId:", stylistId);
 
     try {
       let url = "";
 
       // case 1: no branch selected and no stylist — fetch all reviews
-      if (branchLocation === "" && selectedStylistName === "") {
+      if (branchLocation === "" && stylistId === "") {
         url = `${API_URL}/api/reviews`;
       }
 
       // case 2: no branch selected, but have stylist — fetch stylist reviews globally
-      else if (branchLocation === "" && selectedStylistName !== "") {
-        const matchingStylists = await retrieveStylistsByName(
-          selectedStylistName
-        );
-
-        if (matchingStylists.length === 0) {
-          setReviews([]);
-          return;
-        }
-        // ASSUMING stylist name is unique --> no duplicates
-        // else, need to change fetch method.
-        url = `${API_URL}/api/reviews/stylist/${matchingStylists[0]._id}`;
+      else if (branchLocation === "" && stylistId !== "") {
+        url = `${API_URL}/api/reviews/stylist/${stylistId}`;
       }
 
       // case 3 & 4: branch is selected
@@ -186,29 +183,25 @@ const ReviewsList = () => {
         if (!branchId) return;
 
         // case 3: branch selected but no stylist — fetch all reviews from branch
-        if (selectedStylistName === "") {
+        if (stylistId === "") {
           url = `${API_URL}/api/reviews/branch/${branchId}`;
         }
 
         // case 4: branch selected and have stylist — fetch reviews only if stylist works at this branch
         else {
-          const matchingStylists = await retrieveStylistsByName(
-            selectedStylistName
-          );
           const branchObj = branches.find((b) => b.location === branchLocation);
 
-          if (!branchObj || matchingStylists.length === 0) {
+          if (!branchObj) {
             setReviews([]);
             return;
           }
 
-          const branchStylist = matchingStylists.find(
-            (stylist: { _id: string }) =>
-              branchObj.stylists.includes(stylist._id)
+          const branchStylist = branchObj.stylists.find(
+            (stylist) => stylist._id === stylistId
           );
 
           if (branchStylist) {
-            url = `${API_URL}/api/reviews/stylist/${branchStylist._id}`;
+            url = `${API_URL}/api/reviews/stylist/${stylistId}`;
           } else {
             // Stylist does not belong to selected branch
             setReviews([]);
@@ -263,33 +256,33 @@ const ReviewsList = () => {
     }
   };
 
-  // Retrieve stylists by name (with token in header)
-  const retrieveStylistsByName = async (name: string) => {
-    const userData = localStorage.getItem("user");
-    if (!userData) return []; // Early return if no user data
+  // // Retrieve stylists by name (with token in header)
+  // const retrieveStylistsByName = async (name: string) => {
+  //   const userData = localStorage.getItem("user");
+  //   if (!userData) return []; // Early return if no user data
 
-    const customer = JSON.parse(userData);
-    const token = customer.tokens.token; // Extract token from stored user data
+  //   const customer = JSON.parse(userData);
+  //   const token = customer.tokens.token; // Extract token from stored user data
 
-    try {
-      const response = await fetch(`${API_URL}/api/stylists/search/${name}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to retrieve stylist");
-      }
-      const data: Stylist[] = await response.json();
-      return data; // Return the array of stylists
-    } catch (error) {
-      console.error("RetrieveStylistByName error:", error);
-      throw error;
-    }
-  };
+  //   try {
+  //     const response = await fetch(`${API_URL}/api/stylists/search/${name}`, {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: token,
+  //       },
+  //     });
+  //     if (!response.ok) {
+  //       const error = await response.json();
+  //       throw new Error(error.message || "Failed to retrieve stylist");
+  //     }
+  //     const data: Stylist[] = await response.json();
+  //     return data; // Return the array of stylists
+  //   } catch (error) {
+  //     console.error("RetrieveStylistByName error:", error);
+  //     throw error;
+  //   }
+  // };
 
   // Handle branch change
   const handleBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -302,10 +295,11 @@ const ReviewsList = () => {
 
   // Handle stylist change
   const handleStylistChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedStylistName = e.target.value;
-    setStylist(selectedStylistName);
+    const stylistId = e.target.value;
+    // console.log(stylistId);
+    setStylist(stylistId);
     setReviews([]);
-    fetchReviews(branch, selectedStylistName); // Re-fetch reviews for the branch with the selected stylist
+    fetchReviews(branch, stylistId); // Re-fetch reviews for the branch with the selected stylist
   };
 
   // Handle clear filters
@@ -318,17 +312,21 @@ const ReviewsList = () => {
 
   // Filter stylists to show only those working at the selected branch
   const filteredStylists = branch
-    ? allStylists.filter((stylist) =>
-        branches
-          .find((b) => b.location === branch)
-          ?.stylists.includes(stylist._id)
+    ? allStylists.filter(
+        (stylist) =>
+          branches
+            .find((b) => b.location === branch)
+            ?.stylists.some((bStylist) => bStylist._id === stylist._id) // compare by ID
       )
     : allStylists;
 
   const stylistBranchMap: Record<string, string> = {};
   branches.forEach((branch) => {
-    branch.stylists.forEach((stylistId) => {
-      stylistBranchMap[stylistId] = branch.location;
+    // console.log("branch: " + branch.location);
+    // console.log(branch.stylists);
+    branch.stylists.forEach((stylist) => {
+      // console.log("stylistId: ");
+      stylistBranchMap[stylist._id] = branch.location;
     });
   });
 
@@ -343,7 +341,7 @@ const ReviewsList = () => {
         title="BuzzBook - Reviews"
         description="View Customer Reviews"
       />
-      <PageBreadcrumb pageTitle="Reviews" />
+      <PageBreadcrumb pageTitle="View Customer Reviews" />
 
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
         {/* Flex container for branch and stylist selects */}
@@ -379,7 +377,7 @@ const ReviewsList = () => {
             >
               <option value="">All Stylists</option>
               {filteredStylists.map((s) => (
-                <option key={s._id} value={s.name}>
+                <option key={s._id} value={s._id}>
                   {s.name}
                 </option>
               ))}
@@ -395,6 +393,12 @@ const ReviewsList = () => {
               Clear Filters
             </button>
           </div>
+        </div>
+
+        {/* Showing total reviews count */}
+        <div className="mb-6 text-sm text-gray-700 dark:text-gray-400">
+          Currently showing: <strong>{sortedReviews.length}</strong> review
+          {sortedReviews.length !== 1 ? "s" : ""}
         </div>
 
         {/* Scrollable Review Cards */}
