@@ -64,7 +64,7 @@ const PastApptsPage = () => {
         description="View All Appointments"
       />
       <PageBreadcrumb pageTitle="View Appointments" />
-      <div className="mt-8">
+      <div>
         <ComponentCard title="Upcoming/Past Appointments">
           <ApptTable appointment={appts} />
         </ComponentCard>
