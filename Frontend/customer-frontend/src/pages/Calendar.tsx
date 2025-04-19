@@ -379,7 +379,7 @@ const Calendar: React.FC = () => {
       );
       closeDeleteModal();
       closeModal();
-      toast.error("Your appoinment has been deleted!");
+      toast.success("Appointment cancelled successfully!");
     } catch (error) {
       console.error("Error cancelling appointment:", error);
     }
