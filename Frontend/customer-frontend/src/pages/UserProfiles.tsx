@@ -41,6 +41,9 @@ export default function UserProfiles() {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [emailError, setEmailError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
   const { refreshUser } = useUser();
@@ -103,6 +106,8 @@ export default function UserProfiles() {
       setPreviewEmail(email || "");
       setPreviewUsername(username || "");
       setPreviewPic(profilePic || "");
+      setEmailError("");
+      setUsernameError("");
     }
   }, [isOpen]);
 
@@ -111,17 +116,16 @@ export default function UserProfiles() {
     const isEmailTaken = await handleEmailCheck(previewEmail);
     const isUsernameTaken = await handleUsernameCheck(previewUsername);
 
+    setEmailError("");
+    setUsernameError("");
+
     if (isEmailTaken) {
-      closeModal();
-      toast.error("Email is already in use");
-      setEmail(originalEmail);
+      setEmailError("Email is already in use.");
       return;
     }
 
     if (isUsernameTaken) {
-      closeModal();
-      toast.error("Username is already in use");
-      setUsername(originalUsername);
+      setUsernameError("Username is already in use.");
       return;
     }
 
@@ -458,9 +462,21 @@ export default function UserProfiles() {
                         />
                       </div>
                     </div>
+                    <div className="text-center pt-6">
+                      {emailError && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {emailError}
+                        </p>
+                      )}
+                      {usernameError && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {usernameError}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+                <div className="flex items-center gap-3 px-2 mt-4 lg:justify-end">
                   <Button size="sm" variant="outline" onClick={closeModal}>
                     Close
                   </Button>
