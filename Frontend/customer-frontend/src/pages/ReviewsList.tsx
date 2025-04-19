@@ -213,7 +213,7 @@ const ReviewsList = () => {
           }
 
           const branchStylist = matchingStylists.find((stylist) =>
-            branchObj.stylists.includes(stylist)
+            branchObj.stylists.some((bStylist) => bStylist._id === stylist._id)
           );
 
           if (branchStylist) {
@@ -327,17 +327,20 @@ const ReviewsList = () => {
 
   // Filter stylists to show only those working at the selected branch
   const filteredStylists = branch
-    ? allStylists.filter((stylist) =>
-        branches.find((b) => b.location === branch)?.stylists.includes(stylist)
+    ? allStylists.filter(
+        (stylist) =>
+          branches
+            .find((b) => b.location === branch)
+            ?.stylists.some((bStylist) => bStylist._id === stylist._id) // compare by ID
       )
     : allStylists;
 
   const stylistBranchMap: Record<string, string> = {};
   branches.forEach((branch) => {
-    console.log("branch: " + branch.location);
-    console.log(branch.stylists);
+    // console.log("branch: " + branch.location);
+    // console.log(branch.stylists);
     branch.stylists.forEach((stylist) => {
-      console.log("stylistId: ");
+      // console.log("stylistId: ");
       stylistBranchMap[stylist._id] = branch.location;
     });
   });
@@ -405,6 +408,12 @@ const ReviewsList = () => {
               Clear Filters
             </button>
           </div>
+        </div>
+
+        {/* Showing total reviews count */}
+        <div className="mb-6 text-sm text-gray-700 dark:text-gray-400">
+          Currently showing: <strong>{sortedReviews.length}</strong> review
+          {sortedReviews.length !== 1 ? "s" : ""}
         </div>
 
         {/* Scrollable Review Cards */}
