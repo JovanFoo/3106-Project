@@ -56,18 +56,17 @@ const Calendar: React.FC = () => {
       )
       .then((res) => {
         const resEvents: CalendarEvent[] = res.data;
+
         const events: CalendarEvent[] = resEvents
           .filter((x: CalendarEvent) => {
             return x.status !== "Cancelled";
           })
           .map((event: CalendarEvent) => {
-            return {
-              id: event._id,
+            const value = {
+              id: event.id,
               title: event.title,
               start: new Date(
-                new Date(event.start).setHours(
-                  new Date(event.start).getHours()
-                )
+                new Date(event.start).setHours(new Date(event.start).getHours())
               ),
               end: new Date(
                 new Date(event.end).setHours(new Date(event.end).getHours())
@@ -80,9 +79,9 @@ const Calendar: React.FC = () => {
                 calendar: event.type === "Leave" ? "Danger" : "Success",
               },
             };
+            return value;
           });
         setEvents(events);
-        console.log("events: ", events);
       })
       .catch((err) => {
         console.log(err);
@@ -99,7 +98,6 @@ const Calendar: React.FC = () => {
 
   const handleEventClick = (clickInfo: EventClickArg) => {
     const event = clickInfo.event;
-    console.log(event);
     setSelectedEvent(event as unknown as CalendarEvent);
     setEventTitle(event.title);
     setEventStartDate(event.start || undefined);
@@ -129,6 +127,7 @@ const Calendar: React.FC = () => {
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="custom-calendar ">
               <FullCalendar
+                timeZone="local"
                 ref={calendarRef}
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 initialView="timeGridWeek"
