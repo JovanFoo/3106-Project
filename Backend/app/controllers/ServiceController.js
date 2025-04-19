@@ -63,6 +63,7 @@ const ServiceController = {
       let date = new Date();
       if (month && year && day) {
         date = new Date(year, month, day);
+        date.setHours(date.getHours() + 8);
       }
       let temp = [];
       for (let i = 0; i < services.length; i++) {
@@ -71,7 +72,25 @@ const ServiceController = {
         let rate = MAXRATE;
         for (let j = 0; j < service.serviceRates.length; j++) {
           const serviceRate = service.serviceRates[j];
-          if (serviceRate.startDate <= date && serviceRate.endDate >= date) {
+          // console.log("HELLO");
+          // console.log(
+          //   "startDAte: " +
+          //     new Date(serviceRate.startDate).toISOString().split("T")[0]
+          // );
+          // console.log(
+          //   "endDAte: " +
+          //     new Date(serviceRate.endDate).toISOString().split("T")[0]
+          // );
+          // console.log("date: " + new Date(date).toISOString().split("T")[0]);
+          const newDate = new Date(date).toISOString().split("T")[0];
+          const newStartDate = new Date(serviceRate.startDate)
+            .toISOString()
+            .split("T")[0];
+          const newEndDate = new Date(serviceRate.endDate)
+            .toISOString()
+            .split("T")[0];
+
+          if (newStartDate <= newDate && newEndDate >= newDate) {
             if (serviceRate.rate < rate) {
               rate = serviceRate.rate;
             }
