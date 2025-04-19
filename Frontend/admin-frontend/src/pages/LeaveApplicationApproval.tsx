@@ -3,7 +3,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import CloseIcon from "@mui/icons-material/Close";
+// import CloseIcon from "@mui/icons-material/Close";
 import EventIcon from "@mui/icons-material/Event";
 import {
   Avatar,
@@ -14,7 +14,7 @@ import {
   CardContent,
   Chip,
   Container,
-  Dialog,
+  // Dialog,
   Divider,
   Grid,
   IconButton,
@@ -35,6 +35,7 @@ import {
 import React, { ReactElement, useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import { toast, ToastContainer } from "react-toastify";
+import { Modal } from "../components/ui/modal";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -871,26 +872,27 @@ const LeaveManagement = (): ReactElement => {
         </Grid>
 
         {/* Image Zoom Dialog */}
-        <Dialog
-          open={imageZoomOpen}
+        <Modal
+          isOpen={imageZoomOpen}
           onClose={() => setImageZoomOpen(false)}
-          maxWidth={false}
-          fullWidth
-          PaperProps={{
-            sx: {
-              bgcolor: "transparent",
-              boxShadow: "none",
-              overflow: "hidden",
-            },
-          }}
-          sx={{
-            "& .MuiBackdrop-root": {
-              backdropFilter: "blur(8px)",
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
-            },
-          }}
+          className="w-[70vw] h-[70vh] flex justify-center items-center"
+          // maxWidth={false}
+          // fullWidth
+          // PaperProps={{
+          //   sx: {
+          //     bgcolor: "transparent",
+          //     boxShadow: "none",
+          //     overflow: "hidden",
+          //   },
+          // }}
+          // sx={{
+          //   "& .MuiBackdrop-root": {
+          //     backdropFilter: "blur(8px)",
+          //     backgroundColor: "rgba(0, 0, 0, 0.8)",
+          //   },
+          // }}
         >
-          <Box
+          {/* <Box
             sx={{
               position: "relative",
               width: "100vw",
@@ -915,27 +917,27 @@ const LeaveManagement = (): ReactElement => {
               }}
             >
               <CloseIcon />
-            </IconButton>
-            {zoomedImage && (
-              <Box
-                component="img"
-                src={zoomedImage}
-                alt="Supporting document"
-                sx={{
-                  maxWidth: "90vw",
-                  maxHeight: "90vh",
-                  objectFit: "contain",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                }}
-                onClick={(e) => {
-                  // Prevent click from bubbling to backdrop
-                  e.stopPropagation();
-                }}
-              />
-            )}
-          </Box>
-        </Dialog>
+            </IconButton> */}
+          {zoomedImage && (
+            <Box
+              component="img"
+              src={zoomedImage}
+              alt="Supporting document"
+              sx={{
+                maxWidth: "90vw",
+                maxHeight: "90vh",
+                objectFit: "contain",
+                borderRadius: "8px",
+                cursor: "pointer",
+              }}
+              onClick={(e) => {
+                // Prevent click from bubbling to backdrop
+                e.stopPropagation();
+              }}
+            />
+          )}
+          {/* </Box> */}
+        </Modal>
       </Container>
     </Box>
   );
