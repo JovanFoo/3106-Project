@@ -67,9 +67,8 @@ const Calendar: React.FC = () => {
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(0);
   const [userLoyaltyPoints, setUserLoyaltyPoints] = useState(0);
   const [loyaltypointsORGINAL, setloyaltypointsORIGINAL] = useState(0);
-  const [editpointsused, seteditpointsused] = useState(0); //for editing appts
+  const [editpointsused, seteditpointsused] = useState(0); // for editing appts
 
-  // Assuming these are declared above or coming from props/state
   const selectedService = services.find((s) => s._id === service);
   const servicePrice = selectedService?.serviceRate ?? 0;
   const pointValue = 0.1; // 10 cents per point
@@ -115,7 +114,7 @@ const Calendar: React.FC = () => {
             }
           );
           const data = await response.json();
-          console.log(data);
+          // console.log(data);
           setUserLoyaltyPoints(data.loyaltyPoints);
           if (!response.ok) {
             console.log(data);
@@ -138,7 +137,7 @@ const Calendar: React.FC = () => {
     }
   }, [apptStartDate, branch, service, stylist]);
 
-  //fetch appt all details
+  // fetch appt all details
   useEffect(() => {
     async function fetchApptDetails() {
       const userData = localStorage.getItem("user");
@@ -163,7 +162,7 @@ const Calendar: React.FC = () => {
           // const test = data.map((appointment: any) => {
           //   console.log(appointment)
           // });
-          console.log(data, "appt all detils");
+          // console.log(data, "appt all detils");
 
           setapptsalldetails(data);
         } catch (error) {
@@ -191,7 +190,7 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch branches");
 
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         setBranches(data);
       } catch (error) {
         console.error("Error fetching branches:", error);
@@ -321,7 +320,7 @@ const Calendar: React.FC = () => {
             },
           }));
 
-        console.log(formattedAppointments, "appts");
+        // console.log(formattedAppointments, "appts");
 
         setAppts(formattedAppointments);
       } catch (error) {
@@ -346,7 +345,7 @@ const Calendar: React.FC = () => {
     const token = customer.tokens.token;
     const id = customer.customer._id;
 
-    //update teh user loyalty points
+    // update the user loyalty points
     const response2 = await fetch(`${API_URL}/api/customers/${id}`, {
       method: "PUT",
       headers: {
@@ -402,7 +401,7 @@ const Calendar: React.FC = () => {
     if (date) {
       date.setHours(date.getHours() + 8);
     }
-    // Set the branch first
+
     setBranch(appt.extendedProps.branch);
 
     await fetchServices(date);
@@ -412,8 +411,8 @@ const Calendar: React.FC = () => {
       (s) => s._id === appt.extendedProps.service
     );
 
-    // Create a time slot object for the existing appointment
-    // Helper function to format time range
+    // create a time slot object for the existing appointment
+    // helper function to format time range
     const formatTimeRange = (start: Date | null, end: Date | null) => {
       if (!start || !end) return "";
 
@@ -432,7 +431,7 @@ const Calendar: React.FC = () => {
     const serviceTime = Number(serviceObj?.duration);
     console.log(appt.start);
     if (appt.start && serviceTime) {
-      const endTime = new Date(appt.start.getTime() + serviceTime * 60000); // Convert minutes to milliseconds
+      const endTime = new Date(appt.start.getTime() + serviceTime * 60000); // convert minutes to milliseconds
       const existingTimeSlot: TimeSlot = {
         startTime: appt.start.toISOString(),
         endTime: endTime.toISOString(),
@@ -455,11 +454,10 @@ const Calendar: React.FC = () => {
     const branchId = e.target.value;
     setBranch(branchId);
 
-    // Reset dependent fields
     setStylist("");
     setService("");
 
-    // Fetch services and stylists for the selected branch
+    // fetch services and stylists for the selected branch
     if (branchId && apptStartDate) {
       fetchStylists(branchId);
     }
@@ -566,7 +564,7 @@ const Calendar: React.FC = () => {
         pointsUsed: useLoyaltyPoints,
       };
 
-      //update teh user loyalty points
+      // update the user loyalty points
       const response2 = await fetch(`${API_URL}/api/customers/${id}`, {
         method: "PUT",
         headers: {
@@ -581,7 +579,7 @@ const Calendar: React.FC = () => {
 
       setUserLoyaltyPoints(
         (pts) => pts - (useLoyaltyPoints - loyaltypointsORGINAL)
-      ); //in case no refresh
+      ); // in case no refresh
 
       if (!response2.ok) {
         throw new Error("Failed to update appointment");
@@ -650,7 +648,7 @@ const Calendar: React.FC = () => {
           body: JSON.stringify(newAppointmentData),
         });
 
-        const newpointsnum = userLoyaltyPoints - useLoyaltyPoints; //update user with updated points.
+        const newpointsnum = userLoyaltyPoints - useLoyaltyPoints; // update user with updated points
 
         const response2 = await fetch(`${API_URL}/api/customers/${id}`, {
           method: "PUT",
@@ -668,7 +666,7 @@ const Calendar: React.FC = () => {
         }
         const createdAppointment = await response.json();
         console.log(createdAppointment, "created appt");
-        // Convert response data into FullCalendar format
+        // convert response data into FullCalendar format
         const newAppointment: CalendarEvent = {
           id: createdAppointment._id.toString(),
           start: createdAppointment.date,
@@ -682,8 +680,8 @@ const Calendar: React.FC = () => {
         };
         // update calendar's state to reflect new appointment
         setAppts((prevEvents) => [...prevEvents, newAppointment]);
-        setUserLoyaltyPoints(newpointsnum); //set in case page no refresh.
-        setUseLoyaltyPoints(0); //reset the slider to 0
+        setUserLoyaltyPoints(newpointsnum); // set in case page no refresh.
+        setUseLoyaltyPoints(0); // reset the slider to 0
         toast.success("Appointment created successfully!");
       } catch (error) {
         window.confirm("Error creating appointment!");

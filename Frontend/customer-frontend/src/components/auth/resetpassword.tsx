@@ -40,7 +40,7 @@ export default function ResetPassword() {
         setMessage(
           "Password reset link sent successfully. Redirecting back..."
         );
-        setTimeout(() => navigate("/signin"), 3000); // Redirect after 3 seconds
+        setTimeout(() => navigate("/signin"), 3000); // redirect after 3 seconds
       } else {
         setError(data.message);
       }
@@ -53,7 +53,7 @@ export default function ResetPassword() {
   };
 
   const handleBack = () => {
-    navigate(-1); // Go back to the previous page
+    navigate(-1); // go back to the previous page
   };
 
   return (

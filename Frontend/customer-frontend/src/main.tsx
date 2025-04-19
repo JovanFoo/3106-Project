@@ -29,7 +29,7 @@ createRoot(document.getElementById("root")!).render(
           pauseOnHover
           theme="light"
           style={{
-            marginTop: "4rem", // Adjust according to your header height
+            marginTop: "4rem", // header height
           }}
         />
       </AppWrapper>

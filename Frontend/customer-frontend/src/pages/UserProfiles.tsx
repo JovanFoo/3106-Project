@@ -33,8 +33,8 @@ export default function UserProfiles() {
   const [previewUsername, setPreviewUsername] = useState("");
   const [previewPic, setPreviewPic] = useState("");
 
-  const [originalEmail, setOriginalEmail] = useState("");
-  const [originalUsername, setOriginalUsername] = useState("");
+  const [, setOriginalEmail] = useState("");
+  const [, setOriginalUsername] = useState("");
   const [loyaltyPoints, setLoyaltyPoints] = useState(0);
 
   const [newPassword, setNewPassword] = useState<string>("");
@@ -89,8 +89,8 @@ export default function UserProfiles() {
           setProfilePic(data.profilePicture);
           setPreviewPic(data.profilePicture);
           setLoyaltyPoints(data.loyaltyPoints);
-          setOriginalEmail(data.email);
-          setOriginalUsername(data.username);
+          setOriginalEmail(data.email); // could be redundant
+          setOriginalUsername(data.username); // could be redundant
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -129,7 +129,6 @@ export default function UserProfiles() {
       return;
     }
 
-    // Handle saving logic after validation
     console.log("Saving changes...");
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -165,7 +164,7 @@ export default function UserProfiles() {
           setProfilePic(updatedUser.profilePicture);
 
           toast.success("Profile Updated!");
-          closeModal(); // Close modal after saving
+          closeModal(); // close modal after saving
           await refreshUser(); // update context with fresh data
         } else {
           const errorData = await response.json();

@@ -52,7 +52,7 @@ export default function UserMetaCard() {
             console.log(data);
           }
 
-          console.log(data);
+          // console.log(data);
           setUsername(data.username);
           setfirstName(data.name);
           setEmail(data.email);
@@ -76,7 +76,7 @@ export default function UserMetaCard() {
   }, [isOpen]);
 
   const handleSave = async () => {
-    // Check if email or username is already taken
+    // check if email or username is already taken
     const isEmailTaken = await handleEmailCheck(email);
     const isUsernameTaken = await handleUsernameCheck(username);
 
@@ -92,7 +92,7 @@ export default function UserMetaCard() {
       setUsername(originalUsername);
     }
 
-    // Handle saving logic after validation
+    // handle saving logic after validation
     console.log("Saving changes...");
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -122,7 +122,7 @@ export default function UserMetaCard() {
           const updatedUser = await response.json();
           console.log("User updated successfully:", updatedUser);
           setProfilepic(updatedUser.profilePicture);
-          closeModal(); // Close modal after saving
+          closeModal();
           navigate(0);
         } else {
           const errorData = await response.json();

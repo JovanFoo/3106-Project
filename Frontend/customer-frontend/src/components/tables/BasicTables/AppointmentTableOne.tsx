@@ -187,7 +187,7 @@ export default function AppointmentTableOne({ appointment }: Props) {
 
         if (!response.ok) throw new Error("Failed to delete review");
 
-        // Remove the review from the appointment
+        // remove the review from the appointment
         updateAppointmentReview(selectedAppointment._id, null);
         toast.success("Review successfully deleted!");
       } catch (err) {
