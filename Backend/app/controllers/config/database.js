@@ -25,5 +25,11 @@ setInterval(() => {
     })
     .catch((err) => console.error(err));
 }, 1000 * 90); // every 1.5 minutes
-
+run()
+  .then((res) => {
+    AdminController.initaliseAdmin();
+    working = true;
+    console.log("MongoDB connection established successfully.");
+  })
+  .catch((err) => console.error(err));
 module.exports = mongodb;
