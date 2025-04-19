@@ -206,7 +206,7 @@ const CustomerController = {
 
     jwt.addToBlackList(req.params.token);
     await customer.save();
-    return res.render("successful-update");
+    res.redirect("/success-update");
   },
 
   async updateProfilePicture(req, res) {
