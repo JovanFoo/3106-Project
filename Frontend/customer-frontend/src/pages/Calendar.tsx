@@ -227,8 +227,7 @@ const Calendar: React.FC = () => {
       try {
         const year = date.getFullYear();
         const month = date.getMonth();
-        const day = date.getDay();
-        // Edit Back to endpoint URL
+        const day = date.getDate();
         const response = await fetch(
           `${API_URL}/api/services?year=${year}&month=${month}&day=${day}`,
           // `${API_URL}/api/services?year=${year}&month=${month}&day=${day}`,
@@ -243,6 +242,7 @@ const Calendar: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch services");
 
         const data = await response.json();
+        // console.log(data, "on date");
         setServices(data);
       } catch (error) {
         console.error("Error fetching services:", error);
