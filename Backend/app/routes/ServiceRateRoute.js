@@ -39,7 +39,7 @@ ServiceRateRouter.put(
 // delete ServiceRate by id --> TODO: (only stylist manager can create?)
 ServiceRateRouter.delete(
   "/:id",
-  AuthMiddleware.authStylistManagerToken,
+  AuthMiddleware.authAdminStylistOrManagerToken,
   ServiceRateController.delete
 );
 
