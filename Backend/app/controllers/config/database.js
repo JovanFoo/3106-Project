@@ -13,9 +13,16 @@ const run = async () => {
 };
 
 const AdminController = require("../AdminController.js");
+let working = false;
 
-run()
-  .then((res) => AdminController.initaliseAdmin())
-  .catch((err) => console.error(err));
+setInterval(() => {
+  if (working) return;
+  run()
+    .then((res) => {
+      AdminController.initaliseAdmin();
+      working = true;
+    })
+    .catch((err) => console.error(err));
+}, 1000 * 90); // every 1.5 minutes
 
 module.exports = mongodb;
