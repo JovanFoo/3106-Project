@@ -66,11 +66,11 @@ const Calendar: React.FC = () => {
               title: event.title,
               start: new Date(
                 new Date(event.start).setHours(
-                  new Date(event.start).getHours() - 8
+                  new Date(event.start).getHours()
                 )
               ),
               end: new Date(
-                new Date(event.end).setHours(new Date(event.end).getHours() - 8)
+                new Date(event.end).setHours(new Date(event.end).getHours())
               ),
               status: event.status,
               description: event.description,
