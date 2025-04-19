@@ -129,7 +129,6 @@ export default function Transactions() {
         config
       )
       .then((response) => {
-        console.log(response.data);
         const res: PaginationData = response.data;
 
         setTotalTransactions(res.total);
@@ -575,7 +574,6 @@ const CustomerModal: React.FC<ModalProps> = ({
                   // restrict value to only 2 decimal places
                   if (decimal?.length > 2) {
                     // do nothing
-                    console.log("Decimal places exceeded");
                     return;
                   }
                 }
