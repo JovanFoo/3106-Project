@@ -11,6 +11,7 @@ import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
 import Select from "../../components/form/Select";
+import { PlusIcon, TrashBinIcon } from "../../icons";
 
 const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 
@@ -29,8 +30,11 @@ export default function CreateShop() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [shopToDelete, setShopToDelete] = useState<string | null>(null);
   const [selectedStylists, setSelectedStylists] = useState<Stylist[]>([]);
+  const [allStylists, setAllStylists] = useState<Stylist[]>([]);
   const [manager, setManager] = useState<Stylist | null>(null);
   const [updatedManager, setUpdatedManager] = useState<Stylist | null>(null);
+  const [addedStylist, setAddedStylist] = useState<Stylist | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const config = {
     headers: {
       Authorization: sessionStorage.getItem("token"),
@@ -40,6 +44,7 @@ export default function CreateShop() {
   type Stylist = {
     _id: string;
     name: string;
+    stylists?: Stylist[];
   };
   type Shop = {
     _id: string;
@@ -56,6 +61,7 @@ export default function CreateShop() {
   };
 
   useEffect(() => {
+    if (isLoading) return; // Prevent multiple fetches
     const fetchShops = async () => {
       try {
         const response = await axios.get(`${api_address}/api/branches`, config);
@@ -64,10 +70,20 @@ export default function CreateShop() {
         console.error("Error fetching shops:", error);
       }
     };
+    const fetchStylists = async () => {
+      try {
+        const response = await axios.get(`${api_address}/api/stylists`, config);
+        setAllStylists(response.data);
+      } catch (error) {
+        console.error("Error fetching stylists:", error);
+      }
+    };
+    fetchStylists();
     fetchShops();
-  }, []);
+  }, [isLoading]);
 
   const handleCreateShop = async () => {
+    setIsLoading(true);
     const newShop = {
       _id: editingShopId || Date.now().toString(),
       location,
@@ -93,6 +109,7 @@ export default function CreateShop() {
           )
         );
         toast.success("Shop updated successfully.");
+        setIsLoading(false);
       } else {
         response = await axios.post(
           `${api_address}/api/branches`,
@@ -118,11 +135,13 @@ export default function CreateShop() {
 
   const handleDeleteShop = async () => {
     if (!shopToDelete) return;
+    setIsLoading(true);
 
     try {
       await axios.delete(`${api_address}/api/branches/${shopToDelete}`, config);
       setShops((prev) => prev.filter((shop) => shop._id !== shopToDelete));
       toast.success("Shop deleted successfully.");
+      setIsLoading(false);
     } catch (error: any) {
       console.error("Error deleting shop:", error);
       toast.error(error.response?.data?.message || "Failed to delete shop.");
@@ -177,6 +196,7 @@ export default function CreateShop() {
   };
 
   const handleChangeManager = (stylistId: string) => {
+    setIsLoading(true);
     closeModal();
     axios
       .put(
@@ -189,6 +209,29 @@ export default function CreateShop() {
         setManager(updatedShop.manager);
         setSelectedStylists(updatedShop.stylists || []);
         toast.success("Manager updated successfully.");
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error updating manager:", error);
+        toast.error(
+          error.response?.data?.message || "Failed to update manager."
+        );
+      });
+  };
+  const handleAddStylist = (stylistId: string) => {
+    setIsLoading(true);
+    axios
+      .put(
+        `${api_address}/api/branches/add/stylist/${editingShopId}`,
+        { stylistId: stylistId },
+        config
+      )
+      .then((response) => {
+        const updatedShop = response.data;
+        setManager(updatedShop.manager);
+        setSelectedStylists(updatedShop.stylists || []);
+        toast.success("Manager updated successfully.");
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error("Error updating manager:", error);
@@ -223,7 +266,7 @@ export default function CreateShop() {
 
   const handleRemoveStylist = async (stylistId: string) => {
     if (!editingShopId || !manager?._id) return;
-
+    setIsLoading(true);
     try {
       await axios.put(
         `${api_address}/api/branches/remove/${editingShopId}`,
@@ -237,6 +280,7 @@ export default function CreateShop() {
       setSelectedStylists((prev) =>
         prev.filter((stylist) => stylist._id !== stylistId)
       );
+      setIsLoading(false);
 
       toast.success("Stylist removed successfully.");
     } catch (error: any) {
@@ -376,7 +420,7 @@ export default function CreateShop() {
               ))}
             </div>
 
-            <div className="mt-6 space-y-6">
+            <div className="mt-3 space-y-1">
               <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Team
               </h4>
@@ -384,7 +428,7 @@ export default function CreateShop() {
                 <div className="rounded-xl border border-gray-500 p-4 dark:border-gray-700 w-full">
                   {/* Manager Info */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="mb-4 col-span-1">
+                    {/* <div className="mb-4 col-span-1">
                       <h4 className="font-medium text-gray-800 dark:text-white mb-2">
                         👑 Manager
                       </h4>
@@ -393,19 +437,18 @@ export default function CreateShop() {
                           {manager.name}
                         </span>
                       </div>
-                    </div>
-                    {/* Add Manager Button */}
-                    <div className="mb-4 col-span-1">
+                    </div> */}
+                    {/* Change Manager Button */}
+                    <div className="mb-5 col-span-1">
                       <h5 className="font-medium text-gray-800 dark:text-white mb-2">
-                        Change Manager
+                        👑 Manager
                       </h5>
                       <Select
-                        options={selectedStylists
-                          .filter((stylist) => stylist._id !== manager._id)
-                          .map((stylist) => ({
-                            value: stylist._id,
-                            label: stylist.name,
-                          }))}
+                        options={selectedStylists.map((stylist) => ({
+                          value: stylist._id,
+                          label: stylist.name,
+                        }))}
+                        defaultValue={manager._id}
                         onChange={(e) => {
                           console.log("Selected stylist ID:", e);
                           const selectedId = e;
@@ -417,7 +460,7 @@ export default function CreateShop() {
                           }
                         }}
                       />
-                      <Button
+                      {/* <Button
                         className="mt-2 w-full"
                         size="sm"
                         variant="primary"
@@ -426,12 +469,12 @@ export default function CreateShop() {
                         }}
                       >
                         Change Manager
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                   {/* Stylists */}
                   <div>
-                    <h5 className="font-medium text-gray-800 dark:text-white mb-2">
+                    <h5 className="font-medium text-gray-800 dark:text-white mb-2 ">
                       ✂️ Stylists (
                       {
                         selectedStylists.filter((s) => s._id !== manager._id)
@@ -439,26 +482,74 @@ export default function CreateShop() {
                       }
                       )
                     </h5>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 h-[100px] overflow-y-auto mb-5">
                       {selectedStylists
                         .filter((stylist) => stylist._id !== manager._id) // <-- this line filters out manager
                         .map((stylist) => (
                           <div
                             key={stylist._id}
-                            className="flex justify-between items-center border border-gray-400  rounded-md p-2 dark:border-gray-600 dark:bg-gray-800"
+                            className="flex justify-between items-center border border-gray-400  rounded-md p-1 dark:border-gray-600 dark:bg-gray-800"
                           >
-                            <span className="text-gray-700 dark:text-white">
+                            <span className="text-gray-700 dark:text-white ml-3">
                               {stylist.name}
                             </span>
                             <Button
+                              className="p-0"
                               size="sm"
                               type="danger"
                               onClick={() => handleRemoveStylist(stylist._id)}
                             >
-                              Remove
+                              <TrashBinIcon className="w-4 h-4" />
                             </Button>
                           </div>
                         ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                    <div className="col-span-3">
+                      {" "}
+                      <h5 className="font-medium text-gray-800 dark:text-white ">
+                        ➕ Add stylist
+                      </h5>
+                    </div>
+                    {/* Add stylist Button */}
+                    <div className=" col-span-1">
+                      <Select
+                        options={allStylists
+                          .filter((stylist) => stylist._id !== manager?._id)
+                          .filter((stylist) => stylist.stylists?.length === 0) // Filter out stylists already in the shop
+                          .filter(
+                            (stylist) =>
+                              !selectedStylists.some(
+                                (s) => s._id === stylist._id
+                              )
+                          )
+                          .map((stylist) => ({
+                            value: stylist._id,
+                            label: stylist.name,
+                          }))}
+                        onChange={(e) => {
+                          const selectedId = e;
+                          const selectedStylist = allStylists.find(
+                            (stylist) => stylist._id === selectedId
+                          );
+                          console.log("Selected stylist ID:", selectedStylist);
+                          if (selectedStylist) {
+                            setAddedStylist(selectedStylist);
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className=" col-span-1">
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => {
+                          handleAddStylist(addedStylist?._id || "");
+                        }}
+                      >
+                        Add
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -471,7 +562,12 @@ export default function CreateShop() {
                   <Button
                     size="sm"
                     type="danger"
-                    onClick={() => confirmDeleteShop(editingShopId)}
+                    onClick={() => {
+                      confirmDeleteShop(editingShopId);
+                      if (updatedManager) {
+                        handleChangeManager(updatedManager?._id || "");
+                      }
+                    }}
                   >
                     Delete
                   </Button>

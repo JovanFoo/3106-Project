@@ -309,58 +309,138 @@ const BranchController = {
     console.log("TeamController > change manager of a team");
     const { id: branchId } = req.params;
     const { stylistId } = req.body;
-    const tobeManager = await Stylist.findById(stylistId);
-    const branch = await Branch.findOne({ _id: branchId });
+    if (!stylistId) {
+      return res.status(400).json({ message: "Stylist ID is required" });
+    }
+    if (!branchId) {
+      return res.status(400).json({ message: "Branch ID is required" });
+    }
+    try {
+      const tobeManager = await Stylist.findById(stylistId);
+      const branch = await Branch.findOne({ _id: branchId });
 
-    const otherBranch = await Branch.findOne().where({
-      stylists: { $in: stylistId },
-    });
-    if (!tobeManager) {
-      return res.status(400).json({ message: "Stylist not found" });
-    }
-    if (tobeManager.stylists.length > 0) {
-      return res.status(400).json({ message: "Stylist is a manager" });
-    }
-    if (!branch) {
-      return res.status(400).json({ message: "Branch not found" });
-    }
-    if (branch.manager == stylistId) {
-      return res
-        .status(400)
-        .json({ message: "This stylist is already a manager" });
-    }
-    if (otherBranch && otherBranch._id != branchId) {
-      // remove stylist from other branch
-      otherBranch.stylists = otherBranch.stylists.filter((staff) => {
-        return staff.toString() != stylistId;
+      const otherBranch = await Branch.findOne().where({
+        stylists: { $in: stylistId },
       });
-      await otherBranch.save();
-      const otherManager = await Stylist.findById(otherBranch.manager);
-      if (otherManager) {
-        otherManager.stylists = otherManager.stylists.filter((staff) => {
-          return staff._id.toString() != stylistId;
+      if (!tobeManager) {
+        return res.status(400).json({ message: "Stylist not found" });
+      }
+      if (tobeManager.stylists.length > 0) {
+        return res.status(400).json({ message: "Stylist is a manager" });
+      }
+      if (!branch) {
+        return res.status(400).json({ message: "Branch not found" });
+      }
+      if (branch.manager == stylistId) {
+        return res
+          .status(400)
+          .json({ message: "This stylist is already a manager" });
+      }
+      if (otherBranch && otherBranch._id != branchId) {
+        // remove stylist from other branch
+        otherBranch.stylists = otherBranch.stylists.filter((staff) => {
+          return staff.toString() != stylistId;
         });
-        await otherManager.save();
+        await otherBranch.save();
+        const otherManager = await Stylist.findById(otherBranch.manager);
+        if (otherManager) {
+          otherManager.stylists = otherManager.stylists.filter((staff) => {
+            return staff._id.toString() != stylistId;
+          });
+          await otherManager.save();
+        }
       }
-    }
-    const branchManager = await Stylist.findById(branch.manager);
+      const branchManager = await Stylist.findById(branch.manager);
 
-    if (branchManager) {
-      branchManagerStylists = branchManager.stylists;
-      tobeManager.stylists = branchManager.stylists;
-      if (!tobeManager.stylists.includes(stylistId)) {
-        tobeManager.stylists.push(stylistId);
+      if (branchManager) {
+        branchManagerStylists = branchManager.stylists;
+        tobeManager.stylists = branchManager.stylists;
+        if (!tobeManager.stylists.includes(stylistId)) {
+          tobeManager.stylists.push(stylistId);
+        }
+        if (!tobeManager.stylists.includes(branchManager._id)) {
+          tobeManager.stylists.push(branchManager._id);
+        }
+        branchManager.stylists = [];
+        await branchManager.save();
       }
-      if (!tobeManager.stylists.includes(branchManager._id)) {
-        tobeManager.stylists.push(branchManager._id);
-      }
-      branchManager.stylists = [];
-      await branchManager.save();
+      await tobeManager.save();
+      branch.manager = stylistId;
+      await branch.save();
+      return res.status(204);
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ message: "Error updating branch" });
     }
-    await tobeManager.save();
-    branch.manager = stylistId;
-    await branch.save();
-    return res.status(204);
+  },
+
+  async assignStylistToBranch(req, res) {
+    console.log("BranchController > assignStylistToBranch");
+    const { id: branchId } = req.params;
+    const { stylistId } = req.body;
+    if (!stylistId) {
+      return res.status(400).json({ message: "Stylist ID is required" });
+    }
+    if (!branchId) {
+      return res.status(400).json({ message: "Branch ID is required" });
+    }
+
+    try {
+      const branch = await Branch.findById(branchId);
+      const stylist = await Stylist.findById(stylistId);
+      const otherBranch = await Branch.findOne({ stylists: stylistId });
+
+      if (!branch) {
+        return res.status(400).json({ message: "Branch not found" });
+      }
+      if (!stylist) {
+        return res.status(400).json({ message: "Stylist not found" });
+      }
+      if (branch.stylists.includes(stylistId)) {
+        return res
+          .status(400)
+          .json({ message: "Stylist already assigned to this branch" });
+      }
+      if (stylist.stylists.length > 0) {
+        return res.status(400).json({ message: "Stylist is a manager" });
+      }
+      if (branch.manager == stylistId) {
+        return res
+          .status(400)
+          .json({ message: "Stylist is already the manager of this branch" });
+      }
+      if (otherBranch) {
+        otherBranch.stylists = otherBranch.stylists.filter((staff) => {
+          return staff.toString() != stylistId;
+        });
+        await otherBranch.save();
+        const otherManager = await Stylist.findById(otherBranch.manager);
+        if (otherManager) {
+          otherManager.stylists = otherManager.stylists.filter((staff) => {
+            return staff._id.toString() != stylistId;
+          });
+          await otherManager.save();
+        }
+      }
+      const branchManager = await Stylist.findById(branch.manager);
+      if (branchManager) {
+        branchManager.stylists = branchManager.stylists.filter((staff) => {
+          return staff.toString() != stylistId;
+        });
+        await branchManager.save();
+        branch.stylists.push(stylistId);
+        await branch.save();
+      } else {
+        branch.manager = stylistId;
+        await branch.save();
+        stylist.stylists.push(stylistId);
+        await stylist.save();
+      }
+      res.status(200).json(branch);
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ message: "Error updating branch" });
+    }
   },
 };
 
