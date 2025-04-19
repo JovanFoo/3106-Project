@@ -208,6 +208,7 @@ const CustomerController = {
     await customer.save();
     return res.render("successful-update");
   },
+
   async updateProfilePicture(req, res) {
     console.log("custcolleter > updateProfilePicture");
     const id = req.userId;
