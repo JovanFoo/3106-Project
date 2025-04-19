@@ -490,7 +490,7 @@ export default function CreateShop() {
                         .map((stylist) => (
                           <div
                             key={stylist._id}
-                            className="flex justify-between items-center border border-gray-400  rounded-md p-1 dark:border-gray-600 dark:bg-gray-800"
+                            className="h-fit flex justify-between items-center border border-gray-400  rounded-md p-1 dark:border-gray-600 dark:bg-gray-800"
                           >
                             <span className="text-gray-700 dark:text-white ml-3">
                               {stylist.name}
