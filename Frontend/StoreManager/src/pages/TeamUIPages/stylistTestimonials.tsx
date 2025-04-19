@@ -101,6 +101,7 @@ export default function ClientTestimonials({ stylist }: Props) {
               ))}
             </div>
           )}
+          
         </div>
       </div>
     </div>

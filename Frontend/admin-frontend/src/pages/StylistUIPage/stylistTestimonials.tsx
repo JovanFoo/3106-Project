@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
-import { toast, ToastContainer } from "react-toastify";
 
 type Review = {
   _id: string;
@@ -114,6 +114,7 @@ export default function ClientTestimonials({ stylist }: Props) {
           {reviews.length === 0 ? (
             <p className="text-gray-500 italic">No reviews available.</p>
           ) : (
+            <div className="max-h-[400px] overflow-y-auto pr-1">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {reviews.map((review) => (
                 <div
@@ -142,6 +143,7 @@ export default function ClientTestimonials({ stylist }: Props) {
                   </Button>
                 </div>
               ))}
+            </div>
             </div>
           )}
         </div>
