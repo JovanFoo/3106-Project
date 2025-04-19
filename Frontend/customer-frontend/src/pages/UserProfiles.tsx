@@ -10,6 +10,8 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { Eye, EyeOff } from "lucide-react";
+import ComponentCard from "../components/common/ComponentCard";
+import { useUser } from "../context/UserContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -40,6 +42,8 @@ export default function UserProfiles() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+
+  const { refreshUser } = useUser();
 
   const navigate = useNavigate();
 
@@ -158,6 +162,7 @@ export default function UserProfiles() {
 
           toast.success("Profile Updated!");
           closeModal(); // Close modal after saving
+          await refreshUser(); // update context with fresh data
         } else {
           const errorData = await response.json();
           console.error("Error updating user:", errorData.message);
@@ -302,10 +307,13 @@ export default function UserProfiles() {
       <PageMeta title="BuzzBook - Profile" description="BuzzBook - Profile" />
       <PageBreadcrumb pageTitle="Your Profile" />
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-        <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
+      {/* <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+        <h3 className="mb-5 text-base font-medium text-gray-800 dark:text-white/90 lg:mb-6">
           Profile
         </h3>
+      </div> */}
+
+      <ComponentCard title="Profile Details">
         <div className="space-y-6">
           <>
             <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -384,7 +392,7 @@ export default function UserProfiles() {
 
                 {/* Profile Picture Upload */}
                 <div className="flex flex-col items-center justify-center gap-2">
-                  <Label>Profile Picture</Label>
+                  <Label>Profile Picture Preview</Label>
                   <img
                     src={previewPic || "/images/logo/defaultprofile.png"}
                     alt="user"
@@ -522,7 +530,7 @@ export default function UserProfiles() {
                       </button>
                     </div>
                     <p className="text-center text-sm text-gray-500 mt-4">
-                      Password has to be at least 6 characters long!
+                      Note: Password has to be at least 6 characters long!
                     </p>
 
                     {passwordError && (
@@ -648,7 +656,7 @@ export default function UserProfiles() {
             </div>
           </div>
         </div>
-      </div>
+      </ComponentCard>
     </>
   );
 }
