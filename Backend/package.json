@@ -8,8 +8,8 @@
     "vercel-build": "",
     "build": "npm install",
     "start": "node index.js",
-    "set-env-window": "copy .env_template .env",
-    "set-env-mac": "cp .env_template .env"
+    "set-env-window": "copy .env.template .env",
+    "set-env-mac": "cp .env.template .env"
   },
   "author": "",
   "license": "ISC",

@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "set-env-window": "copy .env.template .env",
+    "set-env-mac": "cp .env.template .env"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.15",
