@@ -129,7 +129,7 @@ export default function CreateShop() {
       closeModal();
     } catch (error: any) {
       console.error("Error creating/updating shop:", error);
-      toast.error(error.response?.data?.message || "Something went wrong.");
+      toast.error("Something went wrong.");
     }
   };
 
@@ -149,7 +149,7 @@ export default function CreateShop() {
       setIsLoading(false);
     } catch (error: any) {
       console.error("Error deleting shop:", error);
-      toast.error(error.response?.data?.message || "Failed to delete shop.");
+      toast.error("Failed to delete shop.");
     }
 
     closeModal();
@@ -287,7 +287,7 @@ export default function CreateShop() {
       toast.success("Stylist removed successfully.");
     } catch (error: any) {
       console.error("Error removing stylist:", error);
-      toast.error(error.response?.data?.message || "Failed to remove stylist.");
+      toast.error("Failed to remove stylist.");
     }
   };
 
