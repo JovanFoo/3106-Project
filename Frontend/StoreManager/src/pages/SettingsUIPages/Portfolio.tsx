@@ -150,11 +150,8 @@ export default function PortfolioGallery() {
         >
           <div className="relative w-full max-w-[500px] rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-8">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Update Password
+              Add Portfolio/Gallery
             </h4>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-              Enter your current password and set a new one.
-            </p>
 
             <form
               className="flex flex-col gap-4"

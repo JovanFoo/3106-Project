@@ -278,16 +278,14 @@ const LeaveManagement = (): ReactElement => {
   const handleApprove = async (requestId: string) => {
     try {
       console.log("Approving request:", requestId);
-      const response = await api.post(
-        `/api/leave-requests/approve/${requestId}`
-      );
-      console.log("Approve response:", response);
-
+      await api.post(`/api/leave-requests/approve/${requestId}`);
+      // console.log("Approve response:", response);
+      fetchLeaveRequests();
       // Refresh the leave requests list
-      const updatedResponse = await api.get("/api/leave-requests");
+      // const updatedResponse = await api.get("/api/leave-requests");
       toast.success("Leave request approved successfully");
-      setLeaveRequests(updatedResponse.data);
-      setError(null);
+      // setLeaveRequests(updatedResponse.data);
+      // setError(null);
     } catch (error: any) {
       console.error("Error approving leave request:", error);
       console.error("Response data:", error.response?.data);
@@ -299,16 +297,15 @@ const LeaveManagement = (): ReactElement => {
   const handleReject = async (requestId: string) => {
     try {
       console.log("Rejecting request:", requestId);
-      const response = await api.post(
-        `/api/leave-requests/reject/${requestId}`
-      );
-      console.log("Reject response:", response);
+      await api.post(`/api/leave-requests/reject/${requestId}`);
+      // console.log("Reject response:", response);
 
+      fetchLeaveRequests();
       // Refresh the leave requests list
-      const updatedResponse = await api.get("/api/leave-requests");
+      // const updatedResponse = await api.get("/api/leave-requests");
       toast.success("Leave request rejected successfully");
-      setLeaveRequests(updatedResponse.data);
-      setError(null);
+      // setLeaveRequests(updatedResponse.data);
+      // setError(null);
     } catch (error: any) {
       console.error("Error rejecting leave request:", error);
       console.error("Response data:", error.response?.data);
@@ -422,6 +419,9 @@ const LeaveManagement = (): ReactElement => {
   const renderQuickApproval = () => {
     const pendingRequests = leaveRequests
       .filter((r) => r.status === "Pending")
+      .filter((r) => {
+        return r.stylist._id != user._id;
+      })
       .sort(
         (a, b) =>
           new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
@@ -590,20 +590,20 @@ const LeaveManagement = (): ReactElement => {
     );
   };
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <Box
+  //       sx={{
+  //         display: "flex",
+  //         justifyContent: "center",
+  //         alignItems: "center",
+  //         minHeight: "60vh",
+  //       }}
+  //     >
+  //       <CircularProgress />
+  //     </Box>
+  //   );
+  // }
 
   return (
     <Box
