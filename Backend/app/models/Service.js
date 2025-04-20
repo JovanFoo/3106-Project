@@ -16,22 +16,10 @@ const serviceSchema = new Schema({
     type: String,
     required: true,
   },
-  promotion: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Promotion",
-    },
-  ],
   serviceRates: [
     {
       type: Schema.Types.ObjectId,
       ref: "ServiceRate",
-    },
-  ],
-  expertiseRequired: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Expertise",
     },
   ],
 });
