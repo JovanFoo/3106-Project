@@ -139,6 +139,7 @@ const LeaveRequestController = {
         .populate("stylists")
         .populate("leaveRequests")
         .exec();
+      console.log("Manager found:", manager.stylists.length || 0);
       if (!manager) {
         return res.status(404).json({ message: "Manager not found" });
       }
@@ -158,9 +159,9 @@ const LeaveRequestController = {
       // Only include leave requests from stylists under management, excluding manager's own requests
       const leaveRequests = manager.stylists
         .map((stylist) => stylist.leaveRequests)
-        .flat()
-        .filter((request) => request.stylist.toString() !== managerId); // Filter out manager's own requests
-
+        .flat();
+      // .filter((request) => request.stylist.toString() !== managerId); // Filter out manager's own requests
+      console.log("Leave requests found:", leaveRequests.length || 0);
       return res.status(200).json(leaveRequests);
     } catch (error) {
       console.log(error.message);

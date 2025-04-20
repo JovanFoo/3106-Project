@@ -424,11 +424,10 @@ const BranchController = {
       }
       const branchManager = await Stylist.findById(branch.manager);
       if (branchManager) {
-        branchManager.stylists = branchManager.stylists.filter((staff) => {
-          return staff.toString() != stylistId;
-        });
+        console.log(branchManager);
+        branchManager.stylists.push(stylist);
         await branchManager.save();
-        branch.stylists.push(stylistId);
+        branch.stylists.push(stylist);
         await branch.save();
       } else {
         branch.manager = stylistId;
