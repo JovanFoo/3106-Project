@@ -14,6 +14,15 @@ import "react-toastify/dist/ReactToastify.css";
 import ResetPassword from "./components/auth/resetpassword";
 import PastApptsPage from "./pages/PastApptsPage";
 
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_PROD;
+// const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
+// const config = {
+//   headers: {
+//     "Access-Control-Allow-Origin": "*",
+//     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+//   },
+// };
+
 export default function App() {
   return (
     <>
