@@ -6,7 +6,6 @@ import {
   CardContent,
   Chip,
   Container,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -564,8 +563,8 @@ const BarberLeaveManagement: React.FC = () => {
           </Stack>
         )}
 
-        <Dialog
-          open={withdrawDialogOpen}
+        <Modal
+          isOpen={withdrawDialogOpen}
           onClose={() => {
             setWithdrawDialogOpen(false);
             setSelectedRequestId(null);
@@ -595,7 +594,7 @@ const BarberLeaveManagement: React.FC = () => {
               Withdraw
             </Button>
           </DialogActions>
-        </Dialog>
+        </Modal>
       </Box>
     );
   };
@@ -883,16 +882,17 @@ const BarberLeaveManagement: React.FC = () => {
           </div>
         </Modal>
 
-        <Dialog
-          open={imageZoomOpen}
+        <Modal
+          isOpen={imageZoomOpen}
           onClose={() => setImageZoomOpen(false)}
-          maxWidth="md"
-          fullWidth
-          className="dark:bg-transparent dark:text-white"
+          // maxWidth="md"
+          // fullWidth
+          className=" dark:text-white w-fit h-fit max-h-[80vh] p-20 flex justify-center items-center"
         >
-          <DialogTitle>
-            Supporting Document
-            <IconButton
+          <div>
+            <DialogTitle>
+              Supporting Document
+              {/* <IconButton
               aria-label="close"
               onClick={() => setImageZoomOpen(false)}
               sx={{
@@ -902,24 +902,26 @@ const BarberLeaveManagement: React.FC = () => {
               }}
             >
               <CloseIcon />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent>
-            {zoomedImage && (
-              <Box
-                component="img"
-                src={zoomedImage}
-                alt="Supporting document"
-                sx={{
-                  width: "100%",
-                  height: "auto",
-                  maxHeight: "80vh",
-                  objectFit: "contain",
-                }}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
+            </IconButton> */}
+            </DialogTitle>
+            <DialogContent>
+              {zoomedImage && (
+                <Box
+                  component="img"
+                  src={zoomedImage}
+                  alt="Supporting document"
+                  sx={{
+                    height: "auto",
+                    width: "auto",
+                    maxWidth: "60vw",
+                    maxHeight: "70vh",
+                    objectFit: "contain",
+                  }}
+                />
+              )}
+            </DialogContent>
+          </div>
+        </Modal>
         <ToastContainer
           position="bottom-right"
           autoClose={3000}

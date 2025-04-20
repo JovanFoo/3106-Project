@@ -16,6 +16,7 @@ import {
   Chip,
   CircularProgress,
   Container,
+  DialogTitle,
   Divider,
   Grid,
   IconButton,
@@ -888,66 +889,41 @@ const LeaveManagement = (): ReactElement => {
         <Modal
           isOpen={imageZoomOpen}
           onClose={() => setImageZoomOpen(false)}
-          className="w-[70vw] h-[70vh] flex justify-center items-center"
-          // maxWidth={false}
-          // fullWidth
-          // PaperProps={{
-          //   sx: {
-          //     bgcolor: "transparent",
-          //     boxShadow: "none",
-          //     overflow: "hidden",
-          //   },
-          // }}
-          // sx={{
-          //   "& .MuiBackdrop-root": {
-          //     backdropFilter: "blur(8px)",
-          //     backgroundColor: "rgba(0, 0, 0, 0.8)",
-          //   },
-          // }}
+          className=" dark:text-white w-fit h-fit max-h-[80vh] p-20 flex justify-center items-center"
         >
-          {/* <Box
-            sx={{
-              position: "relative",
-              width: "100vw",
-              height: "100vh",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              p: 2,
-            }}
-          >
-            <IconButton
+          {zoomedImage && (
+            <div>
+              <DialogTitle>
+                Supporting Document
+                {/* <IconButton
+              aria-label="close"
               onClick={() => setImageZoomOpen(false)}
               sx={{
                 position: "absolute",
-                right: 16,
-                top: 16,
-                color: "white",
-                bgcolor: "rgba(0, 0, 0, 0.4)",
-                "&:hover": {
-                  bgcolor: "rgba(0, 0, 0, 0.6)",
-                },
+                right: 8,
+                top: 8,
               }}
             >
               <CloseIcon />
             </IconButton> */}
-          {zoomedImage && (
-            <Box
-              component="img"
-              src={zoomedImage}
-              alt="Supporting document"
-              sx={{
-                maxWidth: "90vw",
-                maxHeight: "90vh",
-                objectFit: "contain",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
-              onClick={(e) => {
-                // Prevent click from bubbling to backdrop
-                e.stopPropagation();
-              }}
-            />
+              </DialogTitle>
+              <Box
+                component="img"
+                src={zoomedImage}
+                alt="Supporting document"
+                sx={{
+                  height: "auto",
+                  width: "auto",
+                  maxWidth: "60vw",
+                  maxHeight: "70vh",
+                  objectFit: "contain",
+                }}
+                onClick={(e) => {
+                  // Prevent click from bubbling to backdrop
+                  e.stopPropagation();
+                }}
+              />
+            </div>
           )}
           {/* </Box> */}
         </Modal>
