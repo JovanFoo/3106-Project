@@ -3,7 +3,6 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import CloseIcon from "@mui/icons-material/Close";
 import EventIcon from "@mui/icons-material/Event";
 import {
   Alert,
@@ -17,7 +16,6 @@ import {
   Chip,
   CircularProgress,
   Container,
-  Dialog,
   Divider,
   Grid,
   IconButton,
@@ -38,6 +36,7 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useUser } from "../context/UserContext";
+import { Modal } from "../components/ui/modal";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -47,6 +46,7 @@ const api = axios.create({
   },
 });
 
+const api_address = import.meta.env.VITE_APP_API_ADDRESS_DEV;
 // Add request interceptor
 api.interceptors.request.use(
   (config) => {
@@ -209,64 +209,68 @@ const LeaveManagement = (): ReactElement => {
     if (!user._id) {
       user.loadUserContext();
     }
+    fetchStaff();
   }, [user._id]);
 
-  useEffect(() => {
-    const fetchLeaveRequests = async () => {
-      try {
-        setLoading(true);
-        const token = sessionStorage.getItem("token");
-        if (!token) {
-          window.location.href = "/signin";
-          return;
-        }
-
-        const leaveRequestsResponse = await api.get("/api/leave-requests");
-        let leaveRequestsData = leaveRequestsResponse.data;
-
-        const stylistsResponse = await api.get("/api/stylists");
-        const stylistsData = stylistsResponse.data.filter((x: any) =>
-          user.stylists.includes(x._id)
-        );
-
-        const stylistMap = stylistsData
-          .filter((x: any) => user.stylists.includes(x._id))
-          .reduce((acc: any, stylist: any) => {
-            acc[stylist._id] = stylist;
-            return acc;
-          }, {});
-        console.log("Stylists Data:", stylistsData);
-        console.log("Leave Requests Data:", leaveRequestsData);
-        console.log("User Stylists:", user.stylists);
-        console.log("Stylist Map:", stylistMap);
-        leaveRequestsData = leaveRequestsData
-          .filter((x: any) => user.stylists.includes(x.stylist))
-          .map((request: any) => ({
-            ...request,
-            reason: request.reason || "", // Use reason as is
-            stylist: stylistMap[request.stylist] || {
-              _id: request.stylist,
-              name: "Unknown",
-              email: "No email",
-            },
-          }));
-        console.log("Filtered Leave Requests Data:", leaveRequestsData);
-        setLeaveRequests(leaveRequestsData);
-        setStaff(stylistsData);
-        setLoading(false);
-      } catch (error: any) {
-        console.error("Error fetching data:", error);
-        if (error.response?.status === 401) {
-          setError("Your session has expired. Please sign in again.");
-          window.location.href = "/signin";
-        } else {
-          setError(error.response?.data?.message || "Failed to fetch data");
-        }
-      } finally {
-        setLoading(false);
+  const fetchLeaveRequests = async () => {
+    try {
+      setLoading(true);
+      const token = sessionStorage.getItem("token");
+      const config = {
+        headers: {
+          Authorization: sessionStorage.getItem("token"),
+        },
+      };
+      if (!token) {
+        window.location.href = "/signin";
+        return;
       }
-    };
 
+      const leaveRequestsResponse = await api.get("/api/leave-requests");
+      let leaveRequestsData = leaveRequestsResponse.data;
+
+      // const stylistsResponse = await api.get("/api/stylists");
+      const teamsResponse = await axios.get(`${api_address}/api/teams`, config);
+      const stylistsData = teamsResponse.data || [];
+
+      const stylistMap = stylistsData
+        // .filter((x: any) => user.stylists.includes(x._id))
+        .reduce((acc: any, stylist: any) => {
+          acc[stylist._id] = stylist;
+          return acc;
+        }, {});
+      // console.log("Stylists Data:", stylistsData);
+      // console.log("Leave Requests Data:", leaveRequestsData);
+      // console.log("User Stylists:", user.stylists);
+      // console.log("Stylist Map:", stylistMap);
+      leaveRequestsData = leaveRequestsData.map((request: any) => ({
+        ...request,
+        reason: request.reason || "", // Use reason as is
+        stylist: stylistMap[request.stylist] || {
+          _id: request.stylist,
+          name: "Unknown",
+          email: "No email",
+        },
+      }));
+      console.log("Filtered Leave Requests Data:", leaveRequestsData);
+      setLeaveRequests(leaveRequestsData);
+      setStaff(stylistsData);
+      setLoading(false);
+    } catch (error: any) {
+      console.error("Error fetching data:", error);
+      if (error.response?.status === 401) {
+        setError("Your session has expired. Please sign in again.");
+        window.location.href = "/signin";
+      } else {
+        setError(error.response?.data?.message || "Failed to fetch data");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStaff = async () => {};
+  useEffect(() => {
     fetchLeaveRequests();
   }, [user._id]);
 
@@ -881,26 +885,27 @@ const LeaveManagement = (): ReactElement => {
         </Grid>
 
         {/* Image Zoom Dialog */}
-        <Dialog
-          open={imageZoomOpen}
+        <Modal
+          isOpen={imageZoomOpen}
           onClose={() => setImageZoomOpen(false)}
-          maxWidth={false}
-          fullWidth
-          PaperProps={{
-            sx: {
-              bgcolor: "transparent",
-              boxShadow: "none",
-              overflow: "hidden",
-            },
-          }}
-          sx={{
-            "& .MuiBackdrop-root": {
-              backdropFilter: "blur(8px)",
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
-            },
-          }}
+          className="w-[70vw] h-[70vh] flex justify-center items-center"
+          // maxWidth={false}
+          // fullWidth
+          // PaperProps={{
+          //   sx: {
+          //     bgcolor: "transparent",
+          //     boxShadow: "none",
+          //     overflow: "hidden",
+          //   },
+          // }}
+          // sx={{
+          //   "& .MuiBackdrop-root": {
+          //     backdropFilter: "blur(8px)",
+          //     backgroundColor: "rgba(0, 0, 0, 0.8)",
+          //   },
+          // }}
         >
-          <Box
+          {/* <Box
             sx={{
               position: "relative",
               width: "100vw",
@@ -925,27 +930,27 @@ const LeaveManagement = (): ReactElement => {
               }}
             >
               <CloseIcon />
-            </IconButton>
-            {zoomedImage && (
-              <Box
-                component="img"
-                src={zoomedImage}
-                alt="Supporting document"
-                sx={{
-                  maxWidth: "90vw",
-                  maxHeight: "90vh",
-                  objectFit: "contain",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                }}
-                onClick={(e) => {
-                  // Prevent click from bubbling to backdrop
-                  e.stopPropagation();
-                }}
-              />
-            )}
-          </Box>
-        </Dialog>
+            </IconButton> */}
+          {zoomedImage && (
+            <Box
+              component="img"
+              src={zoomedImage}
+              alt="Supporting document"
+              sx={{
+                maxWidth: "90vw",
+                maxHeight: "90vh",
+                objectFit: "contain",
+                borderRadius: "8px",
+                cursor: "pointer",
+              }}
+              onClick={(e) => {
+                // Prevent click from bubbling to backdrop
+                e.stopPropagation();
+              }}
+            />
+          )}
+          {/* </Box> */}
+        </Modal>
         <ToastContainer
           position="bottom-right"
           autoClose={3000}
