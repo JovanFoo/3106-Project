@@ -1,4 +1,61 @@
-# 3106-Project Documentation
+# 💈 BuzzBook – Barber Booking System
+
+## 🏠 Home
+
+Welcome to **BuzzBook**, your all-in-one barber booking and management system.
+
+---
+
+## ✂️ Introduction
+
+**BuzzBook** is a web-based management platform built exclusively for barbershops, transforming the way appointments, teams, and operations are handled.
+
+From:
+- Seamless customer bookings  
+- Real-time stylist scheduling  
+- Streamlined leave approvals  
+- Centralized admin oversight  
+
+BuzzBook replaces:
+- Paper logs  
+- Chat-based coordination  
+- Outdated POS tools  
+
+With an all-in-one, intuitive system.
+
+Whether you're:
+- A **customer** booking a trim  
+- A **stylist** updating your profile  
+- A **manager** coordinating staff  
+- An **admin** overseeing branches  
+
+BuzzBook keeps everyone connected, informed, and in control.
+
+---
+
+## 🎯 Project Purpose
+
+Barbershops today face operational challenges:
+
+- Overlapping appointments  
+- Manual scheduling  
+- Disconnected communication  
+- Inflexible service setups  
+
+BuzzBook was created to solve these problems by:
+
+- Empowering each user role — customer, stylist, manager, admin — with tailored tools  
+- Eliminating errors and miscommunication through real-time updates and centralized data  
+- Enabling smarter decisions with visual leave planning, transaction tracking, and dynamic pricing  
+- Boosting customer retention via loyalty points and transparent review systems  
+- Supporting business growth with scalable, secure, and customizable multi-branch management  
+
+---
+
+Ultimately, **BuzzBook’s purpose** is to bring modern efficiency to barbershop operations — making every haircut, shift, and transaction seamless.
+
+
+# Documentation
 
 ### Contributors
 
